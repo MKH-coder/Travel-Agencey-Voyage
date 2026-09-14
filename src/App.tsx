@@ -76,20 +76,39 @@ function MainLayout() {
 
   // Fetch server-saved trips when user logs in
   useEffect(() => {
+    let isMounted = true;
     if (token) {
       fetch('/api/saved-trips', {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => (res.ok ? res.json() : null))
         .then((data) => {
+          if (!isMounted) return;
           const list = data?.savedListings || (Array.isArray(data) ? data : []);
           if (Array.isArray(list) && list.length > 0) {
             setSavedListings(list);
-            localStorage.setItem('voyage_saved_trips', JSON.stringify(list));
+            try {
+              localStorage.setItem('voyage_saved_trips', JSON.stringify(list));
+            } catch {
+              // ignore
+            }
           }
         })
-        .catch(err => console.error('Error fetching saved trips:', err));
+        .catch(() => {
+          if (!isMounted) return;
+          try {
+            const stored = localStorage.getItem('voyage_saved_trips');
+            if (stored) {
+              setSavedListings(JSON.parse(stored));
+            }
+          } catch {
+            // ignore
+          }
+        });
     }
+    return () => {
+      isMounted = false;
+    };
   }, [token]);
 
   // Save/Unsave bookmark with server synchronization when authenticated
@@ -123,8 +142,8 @@ function MainLayout() {
             body: JSON.stringify({ listingId: item.id })
           });
         }
-      } catch (err) {
-        console.error('Failed to sync saved listing with server:', err);
+      } catch {
+        // Fallback already saved in localStorage
       }
     }
   };
@@ -144,8 +163,8 @@ function MainLayout() {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` }
         });
-      } catch (err) {
-        console.error('Failed to remove saved listing from server:', err);
+      } catch {
+        // Fallback already removed from localStorage
       }
     }
   };
