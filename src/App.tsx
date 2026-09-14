@@ -10,6 +10,7 @@ import { LoginModal } from './components/LoginModal.tsx';
 import { AdminPortal } from './components/AdminPortal.tsx';
 import { MapView } from './components/MapView.tsx';
 import { Listing, FilterState } from './types.ts';
+import { DEFAULT_LISTINGS } from './data/defaultData.ts';
 import {
   Compass,
   Sparkles,
@@ -30,8 +31,8 @@ function MainLayout() {
 
   const [currentView, setCurrentView] = useState<'dashboard' | 'admin'>('dashboard');
   const [feedLayout, setFeedLayout] = useState<'split' | 'grid' | 'map'>('split');
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [listings, setListings] = useState<Listing[]>(DEFAULT_LISTINGS);
+  const [loading, setLoading] = useState(false);
   const [savedListings, setSavedListings] = useState<Listing[]>(() => {
     try {
       const stored = localStorage.getItem('voyage_saved_trips');
@@ -54,19 +55,18 @@ function MainLayout() {
     country: 'All Countries',
   });
 
-  // Fetch listings
+  // Fetch listings (with fallback to default listings on static GitHub Pages)
   const loadListings = async () => {
-    setLoading(true);
     try {
       const res = await fetch('/api/listings');
       if (res.ok) {
         const data = await res.json();
-        setListings(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setListings(data);
+        }
       }
     } catch (err) {
-      console.error('Failed to load listings:', err);
-    } finally {
-      setLoading(false);
+      console.warn('API listings not available, using built-in curated destinations:', err);
     }
   };
 
