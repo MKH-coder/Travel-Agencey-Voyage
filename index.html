@@ -4,6 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Travel Platform</title>
+    <script>
+      // Ensure GitHub Pages sub-path always ends with a slash so relative ./assets/ work properly
+      if (
+        window.location.pathname.length > 1 &&
+        !window.location.pathname.endsWith('/') &&
+        !window.location.pathname.split('/').pop().includes('.')
+      ) {
+        window.location.replace(
+          window.location.pathname + '/' + window.location.search + window.location.hash
+        );
+      }
+    </script>
     <meta name="description" content="Full-stack travel platform with multi-theme engine, destination & hotel explorer, content submission workflow, and tiered admin portal with 2FA and audit logs." />
     <meta property="og:title" content="Travel Platform" />
     <meta property="og:description" content="Full-stack travel platform with multi-theme engine, destination & hotel explorer, content submission workflow, and tiered admin portal with 2FA and audit logs." />
