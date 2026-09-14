@@ -983,6 +983,24 @@ async function startServer() {
     });
   });
 
+  // 15.5 Update User 2FA Settings
+  app.patch('/api/user/2fa', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    const { mfaEnabled } = req.body;
+    if (typeof mfaEnabled !== 'boolean') {
+      return res.status(400).json({ error: 'mfaEnabled must be a boolean' });
+    }
+
+    const updated = db.updateUserRole(authData.user.uid, authData.user.role);
+    if (updated) {
+      updated.mfaEnabled = mfaEnabled;
+    }
+    res.json({ success: true, mfaEnabled });
+  });
+
   // 16. Audit Logs: GET & POST
   app.get('/api/audit-logs', (req, res) => {
     const authData = extractUserOrSession(req);

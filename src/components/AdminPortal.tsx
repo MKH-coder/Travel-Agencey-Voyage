@@ -49,6 +49,9 @@ import { CloudSyncPanel } from './CloudSyncPanel.tsx';
 import { CustomPostCreatorModal } from './CustomPostCreatorModal.tsx';
 import { FirebaseConsoleModal } from './FirebaseConsoleModal.tsx';
 import { AuditVisualDashboard } from './AuditVisualDashboard.tsx';
+import { AuditLogViewer } from './AuditLogViewer.tsx';
+import { UserProfileModal } from './UserProfileModal.tsx';
+import { HighRiskAuditBanner } from './HighRiskAuditBanner.tsx';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 
 interface AdminPortalProps {
@@ -104,6 +107,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [showCustomPostModal, setShowCustomPostModal] = useState<boolean>(false);
   const [editingCustomPost, setEditingCustomPost] = useState<CustomPost | null>(null);
   const [showFirebaseConsoleModal, setShowFirebaseConsoleModal] = useState<boolean>(false);
+  const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [customPostsList, setCustomPostsList] = useState<CustomPost[]>([]);
 
   // User management search & filter
@@ -712,24 +716,47 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </div>
         </div>
 
-        {/* Inactivity Security Badge & Keep-Alive */}
-        <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-900 px-3.5 py-2 rounded-2xl border border-slate-200 dark:border-slate-800">
-          <div className="flex items-center gap-2 text-xs">
-            <Clock className="w-4 h-4 text-slate-400" />
-            <div>
-              <span className="text-[10px] text-slate-400 block uppercase font-mono">Session Timeout</span>
-              <span className="font-mono font-bold text-sky-500">{formatSec(sessionRemainingSec)}</span>
-            </div>
-          </div>
+        {/* Profile & 2FA Control Badge */}
+        <div className="flex items-center gap-3">
           <button
-            onClick={() => refreshSessionHealth()}
-            className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors ml-2"
-            title="Reset Inactivity Watchdog"
+            id="admin-profile-2fa-btn"
+            type="button"
+            onClick={() => setShowProfileModal(true)}
+            className={`px-3 py-2 rounded-2xl border ${styles.border} ${styles.cardBg} hover:opacity-90 transition-all flex items-center gap-2 text-xs font-semibold`}
+            title="Manage My Account Profile & 2FA Settings"
           >
-            <RotateCcw className="w-4 h-4" />
+            <ShieldCheck className={`w-4 h-4 ${user?.mfaEnabled ? 'text-emerald-500' : 'text-slate-400'}`} />
+            <span>2FA Security:</span>
+            <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${user?.mfaEnabled ? 'bg-emerald-500/20 text-emerald-500' : 'bg-slate-200 dark:bg-slate-800 text-slate-400'}`}>
+              {user?.mfaEnabled ? 'ENABLED' : 'DISABLED'}
+            </span>
           </button>
+
+          {/* Inactivity Security Badge & Keep-Alive */}
+          <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-900 px-3.5 py-2 rounded-2xl border border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-2 text-xs">
+              <Clock className="w-4 h-4 text-slate-400" />
+              <div>
+                <span className="text-[10px] text-slate-400 block uppercase font-mono">Session Timeout</span>
+                <span className="font-mono font-bold text-sky-500">{formatSec(sessionRemainingSec)}</span>
+              </div>
+            </div>
+            <button
+              onClick={() => refreshSessionHealth()}
+              className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors ml-2"
+              title="Reset Inactivity Watchdog"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* High-Risk Audit Action Notification Banner */}
+      <HighRiskAuditBanner
+        logs={auditLogs}
+        onViewAuditTrail={() => setActiveTab('logs')}
+      />
 
       {/* Admin Navigation Tabs */}
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-200/60 dark:border-slate-800 pb-3">
@@ -1757,7 +1784,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
       {/* --- TAB 5: Security Audit Logs (Tech Admin & Sub-Admin) --- */}
       {activeTab === 'logs' && isElevatedAdmin && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className={`text-lg font-bold ${styles.textPrimary}`}>
@@ -1767,137 +1794,23 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 Immutable security logs tracking logins, emergency bypass attempts, rate limiting, and administrative database writes.
               </p>
             </div>
-
-            {/* Filter by action and Download Audit Report */}
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-slate-400" />
-                <select
-                  value={logFilter}
-                  onChange={(e) => {
-                    setLogFilter(e.target.value);
-                    fetchLogs(e.target.value);
-                  }}
-                  className={`py-1.5 px-3 text-xs rounded-xl font-medium outline-none cursor-pointer ${styles.inputBg}`}
-                >
-                  <option value="ALL">All Event Types</option>
-                  <option value="TECH_ADMIN_LOGIN_SUCCESS">Admin Logins</option>
-                  <option value="EMERGENCY_BYPASS_ACTIVATED">Emergency Bypass</option>
-                  <option value="SUBMIT_PENDING_LISTING">Pending Submissions</option>
-                  <option value="APPROVE_LISTING">Listing Approvals</option>
-                  <option value="UPDATE_USER_ROLE">Role Changes</option>
-                  <option value="RATE_LIMIT_BLOCKED">Rate Limit Blocks</option>
-                </select>
-
-                <button
-                  onClick={() => fetchLogs(logFilter)}
-                  className={`p-1.5 rounded-xl ${styles.buttonSecondary}`}
-                  title="Refresh Logs"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Download Audit Report buttons */}
-              <div className="flex items-center gap-1.5 pl-2 border-l border-slate-200 dark:border-slate-800">
-                <button
-                  id="download-audit-csv-btn"
-                  type="button"
-                  onClick={downloadAuditLogsCsv}
-                  disabled={!auditLogs || auditLogs.length === 0}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                    auditLogs && auditLogs.length > 0
-                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30'
-                      : 'opacity-50 cursor-not-allowed border border-slate-200 dark:border-slate-800'
-                  }`}
-                  title="Export audit report as CSV file for compliance reporting"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>CSV Report</span>
-                </button>
-
-                <button
-                  id="download-audit-json-btn"
-                  type="button"
-                  onClick={downloadAuditLogsJson}
-                  disabled={!auditLogs || auditLogs.length === 0}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                    auditLogs && auditLogs.length > 0
-                      ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 border border-sky-500/30'
-                      : 'opacity-50 cursor-not-allowed border border-slate-200 dark:border-slate-800'
-                  }`}
-                  title="Export audit report as JSON file for compliance reporting"
-                >
-                  <FileJson className="w-3.5 h-3.5" />
-                  <span>JSON Report</span>
-                </button>
-              </div>
-            </div>
           </div>
 
           {/* Visual Recharts Analytics Dashboard */}
           <AuditVisualDashboard logs={auditLogs} />
 
-          <div className={`rounded-3xl border ${styles.border} ${styles.cardBg} overflow-hidden shadow-sm`}>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
-                  <tr>
-                    <th className="p-4">Timestamp</th>
-                    <th className="p-4">Security Action</th>
-                    <th className="p-4">Performed By</th>
-                    <th className="p-4">Target Resource</th>
-                    <th className="p-4">Client IP</th>
-                    <th className="p-4">Audit Details</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200/50 dark:divide-slate-800 font-mono text-[11px]">
-                  {auditLogs.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="p-8 text-center text-slate-400 font-sans">
-                        No audit logs recorded for this filter.
-                      </td>
-                    </tr>
-                  ) : (
-                    auditLogs.map(log => (
-                      <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
-                        <td className="p-4 text-slate-400 whitespace-nowrap">
-                          {new Date(log.timestamp).toLocaleTimeString()} <span className="text-[9px] opacity-70">{new Date(log.timestamp).toLocaleDateString()}</span>
-                        </td>
-                        <td className="p-4">
-                          <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              log.action.includes('BYPASS') || log.action.includes('BLOCKED')
-                                ? 'bg-rose-500/10 text-rose-500'
-                                : log.action.includes('APPROVE')
-                                ? 'bg-emerald-500/10 text-emerald-500'
-                                : log.action.includes('TECH_ADMIN')
-                                ? 'bg-amber-500/10 text-amber-500'
-                                : 'bg-sky-500/10 text-sky-500'
-                            }`}
-                          >
-                            {log.action}
-                          </span>
-                        </td>
-                        <td className="p-4 text-slate-600 dark:text-slate-300">
-                          {log.performedBy}
-                        </td>
-                        <td className="p-4 text-slate-400">
-                          {log.targetId}
-                        </td>
-                        <td className="p-4 text-slate-400">
-                          {log.ipAddress}
-                        </td>
-                        <td className="p-4 text-slate-500 font-sans text-[10px] max-w-xs truncate">
-                          {log.details ? JSON.stringify(log.details) : '—'}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          {/* Interactive AuditLogViewer Component */}
+          <AuditLogViewer
+            logs={auditLogs}
+            onRefresh={() => fetchLogs(logFilter)}
+            onExportCsv={downloadAuditLogsCsv}
+            onExportJson={downloadAuditLogsJson}
+            logFilter={logFilter}
+            onFilterChange={(newFilter) => {
+              setLogFilter(newFilter);
+              fetchLogs(newFilter);
+            }}
+          />
         </div>
       )}
 
@@ -2116,6 +2029,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           }}
         />
       )}
+
+      {/* --- USER PROFILE & 2FA MODAL --- */}
+      <UserProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+      />
 
     </div>
   );

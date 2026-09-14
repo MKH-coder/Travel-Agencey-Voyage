@@ -32,6 +32,7 @@ interface AuthContextValue {
   verify2FA: (code: string) => Promise<{ success: boolean; error?: string }>;
   verifyEmergencyBypass: (code: string, recoveryEmail?: string) => Promise<{ success: boolean; error?: string }>;
   verifyPasskey: (passkey: string) => Promise<boolean>;
+  toggle2FA: (enabled?: boolean) => Promise<{ success: boolean; mfaEnabled: boolean; error?: string }>;
   auditLog: (
     action: string,
     targetId: string,
@@ -482,6 +483,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return passkey === '2008-6058' || passkey === '20086058' || passkey === 'SEC-ROOT-TRAVEL-2026' || passkey === 'adminbypass';
   };
 
+  // Toggle Two-Factor Authentication (2FA) for current user
+  const toggle2FA = useCallback(
+    async (enabled?: boolean): Promise<{ success: boolean; mfaEnabled: boolean; error?: string }> => {
+      if (!user) {
+        return { success: false, mfaEnabled: false, error: 'User not authenticated' };
+      }
+
+      const nextState = enabled !== undefined ? enabled : !user.mfaEnabled;
+      const updatedUser: User = {
+        ...user,
+        mfaEnabled: nextState,
+      };
+
+      // Update state and local storage session
+      setUser(updatedUser);
+      localStorage.setItem('travel_user', JSON.stringify(updatedUser));
+      ClientStorageManager.saveUser(updatedUser);
+
+      // Backend sync
+      if (token) {
+        try {
+          await fetch('/api/user/2fa', {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ mfaEnabled: nextState }),
+          });
+        } catch {
+          // Fallback to local storage persistence
+        }
+      }
+
+      // Record audit action
+      AuditService.recordAction(
+        {
+          action: nextState ? 'ENABLE_2FA' : 'DISABLE_2FA',
+          targetId: user.uid,
+          targetType: 'USER_SECURITY',
+          performedBy: user.uid,
+          performedByEmail: user.email,
+          details: { mfaEnabled: nextState },
+        },
+        updatedUser,
+        token
+      );
+
+      return { success: true, mfaEnabled: nextState };
+    },
+    [user, token]
+  );
+
   // Record administrative audit log
   const auditLog = useCallback(
     async (
@@ -545,6 +599,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         verify2FA,
         verifyEmergencyBypass,
         verifyPasskey,
+        toggle2FA,
         auditLog,
         logout,
         refreshSessionHealth,

@@ -13,11 +13,13 @@ import {
   LogIn,
   Search,
   KeyRound,
-  LayoutDashboard
+  LayoutDashboard,
+  ShieldCheck
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { ThemeMode } from '../types.ts';
+import { UserProfileModal } from './UserProfileModal.tsx';
 
 interface HeaderProps {
   currentView: 'dashboard' | 'admin';
@@ -40,6 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
   const { user, logout, setShowLoginModal, setShowBypassModal, sessionRemainingSec } = useAuth();
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const themeOptions: { id: ThemeMode; label: string; icon: React.ReactNode; color: string }[] = [
     {
@@ -338,6 +341,23 @@ export const Header: React.FC<HeaderProps> = ({
                     )}
 
                     <button
+                      id="user-security-profile-btn"
+                      onClick={() => {
+                        setShowProfileModal(true);
+                        setShowUserMenu(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium ${styles.textSecondary} hover:${styles.bg}`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className={`w-4 h-4 ${user.mfaEnabled ? 'text-emerald-500' : 'text-slate-400'}`} />
+                        <span>Profile & 2FA Security</span>
+                      </div>
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${user.mfaEnabled ? 'bg-emerald-500/20 text-emerald-500' : 'bg-slate-200 dark:bg-slate-800 text-slate-400'}`}>
+                        {user.mfaEnabled ? '2FA ON' : '2FA OFF'}
+                      </span>
+                    </button>
+
+                    <button
                       onClick={() => {
                         setShowLoginModal(true);
                         setShowUserMenu(false);
@@ -386,6 +406,8 @@ export const Header: React.FC<HeaderProps> = ({
 
         </div>
       </div>
+
+      <UserProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />
     </header>
   );
 };
