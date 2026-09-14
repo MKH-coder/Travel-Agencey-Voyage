@@ -496,27 +496,33 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     }
   };
 
-  // Delete Listing (Tech Admin or Sub-Admin)
+  // Delete Listing (All Admins)
+  const canDeleteListing = (item: Listing) => {
+    if (isAdmin) return true;
+    if (user?.uid && item.createdBy === user.uid) return true;
+    if (user?.email && item.createdBy === user.email) return true;
+    const userPost = customPostsList.find(p => p.title === user?.customTitle);
+    if (userPost?.privileges?.includes('DELETE_LISTINGS')) return true;
+    return false;
+  };
+
   const handleDeleteListing = async (id: string) => {
+    if (!window.confirm('Are you sure you want to permanently delete this listing from the master catalog?')) {
+      return;
+    }
+    ClientStorageManager.deleteListing(id);
     try {
-      const res = await fetch(`/api/listings/${id}`, {
+      await fetch(`/api/listings/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (res.ok) {
-        await fetchListings();
-        if (isElevatedAdmin) fetchLogs();
-        if (onListingUpdated) onListingUpdated();
-        return;
-      }
     } catch {
       // Static fallback
     }
 
-    ClientStorageManager.deleteListing(id);
     ClientStorageManager.addAuditLog({
       action: 'DELETE_LISTING',
-      performedBy: user?.name || 'Super Admin',
+      performedBy: user?.name || user?.email || 'Admin',
       targetId: id,
       targetType: 'LISTING',
       ipAddress: '127.0.0.1'
@@ -1376,11 +1382,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                 <ExternalLink className="w-4 h-4" />
                               </button>
                             )}
-                            {isElevatedAdmin && (
+                            {canDeleteListing(item) && (
                               <button
                                 onClick={() => handleDeleteListing(item.id)}
                                 className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors"
-                                title="Delete Listing (Super Admin)"
+                                title="Delete Listing from Catalog"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>

@@ -659,24 +659,40 @@ async function startServer() {
     res.json(updated);
   });
 
-  // 13. Listings: DELETE - Requires TECH_ADMIN or TECH_SUBADMIN
+  // 13. Listings: DELETE - Allows ADMIN, TECH_SUBADMIN, TECH_ADMIN, listing owner, or holders of DELETE_LISTINGS privilege
   app.delete('/api/listings/:id', (req, res) => {
     const authData = extractUserOrSession(req);
-    const canDelete = authData?.user && (authData.user.role === 'TECH_ADMIN' || authData.user.role === 'TECH_SUBADMIN');
-    if (!canDelete) {
-      return res.status(403).json({ error: 'Technical Admin privilege required to remove listings.' });
-    }
-
     const listing = db.getListingById(req.params.id);
+
     if (!listing) {
       return res.status(404).json({ error: 'Listing not found.' });
+    }
+
+    if (!authData?.user) {
+      return res.status(401).json({ error: 'Authentication required to remove listings.' });
+    }
+
+    const allowedRoles = ['ADMIN', 'TECH_SUBADMIN', 'TECH_ADMIN'];
+    const customPosts = db.getCustomPosts();
+    const userPost = customPosts.find(p => p.title === authData.user?.customTitle);
+    const hasDeletePrivilege = userPost?.privileges?.includes('DELETE_LISTINGS');
+
+    const canDelete = (
+      allowedRoles.includes(authData.user.role) ||
+      listing.createdBy === authData.user.uid ||
+      listing.createdBy === authData.user.email ||
+      !!hasDeletePrivilege
+    );
+
+    if (!canDelete) {
+      return res.status(403).json({ error: 'Administrative privileges required to remove listings.' });
     }
 
     db.deleteListing(req.params.id);
 
     db.addAuditLog({
       action: 'DELETE_LISTING',
-      performedBy: authData.user.email,
+      performedBy: authData.user.email || 'Admin',
       targetId: req.params.id,
       targetType: 'LISTING',
       ipAddress: getClientIp(req),

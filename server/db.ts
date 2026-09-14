@@ -490,20 +490,13 @@ class Database {
           }
         }
 
-        // Ensure listings have coordinates
-        const listings: Listing[] = (parsed.listings?.length ? parsed.listings : INITIAL_LISTINGS).map((item: Listing) => {
+        // Ensure listings have coordinates applied if needed
+        const listings: Listing[] = (parsed.listings ? parsed.listings : INITIAL_LISTINGS).map((item: Listing) => {
           if (!item.coordinates && DEFAULT_COORDS_MAP[item.id]) {
             return { ...item, coordinates: DEFAULT_COORDS_MAP[item.id] };
           }
           return item;
         });
-
-        // Ensure newly added initial listings (like Tokyo and Como) exist if missing
-        for (const initListing of INITIAL_LISTINGS) {
-          if (!listings.some(l => l.id === initListing.id)) {
-            listings.push(initListing);
-          }
-        }
 
         const custom_posts = Array.isArray(parsed.custom_posts) && parsed.custom_posts.length > 0
           ? parsed.custom_posts

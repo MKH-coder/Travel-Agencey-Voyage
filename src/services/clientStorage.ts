@@ -298,12 +298,12 @@ export class ClientStorageManager {
   static getListings(): Listing[] {
     try {
       const data = localStorage.getItem(LISTINGS_STORAGE_KEY);
-      if (!data) {
+      if (data === null) {
         localStorage.setItem(LISTINGS_STORAGE_KEY, JSON.stringify(DEFAULT_LISTINGS));
         return DEFAULT_LISTINGS;
       }
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed;
       }
       return DEFAULT_LISTINGS;
