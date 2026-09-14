@@ -17,6 +17,7 @@ interface AuthContextValue {
   showBypassModal: boolean;
   sessionRemainingSec: number | null;
   isSessionExpired: boolean;
+  isNetworkOnline: boolean;
   setShowLoginModal: (show: boolean) => void;
   setShowBypassModal: (show: boolean) => void;
   setTwoFactorChallenge: (challenge: TwoFactorChallenge | null) => void;
@@ -44,6 +45,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [showBypassModal, setShowBypassModal] = useState<boolean>(false);
   const [sessionRemainingSec, setSessionRemainingSec] = useState<number | null>(null);
   const [isSessionExpired, setIsSessionExpired] = useState<boolean>(false);
+  const [isNetworkOnline, setIsNetworkOnline] = useState<boolean>(() => (typeof navigator !== 'undefined' ? navigator.onLine : true));
+
+  // Ref to track last user movement / interaction
+  const lastUserActivityRef = React.useRef<number>(Date.now());
 
   // Save/Clear local user cache
   const setAuthSession = useCallback((newUser: User | null, newToken: string | null) => {
@@ -52,8 +57,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (newUser && newToken) {
       localStorage.setItem('travel_user', JSON.stringify(newUser));
       localStorage.setItem('travel_token', newToken);
+      lastUserActivityRef.current = Date.now();
       if (newUser.role === 'ADMIN' || newUser.role === 'TECH_SUBADMIN' || newUser.role === 'TECH_ADMIN') {
-        setSessionRemainingSec(15 * 60);
+        // Idle allowance: 60 minutes without any user movement
+        setSessionRemainingSec(60 * 60);
       }
     } else {
       localStorage.removeItem('travel_user');
@@ -61,6 +68,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSessionRemainingSec(null);
     }
   }, []);
+
+  // Track user movements across entire window
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      lastUserActivityRef.current = Date.now();
+      // Keep session alive as long as user is interacting
+      if (token && user && (user.role === 'ADMIN' || user.role === 'TECH_SUBADMIN' || user.role === 'TECH_ADMIN')) {
+        setSessionRemainingSec(60 * 60);
+      }
+    };
+
+    const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'wheel', 'pointerdown'];
+    events.forEach(ev => window.addEventListener(ev, handleUserInteraction, { passive: true }));
+
+    const handleOnline = () => setIsNetworkOnline(true);
+    const handleOffline = () => {
+      setIsNetworkOnline(false);
+      // Immediately trigger session pause/expiry alert if network connection terminates
+      setIsSessionExpired(true);
+      setAuthSession(null, null);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      events.forEach(ev => window.removeEventListener(ev, handleUserInteraction));
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [token, user, setAuthSession]);
 
   const refreshSessionHealth = useCallback(async () => {
     if (!token) return;
@@ -71,35 +109,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
-        if (data.remainingMs) {
-          setSessionRemainingSec(Math.floor(data.remainingMs / 1000));
-        }
+        lastUserActivityRef.current = Date.now();
+        setSessionRemainingSec(60 * 60);
       } else if (res.status === 401) {
         setIsSessionExpired(true);
         setAuthSession(null, null);
       }
     } catch {
       // Offline / transient error
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        setIsNetworkOnline(false);
+      }
     }
   }, [token, setAuthSession]);
 
-  // Inactivity session timer countdown for Admins (15 minutes)
+  // Session timer check: ONLY times out if network disconnects or if there is zero user movement for 60 minutes
   useEffect(() => {
     if (!token || !user || (user.role !== 'ADMIN' && user.role !== 'TECH_SUBADMIN' && user.role !== 'TECH_ADMIN')) {
       return;
     }
 
     const interval = setInterval(() => {
-      setSessionRemainingSec(prev => {
-        if (prev === null) return 15 * 60;
-        if (prev <= 1) {
-          setIsSessionExpired(true);
-          setAuthSession(null, null);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+      // 1. Check network connectivity
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        setIsNetworkOnline(false);
+        setIsSessionExpired(true);
+        setAuthSession(null, null);
+        return;
+      }
+
+      // 2. Check time since last user movement
+      const idleMs = Date.now() - lastUserActivityRef.current;
+      const idleSec = Math.floor(idleMs / 1000);
+      const remainingSec = Math.max(0, 60 * 60 - idleSec);
+
+      setSessionRemainingSec(remainingSec);
+
+      // Only timeout if completely idle without any movement for 60 minutes
+      if (remainingSec <= 0) {
+        setIsSessionExpired(true);
+        setAuthSession(null, null);
+      }
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [token, user, setAuthSession]);
@@ -294,6 +345,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         showBypassModal,
         sessionRemainingSec,
         isSessionExpired,
+        isNetworkOnline,
         setShowLoginModal,
         setShowBypassModal,
         setTwoFactorChallenge,

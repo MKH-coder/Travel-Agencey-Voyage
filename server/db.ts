@@ -482,6 +482,16 @@ class Database {
     return user;
   }
 
+  deleteUser(uid: string): boolean {
+    const initialLen = this.data.users.length;
+    this.data.users = this.data.users.filter(u => u.uid !== uid);
+    if (this.data.users.length !== initialLen) {
+      this.writeToDisk(this.data);
+      return true;
+    }
+    return false;
+  }
+
   // Listings
   getListings(): Listing[] {
     return this.data.listings;

@@ -21,11 +21,24 @@ import {
   ChevronRight,
   Filter,
   Eye,
-  Trash2
+  Trash2,
+  MapPin,
+  UserPlus,
+  Pencil,
+  Cloud,
+  Utensils,
+  Compass,
+  Plus,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { Listing, User, AuditLog, ListingCategory, ListingStatus } from '../types.ts';
+import { MapLocationPicker, LocationResult } from './MapLocationPicker.tsx';
+import { AddAdminModal } from './AddAdminModal.tsx';
+import { EditContentModal } from './EditContentModal.tsx';
+import { CloudSyncPanel } from './CloudSyncPanel.tsx';
 
 interface AdminPortalProps {
   onListingUpdated?: () => void;
@@ -45,7 +58,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const isAdmin = user?.role === 'ADMIN' || isElevatedAdmin;
 
   // Active sub-tab
-  const [activeTab, setActiveTab] = useState<'create' | 'inventory' | 'queue' | 'users' | 'logs'>(
+  const [activeTab, setActiveTab] = useState<'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud'>(
     isElevatedAdmin ? 'queue' : 'inventory'
   );
 
@@ -61,6 +74,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [logFilter, setLogFilter] = useState('ALL');
   const [loadingLogs, setLoadingLogs] = useState(false);
+
+  // Map & Location auto-detector state
+  const [showMapPicker, setShowMapPicker] = useState<boolean>(false);
+  const [selectedCoordinates, setSelectedCoordinates] = useState<{ lat: number; lng: number } | undefined>(undefined);
+  
+  // Super Admin posting privilege toggle
+  const [postAsSuperAdmin, setPostAsSuperAdmin] = useState<boolean>(isElevatedAdmin);
+
+  // Multiple photos state for listing creation
+  const [additionalPhotos, setAdditionalPhotos] = useState<string[]>([]);
+  const [newPhotoInput, setNewPhotoInput] = useState<string>('');
+
+  // Modals for admin operations
+  const [showAddAdminModal, setShowAddAdminModal] = useState<boolean>(false);
+  const [editingContentListing, setEditingContentListing] = useState<Listing | null>(null);
 
   // Form State for creating a listing
   const [formData, setFormData] = useState({
@@ -198,9 +226,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     setFormSuccessMessage('');
 
     try {
-      const imageToUse = formData.imageUrl || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80';
+      const allImages = [
+        ...(formData.imageUrl ? [formData.imageUrl.trim()] : []),
+        ...additionalPhotos,
+      ];
+      const imagesToUse = allImages.length > 0 
+        ? allImages 
+        : ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80'];
+
       const tagsArray = formData.tags.split(',').map(t => t.trim()).filter(Boolean);
       const amenitiesArray = formData.amenities.split(',').map(a => a.trim()).filter(Boolean);
+
+      const effectiveStatus = (isElevatedAdmin && postAsSuperAdmin) ? 'PUBLISHED' : targetStatus;
 
       const res = await fetch('/api/listings', {
         method: 'POST',
@@ -215,10 +252,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           location: formData.location,
           country: formData.country,
           description: formData.description,
-          images: [imageToUse],
+          images: imagesToUse,
           tags: tagsArray,
           amenities: amenitiesArray,
-          status: targetStatus,
+          status: effectiveStatus,
+          coordinates: selectedCoordinates,
+          postAsSuperAdmin: isElevatedAdmin && postAsSuperAdmin,
         }),
       });
 
@@ -227,10 +266,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         setUploadError(data.error || 'Failed to submit inventory item.');
       } else {
         setFormSuccessMessage(
-          targetStatus === 'PENDING_APPROVAL'
+          effectiveStatus === 'PENDING_APPROVAL'
             ? 'Listing successfully submitted to Technical Super Admin Queue for verification!'
-            : targetStatus === 'PUBLISHED'
-            ? 'Listing published directly to public explorer!'
+            : effectiveStatus === 'PUBLISHED'
+            ? 'Listing published directly to public explorer with Super Admin Privilege & Verified Badge!'
             : 'Draft saved to your inventory tracker.'
         );
         // Reset form
@@ -245,6 +284,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           tags: 'Romantic, Scenic, Historic',
           amenities: 'Guided Walking Tour, Audio Headsets, Panoramic Overlook',
         });
+        setAdditionalPhotos([]);
+        setNewPhotoInput('');
+        setSelectedCoordinates(undefined);
+        setShowMapPicker(false);
         setUploadPreview(null);
         fetchListings();
         if (onListingUpdated) onListingUpdated();
@@ -335,6 +378,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ role: nextRole }),
+      });
+      if (res.ok) {
+        fetchUsers();
+        fetchLogs();
+      }
+    });
+  };
+
+  // Delete user (Tech Super Admin option)
+  const handleDeleteUser = (targetUserId: string, targetEmail: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete user account ${targetEmail}?`)) {
+      return;
+    }
+    executeWithPasskey(async () => {
+      const res = await fetch(`/api/users/${targetUserId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (res.ok) {
         fetchUsers();
@@ -514,6 +576,22 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             <span>Security Audit Logs</span>
           </button>
         )}
+
+        {/* Cloud & GitHub Sync (mukundkrishna.h@gmail.com) */}
+        {isElevatedAdmin && (
+          <button
+            id="tab-admin-cloud"
+            onClick={() => setActiveTab('cloud')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'cloud'
+                ? `${styles.accent} text-white shadow-md`
+                : `${styles.buttonSecondary}`
+            }`}
+          >
+            <Cloud className="w-4 h-4 text-sky-400" />
+            <span>Cloud & GitHub Sync</span>
+          </button>
+        )}
       </div>
 
       {/* --- TAB 1: Verification Queue (Tech Admin & Sub-Admin) --- */}
@@ -641,6 +719,85 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </div>
           )}
 
+          {/* Super Admin Privilege Toggle */}
+          {isElevatedAdmin && (
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className={`text-xs font-bold ${styles.textPrimary} flex items-center gap-1.5`}>
+                    <span>Post with Super Admin Privilege</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 font-extrabold uppercase tracking-wide">
+                      Instant Live
+                    </span>
+                  </div>
+                  <p className={`text-[11px] ${styles.textMuted} mt-0.5`}>
+                    Bypasses standard queue, applies verified golden crown badge, and directly publishes to the public feed.
+                  </p>
+                </div>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={postAsSuperAdmin}
+                  onChange={(e) => setPostAsSuperAdmin(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+              </label>
+            </div>
+          )}
+
+          {/* Interactive Map & Restaurant Location Auto-Detector */}
+          <div className="p-4 rounded-2xl border border-rose-500/20 bg-rose-500/5 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Compass className="w-4 h-4 text-rose-500" />
+                <span className={`text-xs font-bold ${styles.textPrimary}`}>
+                  Interactive Map & Restaurant Location Auto-Detector
+                </span>
+                {selectedCoordinates && (
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                    📍 {selectedCoordinates.lat.toFixed(4)}, {selectedCoordinates.lng.toFixed(4)}
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowMapPicker(prev => !prev)}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold text-rose-500 hover:text-white hover:bg-rose-500 border border-rose-500/30 transition-all flex items-center gap-1.5 self-start sm:self-auto"
+              >
+                <MapPin className="w-3.5 h-3.5" />
+                <span>{showMapPicker ? 'Close Map Picker' : '🗺️ Open Map & Pick Restaurant'}</span>
+              </button>
+            </div>
+
+            {showMapPicker && (
+              <div className="pt-2 animate-in fade-in">
+                <MapLocationPicker
+                  initialCoordinates={selectedCoordinates || { lat: 35.6719, lng: 139.7640 }}
+                  initialLocation={formData.location}
+                  onSelectLocation={(res: LocationResult) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      location: res.location,
+                      country: res.country,
+                      title: prev.title.trim() ? prev.title : (res.suggestedTitle || prev.title),
+                      category: res.category || prev.category,
+                      tags: res.tags ? res.tags.join(', ') : prev.tags,
+                      amenities: res.diningSpecialties ? res.diningSpecialties.join(', ') : prev.amenities,
+                    }));
+                    setSelectedCoordinates(res.coordinates);
+                    setShowMapPicker(false);
+                  }}
+                  onClose={() => setShowMapPicker(false)}
+                />
+              </div>
+            )}
+          </div>
+
           <div className="space-y-4">
             
             {/* Category & Title */}
@@ -766,7 +923,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   type="url"
                   value={formData.imageUrl}
                   onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-                  placeholder="https://images.unsplash.com/photo-..."
+                  placeholder="Primary Photo URL (https://images.unsplash.com/...)"
                   className={`w-full p-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
                 />
 
@@ -780,6 +937,62 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     className="hidden"
                   />
                 </label>
+              </div>
+
+              {/* Additional Photos for Listing */}
+              <div className="mt-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    Additional Photos ({additionalPhotos.length})
+                  </span>
+                  <span className="text-[10px] text-slate-400">Add URLs to create a photo carousel</span>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={newPhotoInput}
+                    onChange={(e) => setNewPhotoInput(e.target.value)}
+                    placeholder="https://images.unsplash.com/..."
+                    className={`flex-1 p-2 text-xs rounded-xl outline-none ${styles.inputBg}`}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newPhotoInput.trim()) {
+                        e.preventDefault();
+                        setAdditionalPhotos(prev => [...prev, newPhotoInput.trim()]);
+                        setNewPhotoInput('');
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (newPhotoInput.trim()) {
+                        setAdditionalPhotos(prev => [...prev, newPhotoInput.trim()]);
+                        setNewPhotoInput('');
+                      }
+                    }}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold ${styles.buttonSecondary} flex items-center gap-1`}
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Photo</span>
+                  </button>
+                </div>
+
+                {additionalPhotos.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {additionalPhotos.map((url, idx) => (
+                      <div key={idx} className="relative group w-20 h-14 rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700">
+                        <img src={url} alt={`Extra photo ${idx + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setAdditionalPhotos(prev => prev.filter((_, i) => i !== idx))}
+                          className="absolute inset-0 bg-black/60 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {uploadPreview && (
@@ -804,7 +1017,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               Save as Draft
             </button>
 
-            {isTechAdmin ? (
+            {isElevatedAdmin && postAsSuperAdmin ? (
+              <button
+                id="publish-direct-btn"
+                type="button"
+                disabled={isSubmittingListing}
+                onClick={() => handleSubmitListing('PUBLISHED')}
+                className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md flex items-center gap-1.5 transition-all"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>Publish with Super Admin Privilege</span>
+              </button>
+            ) : isTechAdmin ? (
               <button
                 id="publish-direct-btn"
                 type="button"
@@ -932,6 +1156,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                 Submit
                               </button>
                             )}
+                            {/* Option for ALL admins to add new photo and description */}
+                            <button
+                              onClick={() => setEditingContentListing(item)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 transition-colors"
+                              title="Edit Photos & Description"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+
                             {item.status === 'PUBLISHED' && onNavigateExplore && (
                               <button
                                 onClick={onNavigateExplore}
@@ -945,7 +1178,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                               <button
                                 onClick={() => handleDeleteListing(item.id)}
                                 className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors"
-                                title="Delete Listing"
+                                title="Delete Listing (Super Admin)"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -974,13 +1207,23 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 Manage system roles, grant or revoke Standard Admin privileges, and inspect MFA security status.
               </p>
             </div>
-            <button
-              onClick={fetchUsers}
-              className={`p-2 rounded-xl text-xs font-semibold ${styles.buttonSecondary} flex items-center gap-1.5`}
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Refresh Users</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                id="add-new-admin-btn"
+                onClick={() => setShowAddAdminModal(true)}
+                className={`px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary} shadow-md flex items-center gap-1.5`}
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Add New Admin</span>
+              </button>
+              <button
+                onClick={fetchUsers}
+                className={`p-2 rounded-xl text-xs font-semibold ${styles.buttonSecondary} flex items-center gap-1.5`}
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Refresh Users</span>
+              </button>
+            </div>
           </div>
 
           <div className={`rounded-3xl border ${styles.border} ${styles.cardBg} overflow-hidden shadow-sm`}>
@@ -992,7 +1235,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     <th className="p-4">Phone / MFA</th>
                     <th className="p-4">Current Role</th>
                     <th className="p-4">Recovery Email</th>
-                    <th className="p-4 text-right">Privilege Action</th>
+                    <th className="p-4 text-right">Privilege & Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200/50 dark:divide-slate-800">
@@ -1019,6 +1262,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
                           u.role === 'TECH_ADMIN'
                             ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30 font-extrabold'
+                            : u.role === 'TECH_SUBADMIN'
+                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30 font-bold'
                             : u.role === 'ADMIN'
                             ? 'bg-sky-500/20 text-sky-500 border border-sky-500/30'
                             : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
@@ -1030,23 +1275,35 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                         {u.recoveryEmail || 'None configured'}
                       </td>
                       <td className="p-4 text-right">
-                        {u.role === 'TECH_ADMIN' ? (
-                          <span className="text-[10px] font-semibold text-amber-500 flex items-center justify-end gap-1">
-                            <ShieldCheck className="w-3.5 h-3.5" />
-                            <span>Root Protected</span>
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => handleToggleUserRole(u)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                              u.role === 'ADMIN'
-                                ? 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border border-rose-500/30'
-                                : 'bg-sky-500 text-white hover:bg-sky-400'
-                            }`}
-                          >
-                            {u.role === 'ADMIN' ? 'Revoke Admin' : 'Promote to Admin'}
-                          </button>
-                        )}
+                        <div className="flex items-center justify-end gap-2">
+                          {u.role === 'TECH_ADMIN' ? (
+                            <span className="text-[10px] font-semibold text-amber-500 flex items-center justify-end gap-1">
+                              <ShieldCheck className="w-3.5 h-3.5" />
+                              <span>Root Protected</span>
+                            </span>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleToggleUserRole(u)}
+                                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                                  u.role === 'ADMIN' || u.role === 'TECH_SUBADMIN'
+                                    ? 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border border-rose-500/30'
+                                    : 'bg-sky-500 text-white hover:bg-sky-400'
+                                }`}
+                              >
+                                {u.role === 'ADMIN' || u.role === 'TECH_SUBADMIN' ? 'Revoke Admin' : 'Promote to Admin'}
+                              </button>
+
+                              <button
+                                onClick={() => handleDeleteUser(u.uid, u.email)}
+                                className="p-1.5 rounded-xl text-rose-500 hover:bg-rose-500/10 border border-rose-500/20 hover:border-rose-500/40 transition-colors"
+                                title="Delete User (Super Admin)"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}

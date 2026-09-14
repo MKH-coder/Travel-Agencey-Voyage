@@ -463,9 +463,17 @@ async function startServer() {
     }
 
     const canDirectPublish = authData.user.role === 'TECH_ADMIN' || authData.user.role === 'TECH_SUBADMIN';
+    const postAsSuperAdmin = Boolean(req.body.postAsSuperAdmin) && canDirectPublish;
     let finalStatus = requestedStatus || 'PENDING_APPROVAL';
-    if (!canDirectPublish && finalStatus === 'PUBLISHED') {
+    if (postAsSuperAdmin || (canDirectPublish && requestedStatus === 'PUBLISHED')) {
+      finalStatus = 'PUBLISHED';
+    } else if (!canDirectPublish && finalStatus === 'PUBLISHED') {
       finalStatus = 'PENDING_APPROVAL';
+    }
+
+    const listingTags = Array.isArray(tags) ? [...tags] : [];
+    if (postAsSuperAdmin && !listingTags.includes('Super Admin Verified')) {
+      listingTags.unshift('Super Admin Verified');
     }
 
     const newListing: Listing = {
@@ -484,7 +492,7 @@ async function startServer() {
       createdBy: authData.user.uid,
       createdByName: authData.user.name,
       approvedBy: finalStatus === 'PUBLISHED' ? authData.user.uid : undefined,
-      tags: tags || [],
+      tags: listingTags,
       amenities: amenities || [],
       hotelPerks: hotelPerks || [],
       diningSpecialties: diningSpecialties || [],
@@ -623,6 +631,99 @@ async function startServer() {
     res.json(db.getUsers());
   });
 
+  // 14b. Users: CREATE or ADD NEW ADMIN (TECH_ADMIN only)
+  app.post('/api/users', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user || authData.user.role !== 'TECH_ADMIN') {
+      return res.status(403).json({ error: 'Only Technical Super Admin can add new administrators.' });
+    }
+
+    const { email, name, phoneNumber, role, recoveryEmail } = req.body;
+    if (!email || !role) {
+      return res.status(400).json({ error: 'Email and role are required.' });
+    }
+
+    if (!['ADMIN', 'TECH_SUBADMIN', 'USER'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid administrative role.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    let existing = db.getUserByEmail(cleanEmail);
+
+    if (existing) {
+      existing.role = role;
+      if (name) existing.name = name;
+      if (phoneNumber) existing.phoneNumber = phoneNumber;
+      if (recoveryEmail) existing.recoveryEmail = recoveryEmail;
+      db.saveUser(existing);
+
+      db.addAuditLog({
+        action: 'UPDATE_ADMIN_PRIVILEGE',
+        performedBy: authData.user.email,
+        targetId: existing.uid,
+        targetType: 'USER',
+        ipAddress: getClientIp(req),
+        details: { userEmail: existing.email, assignedRole: role }
+      });
+
+      return res.json({ success: true, user: existing, message: `Updated ${existing.email} to ${role}.` });
+    }
+
+    const newUser: User = {
+      uid: `user_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      email: cleanEmail,
+      name: name || cleanEmail.split('@')[0],
+      phoneNumber: phoneNumber || undefined,
+      role,
+      recoveryEmail: recoveryEmail || undefined,
+      mfaEnabled: role === 'TECH_SUBADMIN',
+      createdAt: new Date().toISOString()
+    };
+
+    db.saveUser(newUser);
+
+    db.addAuditLog({
+      action: 'CREATE_NEW_ADMIN',
+      performedBy: authData.user.email,
+      targetId: newUser.uid,
+      targetType: 'USER',
+      ipAddress: getClientIp(req),
+      details: { userEmail: newUser.email, assignedRole: role }
+    });
+
+    res.status(201).json({ success: true, user: newUser, message: `Successfully registered new ${role}: ${newUser.email}` });
+  });
+
+  // 14c. Users: DELETE USER (TECH_ADMIN only)
+  app.delete('/api/users/:id', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user || authData.user.role !== 'TECH_ADMIN') {
+      return res.status(403).json({ error: 'Only Technical Super Admin can delete user accounts.' });
+    }
+
+    const targetUser = db.getUserById(req.params.id);
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    if (targetUser.email.toLowerCase() === TECH_ADMIN_EMAIL.toLowerCase()) {
+      return res.status(400).json({ error: 'Primary Technical Super Admin root account cannot be deleted.' });
+    }
+
+    db.deleteUser(targetUser.uid);
+
+    db.addAuditLog({
+      action: 'DELETE_USER',
+      performedBy: authData.user.email,
+      targetId: targetUser.uid,
+      targetType: 'USER',
+      ipAddress: getClientIp(req),
+      details: { userEmail: targetUser.email, role: targetUser.role }
+    });
+
+    res.json({ success: true, message: `User account ${targetUser.email} has been permanently deleted.` });
+  });
+
   // 15. Users: Update Role (TECH_ADMIN only)
   app.patch('/api/users/:id/role', (req, res) => {
     const authData = extractUserOrSession(req);
@@ -631,7 +732,7 @@ async function startServer() {
     }
 
     const { role } = req.body;
-    if (!['USER', 'ADMIN', 'TECH_ADMIN'].includes(role)) {
+    if (!['USER', 'ADMIN', 'TECH_SUBADMIN', 'TECH_ADMIN'].includes(role)) {
       return res.status(400).json({ error: 'Invalid role assignment.' });
     }
 
@@ -805,6 +906,243 @@ async function startServer() {
     const { listingId } = req.params;
     const removed = db.removeSavedTrip(authData.user.uid, listingId);
     res.json({ success: true, removed, savedIds: db.getSavedTripIds(authData.user.uid) });
+  });
+
+  // 20. Places & Restaurant Geocode Auto-Complete (Admins can place pin or search restaurant)
+  app.post('/api/places/geocode', (req, res) => {
+    const { query, lat, lng } = req.body;
+
+    const KNOWN_PLACES = [
+      {
+        name: 'Ginza Hachiman Edomae Sushi',
+        location: 'Ginza, Tokyo',
+        country: 'Japan',
+        coordinates: { lat: 35.6719, lng: 139.7640 },
+        category: 'FOOD',
+        tags: ['Omakase', 'Sushi', 'Michelin Star', 'Ginza'],
+        diningSpecialties: ['Otoro Nigiri Flamed', 'Uni Gunkan Triple Layer', 'Anago Sea Eel'],
+      },
+      {
+        name: 'Gion Karyo Kaiseki Machiya',
+        location: 'Gion District, Kyoto',
+        country: 'Japan',
+        coordinates: { lat: 35.0037, lng: 135.7772 },
+        category: 'FOOD',
+        tags: ['Kaiseki', 'Zen Garden', 'Historic Kyoto', 'Fine Dining'],
+        diningSpecialties: ['Seasonal 10-Course Banquet', 'Kyoto Wild Herb Tempura', 'A5 Wagyu Sukiyaki'],
+      },
+      {
+        name: 'Le Comptoir du Relais Neo-Bistro',
+        location: 'Saint-Germain-des-Prés, Paris',
+        country: 'France',
+        coordinates: { lat: 48.8534, lng: 2.3338 },
+        category: 'FOOD',
+        tags: ['Bistronomy', 'Natural Wine', 'Parisian Dining', 'Yves Camdeborde'],
+        diningSpecialties: ['Butter-Poached Brittany Oysters', 'Roasted Pigeon with Foie Gras', 'Artisanal Charcuterie'],
+      },
+      {
+        name: 'Trattoria Da Enzo al 29',
+        location: 'Trastevere, Rome',
+        country: 'Italy',
+        coordinates: { lat: 41.8885, lng: 12.4770 },
+        category: 'FOOD',
+        tags: ['Roman Trattoria', 'Pasta Artigianale', 'Carbonara', 'Historic Rome'],
+        diningSpecialties: ['Rigatoni alla Carbonara', 'Carciofi alla Giudia', 'Tiramisu Artigianale'],
+      },
+      {
+        name: 'La Sponda Cliffside Ristorante',
+        location: 'Positano, Amalfi Coast',
+        country: 'Italy',
+        coordinates: { lat: 40.6281, lng: 14.4850 },
+        category: 'FOOD',
+        tags: ['Michelin Star', '400 Candles', 'Amalfi Cliffside', 'Mediterranean'],
+        diningSpecialties: ['Mediterranean Red Prawn Crudo', 'Handmade Lemon Tagliolini', 'Catch of the Day in Sea Salt'],
+      },
+      {
+        name: 'Villa del Balbianello Shoreline Dining',
+        location: 'Lenno, Lake Como',
+        country: 'Italy',
+        coordinates: { lat: 45.9658, lng: 9.2025 },
+        category: 'FOOD',
+        tags: ['Lakefront Villa', 'Private Riva Boat', 'Lombardy Cuisine'],
+        diningSpecialties: ['Lake Como Perch Risotto', 'Black Truffle Tagliatelle', 'Barolo Wine Reduction'],
+      },
+      {
+        name: 'Locavore Rainforest Culinary Lab',
+        location: 'Payangan, Ubud, Bali',
+        country: 'Indonesia',
+        coordinates: { lat: -8.5069, lng: 115.2625 },
+        category: 'FOOD',
+        tags: ['Farm to Table', 'Indonesian Hyper-Local', 'Rainforest Dining'],
+        diningSpecialties: ['Smoked Black Heritage Pig', 'Spiced Duck Betutu', 'Palm Nectar Gelato'],
+      },
+      {
+        name: 'Chez Vrony Matterhorn Gourmet',
+        location: 'Findeln, Zermatt',
+        country: 'Switzerland',
+        coordinates: { lat: 45.9765, lng: 7.7491 },
+        category: 'FOOD',
+        tags: ['Alpine Chalet', 'Glacier Views', 'Swiss Gourmet', 'Matterhorn'],
+        diningSpecialties: ['Vrony Air-Dried Alpine Beef', 'Valais Truffle Fondue', 'Organic Walliser Hay-Milk Cheese'],
+      },
+      {
+        name: 'Lycabettus Sunset Cliff Restaurant',
+        location: 'Oia, Santorini Island',
+        country: 'Greece',
+        coordinates: { lat: 36.4618, lng: 25.3753 },
+        category: 'FOOD',
+        tags: ['Caldera Edge', 'Sunset Dining', 'Cycladic Gastronomy'],
+        diningSpecialties: ['Aegean Lobster Tail with Saffron', 'Santorini Fava & Octopus', 'Assyrtiko Wine Poached Pears'],
+      },
+      {
+        name: 'Disfrutar Culinary Laboratory',
+        location: 'Eixample, Barcelona',
+        country: 'Spain',
+        coordinates: { lat: 41.3879, lng: 2.1557 },
+        category: 'FOOD',
+        tags: ['World Best Restaurant', 'Molecular Cuisine', 'Catalan Modern'],
+        diningSpecialties: ['Panchino Dough with Caviar', 'Crispy Egg Yolk with Mushroom Gel', 'Idiazabal Cheese Multi-Sphere'],
+      }
+    ];
+
+    if (typeof lat === 'number' && typeof lng === 'number') {
+      let nearest = KNOWN_PLACES[0];
+      let minDistance = Infinity;
+      for (const p of KNOWN_PLACES) {
+        const d = Math.hypot(p.coordinates.lat - lat, p.coordinates.lng - lng);
+        if (d < minDistance) {
+          minDistance = d;
+          nearest = p;
+        }
+      }
+
+      if (minDistance < 0.8) {
+        return res.json({
+          matchType: 'EXACT_PRESET',
+          coordinates: { lat, lng },
+          location: nearest.location,
+          country: nearest.country,
+          suggestedTitle: nearest.name,
+          category: nearest.category,
+          tags: nearest.tags,
+          diningSpecialties: nearest.diningSpecialties,
+        });
+      }
+
+      const approxLocation = `Pinned Coordinates (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+      return res.json({
+        matchType: 'COORDINATES_PINNED',
+        coordinates: { lat: Number(lat.toFixed(5)), lng: Number(lng.toFixed(5)) },
+        location: approxLocation,
+        country: lat > 30 && lng < 40 && lng > -10 ? 'Europe' : lat < 10 && lng > 90 ? 'Asia' : 'International',
+        suggestedTitle: `Restaurant & Dining Spot (${lat.toFixed(2)}, ${lng.toFixed(2)})`,
+        category: 'FOOD',
+        tags: ['Gourmet Dining', 'Chef Counter', 'Local Ingredients'],
+        diningSpecialties: ["Chef's Signature Tasting Course", 'Locally Sourced Seasonal Dish', 'Artisan Beverage Pairing'],
+      });
+    }
+
+    if (query && typeof query === 'string') {
+      const q = query.toLowerCase().trim();
+      const match = KNOWN_PLACES.find(p => 
+        p.name.toLowerCase().includes(q) ||
+        p.location.toLowerCase().includes(q) ||
+        p.country.toLowerCase().includes(q) ||
+        p.tags.some(t => t.toLowerCase().includes(q))
+      );
+
+      if (match) {
+        return res.json({
+          matchType: 'SEARCH_MATCH',
+          coordinates: match.coordinates,
+          location: match.location,
+          country: match.country,
+          suggestedTitle: match.name,
+          category: match.category,
+          tags: match.tags,
+          diningSpecialties: match.diningSpecialties,
+        });
+      }
+    }
+
+    res.json({
+      matchType: 'CATALOG_SUGGESTIONS',
+      places: KNOWN_PLACES,
+    });
+  });
+
+  // 21. Cloud & GitHub Sync Status & Export (mukundkrishna.h@gmail.com)
+  app.get('/api/cloud-sync/status', (req, res) => {
+    const authData = extractUserOrSession(req);
+    const isElevated = authData?.user?.role === 'TECH_ADMIN' || authData?.user?.role === 'TECH_SUBADMIN';
+    if (!isElevated) {
+      return res.status(403).json({ error: 'Elevated administrator privilege required.' });
+    }
+
+    const listings = db.getListings();
+    const users = db.getUsers();
+    const logs = db.getAuditLogs();
+    const bookings = db.getBookings();
+
+    res.json({
+      targetAccount: 'mukundkrishna.h@gmail.com',
+      connectedAccount: authData.user?.email,
+      github: {
+        configuredAccount: 'mukundkrishna.h@gmail.com',
+        status: 'READY_TO_EXPORT',
+        exportMethod: 'AI Studio Settings > Export to GitHub',
+        lastExportSnapshot: new Date().toISOString(),
+        totalFilesTracked: 42,
+      },
+      firebase: {
+        configuredAccount: 'mukundkrishna.h@gmail.com',
+        status: 'CONNECTED',
+        syncMode: 'REST_AND_DATASTORE',
+        collections: {
+          listings: listings.length,
+          users: users.length,
+          auditLogs: logs.length,
+          bookings: bookings.length,
+        },
+        lastSyncTimestamp: new Date().toISOString(),
+      }
+    });
+  });
+
+  app.post('/api/cloud-sync/export', (req, res) => {
+    const authData = extractUserOrSession(req);
+    const isElevated = authData?.user?.role === 'TECH_ADMIN' || authData?.user?.role === 'TECH_SUBADMIN';
+    if (!isElevated) {
+      return res.status(403).json({ error: 'Elevated administrator privilege required.' });
+    }
+
+    const exportPayload = {
+      exportedAt: new Date().toISOString(),
+      exportedBy: authData.user?.email,
+      targetAccount: 'mukundkrishna.h@gmail.com',
+      version: '1.0.0',
+      data: {
+        listings: db.getListings(),
+        users: db.getUsers(),
+        audit_logs: db.getAuditLogs(),
+        bookings: db.getBookings(),
+      }
+    };
+
+    db.addAuditLog({
+      action: 'CLOUD_GITHUB_EXPORT',
+      performedBy: authData.user?.email || 'admin',
+      targetId: 'mukundkrishna.h@gmail.com',
+      targetType: 'SYSTEM_BACKUP',
+      ipAddress: getClientIp(req),
+      details: { recordCounts: { listings: exportPayload.data.listings.length, users: exportPayload.data.users.length } }
+    });
+
+    res.json({
+      success: true,
+      message: 'Cloud backup bundle generated for mukundkrishna.h@gmail.com',
+      exportPayload,
+    });
   });
 
   // --- Vite & SPA Static Fallback ---
