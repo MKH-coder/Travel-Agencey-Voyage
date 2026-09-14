@@ -1,0 +1,139 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with role-based access control and MFA metadata",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Unique identifier of the user"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Primary email address"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Primary verified phone number"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["USER", "ADMIN", "TECH_ADMIN"],
+          "description": "System privilege role"
+        },
+        "mfaEnabled": {
+          "type": "boolean",
+          "description": "Whether 2FA is required"
+        },
+        "recoveryEmail": {
+          "type": "string",
+          "format": "email",
+          "description": "Backup recovery email for emergency bypass"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Account registration timestamp"
+        }
+      },
+      "required": ["uid", "email", "role", "createdAt"]
+    },
+    "Listing": {
+      "title": "Listing",
+      "description": "Curated travel place, hotel accommodation, or dining guide",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique listing ID"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the travel destination or experience"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["PLACE", "HOTEL", "FOOD"],
+          "description": "Category of travel content"
+        },
+        "price": {
+          "type": "number",
+          "description": "Starting price in USD"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed overview and highlights"
+        },
+        "images": {
+          "type": "array",
+          "description": "Image gallery URLs"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["DRAFT", "PENDING_APPROVAL", "PUBLISHED", "REJECTED"],
+          "description": "Verification lifecycle status"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "UID of the creating admin"
+        },
+        "approvedBy": {
+          "type": "string",
+          "description": "UID of approving Super Admin"
+        },
+        "timestamps": {
+          "type": "object",
+          "description": "Creation and modification timestamps"
+        }
+      },
+      "required": ["id", "title", "category", "price", "description", "status", "createdBy"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Security and administrative audit trail",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Log entry identifier"
+        },
+        "action": {
+          "type": "string",
+          "description": "Action performed e.g. ADMIN_LOGIN, BYPASS_ATTEMPT, APPROVE_LISTING"
+        },
+        "performedBy": {
+          "type": "string",
+          "description": "Identifier of actor"
+        },
+        "targetId": {
+          "type": "string",
+          "description": "Target entity or resource ID"
+        },
+        "ipAddress": {
+          "type": "string",
+          "description": "Client IP address"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO timestamp of event"
+        }
+      },
+      "required": ["id", "action", "performedBy", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User records with role definition and MFA states"
+    },
+    "/listings/{listingId}": {
+      "schema": "Listing",
+      "description": "Travel listings with multi-stage approval workflow"
+    },
+    "/audit_logs/{logId}": {
+      "schema": "AuditLog",
+      "description": "System security and administrative audit log trail"
+    }
+  }
+}

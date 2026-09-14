@@ -1,0 +1,830 @@
+import express from 'express';
+import path from 'path';
+import { createServer as createViteServer } from 'vite';
+import { db } from './server/db.ts';
+import {
+  rateLimit,
+  generateAndStoreOtp,
+  verifyOtp,
+  verifyTotp2Fa,
+  verifyPasskey,
+  createAdminSession,
+  validateAdminSession,
+  revokeAdminSession,
+  validateUploadFile,
+  TECH_ADMIN_EMAIL,
+  TECH_ADMIN_PHONE,
+  TECH_ADMIN_RECOVERY_EMAIL,
+  TECH_ADMIN_BYPASS_CODE,
+  ADMIN_SECURITY_PASSKEY,
+  isTechSubAdminEmail,
+} from './server/security.ts';
+import { Listing, User } from './server/types.ts';
+
+async function startServer() {
+  const app = express();
+  const PORT = 3000;
+
+  // Middleware
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+  // Helper for client IP
+  const getClientIp = (req: express.Request): string => {
+    const forwarded = req.headers['x-forwarded-for'];
+    if (typeof forwarded === 'string') return forwarded.split(',')[0].trim();
+    return req.socket.remoteAddress || '127.0.0.1';
+  };
+
+  // Auth extraction middleware
+  const extractUserOrSession = (req: express.Request) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) return null;
+    const token = authHeader.substring(7);
+
+    // Check if token is an admin session token
+    const adminCheck = validateAdminSession(token);
+    if (adminCheck.valid && adminCheck.session) {
+      const user = db.getUserById(adminCheck.session.uid);
+      return { user, session: adminCheck.session, remainingMs: adminCheck.remainingMs };
+    }
+
+    // Otherwise check regular user token or ID
+    const user = db.getUserById(token);
+    return user ? { user, session: null } : null;
+  };
+
+  // --- API Routes ---
+
+  app.get('/api/health', (req, res) => {
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      techAdmin: TECH_ADMIN_EMAIL,
+    });
+  });
+
+  // 1. Google OAuth Sign-In Simulation
+  app.post('/api/auth/google', (req, res) => {
+    const { email, name } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email address is required.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const isTechAdmin = cleanEmail === TECH_ADMIN_EMAIL.toLowerCase();
+    const isTechSubAdmin = isTechSubAdminEmail(cleanEmail);
+
+    let user = db.getUserByEmail(cleanEmail);
+    if (!user) {
+      user = {
+        uid: `user_${Date.now()}`,
+        email: cleanEmail,
+        name: name || cleanEmail.split('@')[0],
+        role: isTechAdmin ? 'TECH_ADMIN' : isTechSubAdmin ? 'TECH_SUBADMIN' : 'USER',
+        mfaEnabled: isTechAdmin,
+        createdAt: new Date().toISOString(),
+      };
+      db.saveUser(user);
+    } else if (isTechSubAdmin && user.role !== 'TECH_SUBADMIN' && user.role !== 'TECH_ADMIN') {
+      user.role = 'TECH_SUBADMIN';
+      db.saveUser(user);
+    }
+
+    // If Technical Admin: enforce 2FA prompt
+    if (isTechAdmin || user.role === 'TECH_ADMIN') {
+      db.addAuditLog({
+        action: 'TECH_ADMIN_2FA_CHALLENGE',
+        performedBy: cleanEmail,
+        targetId: user.uid,
+        targetType: 'AUTH',
+        ipAddress: getClientIp(req),
+        details: { method: 'GOOGLE_OAUTH' }
+      });
+      return res.json({
+        requires2FA: true,
+        uid: user.uid,
+        email: user.email,
+        phoneNumber: user.phoneNumber || TECH_ADMIN_PHONE,
+        message: 'Two-factor authentication required for Technical Super Admin.',
+      });
+    }
+
+    // Standard Admin or Technical Sub-Admin session creation
+    let token = user.uid;
+    if (user.role === 'ADMIN' || user.role === 'TECH_SUBADMIN') {
+      token = createAdminSession(user.uid, user.email, user.role);
+    }
+
+    res.json({
+      token,
+      user,
+      requires2FA: false,
+    });
+  });
+
+  // 2. Phone OTP: Send OTP (rate limited to 5 per 5 minutes)
+  app.post('/api/auth/send-otp', rateLimit(5, 5 * 60 * 1000), (req, res) => {
+    const { phoneNumber } = req.body;
+    if (!phoneNumber) {
+      return res.status(400).json({ error: 'Phone number is required.' });
+    }
+
+    const otp = generateAndStoreOtp(phoneNumber);
+    const isTechAdminPhone = phoneNumber.replace(/\s+/g, '') === TECH_ADMIN_PHONE.replace(/\s+/g, '');
+
+    db.addAuditLog({
+      action: 'OTP_DISPATCHED',
+      performedBy: phoneNumber,
+      targetId: phoneNumber,
+      targetType: 'AUTH',
+      ipAddress: getClientIp(req),
+      details: { isTechAdmin: isTechAdminPhone }
+    });
+
+    res.json({
+      success: true,
+      message: `Verification OTP generated and sent to ${phoneNumber}.`,
+      // Return code in dev for smooth tester experience
+      devCode: otp,
+      isTechAdmin: isTechAdminPhone,
+    });
+  });
+
+  // 3. Phone OTP: Verify OTP (rate limited to 5 attempts per 5 minutes)
+  app.post('/api/auth/verify-otp', rateLimit(5, 5 * 60 * 1000), (req, res) => {
+    const { phoneNumber, code } = req.body;
+    if (!phoneNumber || !code) {
+      return res.status(400).json({ error: 'Phone number and verification code are required.' });
+    }
+
+    const isValid = verifyOtp(phoneNumber, code);
+    if (!isValid) {
+      db.addAuditLog({
+        action: 'OTP_VERIFICATION_FAILED',
+        performedBy: phoneNumber,
+        targetId: phoneNumber,
+        targetType: 'AUTH',
+        ipAddress: getClientIp(req),
+      });
+      return res.status(400).json({ error: 'Invalid or expired OTP code.' });
+    }
+
+    let user = db.getUserByPhone(phoneNumber);
+    const isTechAdminPhone = phoneNumber.replace(/\s+/g, '') === TECH_ADMIN_PHONE.replace(/\s+/g, '');
+
+    if (!user) {
+      if (isTechAdminPhone) {
+        user = db.getUserByEmail(TECH_ADMIN_EMAIL);
+      }
+      if (!user) {
+        user = {
+          uid: `user_${Date.now()}`,
+          email: `${phoneNumber.replace(/[^0-9]/g, '')}@travelplatform.mobile`,
+          phoneNumber,
+          name: isTechAdminPhone ? 'Mukund Krishna (Technical Super Admin)' : `Traveler ${phoneNumber.slice(-4)}`,
+          role: isTechAdminPhone ? 'TECH_ADMIN' : 'USER',
+          mfaEnabled: isTechAdminPhone,
+          createdAt: new Date().toISOString(),
+        };
+        db.saveUser(user);
+      }
+    }
+
+    // If Technical Admin: enforce 2FA prompt
+    if (user.role === 'TECH_ADMIN') {
+      db.addAuditLog({
+        action: 'TECH_ADMIN_2FA_CHALLENGE',
+        performedBy: phoneNumber,
+        targetId: user.uid,
+        targetType: 'AUTH',
+        ipAddress: getClientIp(req),
+        details: { method: 'PHONE_OTP' }
+      });
+      return res.json({
+        requires2FA: true,
+        uid: user.uid,
+        email: user.email,
+        phoneNumber: user.phoneNumber || TECH_ADMIN_PHONE,
+        message: 'Two-factor authentication required for Technical Super Admin.',
+      });
+    }
+
+    let token = user.uid;
+    if (user.role === 'ADMIN') {
+      token = createAdminSession(user.uid, user.email, user.role);
+    }
+
+    res.json({
+      token,
+      user,
+      requires2FA: false,
+    });
+  });
+
+  // 4. Verify 2FA TOTP (for Technical Admin)
+  app.post('/api/auth/verify-2fa', rateLimit(6, 5 * 60 * 1000), (req, res) => {
+    const { uid, code } = req.body;
+    if (!uid || !code) {
+      return res.status(400).json({ error: 'User ID and 2FA TOTP code are required.' });
+    }
+
+    const user = db.getUserById(uid);
+    if (!user || user.role !== 'TECH_ADMIN') {
+      return res.status(403).json({ error: 'Technical Admin record not found.' });
+    }
+
+    const isValid = verifyTotp2Fa(code);
+    if (!isValid) {
+      db.addAuditLog({
+        action: '2FA_VERIFICATION_FAILED',
+        performedBy: user.email,
+        targetId: user.uid,
+        targetType: 'AUTH',
+        ipAddress: getClientIp(req),
+      });
+      return res.status(400).json({ error: 'Invalid 2FA code. Please check your authenticator app.' });
+    }
+
+    const token = createAdminSession(user.uid, user.email, user.role);
+
+    db.addAuditLog({
+      action: 'TECH_ADMIN_LOGIN_SUCCESS',
+      performedBy: user.email,
+      targetId: user.uid,
+      targetType: 'AUTH',
+      ipAddress: getClientIp(req),
+      details: { method: '2FA_TOTP' }
+    });
+
+    res.json({
+      token,
+      user,
+      message: 'Technical Super Admin authenticated with 2FA.',
+      sessionTimeoutMinutes: 15,
+    });
+  });
+
+  // 5. Emergency Bypass Code Recovery
+  app.post('/api/auth/verify-bypass', rateLimit(3, 10 * 60 * 1000), (req, res) => {
+    const { bypassCode, recoveryEmail } = req.body;
+    if (!bypassCode) {
+      return res.status(400).json({ error: 'Emergency bypass code is required.' });
+    }
+
+    const isValidCode = bypassCode.trim() === TECH_ADMIN_BYPASS_CODE.trim();
+    const isValidEmail = !recoveryEmail || recoveryEmail.trim().toLowerCase() === TECH_ADMIN_RECOVERY_EMAIL.toLowerCase();
+
+    if (!isValidCode || !isValidEmail) {
+      db.addAuditLog({
+        action: 'EMERGENCY_BYPASS_FAILED',
+        performedBy: recoveryEmail || 'UNKNOWN',
+        targetId: 'TECH_ADMIN_CORE',
+        targetType: 'SECURITY_ALERT',
+        ipAddress: getClientIp(req),
+        details: { attemptedCode: bypassCode.slice(0, 4) + '***' }
+      });
+      return res.status(401).json({ error: 'Invalid emergency bypass authorization credentials.' });
+    }
+
+    // Retrieve or establish Super Admin
+    let user = db.getUserByEmail(TECH_ADMIN_EMAIL);
+    if (!user) {
+      user = {
+        uid: 'user_tech_admin_01',
+        email: TECH_ADMIN_EMAIL,
+        phoneNumber: TECH_ADMIN_PHONE,
+        name: 'Mukund Krishna (Technical Super Admin)',
+        role: 'TECH_ADMIN',
+        mfaEnabled: true,
+        recoveryEmail: TECH_ADMIN_RECOVERY_EMAIL,
+        createdAt: new Date().toISOString(),
+      };
+      db.saveUser(user);
+    }
+
+    const token = createAdminSession(user.uid, user.email, user.role);
+
+    db.addAuditLog({
+      action: 'EMERGENCY_BYPASS_ACTIVATED',
+      performedBy: user.email,
+      targetId: user.uid,
+      targetType: 'SECURITY_RECOVERY',
+      ipAddress: getClientIp(req),
+      details: { recoveryEmail: TECH_ADMIN_RECOVERY_EMAIL }
+    });
+
+    res.json({
+      token,
+      user,
+      message: 'Emergency master recovery authorization verified. Technical Super Admin session restored.',
+      sessionTimeoutMinutes: 15,
+    });
+  });
+
+  // 6. Verify Dynamic Administrative Passkey (via bcrypt)
+  app.post('/api/auth/verify-passkey', async (req, res) => {
+    const { passkey } = req.body;
+    const authData = extractUserOrSession(req);
+
+    if (!authData || authData.user?.role !== 'TECH_ADMIN') {
+      return res.status(403).json({ error: 'Only Technical Super Admin can execute elevated passkey actions.' });
+    }
+
+    const isMatch = await verifyPasskey(passkey);
+    if (!isMatch) {
+      db.addAuditLog({
+        action: 'PASSKEY_FAILED',
+        performedBy: authData.user.email,
+        targetId: 'ADMIN_ELEVATION',
+        targetType: 'SECURITY',
+        ipAddress: getClientIp(req),
+      });
+      return res.status(401).json({ error: 'Invalid administrative security passkey.' });
+    }
+
+    db.addAuditLog({
+      action: 'PASSKEY_VERIFIED',
+      performedBy: authData.user.email,
+      targetId: 'ADMIN_ELEVATION',
+      targetType: 'SECURITY',
+      ipAddress: getClientIp(req),
+    });
+
+    res.json({ success: true, message: 'Administrative passkey authorized.' });
+  });
+
+  // 7. Get Current User / Session Health
+  app.get('/api/auth/me', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData || !authData.user) {
+      return res.status(401).json({ error: 'Unauthenticated' });
+    }
+
+    res.json({
+      user: authData.user,
+      remainingMs: authData.remainingMs || null,
+      isAdminSession: !!authData.session,
+    });
+  });
+
+  // 8. Logout
+  app.post('/api/auth/logout', (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      revokeAdminSession(token);
+    }
+    res.json({ success: true });
+  });
+
+  // 9. Listings: GET with filters
+  app.get('/api/listings', (req, res) => {
+    const authData = extractUserOrSession(req);
+    const isPrivileged = authData?.user?.role === 'ADMIN' || authData?.user?.role === 'TECH_SUBADMIN' || authData?.user?.role === 'TECH_ADMIN';
+
+    const { category, search, minPrice, maxPrice, rating, status } = req.query;
+    let listings = db.getListings();
+
+    // Role-based visibility
+    if (!isPrivileged) {
+      listings = listings.filter(l => l.status === 'PUBLISHED');
+    } else if (status) {
+      listings = listings.filter(l => l.status === status);
+    }
+
+    // Category filter
+    if (category && category !== 'ALL') {
+      listings = listings.filter(l => l.category === category);
+    }
+
+    // Search filter with multi-term debounced matching
+    if (search && typeof search === 'string') {
+      const q = search.toLowerCase().trim();
+      const terms = q.split(/\s+/).filter(Boolean);
+      listings = listings.filter(l => {
+        const text = [
+          l.title,
+          l.location,
+          l.country,
+          l.category,
+          l.description,
+          ...(l.tags || []),
+          ...(l.amenities || []),
+          ...(l.diningSpecialties || []),
+          ...(l.hotelPerks || [])
+        ].join(' ').toLowerCase();
+        return terms.every(t => text.includes(t));
+      });
+    }
+
+    // Price filter
+    if (minPrice) {
+      listings = listings.filter(l => l.price >= Number(minPrice));
+    }
+    if (maxPrice) {
+      listings = listings.filter(l => l.price <= Number(maxPrice));
+    }
+
+    // Rating filter
+    if (rating) {
+      listings = listings.filter(l => l.rating >= Number(rating));
+    }
+
+    res.json(listings);
+  });
+
+  // 10. Listings: CREATE (Standard Admin, Technical Sub-Admin, or Tech Super Admin)
+  app.post('/api/listings', (req, res) => {
+    const authData = extractUserOrSession(req);
+    const allowedRoles = ['ADMIN', 'TECH_SUBADMIN', 'TECH_ADMIN'];
+    if (!authData?.user || !allowedRoles.includes(authData.user.role)) {
+      return res.status(403).json({ error: 'Only Admins can create inventory listings.' });
+    }
+
+    const {
+      title,
+      category,
+      price,
+      location,
+      country,
+      description,
+      images,
+      tags,
+      amenities,
+      hotelPerks,
+      diningSpecialties,
+      coordinates,
+      status: requestedStatus
+    } = req.body;
+
+    if (!title || !category || price === undefined || !location || !country || !description) {
+      return res.status(400).json({ error: 'Missing required listing parameters.' });
+    }
+
+    const canDirectPublish = authData.user.role === 'TECH_ADMIN' || authData.user.role === 'TECH_SUBADMIN';
+    let finalStatus = requestedStatus || 'PENDING_APPROVAL';
+    if (!canDirectPublish && finalStatus === 'PUBLISHED') {
+      finalStatus = 'PENDING_APPROVAL';
+    }
+
+    const newListing: Listing = {
+      id: `list-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      title,
+      category,
+      price: Number(price),
+      rating: 5.0,
+      reviewCount: 1,
+      location,
+      country,
+      coordinates: coordinates && typeof coordinates.lat === 'number' ? coordinates : undefined,
+      description,
+      images: images?.length ? images : ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80'],
+      status: finalStatus,
+      createdBy: authData.user.uid,
+      createdByName: authData.user.name,
+      approvedBy: finalStatus === 'PUBLISHED' ? authData.user.uid : undefined,
+      tags: tags || [],
+      amenities: amenities || [],
+      hotelPerks: hotelPerks || [],
+      diningSpecialties: diningSpecialties || [],
+      timestamps: {
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        submittedAt: finalStatus === 'PENDING_APPROVAL' ? new Date().toISOString() : undefined,
+        approvedAt: finalStatus === 'PUBLISHED' ? new Date().toISOString() : undefined,
+      }
+    };
+
+    const saved = db.createListing(newListing);
+
+    db.addAuditLog({
+      action: finalStatus === 'PENDING_APPROVAL' ? 'SUBMIT_PENDING_LISTING' : 'CREATE_LISTING',
+      performedBy: authData.user.email,
+      targetId: saved.id,
+      targetType: 'LISTING',
+      ipAddress: getClientIp(req),
+      details: { title: saved.title, status: saved.status, category: saved.category }
+    });
+
+    res.status(201).json(saved);
+  });
+
+  // 11. Listings: UPDATE
+  app.put('/api/listings/:id', (req, res) => {
+    const authData = extractUserOrSession(req);
+    const allowedRoles = ['ADMIN', 'TECH_SUBADMIN', 'TECH_ADMIN'];
+    if (!authData?.user || !allowedRoles.includes(authData.user.role)) {
+      return res.status(403).json({ error: 'Administrative privileges required.' });
+    }
+
+    const listing = db.getListingById(req.params.id);
+    if (!listing) {
+      return res.status(404).json({ error: 'Listing not found.' });
+    }
+
+    const canEditAny = authData.user.role === 'TECH_ADMIN' || authData.user.role === 'TECH_SUBADMIN';
+    const isCreator = listing.createdBy === authData.user.uid;
+
+    if (!canEditAny && !isCreator) {
+      return res.status(403).json({ error: 'Standard Admins can only edit their own listings.' });
+    }
+
+    // Standard Admin editing a published listing resets to pending approval
+    const updates = { ...req.body };
+    if (!canEditAny && listing.status === 'PUBLISHED') {
+      updates.status = 'PENDING_APPROVAL';
+    }
+
+    const updated = db.updateListing(req.params.id, updates);
+
+    db.addAuditLog({
+      action: 'UPDATE_LISTING',
+      performedBy: authData.user.email,
+      targetId: req.params.id,
+      targetType: 'LISTING',
+      ipAddress: getClientIp(req),
+      details: { title: updated?.title, status: updated?.status }
+    });
+
+    res.json(updated);
+  });
+
+  // 12. Listings: STATUS TOGGLE (Approve / Reject) - Requires TECH_ADMIN or TECH_SUBADMIN
+  app.patch('/api/listings/:id/status', (req, res) => {
+    const authData = extractUserOrSession(req);
+    const canManageQueue = authData?.user && (authData.user.role === 'TECH_ADMIN' || authData.user.role === 'TECH_SUBADMIN');
+    if (!canManageQueue) {
+      return res.status(403).json({ error: 'Technical Admin or Sub-Admin privilege required to approve or reject listings.' });
+    }
+
+    const { status, rejectionReason } = req.body;
+    if (!['PUBLISHED', 'REJECTED', 'PENDING_APPROVAL', 'DRAFT'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid target status.' });
+    }
+
+    const existing = db.getListingById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ error: 'Listing not found.' });
+    }
+
+    const updated = db.updateListing(req.params.id, {
+      status,
+      approvedBy: status === 'PUBLISHED' ? authData.user.uid : undefined,
+      rejectionReason: status === 'REJECTED' ? rejectionReason : undefined,
+    });
+
+    db.addAuditLog({
+      action: status === 'PUBLISHED' ? 'APPROVE_LISTING' : (status === 'REJECTED' ? 'REJECT_LISTING' : 'CHANGE_STATUS'),
+      performedBy: authData.user.email,
+      targetId: req.params.id,
+      targetType: 'LISTING',
+      ipAddress: getClientIp(req),
+      details: { previousStatus: existing.status, newStatus: status, rejectionReason }
+    });
+
+    res.json(updated);
+  });
+
+  // 13. Listings: DELETE - Requires TECH_ADMIN or TECH_SUBADMIN
+  app.delete('/api/listings/:id', (req, res) => {
+    const authData = extractUserOrSession(req);
+    const canDelete = authData?.user && (authData.user.role === 'TECH_ADMIN' || authData.user.role === 'TECH_SUBADMIN');
+    if (!canDelete) {
+      return res.status(403).json({ error: 'Technical Admin privilege required to remove listings.' });
+    }
+
+    const listing = db.getListingById(req.params.id);
+    if (!listing) {
+      return res.status(404).json({ error: 'Listing not found.' });
+    }
+
+    db.deleteListing(req.params.id);
+
+    db.addAuditLog({
+      action: 'DELETE_LISTING',
+      performedBy: authData.user.email,
+      targetId: req.params.id,
+      targetType: 'LISTING',
+      ipAddress: getClientIp(req),
+      details: { title: listing.title }
+    });
+
+    res.json({ success: true, message: 'Listing deleted successfully.' });
+  });
+
+  // 14. Users: GET All (TECH_ADMIN only)
+  app.get('/api/users', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user || authData.user.role !== 'TECH_ADMIN') {
+      return res.status(403).json({ error: 'Only Technical Super Admin can view the user management roster.' });
+    }
+
+    res.json(db.getUsers());
+  });
+
+  // 15. Users: Update Role (TECH_ADMIN only)
+  app.patch('/api/users/:id/role', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user || authData.user.role !== 'TECH_ADMIN') {
+      return res.status(403).json({ error: 'Only Technical Super Admin can modify user administrative roles.' });
+    }
+
+    const { role } = req.body;
+    if (!['USER', 'ADMIN', 'TECH_ADMIN'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role assignment.' });
+    }
+
+    const targetUser = db.getUserById(req.params.id);
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    // Protect master Super Admin from being demoted
+    if (targetUser.email === TECH_ADMIN_EMAIL && role !== 'TECH_ADMIN') {
+      return res.status(400).json({ error: 'Primary Technical Super Admin role cannot be demoted.' });
+    }
+
+    const updated = db.updateUserRole(req.params.id, role);
+
+    db.addAuditLog({
+      action: 'UPDATE_USER_ROLE',
+      performedBy: authData.user.email,
+      targetId: req.params.id,
+      targetType: 'USER',
+      ipAddress: getClientIp(req),
+      details: { previousRole: targetUser.role, newRole: role, userEmail: targetUser.email }
+    });
+
+    res.json(updated);
+  });
+
+  // 16. Audit Logs: GET (TECH_ADMIN only)
+  app.get('/api/audit-logs', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user || authData.user.role !== 'TECH_ADMIN') {
+      return res.status(403).json({ error: 'Only Technical Super Admin can view audit logs.' });
+    }
+
+    const { action } = req.query;
+    let logs = db.getAuditLogs();
+    if (action && typeof action === 'string' && action !== 'ALL') {
+      logs = logs.filter(l => l.action === action);
+    }
+
+    res.json(logs);
+  });
+
+  // 17. File Upload with Strict 5MB Limit & Mime Validation
+  app.post('/api/upload', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user) {
+      return res.status(401).json({ error: 'Authentication required for uploading images.' });
+    }
+
+    const { fileData, mimeType, filename } = req.body;
+    if (!fileData || !mimeType) {
+      return res.status(400).json({ error: 'fileData (base64) and mimeType are required.' });
+    }
+
+    const validation = validateUploadFile(fileData, mimeType);
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    // In a cloud bucket setup this would upload to /uploads/listings/
+    // Here we return the verified data URL representation
+    const uploadedUrl = fileData.startsWith('data:') ? fileData : `data:${mimeType};base64,${fileData}`;
+
+    db.addAuditLog({
+      action: 'FILE_UPLOADED',
+      performedBy: authData.user.email,
+      targetId: filename || 'listing_image',
+      targetType: 'STORAGE',
+      ipAddress: getClientIp(req),
+      details: { mimeType }
+    });
+
+    res.json({
+      url: uploadedUrl,
+      sizeValid: true,
+      message: 'Image successfully validated (under 5MB) and saved.'
+    });
+  });
+
+  // 18. Bookings
+  app.post('/api/bookings', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user) {
+      return res.status(401).json({ error: 'Sign in required to confirm bookings.' });
+    }
+
+    const { listingId, checkInDate, checkOutDate, guests, totalPrice } = req.body;
+    const listing = db.getListingById(listingId);
+    if (!listing) {
+      return res.status(404).json({ error: 'Listing not found.' });
+    }
+
+    const booking = db.createBooking({
+      listingId,
+      listingTitle: listing.title,
+      listingCategory: listing.category,
+      listingImage: listing.images[0],
+      userId: authData.user.uid,
+      userEmail: authData.user.email,
+      checkInDate: checkInDate || new Date().toISOString().split('T')[0],
+      checkOutDate: checkOutDate || new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString().split('T')[0],
+      guests: Number(guests) || 2,
+      totalPrice: Number(totalPrice) || listing.price,
+      status: 'CONFIRMED',
+    });
+
+    db.addAuditLog({
+      action: 'BOOKING_CONFIRMED',
+      performedBy: authData.user.email,
+      targetId: booking.id,
+      targetType: 'BOOKING',
+      ipAddress: getClientIp(req),
+      details: { listingTitle: listing.title, guests, totalPrice }
+    });
+
+    res.status(201).json(booking);
+  });
+
+  app.get('/api/bookings', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    const isTechAdmin = authData.user.role === 'TECH_ADMIN';
+    const bookings = db.getBookings(isTechAdmin ? undefined : authData.user.uid);
+    res.json(bookings);
+  });
+
+  // 19. Saved Trips API (Persistent per authenticated user)
+  app.get('/api/saved-trips', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user) {
+      return res.status(401).json({ error: 'Authentication required to view saved trips.' });
+    }
+    const savedListings = db.getSavedTrips(authData.user.uid);
+    const savedIds = db.getSavedTripIds(authData.user.uid);
+    res.json({ savedListings, savedIds });
+  });
+
+  app.post('/api/saved-trips', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user) {
+      return res.status(401).json({ error: 'Authentication required to save trips.' });
+    }
+    const { listingId } = req.body;
+    if (!listingId) {
+      return res.status(400).json({ error: 'listingId is required.' });
+    }
+    const listing = db.getListingById(listingId);
+    if (!listing) {
+      return res.status(404).json({ error: 'Listing not found.' });
+    }
+    const saved = db.saveTrip(authData.user.uid, listingId);
+    db.addAuditLog({
+      action: 'SAVE_TRIP',
+      performedBy: authData.user.email,
+      targetId: listingId,
+      targetType: 'SAVED_TRIP',
+      ipAddress: getClientIp(req),
+      details: { listingTitle: listing.title }
+    });
+    res.json({ success: true, saved, savedIds: db.getSavedTripIds(authData.user.uid) });
+  });
+
+  app.delete('/api/saved-trips/:listingId', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user) {
+      return res.status(401).json({ error: 'Authentication required to remove saved trips.' });
+    }
+    const { listingId } = req.params;
+    const removed = db.removeSavedTrip(authData.user.uid, listingId);
+    res.json({ success: true, removed, savedIds: db.getSavedTripIds(authData.user.uid) });
+  });
+
+  // --- Vite & SPA Static Fallback ---
+  if (process.env.NODE_ENV !== 'production') {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
+  } else {
+    const distPath = path.join(process.cwd(), 'dist');
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  }
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[TRAVEL PLATFORM] Production server running on http://localhost:${PORT}`);
+  });
+}
+
+startServer();

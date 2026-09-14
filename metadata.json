@@ -1,0 +1,6 @@
+{
+  "name": "Travel Platform",
+  "description": "Full-stack travel platform with multi-theme engine, destination & hotel explorer, content submission workflow, and tiered admin portal with 2FA and audit logs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

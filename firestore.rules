@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global deny-by-default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isTechAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'mukundkrishna2008@gmail.com' ||
+        request.auth.token.role == 'TECH_ADMIN' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'TECH_ADMIN'
+      );
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        isTechAdmin() ||
+        request.auth.token.role == 'ADMIN' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN'
+      );
+    }
+
+    // Listings Collection:
+    // - Public reads for PUBLISHED listings
+    // - Standard & Tech Admins can read all listings (including drafts and pending)
+    // - Standard Admins can create listings (initial status DRAFT or PENDING_APPROVAL)
+    // - Standard Admins can update their own drafts
+    // - Tech Admins can approve, modify, publish, or delete any listing
+    match /listings/{listingId} {
+      allow read: if resource.data.status == 'PUBLISHED' || isAdmin();
+      allow create: if isAdmin() && (
+        isTechAdmin() || request.resource.data.status in ['DRAFT', 'PENDING_APPROVAL']
+      );
+      allow update: if isTechAdmin() || (
+        isAdmin() && resource.data.createdBy == request.auth.uid &&
+        resource.data.status in ['DRAFT', 'REJECTED'] &&
+        request.resource.data.status in ['DRAFT', 'PENDING_APPROVAL']
+      );
+      allow delete: if isTechAdmin();
+    }
+
+    // Users Collection:
+    // - Users can read their own profile; Tech Admins can read and manage all profiles
+    // - Only Tech Admin can assign ADMIN or TECH_ADMIN roles
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isTechAdmin());
+      allow create: if isSignedIn() && (
+        request.auth.uid == userId && request.resource.data.role == 'USER'
+      ) || isTechAdmin();
+      allow update: if isTechAdmin() || (
+        isSignedIn() && request.auth.uid == userId &&
+        request.resource.data.role == resource.data.role // Prevents privilege self-escalation
+      );
+      allow delete: if isTechAdmin();
+    }
+
+    // Audit Logs Collection:
+    // - Only Tech Admin can read audit logs
+    // - System authenticated operations can append immutable audit records
+    match /audit_logs/{logId} {
+      allow read: if isTechAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if false; // Append-only immutable logs
+    }
+  }
+}
