@@ -40,7 +40,7 @@ export const LoginModal: React.FC = () => {
   const [googleName, setGoogleName] = useState('');
 
   // Phone form state
-  const [phone, setPhone] = useState('+91 9567465134');
+  const [phone, setPhone] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [dispatchedDevCode, setDispatchedDevCode] = useState<string | null>(null);
@@ -64,6 +64,14 @@ export const LoginModal: React.FC = () => {
   const handleGoogleSubmit = async (e?: React.FormEvent, customEmail?: string) => {
     if (e) e.preventDefault();
     const emailToUse = customEmail || googleEmail;
+    
+    // Secret code trigger for bypass
+    if (emailToUse === 'adminbypass@gmail.com' || emailToUse === 'adminbypass') {
+      setShowLoginModal(false);
+      setShowBypassModal(true);
+      return;
+    }
+
     if (!emailToUse) {
       setErrorMsg('Please enter an email address.');
       return;
@@ -103,6 +111,14 @@ export const LoginModal: React.FC = () => {
   // 3. Handle Verify Phone OTP
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Secret code trigger for bypass
+    if (otpCode === 'adminbypass') {
+      setShowLoginModal(false);
+      setShowBypassModal(true);
+      return;
+    }
+
     if (!otpCode) {
       setErrorMsg('Please enter the 6-digit verification code.');
       return;
@@ -504,7 +520,7 @@ export const LoginModal: React.FC = () => {
                           type="text"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
-                          placeholder="+91 9567465134"
+                          placeholder="+1 555-0123"
                           className={`w-full pl-10 pr-3 py-2.5 text-xs rounded-xl outline-none font-mono ${styles.inputBg}`}
                         />
                       </div>
@@ -522,12 +538,12 @@ export const LoginModal: React.FC = () => {
 
                   {/* Pre-configured Super Admin phone helper */}
                   <div className="text-[11px] flex items-center justify-between text-slate-400">
-                    <span>Admin Phone: <span className="font-mono text-sky-500">+91 9567465134</span></span>
+                    <span>Technical staff phone: <span className="font-mono text-sky-500">+1 555-0123</span></span>
                     <button
                       type="button"
                       onClick={() => {
-                        setPhone('+91 9567465134');
-                        handleSendOtp('+91 9567465134');
+                        setPhone('+1 555-0123');
+                        handleSendOtp('+1 555-0123');
                       }}
                       className="text-sky-500 hover:underline font-medium text-[10px]"
                     >
@@ -551,9 +567,8 @@ export const LoginModal: React.FC = () => {
                         <input
                           id="phone-otp-input"
                           type="text"
-                          maxLength={6}
                           value={otpCode}
-                          onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                          onChange={(e) => setOtpCode(e.target.value)}
                           placeholder="956746"
                           className={`w-full py-2.5 text-center tracking-widest text-lg font-mono font-bold rounded-xl outline-none ${styles.inputBg}`}
                         />
