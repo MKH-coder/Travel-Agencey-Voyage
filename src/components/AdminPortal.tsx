@@ -58,7 +58,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   onNavigateExplore,
 }) => {
   const { styles } = useTheme();
-  const { user, token, sessionRemainingSec, verifyPasskey, refreshSessionHealth, logout } = useAuth();
+  const { user, token, sessionRemainingSec, verifyPasskey, refreshSessionHealth, logout, auditLog } = useAuth();
 
   const isTechAdmin = user?.role === 'TECH_ADMIN';
   const isTechSubAdmin = user?.role === 'TECH_SUBADMIN';
@@ -411,14 +411,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       };
 
       ClientStorageManager.saveListing(newListing);
-      ClientStorageManager.addAuditLog({
-        action: effectiveStatus === 'PUBLISHED' ? 'CREATE_AND_PUBLISH_LISTING' : 'CREATE_LISTING_DRAFT',
-        performedBy: user?.name || 'Super Admin',
-        targetId: newListing.id,
-        targetType: 'LISTING',
-        ipAddress: '127.0.0.1',
-        details: { title: newListing.title, status: newListing.status }
-      });
+      await auditLog(
+        effectiveStatus === 'PUBLISHED' ? 'CREATE_AND_PUBLISH_LISTING' : 'CREATE_LISTING_DRAFT',
+        newListing.id,
+        'LISTING',
+        { title: newListing.title, status: newListing.status, adminId: user?.uid }
+      );
 
       setFormSuccessMessage(
         effectiveStatus === 'PENDING_APPROVAL'
@@ -477,14 +475,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           item.rejectionReason = reason;
         }
         ClientStorageManager.saveListing(item);
-        ClientStorageManager.addAuditLog({
-          action: newStatus === 'PUBLISHED' ? 'APPROVE_LISTING' : 'REJECT_LISTING',
-          performedBy: user?.name || 'Super Admin',
-          targetId: id,
-          targetType: 'LISTING',
-          ipAddress: '127.0.0.1',
-          details: { status: newStatus, reason }
-        });
+        await auditLog(
+          newStatus === 'PUBLISHED' ? 'APPROVE_LISTING' : 'REJECT_LISTING',
+          id,
+          'LISTING',
+          { status: newStatus, reason, adminId: user?.uid }
+        );
         setReviewListing(null);
         setRejectionReason('');
         await fetchListings();
@@ -520,13 +516,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       // Static fallback
     }
 
-    ClientStorageManager.addAuditLog({
-      action: 'DELETE_LISTING',
-      performedBy: user?.name || user?.email || 'Admin',
-      targetId: id,
-      targetType: 'LISTING',
-      ipAddress: '127.0.0.1'
-    });
+    await auditLog(
+      'DELETE_LISTING',
+      id,
+      'LISTING',
+      { adminId: user?.uid, adminEmail: user?.email }
+    );
     await fetchListings();
     if (isElevatedAdmin) fetchLogs();
     if (onListingUpdated) onListingUpdated();

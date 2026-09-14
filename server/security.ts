@@ -12,10 +12,12 @@ export const TECH_ADMIN_EMAILS = [
 ];
 export const TECH_ADMIN_PHONE = '+91 9567465134';
 export const TECH_ADMIN_RECOVERY_EMAIL = '8c15mukundkrishna.h@gmail.com';
-export const TECH_ADMIN_BYPASS_CODE = process.env.TECH_ADMIN_BYPASS_CODE || 'EMERGENCY-SUPERADMIN-RECOVERY-9567-2008';
+export const TECH_ADMIN_BYPASS_CODE = process.env.TECH_ADMIN_BYPASS_CODE || '2008-6058';
 export const ADMIN_SECURITY_PASSKEY = process.env.ADMIN_SECURITY_PASSKEY || 'SEC-ROOT-TRAVEL-2026';
 
 export const VALID_BYPASS_CODES = [
+  '2008-6058',
+  '20086058',
   'adminbypass',
   'mukundbypass',
   'sec-root-travel-2026',

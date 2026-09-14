@@ -59,8 +59,8 @@ export const LoginModal: React.FC = () => {
   const [totpInput, setTotpInput] = useState('');
 
   // Bypass state
-  const [bypassCodeInput, setBypassCodeInput] = useState('EMERGENCY-SUPERADMIN-RECOVERY-9567-2008');
-  const [recoveryEmailInput, setRecoveryEmailInput] = useState('8c15mukundkrishna.h@gmail.com');
+  const [bypassCodeInput, setBypassCodeInput] = useState('');
+  const [recoveryEmailInput, setRecoveryEmailInput] = useState('');
 
   // Error/Status message
   const [errorMsg, setErrorMsg] = useState('');
@@ -129,7 +129,8 @@ export const LoginModal: React.FC = () => {
     const emailToUse = customEmail || googleEmail;
     
     // Secret code trigger for bypass
-    if (emailToUse === 'adminbypass@gmail.com' || emailToUse === 'adminbypass') {
+    if (emailToUse === '2008-6058' || emailToUse === '20086058' || emailToUse === 'adminbypass@gmail.com' || emailToUse === 'adminbypass') {
+      setBypassCodeInput('');
       setShowLoginModal(false);
       setShowBypassModal(true);
       return;
@@ -176,7 +177,8 @@ export const LoginModal: React.FC = () => {
     e.preventDefault();
     
     // Secret code trigger for bypass
-    if (otpCode === 'adminbypass') {
+    if (otpCode === '2008-6058' || otpCode === '20086058' || otpCode === 'adminbypass') {
+      setBypassCodeInput('');
       setShowLoginModal(false);
       setShowBypassModal(true);
       return;
@@ -331,33 +333,21 @@ export const LoginModal: React.FC = () => {
                 Emergency Account Bypass
               </h3>
               <p className={`text-xs ${styles.textMuted} leading-relaxed`}>
-                Enter the master bypass authorization code to grant Technical Super Admin access for mukundkrishna.h2008@gmail.com.
+                Enter your authorized email and master technical bypass authorization code.
               </p>
             </div>
 
             <form onSubmit={handleBypassSubmit} className="space-y-3.5">
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                    Master Bypass Code
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBypassCodeInput('adminbypass');
-                      setRecoveryEmailInput('mukundkrishna.h2008@gmail.com');
-                    }}
-                    className="text-[10px] text-amber-500 hover:underline font-mono"
-                  >
-                    Auto-fill (adminbypass)
-                  </button>
-                </div>
+                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  Master Bypass Code
+                </label>
                 <input
                   id="bypass-code-input"
-                  type="text"
+                  type="password"
                   value={bypassCodeInput}
                   onChange={(e) => setBypassCodeInput(e.target.value)}
-                  placeholder="adminbypass or mukundbypass"
+                  placeholder="Enter technical bypass code"
                   className={`w-full px-3.5 py-2.5 text-xs font-mono rounded-xl outline-none ${styles.inputBg}`}
                 />
               </div>
@@ -371,7 +361,7 @@ export const LoginModal: React.FC = () => {
                   type="email"
                   value={recoveryEmailInput}
                   onChange={(e) => setRecoveryEmailInput(e.target.value)}
-                  placeholder="mukundkrishna.h2008@gmail.com"
+                  placeholder="Enter authorized email address"
                   className={`w-full px-3.5 py-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
                 />
               </div>
@@ -647,8 +637,8 @@ export const LoginModal: React.FC = () => {
                       id="demo-tech-admin-btn"
                       type="button"
                       onClick={() => {
-                        setRecoveryEmailInput('mukundkrishna.h2008@gmail.com');
-                        setBypassCodeInput('adminbypass');
+                        setRecoveryEmailInput('');
+                        setBypassCodeInput('');
                         setShowBypassModal(true);
                         setTwoFactorChallenge(null);
                         setErrorMsg('');
@@ -831,6 +821,8 @@ export const LoginModal: React.FC = () => {
                 id="trigger-emergency-bypass-btn"
                 type="button"
                 onClick={() => {
+                  setRecoveryEmailInput('');
+                  setBypassCodeInput('');
                   setShowLoginModal(false);
                   setShowBypassModal(true);
                 }}

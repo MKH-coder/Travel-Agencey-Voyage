@@ -17,7 +17,7 @@ export const AddAdminModal: React.FC<AddAdminModalProps> = ({
   onAdminCreated,
 }) => {
   const { styles } = useTheme();
-  const { token } = useAuth();
+  const { token, auditLog } = useAuth();
 
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -91,14 +91,12 @@ export const AddAdminModal: React.FC<AddAdminModalProps> = ({
       };
 
       ClientStorageManager.saveUser(newUser);
-      ClientStorageManager.addAuditLog({
-        action: 'ADD_NEW_USER_AND_POST',
-        performedBy: 'Technical Super Admin',
-        targetId: newUser.uid,
-        targetType: 'USER',
-        ipAddress: '127.0.0.1',
-        details: { email: newUser.email, role: newUser.role, customTitle: newUser.customTitle }
-      });
+      await auditLog(
+        'ADD_NEW_USER_AND_POST',
+        newUser.uid,
+        'USER',
+        { email: newUser.email, role: newUser.role, customTitle: newUser.customTitle }
+      );
 
       setSuccess(`Successfully added ${email} with assigned post: ${newUser.customTitle}!`);
       onAdminCreated(newUser);

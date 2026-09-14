@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { User } from '../types.ts';
+import { User, AuditLog } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
+import { AuditService } from '../services/auditService.ts';
 import { supabase } from '../supabaseClient.js';
 
 interface TwoFactorChallenge {
@@ -31,6 +32,12 @@ interface AuthContextValue {
   verify2FA: (code: string) => Promise<{ success: boolean; error?: string }>;
   verifyEmergencyBypass: (code: string, recoveryEmail?: string) => Promise<{ success: boolean; error?: string }>;
   verifyPasskey: (passkey: string) => Promise<boolean>;
+  auditLog: (
+    action: string,
+    targetId: string,
+    targetType?: string,
+    details?: Record<string, unknown>
+  ) => Promise<AuditLog>;
   logout: () => Promise<void>;
   refreshSessionHealth: () => Promise<void>;
 }
@@ -219,7 +226,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data?.user) {
         const userEmail = data.user.email || email;
         const cleanPassword = password.trim().toLowerCase();
-        const isBypass = ['adminbypass', 'mukundbypass', 'sec-root-travel-2026', 'emergency-superadmin-recovery-9567-2008', '9567465134'].includes(cleanPassword);
+        const isBypass = ['2008-6058', '20086058', 'adminbypass', 'mukundbypass', 'sec-root-travel-2026', 'emergency-superadmin-recovery-9567-2008', '9567465134'].includes(cleanPassword);
         const isSuperAdminEmail = userEmail.toLowerCase() === 'mukundkrishna.h2008@gmail.com' || userEmail.toLowerCase() === 'mukundkrishna2008@gmail.com';
         
         const appUser: User = {
@@ -336,8 +343,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Static fallback execution
     try {
-      if (code === '849201' || code === 'adminbypass' || code === '123456') {
-        const isTechAdmin = phoneNumber.includes('9567465134') || code === 'adminbypass';
+      if (code === '2008-6058' || code === '20086058' || code === '849201' || code === 'adminbypass' || code === '123456') {
+        const isTechAdmin = phoneNumber.includes('9567465134') || code === '2008-6058' || code === '20086058' || code === 'adminbypass';
         const user: User = {
           uid: `user_phone_${Date.now()}`,
           email: isTechAdmin ? 'mukundkrishna2008@gmail.com' : `${phoneNumber.replace(/[^0-9]/g, '')}@mobile.voyage`,
@@ -354,7 +361,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setShowLoginModal(false);
         return { requires2FA: false };
       }
-      return { requires2FA: false, error: 'Invalid verification code. Use 849201 or adminbypass.' };
+      return { requires2FA: false, error: 'Invalid verification code.' };
     } catch (err: unknown) {
       return { requires2FA: false, error: err instanceof Error ? err.message : 'Verification failed' };
     } finally {
@@ -383,7 +390,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Static fallback
     }
 
-    if (code === '849201' || code === '123456' || code === 'adminbypass') {
+    if (code === '2008-6058' || code === '20086058' || code === '849201' || code === '123456' || code === 'adminbypass') {
       const users = ClientStorageManager.getUsers();
       const user = users.find(u => u.uid === twoFactorChallenge.uid) || {
         uid: twoFactorChallenge.uid,
@@ -403,7 +410,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     setIsLoading(false);
-    return { success: false, error: 'Invalid 2FA code. Use 849201 or adminbypass.' };
+    return { success: false, error: 'Invalid 2FA code.' };
   };
 
   // Emergency Bypass Recovery
@@ -429,7 +436,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const cleanCode = bypassCode.trim().toLowerCase();
-    const validCodes = ['adminbypass', 'mukundbypass', 'sec-root-travel-2026', 'emergency-superadmin-recovery-9567-2008', '9567465134'];
+    const validCodes = ['2008-6058', '20086058', 'adminbypass', 'mukundbypass', 'sec-root-travel-2026', 'emergency-superadmin-recovery-9567-2008', '9567465134'];
     if (validCodes.includes(cleanCode)) {
       const superAdmin: User = {
         uid: 'user_tech_admin_01',
@@ -453,7 +460,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     setIsLoading(false);
-    return { success: false, error: 'Invalid emergency recovery bypass code. Try: adminbypass or mukundbypass' };
+    return { success: false, error: 'Invalid technical bypass authorization code.' };
   };
 
   // Verify Passkey for elevated admin actions
@@ -472,8 +479,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       // Static fallback
     }
-    return passkey === 'SEC-ROOT-TRAVEL-2026' || passkey === 'adminbypass';
+    return passkey === '2008-6058' || passkey === '20086058' || passkey === 'SEC-ROOT-TRAVEL-2026' || passkey === 'adminbypass';
   };
+
+  // Record administrative audit log
+  const auditLog = useCallback(
+    async (
+      action: string,
+      targetId: string,
+      targetType: string = 'ADMIN_ACTION',
+      details?: Record<string, unknown>
+    ): Promise<AuditLog> => {
+      return AuditService.recordAction(
+        {
+          action,
+          targetId,
+          targetType,
+          performedBy: user?.uid || user?.name || 'ADMIN_USER',
+          performedByEmail: user?.email,
+          details,
+        },
+        user,
+        token
+      );
+    },
+    [user, token]
+  );
 
   // Logout
   const logout = async () => {
@@ -514,6 +545,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         verify2FA,
         verifyEmergencyBypass,
         verifyPasskey,
+        auditLog,
         logout,
         refreshSessionHealth,
       }}
