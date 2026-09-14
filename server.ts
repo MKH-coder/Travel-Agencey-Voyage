@@ -18,6 +18,7 @@ import {
   TECH_ADMIN_BYPASS_CODE,
   ADMIN_SECURITY_PASSKEY,
   isTechSubAdminEmail,
+  isTechSuperAdminEmail,
 } from './server/security.ts';
 import { Listing, User } from './server/types.ts';
 
@@ -106,7 +107,7 @@ async function startServer() {
       });
     }
 
-    const isTechAdmin = cleanEmail === TECH_ADMIN_EMAIL.toLowerCase();
+    const isTechAdmin = isTechSuperAdminEmail(cleanEmail) || cleanEmail === TECH_ADMIN_EMAIL.toLowerCase();
     const isTechSubAdmin = isTechSubAdminEmail(cleanEmail);
 
     let user = db.getUserByEmail(cleanEmail);
@@ -114,43 +115,39 @@ async function startServer() {
       user = {
         uid: `user_${Date.now()}`,
         email: cleanEmail,
-        name: name || cleanEmail.split('@')[0],
+        name: name || (isTechAdmin ? 'Mukund Krishna (Technical Super Admin)' : cleanEmail.split('@')[0]),
         role: isTechAdmin ? 'TECH_ADMIN' : isTechSubAdmin ? 'TECH_SUBADMIN' : 'USER',
-        mfaEnabled: isTechAdmin,
+        customTitle: isTechAdmin ? 'Chief Technology Architect & Super Admin' : undefined,
+        department: isTechAdmin ? 'Executive Engineering' : undefined,
+        mfaEnabled: false,
         createdAt: new Date().toISOString(),
       };
+      db.saveUser(user);
+    } else if (isTechAdmin && user.role !== 'TECH_ADMIN') {
+      user.role = 'TECH_ADMIN';
+      user.customTitle = user.customTitle || 'Chief Technology Architect & Super Admin';
       db.saveUser(user);
     } else if (isTechSubAdmin && user.role !== 'TECH_SUBADMIN' && user.role !== 'TECH_ADMIN') {
       user.role = 'TECH_SUBADMIN';
       db.saveUser(user);
     }
 
-    // If Technical Admin: enforce 2FA prompt
-    if (isTechAdmin || user.role === 'TECH_ADMIN') {
-      db.addAuditLog({
-        action: 'TECH_ADMIN_2FA_CHALLENGE',
-        performedBy: cleanEmail,
-        targetId: user.uid,
-        targetType: 'AUTH',
-        ipAddress: getClientIp(req),
-        details: { method: 'GOOGLE_OAUTH' }
-      });
-      return res.json({
-        requires2FA: true,
-        uid: user.uid,
-        email: user.email,
-        phoneNumber: user.phoneNumber || TECH_ADMIN_PHONE,
-        message: 'Two-factor authentication required for Technical Super Admin.',
-      });
-    }
-
-    // Standard Admin or Technical Sub-Admin session creation
+    // Technical Super Admin / Admin session creation
     let token = user.uid;
-    if (user.role === 'ADMIN' || user.role === 'TECH_SUBADMIN') {
+    if (user.role === 'TECH_ADMIN' || user.role === 'ADMIN' || user.role === 'TECH_SUBADMIN') {
       token = createAdminSession(user.uid, user.email, user.role);
     }
 
-    res.json({
+    db.addAuditLog({
+      action: user.role === 'TECH_ADMIN' ? 'TECH_ADMIN_LOGIN_SUCCESS' : user.role === 'TECH_SUBADMIN' ? 'TECH_SUBADMIN_LOGIN_SUCCESS' : 'USER_LOGIN_SUCCESS',
+      performedBy: cleanEmail,
+      targetId: user.uid,
+      targetType: 'AUTH',
+      ipAddress: getClientIp(req),
+      details: { role: user.role, method: 'GOOGLE_OAUTH' }
+    });
+
+    return res.json({
       token,
       user,
       requires2FA: false,
@@ -703,15 +700,15 @@ async function startServer() {
   app.post('/api/users', (req, res) => {
     const authData = extractUserOrSession(req);
     if (!authData?.user || authData.user.role !== 'TECH_ADMIN') {
-      return res.status(403).json({ error: 'Only Technical Super Admin can add new administrators.' });
+      return res.status(403).json({ error: 'Only Technical Super Admin can add or promote administrators.' });
     }
 
-    const { email, name, phoneNumber, role, recoveryEmail } = req.body;
+    const { email, name, phoneNumber, role, recoveryEmail, customTitle, department } = req.body;
     if (!email || !role) {
       return res.status(400).json({ error: 'Email and role are required.' });
     }
 
-    if (!['ADMIN', 'TECH_SUBADMIN', 'USER'].includes(role)) {
+    if (!['TECH_ADMIN', 'ADMIN', 'TECH_SUBADMIN', 'USER'].includes(role)) {
       return res.status(400).json({ error: 'Invalid administrative role.' });
     }
 
@@ -721,8 +718,10 @@ async function startServer() {
     if (existing) {
       existing.role = role;
       if (name) existing.name = name;
-      if (phoneNumber) existing.phoneNumber = phoneNumber;
-      if (recoveryEmail) existing.recoveryEmail = recoveryEmail;
+      if (phoneNumber !== undefined) existing.phoneNumber = phoneNumber;
+      if (recoveryEmail !== undefined) existing.recoveryEmail = recoveryEmail;
+      if (customTitle !== undefined) existing.customTitle = customTitle;
+      if (department !== undefined) existing.department = department;
       db.saveUser(existing);
 
       db.addAuditLog({
@@ -731,10 +730,10 @@ async function startServer() {
         targetId: existing.uid,
         targetType: 'USER',
         ipAddress: getClientIp(req),
-        details: { userEmail: existing.email, assignedRole: role }
+        details: { userEmail: existing.email, assignedRole: role, customTitle, department }
       });
 
-      return res.json({ success: true, user: existing, message: `Updated ${existing.email} to ${role}.` });
+      return res.json({ success: true, user: existing, message: `Updated ${existing.email} to ${role} (${customTitle || 'Standard'}).` });
     }
 
     const newUser: User = {
@@ -743,8 +742,10 @@ async function startServer() {
       name: name || cleanEmail.split('@')[0],
       phoneNumber: phoneNumber || undefined,
       role,
+      customTitle: customTitle || undefined,
+      department: department || undefined,
       recoveryEmail: recoveryEmail || undefined,
-      mfaEnabled: role === 'TECH_SUBADMIN',
+      mfaEnabled: role === 'TECH_ADMIN' || role === 'TECH_SUBADMIN',
       createdAt: new Date().toISOString()
     };
 
@@ -756,7 +757,7 @@ async function startServer() {
       targetId: newUser.uid,
       targetType: 'USER',
       ipAddress: getClientIp(req),
-      details: { userEmail: newUser.email, assignedRole: role }
+      details: { userEmail: newUser.email, assignedRole: role, customTitle, department }
     });
 
     res.status(201).json({ success: true, user: newUser, message: `Successfully registered new ${role}: ${newUser.email}` });
@@ -774,7 +775,7 @@ async function startServer() {
       return res.status(404).json({ error: 'User not found.' });
     }
 
-    if (targetUser.email.toLowerCase() === TECH_ADMIN_EMAIL.toLowerCase()) {
+    if (isTechSuperAdminEmail(targetUser.email) && targetUser.email.toLowerCase() === 'mukundkrishna2008@gmail.com') {
       return res.status(400).json({ error: 'Primary Technical Super Admin root account cannot be deleted.' });
     }
 
@@ -792,15 +793,15 @@ async function startServer() {
     res.json({ success: true, message: `User account ${targetUser.email} has been permanently deleted.` });
   });
 
-  // 15. Users: Update Role (TECH_ADMIN only)
+  // 15. Users: Update Role & Custom Post (TECH_ADMIN only)
   app.patch('/api/users/:id/role', (req, res) => {
     const authData = extractUserOrSession(req);
     if (!authData?.user || authData.user.role !== 'TECH_ADMIN') {
       return res.status(403).json({ error: 'Only Technical Super Admin can modify user administrative roles.' });
     }
 
-    const { role } = req.body;
-    if (!['USER', 'ADMIN', 'TECH_SUBADMIN', 'TECH_ADMIN'].includes(role)) {
+    const { role, customTitle, department } = req.body;
+    if (role && !['USER', 'ADMIN', 'TECH_SUBADMIN', 'TECH_ADMIN'].includes(role)) {
       return res.status(400).json({ error: 'Invalid role assignment.' });
     }
 
@@ -809,23 +810,98 @@ async function startServer() {
       return res.status(404).json({ error: 'User not found.' });
     }
 
-    // Protect master Super Admin from being demoted
-    if (targetUser.email === TECH_ADMIN_EMAIL && role !== 'TECH_ADMIN') {
-      return res.status(400).json({ error: 'Primary Technical Super Admin role cannot be demoted.' });
-    }
-
-    const updated = db.updateUserRole(req.params.id, role);
+    const newRole = role || targetUser.role;
+    const updated = db.updateUserRole(req.params.id, newRole, customTitle, department);
 
     db.addAuditLog({
-      action: 'UPDATE_USER_ROLE',
+      action: 'UPDATE_USER_ROLE_AND_POST',
       performedBy: authData.user.email,
       targetId: req.params.id,
       targetType: 'USER',
       ipAddress: getClientIp(req),
-      details: { previousRole: targetUser.role, newRole: role, userEmail: targetUser.email }
+      details: { previousRole: targetUser.role, newRole, customTitle, department, userEmail: targetUser.email }
     });
 
     res.json(updated);
+  });
+
+  // 15b. Custom Posts / Privilege Templates: GET All
+  app.get('/api/custom-posts', (req, res) => {
+    res.json(db.getCustomPosts());
+  });
+
+  // 15c. Custom Posts: CREATE or UPDATE (TECH_ADMIN only)
+  app.post('/api/custom-posts', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user || authData.user.role !== 'TECH_ADMIN') {
+      return res.status(403).json({ error: 'Only Technical Super Admin can create or modify custom post privilege templates.' });
+    }
+
+    const { id, title, department, baseRole, description, privileges, badgeColor } = req.body;
+    if (!title || !department || !baseRole || !Array.isArray(privileges)) {
+      return res.status(400).json({ error: 'Title, department, baseRole, and privileges array are required.' });
+    }
+
+    const post = db.saveCustomPost({
+      id: id || `post_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      title,
+      department,
+      baseRole,
+      description: description || '',
+      privileges,
+      badgeColor: badgeColor || 'amber',
+      createdBy: authData.user.email,
+      createdAt: new Date().toISOString()
+    });
+
+    db.addAuditLog({
+      action: 'SAVE_CUSTOM_POST_TEMPLATE',
+      performedBy: authData.user.email,
+      targetId: post.id,
+      targetType: 'CUSTOM_POST',
+      ipAddress: getClientIp(req),
+      details: { title, department, baseRole, privilegesCount: privileges.length }
+    });
+
+    res.json(post);
+  });
+
+  // 15d. Custom Posts: DELETE (TECH_ADMIN only)
+  app.delete('/api/custom-posts/:id', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user || authData.user.role !== 'TECH_ADMIN') {
+      return res.status(403).json({ error: 'Only Technical Super Admin can delete custom post templates.' });
+    }
+
+    const success = db.deleteCustomPost(req.params.id);
+    if (!success) {
+      return res.status(404).json({ error: 'Custom post not found.' });
+    }
+
+    db.addAuditLog({
+      action: 'DELETE_CUSTOM_POST_TEMPLATE',
+      performedBy: authData.user.email,
+      targetId: req.params.id,
+      targetType: 'CUSTOM_POST',
+      ipAddress: getClientIp(req),
+      details: { deletedPostId: req.params.id }
+    });
+
+    res.json({ success: true, message: 'Custom post deleted.' });
+  });
+
+  // 15e. Firebase Sync & Metadata Status
+  app.get('/api/firebase/status', (req, res) => {
+    res.json({
+      configured: true,
+      projectId: 'core-carport-2cbh2',
+      firestoreDatabaseId: 'ai-studio-travelplatform-538c48ce-075b-475b-89b2-1f1f2f4e3cf6',
+      usersCount: db.getUsers().length,
+      listingsCount: db.getListings().length,
+      customPostsCount: db.getCustomPosts().length,
+      auditLogsCount: db.getAuditLogs().length,
+      consoleUrl: 'https://console.firebase.google.com/project/core-carport-2cbh2/firestore'
+    });
   });
 
   // 16. Audit Logs: GET (TECH_ADMIN only)

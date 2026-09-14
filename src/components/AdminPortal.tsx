@@ -30,15 +30,23 @@ import {
   Compass,
   Plus,
   Wifi,
-  WifiOff
+  WifiOff,
+  Briefcase,
+  Database,
+  Flame,
+  FileSpreadsheet
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
-import { Listing, User, AuditLog, ListingCategory, ListingStatus } from '../types.ts';
+import { Listing, User, AuditLog, ListingCategory, ListingStatus, CustomPost } from '../types.ts';
 import { MapLocationPicker, LocationResult } from './MapLocationPicker.tsx';
 import { AddAdminModal } from './AddAdminModal.tsx';
+import { EditRolePostModal } from './EditRolePostModal.tsx';
 import { EditContentModal } from './EditContentModal.tsx';
 import { CloudSyncPanel } from './CloudSyncPanel.tsx';
+import { CustomPostCreatorModal } from './CustomPostCreatorModal.tsx';
+import { FirebaseConsoleModal } from './FirebaseConsoleModal.tsx';
+import { ClientStorageManager } from '../services/clientStorage.ts';
 
 interface AdminPortalProps {
   onListingUpdated?: () => void;
@@ -88,7 +96,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
   // Modals for admin operations
   const [showAddAdminModal, setShowAddAdminModal] = useState<boolean>(false);
+  const [editingRolePostUser, setEditingRolePostUser] = useState<User | null>(null);
   const [editingContentListing, setEditingContentListing] = useState<Listing | null>(null);
+  const [showCustomPostModal, setShowCustomPostModal] = useState<boolean>(false);
+  const [editingCustomPost, setEditingCustomPost] = useState<CustomPost | null>(null);
+  const [showFirebaseConsoleModal, setShowFirebaseConsoleModal] = useState<boolean>(false);
+  const [customPostsList, setCustomPostsList] = useState<CustomPost[]>([]);
+
+  // User management search & filter
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'TECH_ADMIN' | 'TECH_SUBADMIN' | 'ADMIN' | 'USER'>('ALL');
 
   // Form State for creating a listing
   const [formData, setFormData] = useState({
@@ -130,9 +147,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       if (res.ok) {
         const data = await res.json();
         setListings(data);
+        return;
       }
     } catch {
       // ignore
+    }
+
+    // Static / Offline fallback
+    try {
+      const localListings = ClientStorageManager.getListings();
+      setListings(localListings);
+    } catch {
+      // fallback
     } finally {
       setLoadingListings(false);
     }
@@ -149,9 +175,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       if (res.ok) {
         const data = await res.json();
         setUsersList(data);
+        return;
       }
     } catch {
       // ignore
+    }
+
+    // Static / Offline fallback
+    try {
+      const localUsers = ClientStorageManager.getUsers();
+      setUsersList(localUsers);
+    } catch {
+      // fallback
     } finally {
       setLoadingUsers(false);
     }
@@ -169,12 +204,61 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       if (res.ok) {
         const data = await res.json();
         setAuditLogs(data);
+        return;
       }
     } catch {
       // ignore
+    }
+
+    // Static / Offline fallback
+    try {
+      const localLogs = ClientStorageManager.getAuditLogs(actionFilter);
+      setAuditLogs(localLogs);
+    } catch {
+      // fallback
     } finally {
       setLoadingLogs(false);
     }
+  };
+
+  // Fetch Custom Posts templates (Super Admin)
+  const fetchCustomPosts = async () => {
+    try {
+      const res = await fetch('/api/custom-posts', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCustomPostsList(data);
+        return;
+      }
+    } catch {
+      // ignore
+    }
+
+    // Static fallback
+    try {
+      const posts = ClientStorageManager.getCustomPosts();
+      setCustomPostsList(posts);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleDeleteCustomPost = (postId: string, title: string) => {
+    executeWithPasskey(async () => {
+      try {
+        await fetch(`/api/custom-posts/${postId}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } catch {
+        // ignore
+      }
+      ClientStorageManager.deleteCustomPost(postId);
+      fetchCustomPosts();
+      fetchLogs();
+    });
   };
 
   useEffect(() => {
@@ -182,6 +266,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       fetchListings();
       if (isTechAdmin) {
         fetchUsers();
+        fetchCustomPosts();
       }
       if (isElevatedAdmin) {
         fetchLogs();
@@ -225,20 +310,40 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     setUploadError('');
     setFormSuccessMessage('');
 
+    const allImages = [
+      ...(formData.imageUrl ? [formData.imageUrl.trim()] : []),
+      ...additionalPhotos,
+    ];
+    const imagesToUse = allImages.length > 0 
+      ? allImages 
+      : ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80'];
+
+    const tagsArray = formData.tags.split(',').map(t => t.trim()).filter(Boolean);
+    const amenitiesArray = formData.amenities.split(',').map(a => a.trim()).filter(Boolean);
+    const effectiveStatus = (isElevatedAdmin && postAsSuperAdmin) ? 'PUBLISHED' : targetStatus;
+
+    const resetListingForm = () => {
+      setFormData({
+        title: '',
+        category: 'PLACE',
+        price: 250,
+        location: '',
+        country: '',
+        description: '',
+        imageUrl: '',
+        tags: 'Romantic, Scenic, Historic',
+        amenities: 'Guided Walking Tour, Audio Headsets, Panoramic Overlook',
+      });
+      setAdditionalPhotos([]);
+      setNewPhotoInput('');
+      setSelectedCoordinates(undefined);
+      setShowMapPicker(false);
+      setUploadPreview(null);
+      fetchListings();
+      if (onListingUpdated) onListingUpdated();
+    };
+
     try {
-      const allImages = [
-        ...(formData.imageUrl ? [formData.imageUrl.trim()] : []),
-        ...additionalPhotos,
-      ];
-      const imagesToUse = allImages.length > 0 
-        ? allImages 
-        : ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80'];
-
-      const tagsArray = formData.tags.split(',').map(t => t.trim()).filter(Boolean);
-      const amenitiesArray = formData.amenities.split(',').map(a => a.trim()).filter(Boolean);
-
-      const effectiveStatus = (isElevatedAdmin && postAsSuperAdmin) ? 'PUBLISHED' : targetStatus;
-
       const res = await fetch('/api/listings', {
         method: 'POST',
         headers: {
@@ -261,10 +366,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         }),
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        setUploadError(data.error || 'Failed to submit inventory item.');
-      } else {
+      if (res.ok) {
         setFormSuccessMessage(
           effectiveStatus === 'PENDING_APPROVAL'
             ? 'Listing successfully submitted to Technical Super Admin Queue for verification!'
@@ -272,28 +374,62 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             ? 'Listing published directly to public explorer with Super Admin Privilege & Verified Badge!'
             : 'Draft saved to your inventory tracker.'
         );
-        // Reset form
-        setFormData({
-          title: '',
-          category: 'PLACE',
-          price: 250,
-          location: '',
-          country: '',
-          description: '',
-          imageUrl: '',
-          tags: 'Romantic, Scenic, Historic',
-          amenities: 'Guided Walking Tour, Audio Headsets, Panoramic Overlook',
-        });
-        setAdditionalPhotos([]);
-        setNewPhotoInput('');
-        setSelectedCoordinates(undefined);
-        setShowMapPicker(false);
-        setUploadPreview(null);
-        fetchListings();
-        if (onListingUpdated) onListingUpdated();
+        resetListingForm();
+        return;
       }
     } catch {
-      setUploadError('Network error while creating listing.');
+      // Backend offline - continue to static ClientStorageManager fallback
+    }
+
+    // Static / Offline fallback
+    try {
+      const now = new Date().toISOString();
+      const newListing: Listing = {
+        id: `list_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        title: formData.title,
+        category: formData.category,
+        price: Number(formData.price),
+        location: formData.location,
+        country: formData.country,
+        description: formData.description,
+        rating: 4.9,
+        reviewCount: 1,
+        images: imagesToUse,
+        tags: tagsArray,
+        amenities: amenitiesArray,
+        status: effectiveStatus,
+        coordinates: selectedCoordinates,
+        createdBy: user?.uid || 'super_admin_001',
+        createdByName: user?.name || 'Super Admin',
+        approvedBy: effectiveStatus === 'PUBLISHED' ? (user?.name || 'Super Admin') : undefined,
+        timestamps: {
+          createdAt: now,
+          updatedAt: now,
+          submittedAt: effectiveStatus === 'PENDING_APPROVAL' ? now : undefined,
+          approvedAt: effectiveStatus === 'PUBLISHED' ? now : undefined,
+        },
+      };
+
+      ClientStorageManager.saveListing(newListing);
+      ClientStorageManager.addAuditLog({
+        action: effectiveStatus === 'PUBLISHED' ? 'CREATE_AND_PUBLISH_LISTING' : 'CREATE_LISTING_DRAFT',
+        performedBy: user?.name || 'Super Admin',
+        targetId: newListing.id,
+        targetType: 'LISTING',
+        ipAddress: '127.0.0.1',
+        details: { title: newListing.title, status: newListing.status }
+      });
+
+      setFormSuccessMessage(
+        effectiveStatus === 'PENDING_APPROVAL'
+          ? 'Listing submitted to Technical Super Admin Queue (Offline/Static Storage)!'
+          : effectiveStatus === 'PUBLISHED'
+          ? 'Listing published directly with Super Admin Verified Status (Static/Local Storage)!'
+          : 'Draft saved to local inventory.'
+      );
+      resetListingForm();
+    } catch {
+      setUploadError('Error creating listing.');
     } finally {
       setIsSubmittingListing(false);
     }
@@ -317,9 +453,44 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         await fetchListings();
         if (isElevatedAdmin) fetchLogs();
         if (onListingUpdated) onListingUpdated();
+        return;
       }
     } catch {
-      // ignore
+      // Backend offline - continue to ClientStorageManager fallback
+    }
+
+    // Static fallback
+    try {
+      const currentListings = ClientStorageManager.getListings();
+      const item = currentListings.find(l => l.id === id);
+      if (item) {
+        const now = new Date().toISOString();
+        item.status = newStatus;
+        item.timestamps = {
+          ...item.timestamps,
+          updatedAt: now,
+        };
+        if (newStatus === 'PUBLISHED') {
+          item.timestamps.approvedAt = now;
+          item.approvedBy = user?.name || 'Super Admin';
+        } else if (newStatus === 'REJECTED') {
+          item.rejectionReason = reason;
+        }
+        ClientStorageManager.saveListing(item);
+        ClientStorageManager.addAuditLog({
+          action: newStatus === 'PUBLISHED' ? 'APPROVE_LISTING' : 'REJECT_LISTING',
+          performedBy: user?.name || 'Super Admin',
+          targetId: id,
+          targetType: 'LISTING',
+          ipAddress: '127.0.0.1',
+          details: { status: newStatus, reason }
+        });
+        setReviewListing(null);
+        setRejectionReason('');
+        await fetchListings();
+        if (isElevatedAdmin) fetchLogs();
+        if (onListingUpdated) onListingUpdated();
+      }
     } finally {
       setActionProcessing(false);
     }
@@ -336,10 +507,23 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         await fetchListings();
         if (isElevatedAdmin) fetchLogs();
         if (onListingUpdated) onListingUpdated();
+        return;
       }
     } catch {
-      // ignore
+      // Static fallback
     }
+
+    ClientStorageManager.deleteListing(id);
+    ClientStorageManager.addAuditLog({
+      action: 'DELETE_LISTING',
+      performedBy: user?.name || 'Super Admin',
+      targetId: id,
+      targetType: 'LISTING',
+      ipAddress: '127.0.0.1'
+    });
+    await fetchListings();
+    if (isElevatedAdmin) fetchLogs();
+    if (onListingUpdated) onListingUpdated();
   };
 
   // Elevated Action Protection: Prompt Passkey before executing
@@ -371,18 +555,27 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const handleToggleUserRole = (targetUser: User) => {
     const nextRole = targetUser.role === 'ADMIN' ? 'USER' : 'ADMIN';
     executeWithPasskey(async () => {
-      const res = await fetch(`/api/users/${targetUser.uid}/role`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ role: nextRole }),
-      });
-      if (res.ok) {
-        fetchUsers();
-        fetchLogs();
+      try {
+        const res = await fetch(`/api/users/${targetUser.uid}/role`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ role: nextRole }),
+        });
+        if (res.ok) {
+          fetchUsers();
+          fetchLogs();
+          return;
+        }
+      } catch {
+        // Static fallback
       }
+
+      ClientStorageManager.updateUserRoleAndPost(targetUser.uid, nextRole);
+      fetchUsers();
+      fetchLogs();
     });
   };
 
@@ -392,16 +585,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       return;
     }
     executeWithPasskey(async () => {
-      const res = await fetch(`/api/users/${targetUserId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (res.ok) {
-        fetchUsers();
-        fetchLogs();
+      try {
+        const res = await fetch(`/api/users/${targetUserId}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (res.ok) {
+          fetchUsers();
+          fetchLogs();
+          return;
+        }
+      } catch {
+        // Static fallback
       }
+
+      ClientStorageManager.deleteUser(targetUserId);
+      fetchUsers();
+      fetchLogs();
     });
   };
 
@@ -1197,116 +1399,312 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
       {/* --- TAB 4: User Management (Tech Admin only) --- */}
       {activeTab === 'users' && isTechAdmin && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="space-y-5">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
-              <h2 className={`text-lg font-bold ${styles.textPrimary}`}>
-                User & Admin Privilege Administration
+              <h2 className={`text-lg font-bold ${styles.textPrimary} flex items-center gap-2`}>
+                <ShieldCheck className="w-5 h-5 text-amber-500" />
+                <span>User & Admin Privilege Administration</span>
               </h2>
               <p className={`text-xs ${styles.textMuted}`}>
-                Manage system roles, grant or revoke Standard Admin privileges, and inspect MFA security status.
+                Create custom posts with granular privileges, search accounts, designate official titles & departments, and promote or demote administrator permissions.
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                id="create-custom-post-btn"
+                onClick={() => {
+                  setEditingCustomPost(null);
+                  setShowCustomPostModal(true);
+                }}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-md flex items-center gap-1.5 transition-all"
+              >
+                <Briefcase className="w-3.5 h-3.5" />
+                <span>Make Custom Post (Special Window)</span>
+              </button>
+              <button
+                id="open-firebase-console-btn"
+                onClick={() => setShowFirebaseConsoleModal(true)}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 shadow-md flex items-center gap-1.5 transition-all"
+              >
+                <Database className="w-3.5 h-3.5 text-amber-400" />
+                <span>Firebase Cloud Database</span>
+              </button>
               <button
                 id="add-new-admin-btn"
                 onClick={() => setShowAddAdminModal(true)}
-                className={`px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary} shadow-md flex items-center gap-1.5`}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary} shadow-md flex items-center gap-1.5`}
               >
                 <UserPlus className="w-3.5 h-3.5" />
-                <span>Add New Admin</span>
+                <span>Add User & Post</span>
               </button>
               <button
-                onClick={fetchUsers}
+                onClick={() => setActiveTab('create')}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white shadow-md flex items-center gap-1.5 transition-colors"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>Add Travel Post</span>
+              </button>
+              <button
+                onClick={() => {
+                  fetchUsers();
+                  fetchCustomPosts();
+                }}
                 className={`p-2 rounded-xl text-xs font-semibold ${styles.buttonSecondary} flex items-center gap-1.5`}
+                title="Refresh user and custom post database"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span>Refresh Users</span>
+                <span>Refresh</span>
               </button>
             </div>
           </div>
 
+          {/* Custom Post & Privilege Templates Showcase Matrix */}
+          <div className={`p-4 rounded-3xl border ${styles.border} ${styles.cardBg} space-y-3`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-amber-500" />
+                <h3 className={`text-xs font-bold uppercase tracking-wider ${styles.textPrimary}`}>
+                  Custom Post Designation Templates ({customPostsList.length})
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingCustomPost(null);
+                  setShowCustomPostModal(true);
+                }}
+                className="text-xs font-bold text-amber-400 hover:underline flex items-center gap-1"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>New Custom Post Window</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {customPostsList.map((post) => (
+                <div
+                  key={post.id}
+                  className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2.5 flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="font-bold text-xs text-slate-800 dark:text-slate-100 line-clamp-1">
+                        {post.title}
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
+                        {post.baseRole}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-sky-500 font-semibold">{post.department}</div>
+                    <p className="text-[11px] text-slate-400 line-clamp-2 mt-1 leading-snug">
+                      {post.description}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 pt-1 border-t border-slate-200/60 dark:border-slate-800/80">
+                    <div className="flex flex-wrap gap-1">
+                      {post.privileges?.slice(0, 3).map((priv) => (
+                        <span key={priv} className="text-[9px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono">
+                          {priv.replace('_', ' ')}
+                        </span>
+                      ))}
+                      {(post.privileges?.length || 0) > 3 && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono font-bold">
+                          +{(post.privileges?.length || 0) - 3} more
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-[9px] text-slate-500 font-mono">ID: {post.id.slice(0, 12)}</span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => {
+                            setEditingCustomPost(post);
+                            setShowCustomPostModal(true);
+                          }}
+                          className="p-1 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800 transition-colors"
+                          title="Edit Custom Post"
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCustomPost(post.id, post.title)}
+                          className="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
+                          title="Delete Custom Post"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Search & Filter Bar */}
+          <div className={`p-4 rounded-2xl border ${styles.border} ${styles.cardBg} flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3`}>
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={userSearchQuery}
+                onChange={(e) => setUserSearchQuery(e.target.value)}
+                placeholder="Search specific email (e.g. mukundkrishna.h@gmail.com), name, post, or department..."
+                className={`w-full pl-9 pr-4 py-2 text-xs rounded-xl outline-none ${styles.inputBg}`}
+              />
+              {userSearchQuery && (
+                <button
+                  onClick={() => setUserSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-200"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Filter by Role */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+              {(['ALL', 'TECH_ADMIN', 'TECH_SUBADMIN', 'ADMIN', 'USER'] as const).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setUserRoleFilter(r)}
+                  className={`px-2.5 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all shrink-0 ${
+                    userRoleFilter === r
+                      ? 'bg-amber-500 text-white shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {r === 'ALL' ? 'All Roles' : r === 'TECH_ADMIN' ? 'Super Admin' : r === 'TECH_SUBADMIN' ? 'Sub-Admin' : r === 'ADMIN' ? 'Admin' : 'User'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Users Table */}
           <div className={`rounded-3xl border ${styles.border} ${styles.cardBg} overflow-hidden shadow-sm`}>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
                   <tr>
-                    <th className="p-4">User</th>
+                    <th className="p-4">User & Email</th>
+                    <th className="p-4">Assigned Post / Designation</th>
                     <th className="p-4">Phone / MFA</th>
-                    <th className="p-4">Current Role</th>
-                    <th className="p-4">Recovery Email</th>
-                    <th className="p-4 text-right">Privilege & Actions</th>
+                    <th className="p-4">Role Tier</th>
+                    <th className="p-4">Recovery Contact</th>
+                    <th className="p-4 text-right">Privilege & Designation Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200/50 dark:divide-slate-800">
-                  {usersList.map(u => (
-                    <tr key={u.uid} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
-                      <td className="p-4">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-xs">
-                            {u.name.charAt(0)}
-                          </div>
-                          <div>
-                            <div className={`font-bold ${styles.textPrimary}`}>{u.name}</div>
-                            <div className="text-[10px] text-slate-400">{u.email}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="font-mono text-xs">{u.phoneNumber || 'N/A'}</div>
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${u.mfaEnabled ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-200 dark:bg-slate-800 text-slate-400'}`}>
-                          {u.mfaEnabled ? 'MFA ACTIVE' : 'NO MFA'}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
-                          u.role === 'TECH_ADMIN'
-                            ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30 font-extrabold'
-                            : u.role === 'TECH_SUBADMIN'
-                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30 font-bold'
-                            : u.role === 'ADMIN'
-                            ? 'bg-sky-500/20 text-sky-500 border border-sky-500/30'
-                            : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
-                        }`}>
-                          {u.role}
-                        </span>
-                      </td>
-                      <td className="p-4 text-slate-400 text-[11px] font-mono">
-                        {u.recoveryEmail || 'None configured'}
-                      </td>
-                      <td className="p-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {u.role === 'TECH_ADMIN' ? (
-                            <span className="text-[10px] font-semibold text-amber-500 flex items-center justify-end gap-1">
-                              <ShieldCheck className="w-3.5 h-3.5" />
-                              <span>Root Protected</span>
-                            </span>
-                          ) : (
-                            <>
-                              <button
-                                onClick={() => handleToggleUserRole(u)}
-                                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                                  u.role === 'ADMIN' || u.role === 'TECH_SUBADMIN'
-                                    ? 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border border-rose-500/30'
-                                    : 'bg-sky-500 text-white hover:bg-sky-400'
-                                }`}
-                              >
-                                {u.role === 'ADMIN' || u.role === 'TECH_SUBADMIN' ? 'Revoke Admin' : 'Promote to Admin'}
-                              </button>
+                  {(() => {
+                    const query = userSearchQuery.trim().toLowerCase();
+                    const filtered = usersList.filter(u => {
+                      const matchesSearch = !query || 
+                        u.email.toLowerCase().includes(query) ||
+                        u.name.toLowerCase().includes(query) ||
+                        (u.customTitle && u.customTitle.toLowerCase().includes(query)) ||
+                        (u.department && u.department.toLowerCase().includes(query));
+                      
+                      const matchesRole = userRoleFilter === 'ALL' || u.role === userRoleFilter;
+                      return matchesSearch && matchesRole;
+                    });
 
-                              <button
-                                onClick={() => handleDeleteUser(u.uid, u.email)}
-                                className="p-1.5 rounded-xl text-rose-500 hover:bg-rose-500/10 border border-rose-500/20 hover:border-rose-500/40 transition-colors"
-                                title="Delete User (Super Admin)"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                    if (filtered.length === 0) {
+                      return (
+                        <tr>
+                          <td colSpan={6} className="p-8 text-center text-slate-400">
+                            No user records match "{userSearchQuery}". You can register this email with any role using the "Add User & Post" button above.
+                          </td>
+                        </tr>
+                      );
+                    }
+
+                    return filtered.map(u => (
+                      <tr key={u.uid} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                        <td className="p-4">
+                          <div className="flex items-center gap-2.5">
+                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
+                              u.role === 'TECH_ADMIN' ? 'bg-amber-500/20 text-amber-500' : 'bg-slate-200 dark:bg-slate-800'
+                            }`}>
+                              {u.name.charAt(0)}
+                            </div>
+                            <div>
+                              <div className={`font-bold ${styles.textPrimary}`}>{u.name}</div>
+                              <div className="text-[10px] text-sky-400 font-mono">{u.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <div className="font-semibold text-xs text-amber-500 dark:text-amber-400">
+                            {u.customTitle || (u.role === 'TECH_ADMIN' ? 'Chief Technology Architect' : u.role === 'ADMIN' ? 'Destination Content Curator' : 'Traveler')}
+                          </div>
+                          <div className="text-[10px] text-slate-400 mt-0.5">
+                            {u.department || 'Platform Operations'}
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <div className="font-mono text-xs">{u.phoneNumber || 'N/A'}</div>
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${u.mfaEnabled ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-200 dark:bg-slate-800 text-slate-400'}`}>
+                            {u.mfaEnabled ? 'MFA ACTIVE' : 'NO MFA'}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
+                            u.role === 'TECH_ADMIN'
+                              ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30 font-extrabold'
+                              : u.role === 'TECH_SUBADMIN'
+                              ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30 font-bold'
+                              : u.role === 'ADMIN'
+                              ? 'bg-sky-500/20 text-sky-500 border border-sky-500/30'
+                              : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                          }`}>
+                            {u.role}
+                          </span>
+                        </td>
+                        <td className="p-4 text-slate-400 text-[11px] font-mono">
+                          {u.recoveryEmail || 'None configured'}
+                        </td>
+                        <td className="p-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {/* Promote & Assign Post Modal Button */}
+                            <button
+                              onClick={() => setEditingRolePostUser(u)}
+                              className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 transition-all flex items-center gap-1"
+                              title="Promote and assign official designation / post"
+                            >
+                              <Pencil className="w-3 h-3" />
+                              <span>Promote / Edit Post</span>
+                            </button>
+
+                            {u.role !== 'TECH_ADMIN' && (
+                              <>
+                                <button
+                                  onClick={() => handleToggleUserRole(u)}
+                                  className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                                    u.role === 'ADMIN' || u.role === 'TECH_SUBADMIN'
+                                      ? 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border border-rose-500/30'
+                                      : 'bg-sky-500 text-white hover:bg-sky-400'
+                                  }`}
+                                >
+                                  {u.role === 'ADMIN' || u.role === 'TECH_SUBADMIN' ? 'Demote' : 'Quick Admin'}
+                                </button>
+
+                                <button
+                                  onClick={() => handleDeleteUser(u.uid, u.email)}
+                                  className="p-1.5 rounded-xl text-rose-500 hover:bg-rose-500/10 border border-rose-500/20 hover:border-rose-500/40 transition-colors"
+                                  title="Delete User (Super Admin)"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ));
+                  })()}
                 </tbody>
               </table>
             </div>
@@ -1567,6 +1965,73 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* --- ADD ADMIN / USER MODAL --- */}
+      <AddAdminModal
+        isOpen={showAddAdminModal}
+        onClose={() => setShowAddAdminModal(false)}
+        onAdminCreated={(newUser) => {
+          setUsersList(prev => [newUser, ...prev.filter(u => u.uid !== newUser.uid)]);
+          setShowAddAdminModal(false);
+          fetchLogs();
+        }}
+      />
+
+      {/* --- EDIT ROLE & ASSIGNED POST MODAL --- */}
+      <EditRolePostModal
+        isOpen={!!editingRolePostUser}
+        user={editingRolePostUser}
+        onClose={() => setEditingRolePostUser(null)}
+        onUserUpdated={(updatedUser) => {
+          setUsersList(prev => prev.map(u => u.uid === updatedUser.uid ? updatedUser : u));
+          setEditingRolePostUser(null);
+          fetchLogs();
+        }}
+        onOpenCustomPostCreator={() => {
+          setEditingCustomPost(null);
+          setShowCustomPostModal(true);
+        }}
+      />
+
+      {/* --- CUSTOM POST CREATOR MODAL (SPECIAL WINDOW) --- */}
+      <CustomPostCreatorModal
+        isOpen={showCustomPostModal}
+        onClose={() => {
+          setShowCustomPostModal(false);
+          setEditingCustomPost(null);
+        }}
+        postToEdit={editingCustomPost}
+        onPostSaved={(savedPost) => {
+          fetchCustomPosts();
+          fetchLogs();
+        }}
+      />
+
+      {/* --- FIREBASE CLOUD DATABASE CONSOLE MODAL --- */}
+      <FirebaseConsoleModal
+        isOpen={showFirebaseConsoleModal}
+        onClose={() => setShowFirebaseConsoleModal(false)}
+        onSyncCompleted={() => {
+          fetchCustomPosts();
+          fetchUsers();
+          fetchListings();
+          fetchLogs();
+        }}
+      />
+
+      {/* --- EDIT CONTENT LISTING MODAL --- */}
+      {editingContentListing && (
+        <EditContentModal
+          isOpen={!!editingContentListing}
+          listing={editingContentListing}
+          onClose={() => setEditingContentListing(null)}
+          onListingUpdated={() => {
+            fetchListings();
+            setEditingContentListing(null);
+            if (onListingUpdated) onListingUpdated();
+          }}
+        />
       )}
 
     </div>

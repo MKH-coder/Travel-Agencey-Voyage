@@ -1,4 +1,114 @@
-import { Listing } from '../types.ts';
+import { Listing, User, AuditLog } from '../types.ts';
+
+export const TECH_ADMIN_EMAILS = [
+  'mukundkrishna2008@gmail.com',
+  'mukundkrishna.h2008@gmail.com',
+  'mukundkrishna.h@gmail.com',
+  '8c15mukundkrishna.h@gmail.com',
+  'code@gmail.com',
+  'adminbypass',
+];
+
+export const DEFAULT_USERS: User[] = [
+  {
+    uid: 'user_tech_admin_01',
+    email: 'mukundkrishna2008@gmail.com',
+    phoneNumber: '+91 9567465134',
+    name: 'Mukund Krishna (Technical Super Admin)',
+    role: 'TECH_ADMIN',
+    customTitle: 'Head of Infrastructure & Security',
+    department: 'Engineering & Operations',
+    mfaEnabled: true,
+    recoveryEmail: '8c15mukundkrishna.h@gmail.com',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
+    createdAt: new Date(Date.now() - 90 * 24 * 3600 * 1000).toISOString(),
+  },
+  {
+    uid: 'user_tech_subadmin_01',
+    email: 'mukundkrishna.h@gmail.com',
+    phoneNumber: '+91 9567465135',
+    name: 'Mukund Krishna (Technical Sub-Admin)',
+    role: 'TECH_SUBADMIN',
+    customTitle: 'Senior Platform Reliability Engineer',
+    department: 'DevOps & Reliability',
+    mfaEnabled: false,
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80',
+    createdAt: new Date(Date.now() - 45 * 24 * 3600 * 1000).toISOString(),
+  },
+  {
+    uid: 'user_tech_subadmin_03',
+    email: 'mukundkrishna.h2008@gmail.com',
+    phoneNumber: '+91 9567465137',
+    name: 'Mukund Krishna Dev (Technical Super Admin)',
+    role: 'TECH_ADMIN',
+    customTitle: 'Principal Systems Architect',
+    department: 'Core Architecture',
+    mfaEnabled: false,
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80',
+    createdAt: new Date(Date.now() - 35 * 24 * 3600 * 1000).toISOString(),
+  },
+  {
+    uid: 'user_admin_02',
+    email: 'sarah.content@travelplatform.io',
+    phoneNumber: '+1 555-019-2834',
+    name: 'Sarah Jenkins (Standard Admin)',
+    role: 'ADMIN',
+    customTitle: 'Senior Travel Editorial Director',
+    department: 'Global Content & Curation',
+    mfaEnabled: false,
+    recoveryEmail: 'sarah.backup@gmail.com',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80',
+    createdAt: new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString(),
+  },
+  {
+    uid: 'user_traveler_03',
+    email: 'alex.globetrotter@example.com',
+    phoneNumber: '+1 555-482-1920',
+    name: 'Alex Rivera',
+    role: 'USER',
+    customTitle: 'Verified Voyage Explorer',
+    department: 'Community Member',
+    mfaEnabled: false,
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80',
+    createdAt: new Date(Date.now() - 10 * 24 * 3600 * 1000).toISOString(),
+  }
+];
+
+export const DEFAULT_AUDIT_LOGS: AuditLog[] = [
+  {
+    id: 'log-seed-01',
+    action: 'TECH_ADMIN_LOGIN_SUCCESS',
+    performedBy: 'mukundkrishna2008@gmail.com',
+    performedByEmail: 'mukundkrishna2008@gmail.com',
+    targetId: 'SECURITY_AUTH',
+    targetType: 'SYSTEM_AUTH',
+    ipAddress: '127.0.0.1 (Authorized)',
+    timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    details: { method: 'GOOGLE_OAUTH_VERIFIED', role: 'TECH_ADMIN' }
+  },
+  {
+    id: 'log-seed-02',
+    action: 'SECRET_BYPASS_ACTIVATED',
+    performedBy: 'mukundkrishna2008@gmail.com',
+    performedByEmail: 'mukundkrishna2008@gmail.com',
+    targetId: 'EMERGENCY_RECOVERY',
+    targetType: 'SECURITY_GATEWAY',
+    ipAddress: '127.0.0.1 (Direct Terminal)',
+    timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+    details: { bypassTrigger: 'adminbypass', roleGranted: 'TECH_ADMIN' }
+  },
+  {
+    id: 'log-seed-03',
+    action: 'APPROVE_LISTING',
+    performedBy: 'sarah.content@travelplatform.io',
+    performedByEmail: 'sarah.content@travelplatform.io',
+    targetId: 'list-santorini-01',
+    targetType: 'DESTINATION_POST',
+    ipAddress: '192.168.1.42',
+    timestamp: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+    details: { title: 'Santorini Caldera Cliffside & Oia Sunset Panorama', status: 'PUBLISHED' }
+  }
+];
 
 export const DEFAULT_LISTINGS: Listing[] = [
   {

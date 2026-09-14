@@ -9,8 +9,36 @@ export interface User {
   name: string;
   avatar?: string;
   role: UserRole;
+  customTitle?: string;
+  department?: string;
+  customPostId?: string;
+  customPrivileges?: PostPrivilege[];
   mfaEnabled: boolean;
   recoveryEmail?: string;
+  createdAt: string;
+}
+
+export type PostPrivilege =
+  | 'PUBLISH_DIRECTLY'
+  | 'APPROVE_QUEUE'
+  | 'REJECT_QUEUE'
+  | 'MANAGE_USERS'
+  | 'ASSIGN_POSTS'
+  | 'VIEW_AUDIT_LOGS'
+  | 'DELETE_LISTINGS'
+  | 'EDIT_ALL_CONTENT'
+  | 'FIREBASE_CONSOLE_SYNC'
+  | 'BYPASS_SECURITY_2FA';
+
+export interface CustomPost {
+  id: string;
+  title: string;
+  department: string;
+  baseRole: UserRole;
+  description: string;
+  privileges: PostPrivilege[];
+  badgeColor?: 'amber' | 'purple' | 'sky' | 'emerald' | 'rose' | 'indigo';
+  createdBy?: string;
   createdAt: string;
 }
 

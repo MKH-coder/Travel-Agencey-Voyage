@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { User, Listing, AuditLog, Booking, SavedTrip } from './types.ts';
+import { User, Listing, AuditLog, Booking, SavedTrip, CustomPost } from './types.ts';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'database.json');
@@ -11,7 +11,98 @@ interface DatabaseSchema {
   audit_logs: AuditLog[];
   bookings: Booking[];
   saved_trips: SavedTrip[];
+  custom_posts: CustomPost[];
 }
+
+const INITIAL_CUSTOM_POSTS: CustomPost[] = [
+  {
+    id: 'post_tech_architect',
+    title: 'Chief Technology Architect & Super Admin',
+    department: 'Executive Engineering',
+    baseRole: 'TECH_ADMIN',
+    description: 'Full root authority, system security architecture, user administration, and Firebase cloud management.',
+    privileges: [
+      'PUBLISH_DIRECTLY',
+      'APPROVE_QUEUE',
+      'REJECT_QUEUE',
+      'MANAGE_USERS',
+      'ASSIGN_POSTS',
+      'VIEW_AUDIT_LOGS',
+      'DELETE_LISTINGS',
+      'EDIT_ALL_CONTENT',
+      'FIREBASE_CONSOLE_SYNC',
+      'BYPASS_SECURITY_2FA'
+    ],
+    badgeColor: 'amber',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdAt: '2025-01-01T00:00:00.000Z'
+  },
+  {
+    id: 'post_platform_director',
+    title: 'Lead Platform Director & Super Admin',
+    department: 'Platform Operations',
+    baseRole: 'TECH_ADMIN',
+    description: 'Strategic oversight across platform operations, content verification, and cloud synchronization.',
+    privileges: [
+      'PUBLISH_DIRECTLY',
+      'APPROVE_QUEUE',
+      'REJECT_QUEUE',
+      'MANAGE_USERS',
+      'ASSIGN_POSTS',
+      'VIEW_AUDIT_LOGS',
+      'DELETE_LISTINGS',
+      'EDIT_ALL_CONTENT',
+      'FIREBASE_CONSOLE_SYNC'
+    ],
+    badgeColor: 'amber',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdAt: '2025-01-01T00:00:00.000Z'
+  },
+  {
+    id: 'post_infra_specialist',
+    title: 'Senior Infrastructure & Security Specialist',
+    department: 'Information Security',
+    baseRole: 'TECH_SUBADMIN',
+    description: 'Infrastructure health monitoring, security audit log analysis, and listing queue review.',
+    privileges: [
+      'APPROVE_QUEUE',
+      'REJECT_QUEUE',
+      'VIEW_AUDIT_LOGS',
+      'EDIT_ALL_CONTENT',
+      'FIREBASE_CONSOLE_SYNC'
+    ],
+    badgeColor: 'purple',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdAt: '2025-01-05T00:00:00.000Z'
+  },
+  {
+    id: 'post_curation_lead',
+    title: 'Head of Destination & Hotel Curation',
+    department: 'Content & Editorial',
+    baseRole: 'ADMIN',
+    description: 'Direct publishing of luxury travel guides, dining recommendations, and destination reviews.',
+    privileges: [
+      'PUBLISH_DIRECTLY',
+      'EDIT_ALL_CONTENT'
+    ],
+    badgeColor: 'sky',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdAt: '2025-01-10T00:00:00.000Z'
+  },
+  {
+    id: 'post_travel_critic',
+    title: 'Lead Travel & Culinary Critic',
+    department: 'Hospitality Review',
+    baseRole: 'ADMIN',
+    description: 'Authoring in-depth hotel and dining appraisals with verified badge attachments.',
+    privileges: [
+      'PUBLISH_DIRECTLY'
+    ],
+    badgeColor: 'emerald',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdAt: '2025-01-12T00:00:00.000Z'
+  }
+];
 
 const INITIAL_USERS: User[] = [
   {
@@ -46,11 +137,13 @@ const INITIAL_USERS: User[] = [
     createdAt: new Date(Date.now() - 40 * 24 * 3600 * 1000).toISOString(),
   },
   {
-    uid: 'user_tech_subadmin_03',
+    uid: 'user_tech_admin_02',
     email: 'mukundkrishna.h2008@gmail.com',
     phoneNumber: '+91 9567465137',
-    name: 'Mukund Krishna Dev (Technical Sub-Admin)',
-    role: 'TECH_SUBADMIN',
+    name: 'Mukund Krishna Dev (Technical Super Admin)',
+    role: 'TECH_ADMIN',
+    customTitle: 'Lead Platform Director & Super Admin',
+    department: 'Platform Operations',
     mfaEnabled: false,
     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80',
     createdAt: new Date(Date.now() - 35 * 24 * 3600 * 1000).toISOString(),
@@ -412,12 +505,17 @@ class Database {
           }
         }
 
+        const custom_posts = Array.isArray(parsed.custom_posts) && parsed.custom_posts.length > 0
+          ? parsed.custom_posts
+          : INITIAL_CUSTOM_POSTS;
+
         const data: DatabaseSchema = {
           users,
           listings,
           audit_logs: parsed.audit_logs?.length ? parsed.audit_logs : INITIAL_AUDIT_LOGS,
           bookings: parsed.bookings || [],
           saved_trips: parsed.saved_trips || [],
+          custom_posts,
         };
         this.writeToDisk(data);
         return data;
@@ -431,6 +529,7 @@ class Database {
       audit_logs: INITIAL_AUDIT_LOGS,
       bookings: [],
       saved_trips: [],
+      custom_posts: INITIAL_CUSTOM_POSTS,
     };
     this.writeToDisk(initial);
     return initial;
@@ -474,10 +573,12 @@ class Database {
     return user;
   }
 
-  updateUserRole(uid: string, role: User['role']): User | null {
+  updateUserRole(uid: string, role: User['role'], customTitle?: string, department?: string): User | null {
     const user = this.getUserById(uid);
     if (!user) return null;
     user.role = role;
+    if (customTitle !== undefined) user.customTitle = customTitle;
+    if (department !== undefined) user.department = department;
     this.writeToDisk(this.data);
     return user;
   }
@@ -611,6 +712,39 @@ class Database {
     const initialLen = this.data.saved_trips.length;
     this.data.saved_trips = this.data.saved_trips.filter(s => !(s.userId === userId && s.listingId === listingId));
     if (this.data.saved_trips.length !== initialLen) {
+      this.writeToDisk(this.data);
+      return true;
+    }
+    return false;
+  }
+
+  // Custom Posts / Privilege Templates
+  getCustomPosts(): CustomPost[] {
+    if (!this.data.custom_posts) {
+      this.data.custom_posts = INITIAL_CUSTOM_POSTS;
+    }
+    return this.data.custom_posts;
+  }
+
+  saveCustomPost(post: CustomPost): CustomPost {
+    if (!this.data.custom_posts) {
+      this.data.custom_posts = INITIAL_CUSTOM_POSTS;
+    }
+    const idx = this.data.custom_posts.findIndex(p => p.id === post.id);
+    if (idx >= 0) {
+      this.data.custom_posts[idx] = post;
+    } else {
+      this.data.custom_posts.unshift(post);
+    }
+    this.writeToDisk(this.data);
+    return post;
+  }
+
+  deleteCustomPost(id: string): boolean {
+    if (!this.data.custom_posts) return false;
+    const initialLen = this.data.custom_posts.length;
+    this.data.custom_posts = this.data.custom_posts.filter(p => p.id !== id);
+    if (this.data.custom_posts.length !== initialLen) {
       this.writeToDisk(this.data);
       return true;
     }

@@ -120,6 +120,51 @@
         }
       },
       "required": ["id", "action", "performedBy", "timestamp"]
+    },
+    "CustomPost": {
+      "title": "CustomPost",
+      "description": "Custom administrative or organizational post with granular privileges and access controls",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique post template ID"
+        },
+        "title": {
+          "type": "string",
+          "description": "Official post title / designation e.g. Senior Security Lead, Chief Technology Architect"
+        },
+        "department": {
+          "type": "string",
+          "description": "Department name e.g. Executive Engineering, Content & Editorial"
+        },
+        "baseRole": {
+          "type": "string",
+          "enum": ["TECH_ADMIN", "TECH_SUBADMIN", "ADMIN", "USER"],
+          "description": "Underlying base role tier"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of post responsibilities and mandate"
+        },
+        "privileges": {
+          "type": "array",
+          "description": "Granted privilege flags"
+        },
+        "badgeColor": {
+          "type": "string",
+          "description": "Color code for visual badges"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "Email or UID of Super Admin creator"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp"
+        }
+      },
+      "required": ["id", "title", "department", "baseRole", "privileges", "createdAt"]
     }
   },
   "firestore": {
@@ -130,6 +175,10 @@
     "/listings/{listingId}": {
       "schema": "Listing",
       "description": "Travel listings with multi-stage approval workflow"
+    },
+    "/custom_posts/{postId}": {
+      "schema": "CustomPost",
+      "description": "Custom post templates with granular privileges selectable in User Privilege Administration"
     },
     "/audit_logs/{logId}": {
       "schema": "AuditLog",

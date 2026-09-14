@@ -62,6 +62,14 @@ service cloud.firestore {
       allow delete: if isTechAdmin();
     }
 
+    // Custom Posts / Privilege Templates Collection:
+    // - All authenticated users & admins can read defined custom posts
+    // - Only Tech Admin can create, modify, or delete custom posts
+    match /custom_posts/{postId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isTechAdmin();
+    }
+
     // Audit Logs Collection:
     // - Only Tech Admin can read audit logs
     // - System authenticated operations can append immutable audit records
