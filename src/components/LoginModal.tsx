@@ -420,14 +420,14 @@ export const LoginModal: React.FC = () => {
                   </div>
                   <div className="space-y-1.5">
                     
-                    {/* Technical Super Admin (Mukund Krishna) */}
+                    {/* Technical Super Admin */}
                     <button
                       id="demo-tech-admin-btn"
                       type="button"
                       onClick={() => {
-                        setGoogleEmail('mukundkrishna2008@gmail.com');
-                        setGoogleName('Mukund Krishna (Technical Super Admin)');
-                        handleGoogleSubmit(undefined, 'mukundkrishna2008@gmail.com');
+                        setGoogleEmail('techadmin@travelplatform.io');
+                        setGoogleName('Technical Super Admin');
+                        handleGoogleSubmit(undefined, 'techadmin@travelplatform.io');
                       }}
                       className="w-full flex items-center justify-between p-2 rounded-xl text-left border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 transition-all text-xs"
                     >
@@ -436,19 +436,19 @@ export const LoginModal: React.FC = () => {
                           <Shield className="w-3.5 h-3.5" />
                           <span>Technical Super Admin (2FA Required)</span>
                         </div>
-                        <div className="text-[10px] text-slate-500">mukundkrishna2008@gmail.com</div>
+                        <div className="text-[10px] text-slate-500">techadmin@travelplatform.io</div>
                       </div>
                       <ArrowRight className="w-3.5 h-3.5 text-amber-500" />
                     </button>
 
-                    {/* Technical Sub-Admin (mukundkrishna.h@gmail.com) */}
+                    {/* Technical Sub-Admin */}
                     <button
                       id="demo-tech-subadmin-btn"
                       type="button"
                       onClick={() => {
-                        setGoogleEmail('mukundkrishna.h@gmail.com');
-                        setGoogleName('Mukund Krishna (Technical Sub-Admin)');
-                        handleGoogleSubmit(undefined, 'mukundkrishna.h@gmail.com');
+                        setGoogleEmail('subadmin@travelplatform.io');
+                        setGoogleName('Technical Sub-Admin');
+                        handleGoogleSubmit(undefined, 'subadmin@travelplatform.io');
                       }}
                       className="w-full flex items-center justify-between p-2 rounded-xl text-left border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 transition-all text-xs"
                     >
@@ -457,7 +457,7 @@ export const LoginModal: React.FC = () => {
                           <Shield className="w-3.5 h-3.5" />
                           <span>Technical Sub-Admin (Direct Access)</span>
                         </div>
-                        <div className="text-[10px] text-slate-500">mukundkrishna.h@gmail.com / 8c15mukundkrishna.h@gmail.com</div>
+                        <div className="text-[10px] text-slate-500">subadmin@travelplatform.io</div>
                       </div>
                       <ArrowRight className="w-3.5 h-3.5 text-purple-500" />
                     </button>
@@ -520,7 +520,7 @@ export const LoginModal: React.FC = () => {
                           type="text"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
-                          placeholder="+1 555-0123"
+                          placeholder="+91 9876543210"
                           className={`w-full pl-10 pr-3 py-2.5 text-xs rounded-xl outline-none font-mono ${styles.inputBg}`}
                         />
                       </div>
@@ -538,12 +538,12 @@ export const LoginModal: React.FC = () => {
 
                   {/* Pre-configured Super Admin phone helper */}
                   <div className="text-[11px] flex items-center justify-between text-slate-400">
-                    <span>Technical staff phone: <span className="font-mono text-sky-500">+1 555-0123</span></span>
+                    <span>Technical staff phone: <span className="font-mono text-sky-500">+91 9567465134</span></span>
                     <button
                       type="button"
                       onClick={() => {
-                        setPhone('+1 555-0123');
-                        handleSendOtp('+1 555-0123');
+                        setPhone('+91 9567465134');
+                        handleSendOtp('+91 9567465134');
                       }}
                       className="text-sky-500 hover:underline font-medium text-[10px]"
                     >

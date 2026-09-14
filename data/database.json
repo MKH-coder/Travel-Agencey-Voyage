@@ -1,0 +1,519 @@
+{
+  "users": [
+    {
+      "uid": "user_tech_admin_01",
+      "email": "mukundkrishna2008@gmail.com",
+      "phoneNumber": "+91 9567465134",
+      "name": "Mukund Krishna (Technical Super Admin)",
+      "role": "TECH_ADMIN",
+      "mfaEnabled": true,
+      "recoveryEmail": "8c15mukundkrishna.h@gmail.com",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+      "createdAt": "2026-06-16T15:31:53.883Z"
+    },
+    {
+      "uid": "user_admin_02",
+      "email": "sarah.content@travelplatform.io",
+      "phoneNumber": "+1 555-019-2834",
+      "name": "Sarah Jenkins (Standard Admin)",
+      "role": "ADMIN",
+      "mfaEnabled": false,
+      "recoveryEmail": "sarah.backup@gmail.com",
+      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80",
+      "createdAt": "2026-08-15T15:31:53.883Z"
+    },
+    {
+      "uid": "user_traveler_03",
+      "email": "alex.globetrotter@example.com",
+      "phoneNumber": "+1 555-482-1920",
+      "name": "Alex Rivera",
+      "role": "USER",
+      "mfaEnabled": false,
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
+      "createdAt": "2026-09-04T15:31:53.883Z"
+    },
+    {
+      "uid": "user_1789401081942",
+      "email": "mukundkrishna.h2008@gmail.com",
+      "name": "mukundkrishna.h2008",
+      "role": "TECH_SUBADMIN",
+      "mfaEnabled": false,
+      "createdAt": "2026-09-14T15:51:21.942Z"
+    },
+    {
+      "uid": "user_tech_subadmin_01",
+      "email": "mukundkrishna.h@gmail.com",
+      "phoneNumber": "+91 9567465135",
+      "name": "Mukund Krishna (Technical Sub-Admin)",
+      "role": "TECH_SUBADMIN",
+      "mfaEnabled": false,
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80",
+      "createdAt": "2026-07-31T16:06:26.883Z"
+    },
+    {
+      "uid": "user_tech_subadmin_02",
+      "email": "8c15mukundkrishna.h@gmail.com",
+      "phoneNumber": "+91 9567465136",
+      "name": "Mukund Krishna Backup (Technical Sub-Admin)",
+      "role": "TECH_SUBADMIN",
+      "mfaEnabled": false,
+      "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=256&q=80",
+      "createdAt": "2026-08-05T16:06:26.883Z"
+    }
+  ],
+  "listings": [
+    {
+      "id": "list-santorini-01",
+      "title": "Santorini Caldera Cliffside & Oia Sunset Panorama",
+      "category": "PLACE",
+      "price": 340,
+      "rating": 4.95,
+      "reviewCount": 328,
+      "location": "Oia, Santorini Island",
+      "country": "Greece",
+      "description": "Iconic whitewashed cubic houses perched over Aegean volcanic cliffs, blue-domed chapels, and world-renowned sunset viewpoints over the sunken caldera lagoon.",
+      "images": [
+        "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=1000&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "user_tech_admin_01",
+      "createdByName": "Mukund Krishna",
+      "approvedBy": "user_tech_admin_01",
+      "tags": [
+        "Island",
+        "Sunset",
+        "Iconic",
+        "Romantic"
+      ],
+      "amenities": [
+        "Catamaran Sailing Tour",
+        "Volcanic Hot Springs",
+        "Wine Tasting",
+        "Cliff Walks"
+      ],
+      "timestamps": {
+        "createdAt": "2026-08-20T15:31:53.883Z",
+        "updatedAt": "2026-09-09T15:31:53.883Z",
+        "approvedAt": "2026-08-21T15:31:53.883Z"
+      },
+      "coordinates": {
+        "lat": 36.4618,
+        "lng": 25.3753
+      }
+    },
+    {
+      "id": "list-hotel-amalfi-02",
+      "title": "Grand Hotel Excelsior Amalfi Palace & Spa",
+      "category": "HOTEL",
+      "price": 590,
+      "rating": 4.92,
+      "reviewCount": 184,
+      "location": "Positano, Amalfi Coast",
+      "country": "Italy",
+      "description": "Historic 5-star cliffside sanctuary with direct Mediterranean sea elevators, heated infinity salt pool, Michelin-starred terraces, and private boat charter moorings.",
+      "images": [
+        "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1000&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "user_tech_admin_01",
+      "createdByName": "Mukund Krishna",
+      "approvedBy": "user_tech_admin_01",
+      "tags": [
+        "Luxury Stay",
+        "Sea View",
+        "Infinity Pool",
+        "Spa"
+      ],
+      "amenities": [
+        "Free High-Speed WiFi",
+        "Private Helipad Access",
+        "Valet Parking",
+        "Butler Service",
+        "Thermal Thalasso Spa"
+      ],
+      "hotelPerks": [
+        "Complimentary Italian Breakfast",
+        "Welcome Prosecco",
+        "Sunset Boat Shuttle to Positano Pier"
+      ],
+      "timestamps": {
+        "createdAt": "2026-08-25T15:31:53.884Z",
+        "updatedAt": "2026-09-10T15:31:53.884Z",
+        "approvedAt": "2026-08-26T15:31:53.884Z"
+      },
+      "coordinates": {
+        "lat": 40.6281,
+        "lng": 14.485
+      }
+    },
+    {
+      "id": "list-dining-kyoto-03",
+      "title": "Gion Karyo Heritage Kaiseki & Garden Dining",
+      "category": "FOOD",
+      "price": 165,
+      "rating": 4.97,
+      "reviewCount": 412,
+      "location": "Gion District, Kyoto",
+      "country": "Japan",
+      "description": "Traditional 10-course seasonal kaiseki banquet prepared by master artisans in a preserved 160-year-old wooden machiya overlooking an authentic stone zen garden.",
+      "images": [
+        "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1000&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "user_admin_02",
+      "createdByName": "Sarah Jenkins",
+      "approvedBy": "user_tech_admin_01",
+      "tags": [
+        "Fine Dining",
+        "Kaiseki",
+        "Historic Machiya",
+        "Tea Ceremony"
+      ],
+      "diningSpecialties": [
+        "Wagyu A5 Charcoal Sear",
+        "Seasonal Matsutake Dashi",
+        "Fresh Hokkaido Uni",
+        "Matcha Souffle"
+      ],
+      "amenities": [
+        "Private Tatami Rooms",
+        "Sake Sommelier Pairing",
+        "English Menu Available"
+      ],
+      "timestamps": {
+        "createdAt": "2026-08-30T15:31:53.884Z",
+        "updatedAt": "2026-09-11T15:31:53.884Z",
+        "approvedAt": "2026-08-31T15:31:53.884Z"
+      },
+      "coordinates": {
+        "lat": 35.0037,
+        "lng": 135.7772
+      }
+    },
+    {
+      "id": "list-swiss-alps-04",
+      "title": "Zermatt Glacier Alpine Traverse & Matterhorn Vista",
+      "category": "PLACE",
+      "price": 280,
+      "rating": 4.88,
+      "reviewCount": 247,
+      "location": "Zermatt, Valais",
+      "country": "Switzerland",
+      "description": "High-altitude railway journey to Gornergrat, panoramic cable cars across the glacier paradise, and mirror alpine lake reflections of the majestic Matterhorn peak.",
+      "images": [
+        "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1502784444187-359ac186c5bb?auto=format&fit=crop&w=1000&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "user_tech_admin_01",
+      "createdByName": "Mukund Krishna",
+      "approvedBy": "user_tech_admin_01",
+      "tags": [
+        "Mountains",
+        "Skiing",
+        "Alpine Lakes",
+        "Scenic Train"
+      ],
+      "amenities": [
+        "Gornergrat Train Pass",
+        "Glacier Ice Palace Entry",
+        "Fondue Tasting Experience"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-02T15:31:53.884Z",
+        "updatedAt": "2026-09-12T15:31:53.884Z",
+        "approvedAt": "2026-09-03T15:31:53.884Z"
+      },
+      "coordinates": {
+        "lat": 45.9765,
+        "lng": 7.7491
+      }
+    },
+    {
+      "id": "list-hotel-bali-05",
+      "title": "Ubud Hanging Gardens River Sanctuary & Villa",
+      "category": "HOTEL",
+      "price": 420,
+      "rating": 4.91,
+      "reviewCount": 295,
+      "location": "Payangan, Ubud, Bali",
+      "country": "Indonesia",
+      "description": "Award-winning twin-tiered cascading infinity pools nestled deep in the Ayung River valley rainforest, with handcrafted teakwood villas and volcanic stone plunge pools.",
+      "images": [
+        "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "user_admin_02",
+      "createdByName": "Sarah Jenkins",
+      "approvedBy": "user_tech_admin_01",
+      "tags": [
+        "Rainforest Villa",
+        "Twin Infinity Pool",
+        "Wellness",
+        "Ayurveda"
+      ],
+      "amenities": [
+        "Floating Breakfast in Pool",
+        "Daily Yoga Pavillion",
+        "River Valley Funicular",
+        "Spa by L’Occitane"
+      ],
+      "hotelPerks": [
+        "Free Afternoon Tea",
+        "Organic Herb Garden Tour",
+        "Cultural Dance Performance"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-04T15:31:53.884Z",
+        "updatedAt": "2026-09-13T15:31:53.884Z",
+        "approvedAt": "2026-09-05T15:31:53.884Z"
+      },
+      "coordinates": {
+        "lat": -8.5069,
+        "lng": 115.2625
+      }
+    },
+    {
+      "id": "list-pending-banff-06",
+      "title": "Banff Moraine Lake Glacial Canoe & Valley of Ten Peaks",
+      "category": "PLACE",
+      "price": 195,
+      "rating": 4.96,
+      "reviewCount": 152,
+      "location": "Banff National Park, Alberta",
+      "country": "Canada",
+      "description": "Electric turquoise glacial waters nestled beneath towering snow-capped pyramidal peaks. Features guided sunrise heritage cedar canoe paddles and larch valley alpine trail treks.",
+      "images": [
+        "https://images.unsplash.com/photo-1503614472-8c93d56e92ce?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=1000&q=80"
+      ],
+      "status": "PENDING_APPROVAL",
+      "createdBy": "user_admin_02",
+      "createdByName": "Sarah Jenkins",
+      "tags": [
+        "National Park",
+        "Glacial Lake",
+        "Canoeing",
+        "Wildlife"
+      ],
+      "amenities": [
+        "Lakeside Canoe Rental",
+        "National Park Shuttle Express",
+        "Bear Safety Briefing"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-14T09:31:53.884Z",
+        "updatedAt": "2026-09-14T09:31:53.884Z",
+        "submittedAt": "2026-09-14T09:31:53.884Z"
+      },
+      "coordinates": {
+        "lat": 51.4968,
+        "lng": -115.9281
+      }
+    },
+    {
+      "id": "list-pending-paris-07",
+      "title": "Le Relais Saint-Germain Bistro & Cellar Tasting",
+      "category": "FOOD",
+      "price": 130,
+      "rating": 4.87,
+      "reviewCount": 98,
+      "location": "Saint-Germain-des-Prés, Paris",
+      "country": "France",
+      "description": "Celebrated neo-bistronomy dining by chef Yves Camdeborde offering seasonal game, artisanal charcuterie, butter-poached oysters, and rare natural biodynamic wines.",
+      "images": [
+        "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1000&q=80"
+      ],
+      "status": "PENDING_APPROVAL",
+      "createdBy": "user_admin_02",
+      "createdByName": "Sarah Jenkins",
+      "tags": [
+        "Bistronomy",
+        "Wine Cellar",
+        "Parisian",
+        "Culinary"
+      ],
+      "diningSpecialties": [
+        "Duck Confit Parmentier",
+        "Escargots de Bourgogne",
+        "Grand Cru Wine Flight"
+      ],
+      "amenities": [
+        "Outdoor Pavement Terrace",
+        "Historic Stone Cellar",
+        "Sommelier Guidance"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-14T12:31:53.884Z",
+        "updatedAt": "2026-09-14T12:31:53.884Z",
+        "submittedAt": "2026-09-14T12:31:53.884Z"
+      },
+      "coordinates": {
+        "lat": 48.8534,
+        "lng": 2.3338
+      }
+    },
+    {
+      "id": "list-tokyo-sushi-08",
+      "title": "Ginza Hachiman Edomae Sushi & Chef Counter",
+      "category": "FOOD",
+      "price": 210,
+      "rating": 4.98,
+      "reviewCount": 310,
+      "location": "Ginza, Tokyo",
+      "country": "Japan",
+      "coordinates": {
+        "lat": 35.6719,
+        "lng": 139.764
+      },
+      "description": "Legendary 18-piece omakase experience featuring wild bluefin tuna dry-aged over binchotan ice, sea urchin from Rishiri Island, and warm red vinegar seasoned sushi rice.",
+      "images": [
+        "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=1000&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "user_tech_admin_01",
+      "createdByName": "Mukund Krishna",
+      "approvedBy": "user_tech_admin_01",
+      "tags": [
+        "Omakase",
+        "Sushi",
+        "Michelin Star",
+        "Ginza"
+      ],
+      "diningSpecialties": [
+        "Otoro Nigiri Flamed",
+        "Uni Gunkan Triple Layer",
+        "Anago Sea Eel with Tare"
+      ],
+      "amenities": [
+        "8-Seat Hinoki Counter",
+        "Sake Flight Pairings",
+        "Direct Chef Consultation"
+      ],
+      "timestamps": {
+        "createdAt": "2026-08-27T16:06:26.883Z",
+        "updatedAt": "2026-09-12T16:06:26.883Z",
+        "approvedAt": "2026-08-27T16:06:26.883Z"
+      }
+    },
+    {
+      "id": "list-hotel-como-09",
+      "title": "Villa del Balbianello & Como Shoreline Sanctuary",
+      "category": "HOTEL",
+      "price": 680,
+      "rating": 4.94,
+      "reviewCount": 165,
+      "location": "Lenno, Lake Como",
+      "country": "Italy",
+      "coordinates": {
+        "lat": 45.9658,
+        "lng": 9.2025
+      },
+      "description": "Magnificent neo-classical villa overlooking Lake Como with terraced gardens, private wooden speedboat transfers, cypress-lined walks, and waterfront dining.",
+      "images": [
+        "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1000&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "user_tech_admin_01",
+      "createdByName": "Mukund Krishna",
+      "approvedBy": "user_tech_admin_01",
+      "tags": [
+        "Luxury Villa",
+        "Lakefront",
+        "Private Boat",
+        "Historic Garden"
+      ],
+      "amenities": [
+        "Private Boat Dock",
+        "Lakeview Infinity Spa",
+        "Helicopter Transfer",
+        "Personal Concierge"
+      ],
+      "hotelPerks": [
+        "Daily Riva Boat Tour",
+        "Champagne Sunset Aperitivo",
+        "Complimentary Breakfast"
+      ],
+      "timestamps": {
+        "createdAt": "2026-08-31T16:06:26.883Z",
+        "updatedAt": "2026-09-13T16:06:26.883Z",
+        "approvedAt": "2026-08-31T16:06:26.883Z"
+      }
+    }
+  ],
+  "audit_logs": [
+    {
+      "id": "audit-1789401125082-gtl8e",
+      "timestamp": "2026-09-14T15:52:05.082Z",
+      "action": "EMERGENCY_BYPASS_ACTIVATED",
+      "performedBy": "mukundkrishna2008@gmail.com",
+      "targetId": "user_tech_admin_01",
+      "targetType": "SECURITY_RECOVERY",
+      "ipAddress": "49.37.235.14",
+      "details": {
+        "recoveryEmail": "8c15mukundkrishna.h@gmail.com"
+      }
+    },
+    {
+      "id": "audit-1789401111059-ta630",
+      "timestamp": "2026-09-14T15:51:51.059Z",
+      "action": "EMERGENCY_BYPASS_FAILED",
+      "performedBy": "8c15mukundkrishna.h@gmail.com",
+      "targetId": "TECH_ADMIN_CORE",
+      "targetType": "SECURITY_ALERT",
+      "ipAddress": "49.37.235.14",
+      "details": {
+        "attemptedCode": "EMER***"
+      }
+    },
+    {
+      "id": "audit-1789401090103-f2egl",
+      "timestamp": "2026-09-14T15:51:30.103Z",
+      "action": "TECH_ADMIN_2FA_CHALLENGE",
+      "performedBy": "mukundkrishna2008@gmail.com",
+      "targetId": "user_tech_admin_01",
+      "targetType": "AUTH",
+      "ipAddress": "49.37.235.14",
+      "details": {
+        "method": "GOOGLE_OAUTH"
+      }
+    },
+    {
+      "id": "audit-init-01",
+      "action": "SYSTEM_INITIALIZED",
+      "performedBy": "mukundkrishna2008@gmail.com",
+      "targetId": "TRAVEL_PLATFORM_CORE",
+      "targetType": "SYSTEM",
+      "ipAddress": "127.0.0.1",
+      "timestamp": "2026-09-13T15:31:53.884Z",
+      "details": {
+        "event": "Provisioned Technical Admin and Multi-Theme Engine"
+      }
+    },
+    {
+      "id": "audit-init-02",
+      "action": "SUBMIT_PENDING_LISTING",
+      "performedBy": "sarah.content@travelplatform.io",
+      "targetId": "list-pending-banff-06",
+      "targetType": "LISTING",
+      "ipAddress": "192.168.1.45",
+      "timestamp": "2026-09-14T09:31:53.884Z",
+      "details": {
+        "status": "PENDING_APPROVAL",
+        "title": "Banff Moraine Lake Glacial Canoe"
+      }
+    }
+  ],
+  "bookings": [],
+  "saved_trips": []
+}
