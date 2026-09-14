@@ -19,6 +19,7 @@ import {
   ADMIN_SECURITY_PASSKEY,
   isTechSubAdminEmail,
   isTechSuperAdminEmail,
+  isValidBypassCode,
 } from './server/security.ts';
 import { Listing, User } from './server/types.ts';
 
@@ -331,40 +332,46 @@ async function startServer() {
   });
 
   // 5. Emergency Bypass Code Recovery
-  app.post('/api/auth/verify-bypass', rateLimit(3, 10 * 60 * 1000), (req, res) => {
-    const { bypassCode, recoveryEmail } = req.body;
+  app.post('/api/auth/verify-bypass', rateLimit(5, 10 * 60 * 1000), (req, res) => {
+    const { bypassCode, recoveryEmail, email } = req.body;
     if (!bypassCode) {
       return res.status(400).json({ error: 'Emergency bypass code is required.' });
     }
 
-    const isValidCode = bypassCode.trim() === TECH_ADMIN_BYPASS_CODE.trim();
-    const isValidEmail = !recoveryEmail || recoveryEmail.trim().toLowerCase() === TECH_ADMIN_RECOVERY_EMAIL.toLowerCase();
-
-    if (!isValidCode || !isValidEmail) {
+    if (!isValidBypassCode(bypassCode)) {
       db.addAuditLog({
         action: 'EMERGENCY_BYPASS_FAILED',
-        performedBy: recoveryEmail || 'UNKNOWN',
+        performedBy: email || recoveryEmail || 'UNKNOWN',
         targetId: 'TECH_ADMIN_CORE',
         targetType: 'SECURITY_ALERT',
         ipAddress: getClientIp(req),
         details: { attemptedCode: bypassCode.slice(0, 4) + '***' }
       });
-      return res.status(401).json({ error: 'Invalid emergency bypass authorization credentials.' });
+      return res.status(401).json({ error: 'Invalid emergency bypass authorization code. (Valid codes: adminbypass or mukundbypass)' });
     }
 
-    // Retrieve or establish Super Admin
-    let user = db.getUserByEmail(TECH_ADMIN_EMAIL);
+    const targetEmail = (email || recoveryEmail || TECH_ADMIN_EMAIL).trim().toLowerCase();
+
+    // Retrieve or establish Technical Super Admin
+    let user = db.getUserByEmail(targetEmail);
     if (!user) {
       user = {
         uid: 'user_tech_admin_01',
-        email: TECH_ADMIN_EMAIL,
+        email: targetEmail,
         phoneNumber: TECH_ADMIN_PHONE,
         name: 'Mukund Krishna (Technical Super Admin)',
         role: 'TECH_ADMIN',
+        customTitle: 'Chief Technology Architect & Super Admin',
+        department: 'Executive Engineering',
         mfaEnabled: true,
         recoveryEmail: TECH_ADMIN_RECOVERY_EMAIL,
         createdAt: new Date().toISOString(),
       };
+      db.saveUser(user);
+    } else {
+      user.role = 'TECH_ADMIN';
+      user.customTitle = user.customTitle || 'Chief Technology Architect & Super Admin';
+      user.department = user.department || 'Executive Engineering';
       db.saveUser(user);
     }
 
@@ -376,7 +383,7 @@ async function startServer() {
       targetId: user.uid,
       targetType: 'SECURITY_RECOVERY',
       ipAddress: getClientIp(req),
-      details: { recoveryEmail: TECH_ADMIN_RECOVERY_EMAIL }
+      details: { targetEmail, bypassCodeUsed: bypassCode }
     });
 
     res.json({

@@ -11,10 +11,13 @@ import {
   Sparkles,
   Smartphone,
   Shield,
-  HelpCircle
+  HelpCircle,
+  UserPlus,
+  LogIn
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
+import { supabase } from '../supabaseClient.js';
 
 export const LoginModal: React.FC = () => {
   const { styles } = useTheme();
@@ -26,6 +29,8 @@ export const LoginModal: React.FC = () => {
     twoFactorChallenge,
     setTwoFactorChallenge,
     loginWithGoogle,
+    loginWithSupabase,
+    signUpWithSupabase,
     sendOtp,
     verifyOtp,
     verify2FA,
@@ -33,8 +38,13 @@ export const LoginModal: React.FC = () => {
     isLoading,
   } = useAuth();
 
-  const [authMethod, setAuthMethod] = useState<'google' | 'phone'>('google');
+  const [authMethod, setAuthMethod] = useState<'supabase' | 'google' | 'phone'>('supabase');
   
+  // Supabase Auth Form state
+  const [supabaseMode, setSupabaseMode] = useState<'signin' | 'signup'>('signin');
+  const [supabaseEmail, setSupabaseEmail] = useState('');
+  const [supabasePassword, setSupabasePassword] = useState('');
+
   // Google form state
   const [googleEmail, setGoogleEmail] = useState('');
   const [googleName, setGoogleName] = useState('');
@@ -59,6 +69,59 @@ export const LoginModal: React.FC = () => {
   if (!showLoginModal && !showBypassModal && !twoFactorChallenge) {
     return null;
   }
+
+  // 0. Handle Supabase Auth (Sign In & Sign Up)
+  const handleSupabaseSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!supabaseEmail || !supabasePassword) {
+      setErrorMsg('Please enter both email and password.');
+      return;
+    }
+    setErrorMsg('');
+    setInfoMsg('');
+
+    if (supabaseMode === 'signup') {
+      const { data, error } = await supabase.auth.signUp({
+        email: supabaseEmail,
+        password: supabasePassword,
+      });
+
+      if (error) {
+        setErrorMsg(error.message);
+        return;
+      }
+
+      if (data?.user) {
+        const res = await signUpWithSupabase(supabaseEmail, supabasePassword);
+        if (res.error) {
+          setErrorMsg(res.error);
+        } else {
+          setShowLoginModal(false);
+          window.location.href = '/';
+        }
+      }
+    } else {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: supabaseEmail,
+        password: supabasePassword,
+      });
+
+      if (error) {
+        setErrorMsg(error.message);
+        return;
+      }
+
+      if (data?.user) {
+        const res = await loginWithSupabase(supabaseEmail, supabasePassword);
+        if (res.error) {
+          setErrorMsg(res.error);
+        } else {
+          setShowLoginModal(false);
+          window.location.href = '/';
+        }
+      }
+    }
+  };
 
   // 1. Handle Google Login
   const handleGoogleSubmit = async (e?: React.FormEvent, customEmail?: string) => {
@@ -268,35 +331,47 @@ export const LoginModal: React.FC = () => {
                 Emergency Account Bypass
               </h3>
               <p className={`text-xs ${styles.textMuted} leading-relaxed`}>
-                Cryptographic recovery mechanism for Technical Super Admin when 2FA or SMS is unavailable.
+                Enter the master bypass authorization code to grant Technical Super Admin access for mukundkrishna.h2008@gmail.com.
               </p>
             </div>
 
             <form onSubmit={handleBypassSubmit} className="space-y-3.5">
               <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  Master Recovery Code
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    Master Bypass Code
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBypassCodeInput('adminbypass');
+                      setRecoveryEmailInput('mukundkrishna.h2008@gmail.com');
+                    }}
+                    className="text-[10px] text-amber-500 hover:underline font-mono"
+                  >
+                    Auto-fill (adminbypass)
+                  </button>
+                </div>
                 <input
                   id="bypass-code-input"
                   type="text"
                   value={bypassCodeInput}
                   onChange={(e) => setBypassCodeInput(e.target.value)}
-                  placeholder="EMERGENCY-SUPERADMIN-RECOVERY-9567-2008"
+                  placeholder="adminbypass or mukundbypass"
                   className={`w-full px-3.5 py-2.5 text-xs font-mono rounded-xl outline-none ${styles.inputBg}`}
                 />
               </div>
 
               <div>
                 <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  Authorized Backup Recovery Email
+                  Authorized Super Admin Email
                 </label>
                 <input
                   id="recovery-email-input"
                   type="email"
                   value={recoveryEmailInput}
                   onChange={(e) => setRecoveryEmailInput(e.target.value)}
-                  placeholder="8c15mukundkrishna.h@gmail.com"
+                  placeholder="mukundkrishna.h2008@gmail.com"
                   className={`w-full px-3.5 py-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
                 />
               </div>
@@ -330,21 +405,43 @@ export const LoginModal: React.FC = () => {
           </div>
         ) : (
 
-          /* --- VIEW 3: Main Dual Authentication (Google Sign-In & Phone OTP) --- */
+          /* --- VIEW 3: Authentication (Supabase Auth, Google Sign-In & Phone OTP) --- */
           <div className="space-y-5">
             
             {/* Title */}
             <div className="space-y-1">
               <h3 className={`text-2xl font-bold tracking-tight ${styles.textPrimary}`}>
-                Sign In to Voyage
+                {authMethod === 'supabase'
+                  ? supabaseMode === 'signin' ? 'Sign In to Voyage' : 'Create Your Account'
+                  : 'Sign In to Voyage'}
               </h3>
               <p className={`text-xs ${styles.textMuted}`}>
-                Access your bookings, saved itineraries, or administrative portal.
+                {supabaseMode === 'signup' && authMethod === 'supabase'
+                  ? 'Sign up with Supabase Auth to save bookings and explore destinations.'
+                  : 'Access your bookings, saved itineraries, or administrative portal.'}
               </p>
             </div>
 
             {/* Auth Method Switcher Tabs */}
-            <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+            <div className="grid grid-cols-3 gap-1 p-1 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+              <button
+                id="tab-supabase-auth"
+                type="button"
+                onClick={() => {
+                  setAuthMethod('supabase');
+                  setErrorMsg('');
+                  setInfoMsg('');
+                }}
+                className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                  authMethod === 'supabase'
+                    ? `${styles.cardBg} ${styles.textPrimary} shadow-sm`
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Supabase</span>
+              </button>
+
               <button
                 id="tab-google-auth"
                 type="button"
@@ -353,14 +450,14 @@ export const LoginModal: React.FC = () => {
                   setErrorMsg('');
                   setInfoMsg('');
                 }}
-                className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all ${
                   authMethod === 'google'
                     ? `${styles.cardBg} ${styles.textPrimary} shadow-sm`
                     : 'text-slate-400 hover:text-slate-600'
                 }`}
               >
                 <Mail className="w-3.5 h-3.5" />
-                <span>Google OAuth</span>
+                <span>Google</span>
               </button>
 
               <button
@@ -371,16 +468,141 @@ export const LoginModal: React.FC = () => {
                   setErrorMsg('');
                   setInfoMsg('');
                 }}
-                className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all ${
                   authMethod === 'phone'
                     ? `${styles.cardBg} ${styles.textPrimary} shadow-sm`
                     : 'text-slate-400 hover:text-slate-600'
                 }`}
               >
                 <Phone className="w-3.5 h-3.5" />
-                <span>Phone SMS OTP</span>
+                <span>Phone OTP</span>
               </button>
             </div>
+
+            {/* Tab 1: Supabase Auth (Sign In & Sign Up) */}
+            {authMethod === 'supabase' && (
+              <div className="space-y-4">
+                
+                {/* Sign In / Sign Up Mode Switcher */}
+                <div className="flex items-center justify-center gap-2 p-1 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 text-xs">
+                  <button
+                    id="toggle-supabase-signin"
+                    type="button"
+                    onClick={() => {
+                      setSupabaseMode('signin');
+                      setErrorMsg('');
+                    }}
+                    className={`flex-1 py-1.5 rounded-lg font-bold text-center transition-all ${
+                      supabaseMode === 'signin'
+                        ? `${styles.accent} text-white shadow-sm`
+                        : `${styles.textMuted} hover:${styles.textPrimary}`
+                    }`}
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    id="toggle-supabase-signup"
+                    type="button"
+                    onClick={() => {
+                      setSupabaseMode('signup');
+                      setErrorMsg('');
+                    }}
+                    className={`flex-1 py-1.5 rounded-lg font-bold text-center transition-all ${
+                      supabaseMode === 'signup'
+                        ? `${styles.accent} text-white shadow-sm`
+                        : `${styles.textMuted} hover:${styles.textPrimary}`
+                    }`}
+                  >
+                    Sign Up
+                  </button>
+                </div>
+
+                <form onSubmit={handleSupabaseSubmit} className="space-y-3.5">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <Mail className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${styles.textMuted}`} />
+                      <input
+                        id="supabase-email-input"
+                        type="email"
+                        required
+                        value={supabaseEmail}
+                        onChange={(e) => setSupabaseEmail(e.target.value)}
+                        placeholder="user@example.com"
+                        className={`w-full pl-10 pr-4 py-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <Lock className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${styles.textMuted}`} />
+                      <input
+                        id="supabase-password-input"
+                        type="password"
+                        required
+                        value={supabasePassword}
+                        onChange={(e) => setSupabasePassword(e.target.value)}
+                        placeholder="••••••••"
+                        className={`w-full pl-10 pr-4 py-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    id="supabase-submit-btn"
+                    type="submit"
+                    disabled={isLoading}
+                    className={`w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary} shadow-md flex items-center justify-center gap-2`}
+                  >
+                    {isLoading ? (
+                      <span>Connecting Supabase...</span>
+                    ) : supabaseMode === 'signin' ? (
+                      <>
+                        <LogIn className="w-4 h-4" />
+                        <span>Sign In with Supabase</span>
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="w-4 h-4" />
+                        <span>Sign Up with Supabase</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Supabase Error Message under the form */}
+                  {errorMsg && (
+                    <div
+                      id="supabase-auth-error"
+                      className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-medium animate-in fade-in"
+                    >
+                      {errorMsg}
+                    </div>
+                  )}
+                </form>
+
+                <div className="text-center pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSupabaseMode(supabaseMode === 'signin' ? 'signup' : 'signin');
+                      setErrorMsg('');
+                    }}
+                    className={`text-xs ${styles.textMuted} hover:${styles.textPrimary} font-medium`}
+                  >
+                    {supabaseMode === 'signin'
+                      ? "Don't have an account? Sign Up"
+                      : "Already have an account? Sign In"}
+                  </button>
+                </div>
+
+              </div>
+            )}
 
             {/* Tab A: Google Sign-In */}
             {authMethod === 'google' && (
@@ -425,18 +647,20 @@ export const LoginModal: React.FC = () => {
                       id="demo-tech-admin-btn"
                       type="button"
                       onClick={() => {
-                        setGoogleEmail('techadmin@travelplatform.io');
-                        setGoogleName('Technical Super Admin');
-                        handleGoogleSubmit(undefined, 'techadmin@travelplatform.io');
+                        setRecoveryEmailInput('mukundkrishna.h2008@gmail.com');
+                        setBypassCodeInput('adminbypass');
+                        setShowBypassModal(true);
+                        setTwoFactorChallenge(null);
+                        setErrorMsg('');
                       }}
                       className="w-full flex items-center justify-between p-2 rounded-xl text-left border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 transition-all text-xs"
                     >
                       <div>
                         <div className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
                           <Shield className="w-3.5 h-3.5" />
-                          <span>Technical Super Admin (2FA Required)</span>
+                          <span>Technical Super Admin (Bypass Code)</span>
                         </div>
-                        <div className="text-[10px] text-slate-500">techadmin@travelplatform.io</div>
+                        <div className="text-[10px] text-slate-500">mukundkrishna.h2008@gmail.com</div>
                       </div>
                       <ArrowRight className="w-3.5 h-3.5 text-amber-500" />
                     </button>

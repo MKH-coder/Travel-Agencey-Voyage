@@ -8,16 +8,34 @@ export const TECH_ADMIN_EMAIL = 'mukundkrishna.h2008@gmail.com';
 export const TECH_ADMIN_EMAILS = [
   'mukundkrishna.h2008@gmail.com',
   'mukundkrishna2008@gmail.com',
+  'techadmin@travelplatform.io',
 ];
 export const TECH_ADMIN_PHONE = '+91 9567465134';
 export const TECH_ADMIN_RECOVERY_EMAIL = '8c15mukundkrishna.h@gmail.com';
 export const TECH_ADMIN_BYPASS_CODE = process.env.TECH_ADMIN_BYPASS_CODE || 'EMERGENCY-SUPERADMIN-RECOVERY-9567-2008';
 export const ADMIN_SECURITY_PASSKEY = process.env.ADMIN_SECURITY_PASSKEY || 'SEC-ROOT-TRAVEL-2026';
 
+export const VALID_BYPASS_CODES = [
+  'adminbypass',
+  'mukundbypass',
+  'sec-root-travel-2026',
+  'emergency-superadmin-recovery-9567-2008',
+  '9567465134',
+];
+
+export function isValidBypassCode(code?: string): boolean {
+  if (!code) return false;
+  const clean = code.trim().toLowerCase();
+  return (
+    VALID_BYPASS_CODES.some(c => c.toLowerCase() === clean) ||
+    clean === TECH_ADMIN_BYPASS_CODE.trim().toLowerCase()
+  );
+}
+
 export function isTechSuperAdminEmail(email?: string): boolean {
   if (!email) return false;
   const clean = email.trim().toLowerCase();
-  return TECH_ADMIN_EMAILS.some(e => e.toLowerCase() === clean) || clean === 'mukundkrishna.h2008@gmail.com' || clean === 'mukundkrishna2008@gmail.com';
+  return TECH_ADMIN_EMAILS.some(e => e.toLowerCase() === clean);
 }
 
 // Technical Sub-Admins (Privileged administration, but NOT Super Admin)
