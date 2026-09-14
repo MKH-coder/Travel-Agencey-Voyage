@@ -34,7 +34,9 @@ import {
   Briefcase,
   Database,
   Flame,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Download,
+  FileJson
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -46,6 +48,7 @@ import { EditContentModal } from './EditContentModal.tsx';
 import { CloudSyncPanel } from './CloudSyncPanel.tsx';
 import { CustomPostCreatorModal } from './CustomPostCreatorModal.tsx';
 import { FirebaseConsoleModal } from './FirebaseConsoleModal.tsx';
+import { AuditVisualDashboard } from './AuditVisualDashboard.tsx';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 
 interface AdminPortalProps {
@@ -219,6 +222,45 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     } finally {
       setLoadingLogs(false);
     }
+  };
+
+  // Export Audit Logs as CSV or JSON compliance report
+  const downloadAuditLogsCsv = () => {
+    if (!auditLogs || auditLogs.length === 0) return;
+    const headers = ['ID', 'Timestamp', 'Action', 'Performed By', 'Target ID', 'Target Type', 'Client IP', 'Details'];
+    const rows = auditLogs.map(log => [
+      `"${(log.id || '').replace(/"/g, '""')}"`,
+      `"${(log.timestamp || '').replace(/"/g, '""')}"`,
+      `"${(log.action || '').replace(/"/g, '""')}"`,
+      `"${(log.performedByEmail || log.performedBy || '').replace(/"/g, '""')}"`,
+      `"${(log.targetId || '').replace(/"/g, '""')}"`,
+      `"${(log.targetType || '').replace(/"/g, '""')}"`,
+      `"${(log.ipAddress || '').replace(/"/g, '""')}"`,
+      `"${(JSON.stringify(log.details || {})).replace(/"/g, '""')}"`,
+    ]);
+
+    const csvData = [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `voyage_audit_report_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const downloadAuditLogsJson = () => {
+    if (!auditLogs || auditLogs.length === 0) return;
+    const jsonString = JSON.stringify(auditLogs, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `voyage_audit_report_${new Date().toISOString().slice(0, 10)}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // Fetch Custom Posts templates (Super Admin)
@@ -1726,35 +1768,75 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               </p>
             </div>
 
-            {/* Filter by action */}
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-slate-400" />
-              <select
-                value={logFilter}
-                onChange={(e) => {
-                  setLogFilter(e.target.value);
-                  fetchLogs(e.target.value);
-                }}
-                className={`py-1.5 px-3 text-xs rounded-xl font-medium outline-none cursor-pointer ${styles.inputBg}`}
-              >
-                <option value="ALL">All Event Types</option>
-                <option value="TECH_ADMIN_LOGIN_SUCCESS">Admin Logins</option>
-                <option value="EMERGENCY_BYPASS_ACTIVATED">Emergency Bypass</option>
-                <option value="SUBMIT_PENDING_LISTING">Pending Submissions</option>
-                <option value="APPROVE_LISTING">Listing Approvals</option>
-                <option value="UPDATE_USER_ROLE">Role Changes</option>
-                <option value="RATE_LIMIT_BLOCKED">Rate Limit Blocks</option>
-              </select>
+            {/* Filter by action and Download Audit Report */}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-slate-400" />
+                <select
+                  value={logFilter}
+                  onChange={(e) => {
+                    setLogFilter(e.target.value);
+                    fetchLogs(e.target.value);
+                  }}
+                  className={`py-1.5 px-3 text-xs rounded-xl font-medium outline-none cursor-pointer ${styles.inputBg}`}
+                >
+                  <option value="ALL">All Event Types</option>
+                  <option value="TECH_ADMIN_LOGIN_SUCCESS">Admin Logins</option>
+                  <option value="EMERGENCY_BYPASS_ACTIVATED">Emergency Bypass</option>
+                  <option value="SUBMIT_PENDING_LISTING">Pending Submissions</option>
+                  <option value="APPROVE_LISTING">Listing Approvals</option>
+                  <option value="UPDATE_USER_ROLE">Role Changes</option>
+                  <option value="RATE_LIMIT_BLOCKED">Rate Limit Blocks</option>
+                </select>
 
-              <button
-                onClick={() => fetchLogs(logFilter)}
-                className={`p-1.5 rounded-xl ${styles.buttonSecondary}`}
-                title="Refresh Logs"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
+                <button
+                  onClick={() => fetchLogs(logFilter)}
+                  className={`p-1.5 rounded-xl ${styles.buttonSecondary}`}
+                  title="Refresh Logs"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Download Audit Report buttons */}
+              <div className="flex items-center gap-1.5 pl-2 border-l border-slate-200 dark:border-slate-800">
+                <button
+                  id="download-audit-csv-btn"
+                  type="button"
+                  onClick={downloadAuditLogsCsv}
+                  disabled={!auditLogs || auditLogs.length === 0}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                    auditLogs && auditLogs.length > 0
+                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30'
+                      : 'opacity-50 cursor-not-allowed border border-slate-200 dark:border-slate-800'
+                  }`}
+                  title="Export audit report as CSV file for compliance reporting"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>CSV Report</span>
+                </button>
+
+                <button
+                  id="download-audit-json-btn"
+                  type="button"
+                  onClick={downloadAuditLogsJson}
+                  disabled={!auditLogs || auditLogs.length === 0}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                    auditLogs && auditLogs.length > 0
+                      ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 border border-sky-500/30'
+                      : 'opacity-50 cursor-not-allowed border border-slate-200 dark:border-slate-800'
+                  }`}
+                  title="Export audit report as JSON file for compliance reporting"
+                >
+                  <FileJson className="w-3.5 h-3.5" />
+                  <span>JSON Report</span>
+                </button>
+              </div>
             </div>
           </div>
+
+          {/* Visual Recharts Analytics Dashboard */}
+          <AuditVisualDashboard logs={auditLogs} />
 
           <div className={`rounded-3xl border ${styles.border} ${styles.cardBg} overflow-hidden shadow-sm`}>
             <div className="overflow-x-auto">
