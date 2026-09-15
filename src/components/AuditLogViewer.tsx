@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Filter, RotateCcw, Download, FileJson, Calendar, ChevronLeft, ChevronRight, Eye, ShieldAlert, CheckCircle2, Info } from 'lucide-react';
+import { Search, Filter, RotateCcw, Download, FileJson, Calendar, ChevronLeft, ChevronRight, Eye, ShieldAlert, CheckCircle2, Info, Sliders } from 'lucide-react';
 import { AuditLog } from '../types.ts';
 import { useTheme } from '../context/ThemeContext.tsx';
 
@@ -10,6 +10,7 @@ interface AuditLogViewerProps {
   onExportJson: () => void;
   logFilter: string;
   onFilterChange: (filter: string) => void;
+  onConfigureThresholds?: () => void;
 }
 
 export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({
@@ -19,6 +20,7 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({
   onExportJson,
   logFilter,
   onFilterChange,
+  onConfigureThresholds,
 }) => {
   const { styles } = useTheme();
 
@@ -208,6 +210,19 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({
               <FileJson className="w-3.5 h-3.5" />
               <span>Export JSON</span>
             </button>
+
+            {onConfigureThresholds && (
+              <button
+                id="audit-log-configure-thresholds"
+                type="button"
+                onClick={onConfigureThresholds}
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 border border-amber-500/30 transition-all"
+                title="Configure custom alert risk thresholds for high-risk actions"
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>Risk Thresholds</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

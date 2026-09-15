@@ -52,6 +52,8 @@ import { AuditVisualDashboard } from './AuditVisualDashboard.tsx';
 import { AuditLogViewer } from './AuditLogViewer.tsx';
 import { UserProfileModal } from './UserProfileModal.tsx';
 import { HighRiskAuditBanner } from './HighRiskAuditBanner.tsx';
+import { RiskThresholdConfigModal, DEFAULT_RISK_THRESHOLDS } from './RiskThresholdConfigModal.tsx';
+import { RiskThresholdConfig } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 
 interface AdminPortalProps {
@@ -108,6 +110,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [editingCustomPost, setEditingCustomPost] = useState<CustomPost | null>(null);
   const [showFirebaseConsoleModal, setShowFirebaseConsoleModal] = useState<boolean>(false);
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
+  const [showRiskConfigModal, setShowRiskConfigModal] = useState<boolean>(false);
+  const [riskThresholds, setRiskThresholds] = useState<RiskThresholdConfig>(() => {
+    try {
+      const saved = localStorage.getItem('voyage_risk_thresholds');
+      return saved ? JSON.parse(saved) : DEFAULT_RISK_THRESHOLDS;
+    } catch {
+      return DEFAULT_RISK_THRESHOLDS;
+    }
+  });
   const [customPostsList, setCustomPostsList] = useState<CustomPost[]>([]);
 
   // User management search & filter
@@ -756,6 +767,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       <HighRiskAuditBanner
         logs={auditLogs}
         onViewAuditTrail={() => setActiveTab('logs')}
+        thresholdConfig={riskThresholds}
+        onConfigureThresholds={() => setShowRiskConfigModal(true)}
       />
 
       {/* Admin Navigation Tabs */}

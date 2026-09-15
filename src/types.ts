@@ -120,3 +120,24 @@ export interface FilterState {
   minRating: number;
   country: string;
 }
+
+export interface RiskThresholdConfig {
+  BYPASS_EVENTS: boolean;
+  RATE_LIMIT_EVENTS: boolean;
+  CONTENT_DELETIONS: boolean;
+  ROLE_MODIFICATIONS: boolean;
+  SECURITY_2FA_CHANGES: boolean;
+  CONTENT_CREATIONS: boolean;
+  ADMIN_LOGINS: boolean;
+}
+
+export interface RiskThresholdConfig {
+  BYPASS_EVENTS: boolean;
+  RATE_LIMIT_EVENTS: boolean;
+  CONTENT_DELETIONS: boolean;
+  ROLE_MODIFICATIONS: boolean;
+  SECURITY_2FA_CHANGES: boolean;
+  CONTENT_CREATIONS: boolean;
+  ADMIN_LOGINS: boolean;
+}
+

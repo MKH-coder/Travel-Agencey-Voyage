@@ -1,33 +1,42 @@
 import React, { useState, useMemo } from 'react';
-import { ShieldAlert, AlertTriangle, ArrowRight, Eye, X, ChevronRight, Lock } from 'lucide-react';
-import { AuditLog } from '../types.ts';
+import { ShieldAlert, AlertTriangle, ArrowRight, Eye, X, ChevronRight, Sliders } from 'lucide-react';
+import { AuditLog, RiskThresholdConfig } from '../types.ts';
 import { useTheme } from '../context/ThemeContext.tsx';
+import { DEFAULT_RISK_THRESHOLDS } from './RiskThresholdConfigModal.tsx';
 
 interface HighRiskAuditBannerProps {
   logs: AuditLog[];
   onViewAuditTrail: () => void;
+  thresholdConfig?: RiskThresholdConfig;
+  onConfigureThresholds?: () => void;
 }
 
-export const HighRiskAuditBanner: React.FC<HighRiskAuditBannerProps> = ({ logs, onViewAuditTrail }) => {
+export const HighRiskAuditBanner: React.FC<HighRiskAuditBannerProps> = ({
+  logs,
+  onViewAuditTrail,
+  thresholdConfig = DEFAULT_RISK_THRESHOLDS,
+  onConfigureThresholds,
+}) => {
   const { styles } = useTheme();
   const [dismissed, setDismissed] = useState(false);
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
-  // Identify high-risk logs
+  // Identify high-risk logs based on active threshold configuration
   const highRiskLogs = useMemo(() => {
     return logs.filter((log) => {
       const act = (log.action || '').toUpperCase();
-      return (
-        act.includes('BYPASS') ||
-        act.includes('RATE_LIMIT') ||
-        act.includes('BLOCKED') ||
-        act.includes('DELETE') ||
-        act.includes('DEMOTE') ||
-        act.includes('DISABLE_2FA') ||
-        act.includes('SECURITY_ALERT')
-      );
+
+      const matchesBypass = thresholdConfig.BYPASS_EVENTS && (act.includes('BYPASS') || act.includes('SECURITY'));
+      const matchesRateLimit = thresholdConfig.RATE_LIMIT_EVENTS && (act.includes('RATE_LIMIT') || act.includes('BLOCKED'));
+      const matchesDeletions = thresholdConfig.CONTENT_DELETIONS && act.includes('DELETE');
+      const matchesRole = thresholdConfig.ROLE_MODIFICATIONS && (act.includes('ROLE') || act.includes('DEMOTE') || act.includes('USER_ADD'));
+      const matches2FA = thresholdConfig.SECURITY_2FA_CHANGES && act.includes('2FA');
+      const matchesCreation = thresholdConfig.CONTENT_CREATIONS && (act.includes('CREATE') || act.includes('PUBLISH') || act.includes('APPROVE'));
+      const matchesLogins = thresholdConfig.ADMIN_LOGINS && (act.includes('LOGIN') || act.includes('AUTH'));
+
+      return matchesBypass || matchesRateLimit || matchesDeletions || matchesRole || matches2FA || matchesCreation || matchesLogins;
     }).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }, [logs]);
+  }, [logs, thresholdConfig]);
 
   if (dismissed || highRiskLogs.length === 0) {
     return null;
@@ -67,6 +76,19 @@ export const HighRiskAuditBanner: React.FC<HighRiskAuditBannerProps> = ({ logs, 
           </div>
 
           <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+            {onConfigureThresholds && (
+              <button
+                id="high-risk-threshold-config-btn"
+                type="button"
+                onClick={onConfigureThresholds}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 transition-all flex items-center gap-1.5"
+                title="Configure custom alert risk thresholds"
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>Configure Thresholds</span>
+              </button>
+            )}
+
             <button
               id="high-risk-inspect-btn"
               type="button"
