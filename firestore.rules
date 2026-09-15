@@ -14,7 +14,7 @@ service cloud.firestore {
 
     function isTechAdmin() {
       return isSignedIn() && (
-        request.auth.token.email == 'mukundkrishna2008@gmail.com' ||
+        request.auth.token.email in ['mukundkrishna.h2008@gmail.com', 'mukundkrishna2008@gmail.com'] ||
         request.auth.token.role == 'TECH_ADMIN' ||
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'TECH_ADMIN'
       );
