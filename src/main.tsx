@@ -5,14 +5,16 @@ import { ErrorBoundary } from './components/ErrorBoundary.tsx';
 import './index.css';
 
 if (typeof window !== 'undefined') {
-  // Gracefully catch and suppress expected, benign WebSocket/HMR disconnect errors in the sandbox
+  // Gracefully catch and suppress expected, benign WebSocket/HMR disconnect errors and Firestore idle stream disconnects in the sandbox
   window.addEventListener('unhandledrejection', (event) => {
     const msg = String(event.reason?.message || event.reason || '');
     if (
       msg.toLowerCase().includes('websocket') || 
       msg.toLowerCase().includes('vite') || 
       msg.toLowerCase().includes('hmr') ||
-      msg.toLowerCase().includes('closed without opened')
+      msg.toLowerCase().includes('closed without opened') ||
+      msg.includes('Disconnecting idle stream') ||
+      msg.includes('CANCELLED: Disconnecting idle stream')
     ) {
       event.preventDefault();
       event.stopPropagation();
@@ -25,7 +27,9 @@ if (typeof window !== 'undefined') {
       msg.toLowerCase().includes('websocket') || 
       msg.toLowerCase().includes('vite') || 
       msg.toLowerCase().includes('hmr') ||
-      msg.toLowerCase().includes('closed without opened')
+      msg.toLowerCase().includes('closed without opened') ||
+      msg.includes('Disconnecting idle stream') ||
+      msg.includes('CANCELLED: Disconnecting idle stream')
     ) {
       event.preventDefault();
       event.stopPropagation();

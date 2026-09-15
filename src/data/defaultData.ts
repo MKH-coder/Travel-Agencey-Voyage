@@ -1,4 +1,4 @@
-import { Listing, User, AuditLog } from '../types.ts';
+import { Listing, User, AuditLog, Review } from '../types.ts';
 
 export const TECH_ADMIN_EMAILS = [
   'mukundkrishna2008@gmail.com',
@@ -268,3 +268,84 @@ export const DEFAULT_LISTINGS: Listing[] = [
     }
   }
 ];
+
+export const DEFAULT_REVIEWS: Review[] = [
+  {
+    id: 'rev-santorini-1',
+    listingId: 'list-santorini-01',
+    userId: 'user-elena-01',
+    userName: 'Elena Rostova',
+    userEmail: 'elena.rostova@voyagereview.org',
+    userAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=128&q=80',
+    rating: 5,
+    comment: 'The caldera sunset view from the private terrace was unforgettable! Seamless concierge check-in and the breakfast delivered fresh each morning was exquisite. Truly a bucket-list stay.',
+    createdAt: '2025-02-10T14:32:00.000Z'
+  },
+  {
+    id: 'rev-santorini-2',
+    listingId: 'list-santorini-01',
+    userId: 'user-marcus-02',
+    userName: 'Marcus Vance',
+    userEmail: 'marcus.v@adventurescape.com',
+    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=128&q=80',
+    rating: 5,
+    comment: 'Unbeatable vantage point over Oia. We avoided all the crowds simply by relaxing at our hot tub cliffside. Worth every single dollar for the tranquil luxury.',
+    createdAt: '2025-02-18T18:15:00.000Z'
+  },
+  {
+    id: 'rev-santorini-3',
+    listingId: 'list-santorini-01',
+    userId: 'user-chloe-03',
+    userName: 'Chloe Dupont',
+    userEmail: 'chloe.dupont@wanderlust.fr',
+    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=128&q=80',
+    rating: 4,
+    comment: 'Spectacular location! Note that there are steep stairs down to the suites, but the staff handles all luggage effortlessly. The sunset cocktails were a highlight.',
+    createdAt: '2025-03-01T09:45:00.000Z'
+  },
+  {
+    id: 'rev-kyoto-1',
+    listingId: 'list-kyoto-02',
+    userId: 'user-kenji-01',
+    userName: 'Kenji Takahashi',
+    userEmail: 'kenji.t@kyotoguide.jp',
+    userAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=128&q=80',
+    rating: 5,
+    comment: 'Early morning in the bamboo grove before tourists arrive is pure spiritual tranquility. Tenryu-ji Zen garden reflecting Mount Arashiyama took my breath away.',
+    createdAt: '2025-02-14T08:20:00.000Z'
+  },
+  {
+    id: 'rev-kyoto-2',
+    listingId: 'list-kyoto-02',
+    userId: 'user-sophia-02',
+    userName: 'Sophia Lin',
+    userEmail: 'sophia.lin@travelasia.io',
+    userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=128&q=80',
+    rating: 5,
+    comment: 'The traditional tea ceremony included in the tour package was deeply peaceful and authentic. Exceptional master guide who explained centuries of temple history.',
+    createdAt: '2025-02-25T11:00:00.000Z'
+  },
+  {
+    id: 'rev-amalfi-1',
+    listingId: 'list-amalfi-03',
+    userId: 'user-alessandro-01',
+    userName: 'Alessandro Moretti',
+    userEmail: 'alessandro@italyexplorer.it',
+    userAvatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=128&q=80',
+    rating: 5,
+    comment: 'Waking up to the Tyrrhenian Sea horizon and the private sea-cliff elevator down to the water is absolute paradise. The lemon grove breakfast was sublime.',
+    createdAt: '2025-02-20T16:40:00.000Z'
+  },
+  {
+    id: 'rev-zermatt-1',
+    listingId: 'list-zermatt-04',
+    userId: 'user-hannah-01',
+    userName: 'Hannah Keller',
+    userEmail: 'hannah.keller@alpinestays.ch',
+    userAvatar: 'https://images.unsplash.com/photo-1548142813-c348350df52b?auto=format&fit=crop&w=128&q=80',
+    rating: 5,
+    comment: 'The Matterhorn reflection in the infinity spa pool at dusk is something you will never forget. True 5-star ski-in/ski-out experience with unmatched warmth and service.',
+    createdAt: '2025-02-28T20:10:00.000Z'
+  }
+];
+

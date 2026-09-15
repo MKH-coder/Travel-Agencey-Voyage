@@ -19,7 +19,8 @@ import {
   Sparkles,
   Palette,
   Snowflake,
-  Calendar
+  Calendar,
+  Command
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -32,6 +33,7 @@ interface HeaderProps {
   setCurrentView: (view: 'dashboard' | 'admin') => void;
   savedTripsCount: number;
   onOpenSavedTrips: () => void;
+  onOpenShortcutsHelp?: () => void;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
 }
@@ -41,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
   setCurrentView,
   savedTripsCount,
   onOpenSavedTrips,
+  onOpenShortcutsHelp,
   searchQuery,
   setSearchQuery,
 }) => {
@@ -187,16 +190,22 @@ export const Header: React.FC<HeaderProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search Santorini, Kyoto, luxury stays..."
-                className={`w-full pl-10 pr-4 py-2 text-sm rounded-xl outline-none transition-all ${styles.inputBg}`}
+                className={`w-full pl-10 pr-16 py-2 text-sm rounded-xl outline-none transition-all ${styles.inputBg}`}
               />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs px-1.5 py-0.5 rounded ${styles.textMuted} hover:${styles.textPrimary}`}
-                >
-                  Clear
-                </button>
-              )}
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                {searchQuery ? (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className={`text-xs px-1.5 py-0.5 rounded ${styles.textMuted} hover:${styles.textPrimary}`}
+                  >
+                    Clear
+                  </button>
+                ) : (
+                  <kbd className="hidden xl:inline-block px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-200/80 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300/60 dark:border-slate-700 shadow-xs pointer-events-none">
+                    /
+                  </kbd>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -288,7 +297,7 @@ export const Header: React.FC<HeaderProps> = ({
             id="saved-trips-btn"
             onClick={onOpenSavedTrips}
             className={`relative p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center gap-1`}
-            title="Saved Trips & Reservations"
+            title="Saved Trips & Reservations (B)"
           >
             <Heart className={`w-4 h-4 ${savedTripsCount > 0 ? 'text-rose-500 fill-rose-500' : ''}`} />
             {savedTripsCount > 0 && (
@@ -297,6 +306,18 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             )}
           </button>
+
+          {/* Keyboard Shortcuts Trigger */}
+          {onOpenShortcutsHelp && (
+            <button
+              id="shortcuts-help-btn"
+              onClick={onOpenShortcutsHelp}
+              className={`p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center gap-1 text-xs font-medium`}
+              title="Keyboard Shortcuts (?)"
+            >
+              <Command className="w-4 h-4 text-sky-500" />
+            </button>
+          )}
 
           {/* User Profile & Auth */}
           {user ? (

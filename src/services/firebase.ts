@@ -15,11 +15,13 @@ import {
   limit, 
   onSnapshot,
   where,
+  updateDoc,
   Timestamp 
 } from 'firebase/firestore';
 import { getAuth, Auth, GoogleAuthProvider } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
-import { Listing, User, AuditLog, CustomPost, PriceAlert } from '../types.ts';
+import { Listing, User, AuditLog, CustomPost, PriceAlert, Review } from '../types.ts';
+import { ClientStorageManager } from './clientStorage.ts';
 
 // 1. Initialize Firebase App (Singleton)
 let app: FirebaseApp;
@@ -339,6 +341,143 @@ export class FirebaseSyncService {
     } catch (err) {
       console.warn('Firestore getPriceAlertForUserAndListing error:', err);
       return null;
+    }
+  }
+
+  // --- Reviews Collection ---
+  static async getReviewsForListing(listingId: string): Promise<Review[]> {
+    // 1. First get local cached reviews for instant snappy response
+    const localReviews = ClientStorageManager.getReviews(listingId);
+    try {
+      const q = query(
+        collection(firestoreDb, 'reviews'),
+        where('listingId', '==', listingId)
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const remoteReviews: Review[] = [];
+        snap.forEach(d => {
+          remoteReviews.push(d.data() as Review);
+        });
+
+        // Merge remote reviews into local storage
+        remoteReviews.forEach(r => {
+          ClientStorageManager.saveReview(r);
+        });
+
+        // Sort descending by createdAt
+        return remoteReviews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      }
+      return localReviews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } catch (err) {
+      console.warn('Firestore getReviewsForListing error (using local cache):', err);
+      return localReviews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+  }
+
+  static async saveReview(review: Review): Promise<boolean> {
+    // 1. Save locally for instant UI update
+    ClientStorageManager.saveReview(review);
+
+    // 2. Sync to Firestore
+    try {
+      const docRef = doc(firestoreDb, 'reviews', review.id);
+      await setDoc(docRef, {
+        ...review,
+        syncedAt: Timestamp.now()
+      }, { merge: true });
+      return true;
+    } catch (err) {
+      console.warn('Firestore saveReview error (cached locally):', err);
+      return false;
+    }
+  }
+
+  static async deleteReview(reviewId: string, adminEmail?: string): Promise<boolean> {
+    // 1. Delete locally
+    ClientStorageManager.deleteReview(reviewId, adminEmail);
+
+    // 2. Delete from Firestore
+    try {
+      await deleteDoc(doc(firestoreDb, 'reviews', reviewId));
+      return true;
+    } catch (err) {
+      console.warn('Firestore deleteReview error:', err);
+      return false;
+    }
+  }
+
+  static async reportReview(
+    reviewId: string,
+    reason: string,
+    reporterEmail: string,
+    reporterId: string,
+    listingTitle?: string
+  ): Promise<boolean> {
+    // 1. Local update first
+    const updatedReview = ClientStorageManager.reportReview(reviewId, reason, reporterEmail, reporterId, listingTitle);
+    if (!updatedReview) return false;
+
+    // 2. Cloud Firestore update
+    try {
+      const docRef = doc(firestoreDb, 'reviews', reviewId);
+      await updateDoc(docRef, {
+        isReported: true,
+        reportReason: reason,
+        reportedBy: reporterId,
+        reportedByEmail: reporterEmail,
+        reportedAt: new Date().toISOString(),
+        moderationStatus: 'PENDING',
+        ...(listingTitle ? { listingTitle } : {})
+      });
+      return true;
+    } catch (err) {
+      console.warn('Firestore reportReview error (saved locally):', err);
+      return true; // Still successful locally
+    }
+  }
+
+  static async getReportedReviews(): Promise<Review[]> {
+    const localReported = ClientStorageManager.getReportedReviews();
+    try {
+      const q = query(
+        collection(firestoreDb, 'reviews'),
+        where('isReported', '==', true)
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const remoteReported: Review[] = [];
+        snap.forEach(d => {
+          const rev = d.data() as Review;
+          if (rev.moderationStatus === 'PENDING') {
+            remoteReported.push(rev);
+            ClientStorageManager.saveReview(rev);
+          }
+        });
+        return remoteReported.sort((a, b) => new Date(b.reportedAt || b.createdAt).getTime() - new Date(a.reportedAt || a.createdAt).getTime());
+      }
+      return localReported;
+    } catch (err) {
+      console.warn('Firestore getReportedReviews error (using local cache):', err);
+      return localReported;
+    }
+  }
+
+  static async dismissReviewReport(reviewId: string, adminEmail: string): Promise<boolean> {
+    // 1. Local update
+    ClientStorageManager.dismissReviewReport(reviewId, adminEmail);
+
+    // 2. Cloud Firestore update
+    try {
+      const docRef = doc(firestoreDb, 'reviews', reviewId);
+      await updateDoc(docRef, {
+        isReported: false,
+        moderationStatus: 'DISMISSED'
+      });
+      return true;
+    } catch (err) {
+      console.warn('Firestore dismissReviewReport error:', err);
+      return false;
     }
   }
 }

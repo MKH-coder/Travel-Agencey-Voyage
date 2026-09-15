@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ThemeProvider, useTheme } from './context/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
 import { Header } from './components/Header.tsx';
@@ -10,7 +10,9 @@ import { LoginModal } from './components/LoginModal.tsx';
 import { AdminPortal } from './components/AdminPortal.tsx';
 import { MapView } from './components/MapView.tsx';
 import { Breadcrumbs } from './components/Breadcrumbs.tsx';
-import { Listing, FilterState } from './types.ts';
+import { ShortcutsHelpModal } from './components/ShortcutsHelpModal.tsx';
+import { useGlobalShortcuts } from './hooks/useGlobalShortcuts.ts';
+import { Listing, FilterState, ThemeMode } from './types.ts';
 import { DEFAULT_LISTINGS } from './data/defaultData.ts';
 import {
   Compass,
@@ -27,8 +29,8 @@ import {
 } from 'lucide-react';
 
 function MainLayout() {
-  const { styles, theme } = useTheme();
-  const { user, token } = useAuth();
+  const { styles, theme, setTheme } = useTheme();
+  const { user, token, showLoginModal, setShowLoginModal, showBypassModal, setShowBypassModal } = useAuth();
 
   const [currentView, setCurrentView] = useState<'dashboard' | 'admin'>('dashboard');
   const [feedLayout, setFeedLayout] = useState<'split' | 'grid' | 'map'>('split');
@@ -46,6 +48,7 @@ function MainLayout() {
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [hoveredListingId, setHoveredListingId] = useState<string | null>(null);
   const [showSavedModal, setShowSavedModal] = useState(false);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [adminTab, setAdminTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | null>(null);
 
   // Search and filters
@@ -55,6 +58,84 @@ function MainLayout() {
     priceRange: 'ALL',
     minRating: 0,
     country: 'All Countries',
+  });
+
+  // Cycle through available themes
+  const handleCycleTheme = useCallback(() => {
+    const themeModes: ThemeMode[] = [
+      'cyan-light',
+      'dark-slate',
+      'crimson-black',
+      'emerald-warm',
+      'royal-gold',
+      'violet-glass',
+      'emerald-black',
+      'rose-gold',
+      'nordic-frost',
+    ];
+    const currentIndex = themeModes.indexOf(theme);
+    const nextTheme = themeModes[(currentIndex + 1) % themeModes.length];
+    setTheme(nextTheme);
+  }, [theme, setTheme]);
+
+  // Focus search input
+  const handleFocusSearch = useCallback(() => {
+    // If in admin view, return to explore dashboard first or focus search
+    if (currentView !== 'dashboard') {
+      setCurrentView('dashboard');
+    }
+    // Small timeout to allow render if switching view
+    setTimeout(() => {
+      const heroInput = document.getElementById('hero-search-input') as HTMLInputElement | null;
+      const headerInput = document.getElementById('header-search-input') as HTMLInputElement | null;
+      if (heroInput) {
+        heroInput.focus();
+        heroInput.select();
+        heroInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (headerInput) {
+        headerInput.focus();
+        headerInput.select();
+      }
+    }, 50);
+  }, [currentView]);
+
+  // Close any open modal on Escape
+  const handleCloseAllModals = useCallback(() => {
+    setSelectedListing(null);
+    setShowSavedModal(false);
+    setShowShortcutsModal(false);
+    if (showLoginModal) setShowLoginModal(false);
+    if (showBypassModal) setShowBypassModal(false);
+  }, [showLoginModal, setShowLoginModal, showBypassModal, setShowBypassModal]);
+
+  // Register global shortcuts
+  useGlobalShortcuts({
+    onFocusSearch: handleFocusSearch,
+    onCloseModals: handleCloseAllModals,
+    onToggleSavedTrips: () => setShowSavedModal(prev => !prev),
+    onToggleHelp: () => setShowShortcutsModal(prev => !prev),
+    onToggleTheme: handleCycleTheme,
+    onSwitchView: () => setCurrentView(prev => (prev === 'dashboard' ? 'admin' : 'dashboard')),
+    extraShortcuts: [
+      {
+        key: '1',
+        description: 'Switch to Split Layout',
+        action: () => setFeedLayout('split'),
+        ignoreInputs: true,
+      },
+      {
+        key: '2',
+        description: 'Switch to Grid Layout',
+        action: () => setFeedLayout('grid'),
+        ignoreInputs: true,
+      },
+      {
+        key: '3',
+        description: 'Switch to Map Layout',
+        action: () => setFeedLayout('map'),
+        ignoreInputs: true,
+      },
+    ],
   });
 
   // Fetch listings (with fallback to default listings on static GitHub Pages)
@@ -222,6 +303,7 @@ function MainLayout() {
         setCurrentView={setCurrentView}
         savedTripsCount={savedListings.length}
         onOpenSavedTrips={() => setShowSavedModal(true)}
+        onOpenShortcutsHelp={() => setShowShortcutsModal(true)}
         searchQuery={filters.search}
         setSearchQuery={(q) => setFilters(prev => ({ ...prev, search: q }))}
       />
@@ -530,6 +612,12 @@ function MainLayout() {
 
       {/* Global Authentication Modal (OAuth, Phone OTP, 2FA, Bypass) */}
       <LoginModal />
+
+      {/* Keyboard Shortcuts Cheat Sheet Modal */}
+      <ShortcutsHelpModal
+        isOpen={showShortcutsModal}
+        onClose={() => setShowShortcutsModal(false)}
+      />
 
     </div>
   );

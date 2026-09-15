@@ -21,8 +21,9 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
-import { Listing, Booking, PriceAlert } from '../types.ts';
+import { Listing, Booking, PriceAlert, Review } from '../types.ts';
 import { FirebaseSyncService } from '../services/firebase.ts';
+import { UserReviewsSection } from './UserReviewsSection.tsx';
 
 interface DetailModalProps {
   listing: Listing | null;
@@ -61,6 +62,16 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   const [hasPriceAlert, setHasPriceAlert] = useState(false);
   const [priceAlertLoading, setPriceAlertLoading] = useState(false);
   const [priceAlertId, setPriceAlertId] = useState<string | null>(null);
+
+  const [liveRating, setLiveRating] = useState<number | null>(null);
+  const [liveReviewCount, setLiveReviewCount] = useState<number | null>(null);
+
+  React.useEffect(() => {
+    if (listing) {
+      setLiveRating(listing.rating);
+      setLiveReviewCount(listing.reviewCount);
+    }
+  }, [listing?.id]);
 
   React.useEffect(() => {
     if (user && listing) {
@@ -234,11 +245,20 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 {listing.title}
               </h2>
               <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-500">
-                <div className="flex items-center gap-1 text-amber-500 font-bold">
+                <button
+                  type="button"
+                  id="detail-modal-reviews-trigger"
+                  onClick={() => {
+                    const el = document.getElementById('user-reviews-section');
+                    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  className="flex items-center gap-1 text-amber-500 font-bold hover:underline cursor-pointer text-left"
+                  title="Click to view verified guest reviews"
+                >
                   <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  <span>{listing.rating.toFixed(2)}</span>
-                  <span className="text-slate-400 font-normal">({listing.reviewCount} verified guest reviews)</span>
-                </div>
+                  <span>{(liveRating !== null ? liveRating : listing.rating).toFixed(2)}</span>
+                  <span className="text-slate-400 font-normal">({liveReviewCount !== null ? liveReviewCount : listing.reviewCount} verified guest reviews)</span>
+                </button>
                 <span>•</span>
                 <span className="flex items-center gap-1 text-emerald-500 font-medium">
                   <ShieldCheck className="w-3.5 h-3.5" />
@@ -420,6 +440,15 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* User Reviews & Ratings Section */}
+              <UserReviewsSection
+                listing={listing}
+                onReviewAdded={(_newRev, avg, count) => {
+                  setLiveRating(avg);
+                  setLiveReviewCount(count);
+                }}
+              />
 
             </div>
 

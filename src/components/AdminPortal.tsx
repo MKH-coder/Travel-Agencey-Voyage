@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import {
   Shield,
   ShieldCheck,
@@ -36,11 +37,14 @@ import {
   Flame,
   FileSpreadsheet,
   Download,
-  FileJson
+  FileJson,
+  Flag,
+  MessageSquare,
+  Star
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
-import { Listing, User, AuditLog, ListingCategory, ListingStatus, CustomPost, Booking } from '../types.ts';
+import { Listing, User, AuditLog, ListingCategory, ListingStatus, CustomPost, Booking, Review } from '../types.ts';
 import {
   AreaChart,
   Area,
@@ -76,6 +80,7 @@ import { SecurityOverviewCard } from './SecurityOverviewCard.tsx';
 import { AuditTrailDashboard } from './AuditTrailDashboard.tsx';
 import { RiskThresholdConfig } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
+import { FirebaseSyncService } from '../services/firebase.ts';
 
 interface AdminPortalProps {
   onListingUpdated?: () => void;
@@ -128,6 +133,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   // Multiple photos state for listing creation
   const [additionalPhotos, setAdditionalPhotos] = useState<string[]>([]);
   const [newPhotoInput, setNewPhotoInput] = useState<string>('');
+
+  // Reported reviews moderation state
+  const [reportedReviews, setReportedReviews] = useState<Review[]>([]);
+  const [loadingReportedReviews, setLoadingReportedReviews] = useState<boolean>(false);
+  const [queueSubTab, setQueueSubTab] = useState<'listings' | 'reviews'>('listings');
+  const [moderationFeedback, setModerationFeedback] = useState<string>('');
+  const [moderatingReviewId, setModeratingReviewId] = useState<string | null>(null);
 
   // Modals for admin operations
   const [showAddAdminModal, setShowAddAdminModal] = useState<boolean>(false);
@@ -303,6 +315,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     }
   };
 
+  // Fetch reported reviews for Admin Moderation Queue
+  const fetchReportedReviews = async () => {
+    if (!isElevatedAdmin) return;
+    setLoadingReportedReviews(true);
+    try {
+      const reports = await FirebaseSyncService.getReportedReviews();
+      setReportedReviews(reports);
+    } catch (err) {
+      console.error('Error fetching reported reviews for queue:', err);
+    } finally {
+      setLoadingReportedReviews(false);
+    }
+  };
+
   // Bookings data for Analytics
   const [bookingsList, setBookingsList] = useState<Booking[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(false);
@@ -404,6 +430,27 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     });
   };
 
+  // Global Escape handler for AdminPortal specific modals
+  useEffect(() => {
+    const handleAdminKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowAddAdminModal(false);
+        setEditingRolePostUser(null);
+        setEditingContentListing(null);
+        setShowCustomPostModal(false);
+        setEditingCustomPost(null);
+        setShowFirebaseConsoleModal(false);
+        setShowSupabaseConsoleModal(false);
+        setShowProfileModal(false);
+        setShowRiskConfigModal(false);
+        setShowPasskeyModal(false);
+        setReviewListing(null);
+      }
+    };
+    window.addEventListener('keydown', handleAdminKeyDown);
+    return () => window.removeEventListener('keydown', handleAdminKeyDown);
+  }, []);
+
   useEffect(() => {
     if (token) {
       fetchListings();
@@ -414,6 +461,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       }
       if (isElevatedAdmin) {
         fetchLogs();
+        fetchReportedReviews();
       }
     }
   }, [token, isTechAdmin, isElevatedAdmin]);
@@ -752,6 +800,42 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     });
   };
 
+  // Moderation handlers for Reported Reviews
+  const handleDismissReport = async (reviewId: string) => {
+    setModeratingReviewId(reviewId);
+    try {
+      await FirebaseSyncService.dismissReviewReport(reviewId, user?.email || 'admin@voyage.org');
+      setReportedReviews(prev => prev.filter(r => r.id !== reviewId));
+      setModerationFeedback('Report dismissed. Review approved and retained in explore feed.');
+      setTimeout(() => setModerationFeedback(''), 5000);
+      if (isElevatedAdmin) fetchLogs();
+    } catch (err) {
+      console.error('Error dismissing review report:', err);
+    } finally {
+      setModeratingReviewId(null);
+    }
+  };
+
+  const handleDeleteReportedReview = (reviewId: string, authorName: string) => {
+    if (!window.confirm(`Are you sure you want to remove the review by ${authorName}? This will permanently delete it from the listing.`)) {
+      return;
+    }
+    executeWithPasskey(async () => {
+      setModeratingReviewId(reviewId);
+      try {
+        await FirebaseSyncService.deleteReview(reviewId, user?.email || 'admin@voyage.org');
+        setReportedReviews(prev => prev.filter(r => r.id !== reviewId));
+        setModerationFeedback('Violating review was permanently removed and action was recorded to the audit trail.');
+        setTimeout(() => setModerationFeedback(''), 5000);
+        if (isElevatedAdmin) fetchLogs();
+      } catch (err) {
+        console.error('Error removing reported review:', err);
+      } finally {
+        setModeratingReviewId(null);
+      }
+    });
+  };
+
   // Filter listings
   const pendingQueue = listings.filter(l => l.status === 'PENDING_APPROVAL');
   const myInventory = isTechAdmin ? listings : listings.filter(l => l.createdBy === user?.uid);
@@ -874,9 +958,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           >
             <FileCheck className="w-4 h-4" />
             <span>Verification Queue</span>
-            {pendingQueue.length > 0 && (
+            {(pendingQueue.length + reportedReviews.length) > 0 && (
               <span className="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500 text-white animate-pulse">
-                {pendingQueue.length}
+                {pendingQueue.length + reportedReviews.length}
               </span>
             )}
           </button>
@@ -990,14 +1074,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h2 className={`text-lg font-bold ${styles.textPrimary}`}>
-                Pending Verification Queue
+                Verification & Moderation Queue
               </h2>
               <p className={`text-xs ${styles.textMuted}`}>
-                Review content submissions drafted by Standard Admins before publishing live to the global explore feed.
+                Review destination drafts from Standard Admins and evaluate flagged community reviews.
               </p>
             </div>
             <button
-              onClick={fetchListings}
+              onClick={() => {
+                fetchListings();
+                fetchReportedReviews();
+              }}
               className={`p-2 rounded-xl text-xs font-semibold ${styles.buttonSecondary} flex items-center gap-1.5`}
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -1005,77 +1092,266 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </button>
           </div>
 
-          {loadingListings ? (
-            <div className="py-12 text-center text-xs text-slate-400">Scanning verification queue...</div>
-          ) : pendingQueue.length === 0 ? (
-            <div className={`p-10 rounded-3xl border ${styles.border} ${styles.cardBg} text-center space-y-3`}>
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-6 h-6" />
+          {/* Queue Sub-Navigation Tabs */}
+          <div className="flex items-center gap-2 border-b border-slate-200/50 dark:border-slate-800/80 pb-2">
+            <button
+              id="subtab-queue-listings"
+              onClick={() => setQueueSubTab('listings')}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                queueSubTab === 'listings'
+                  ? 'bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30'
+                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
+            >
+              <FileCheck className="w-3.5 h-3.5" />
+              <span>Pending Listings</span>
+              {pendingQueue.length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-white">
+                  {pendingQueue.length}
+                </span>
+              )}
+            </button>
+
+            <button
+              id="subtab-queue-reviews"
+              onClick={() => setQueueSubTab('reviews')}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                queueSubTab === 'reviews'
+                  ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30'
+                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
+            >
+              <Flag className="w-3.5 h-3.5 text-amber-500" />
+              <span>Reported Reviews & Moderation</span>
+              {reportedReviews.length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-rose-500 text-white animate-pulse">
+                  {reportedReviews.length}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Moderation Feedback Toast */}
+          {moderationFeedback && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                <span>{moderationFeedback}</span>
               </div>
-              <h3 className={`text-base font-bold ${styles.textPrimary}`}>Verification Queue is Clear</h3>
-              <p className={`text-xs ${styles.textMuted} max-w-sm mx-auto`}>
-                All submissions have been reviewed and published. Standard admin drafts will appear here when submitted.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {pendingQueue.map(item => (
-                <div
-                  key={item.id}
-                  className={`rounded-3xl border ${styles.border} ${styles.cardBg} overflow-hidden shadow-sm flex flex-col justify-between`}
-                >
-                  <div className="relative aspect-[16/9] bg-slate-200 dark:bg-slate-800">
-                    <img
-                      src={item.images[0]}
-                      alt={item.title}
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-amber-500 text-white shadow-md">
-                      Pending Approval
-                    </div>
-                    <div className="absolute top-3 right-3 px-2 py-0.5 rounded-lg text-xs font-mono bg-black/70 text-white">
-                      ${item.price}
-                    </div>
+              <button
+                type="button"
+                onClick={() => setModerationFeedback('')}
+                className="text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-200 text-xs"
+              >
+                Dismiss
+              </button>
+            </motion.div>
+          )}
+
+          {/* SUBTAB 1: Listings Pending Verification */}
+          {queueSubTab === 'listings' && (
+            <div>
+              {loadingListings ? (
+                <div className="py-12 text-center text-xs text-slate-400">Scanning verification queue...</div>
+              ) : pendingQueue.length === 0 ? (
+                <div className={`p-10 rounded-3xl border ${styles.border} ${styles.cardBg} text-center space-y-3`}>
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="w-6 h-6" />
                   </div>
-
-                  <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
-                    <div>
-                      <div className="text-[10px] text-sky-600 dark:text-sky-400 font-semibold uppercase">
-                        {item.category} • {item.location}, {item.country}
-                      </div>
-                      <h3 className={`text-base font-bold ${styles.textPrimary} mt-0.5`}>
-                        {item.title}
-                      </h3>
-                      <p className={`text-xs ${styles.textMuted} mt-1.5 line-clamp-2 leading-relaxed`}>
-                        {item.description}
-                      </p>
-                      <div className="mt-3 text-[11px] text-slate-400">
-                        Submitted by: <strong className="text-slate-600 dark:text-slate-300">{item.createdByName || item.createdBy}</strong>
-                      </div>
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-200/50 dark:border-slate-800 flex items-center gap-2">
-                      <button
-                        onClick={() => setReviewListing(item)}
-                        className={`flex-1 py-2 rounded-xl text-xs font-bold ${styles.buttonSecondary} flex items-center justify-center gap-1.5`}
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>Side-by-Side Review</span>
-                      </button>
-
-                      <button
-                        onClick={() => handleUpdateStatus(item.id, 'PUBLISHED')}
-                        className="py-2 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all flex items-center gap-1"
-                        title="Quick Approve & Publish"
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Approve</span>
-                      </button>
-                    </div>
-                  </div>
+                  <h3 className={`text-base font-bold ${styles.textPrimary}`}>Verification Queue is Clear</h3>
+                  <p className={`text-xs ${styles.textMuted} max-w-sm mx-auto`}>
+                    All submissions have been reviewed and published. Standard admin drafts will appear here when submitted.
+                  </p>
                 </div>
-              ))}
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {pendingQueue.map(item => (
+                    <div
+                      key={item.id}
+                      className={`rounded-3xl border ${styles.border} ${styles.cardBg} overflow-hidden shadow-sm flex flex-col justify-between`}
+                    >
+                      <div className="relative aspect-[16/9] bg-slate-200 dark:bg-slate-800">
+                        <img
+                          src={item.images[0]}
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-amber-500 text-white shadow-md">
+                          Pending Approval
+                        </div>
+                        <div className="absolute top-3 right-3 px-2 py-0.5 rounded-lg text-xs font-mono bg-black/70 text-white">
+                          ${item.price}
+                        </div>
+                      </div>
+
+                      <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                        <div>
+                          <div className="text-[10px] text-sky-600 dark:text-sky-400 font-semibold uppercase">
+                            {item.category} • {item.location}, {item.country}
+                          </div>
+                          <h3 className={`text-base font-bold ${styles.textPrimary} mt-0.5`}>
+                            {item.title}
+                          </h3>
+                          <p className={`text-xs ${styles.textMuted} mt-1.5 line-clamp-2 leading-relaxed`}>
+                            {item.description}
+                          </p>
+                          <div className="mt-3 text-[11px] text-slate-400">
+                            Submitted by: <strong className="text-slate-600 dark:text-slate-300">{item.createdByName || item.createdBy}</strong>
+                          </div>
+                        </div>
+
+                        <div className="pt-3 border-t border-slate-200/50 dark:border-slate-800 flex items-center gap-2">
+                          <button
+                            onClick={() => setReviewListing(item)}
+                            className={`flex-1 py-2 rounded-xl text-xs font-bold ${styles.buttonSecondary} flex items-center justify-center gap-1.5`}
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>Side-by-Side Review</span>
+                          </button>
+
+                          <button
+                            onClick={() => handleUpdateStatus(item.id, 'PUBLISHED')}
+                            className="py-2 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all flex items-center gap-1"
+                            title="Quick Approve & Publish"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Approve</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SUBTAB 2: Reported Reviews Moderation Queue */}
+          {queueSubTab === 'reviews' && (
+            <div className="space-y-4">
+              {loadingReportedReviews ? (
+                <div className="py-12 text-center text-xs text-slate-400 space-y-2">
+                  <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto" />
+                  <span>Scanning reported reviews queue...</span>
+                </div>
+              ) : reportedReviews.length === 0 ? (
+                <div className={`p-10 rounded-3xl border ${styles.border} ${styles.cardBg} text-center space-y-3`}>
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <h3 className={`text-base font-bold ${styles.textPrimary}`}>No Flagged Reviews</h3>
+                  <p className={`text-xs ${styles.textMuted} max-w-md mx-auto`}>
+                    The review moderation queue is clear. When guests flag comments for spam, inappropriate language, or policy violations, they appear here for admin review.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {reportedReviews.map((rev) => (
+                    <div
+                      key={rev.id}
+                      id={`reported-review-card-${rev.id}`}
+                      className={`p-5 rounded-3xl border ${styles.border} ${styles.cardBg} shadow-sm space-y-3`}
+                    >
+                      <div className="flex items-start justify-between gap-4 flex-wrap">
+                        <div className="flex items-center gap-3">
+                          {rev.userAvatar ? (
+                            <img
+                              src={rev.userAvatar}
+                              alt={rev.userName}
+                              className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold flex items-center justify-center text-sm">
+                              {rev.userName ? rev.userName[0].toUpperCase() : 'U'}
+                            </div>
+                          )}
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className={`text-sm font-bold ${styles.textPrimary}`}>{rev.userName}</span>
+                              <span className="text-[11px] text-slate-400 font-mono">({rev.userEmail || 'Anonymous'})</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25">
+                                <Flag className="w-2.5 h-2.5 fill-amber-500" />
+                                <span>Pending Moderation</span>
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <div className="flex items-center gap-0.5">
+                                {[1, 2, 3, 4, 5].map(st => (
+                                  <Star
+                                    key={st}
+                                    className={`w-3 h-3 ${
+                                      st <= rev.rating
+                                        ? 'fill-amber-400 text-amber-400'
+                                        : 'text-slate-300 dark:text-slate-700'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-[11px] text-slate-400">• Posted on {rev.listingTitle || 'Destination Listing'}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            id={`dismiss-report-${rev.id}`}
+                            onClick={() => handleDismissReport(rev.id)}
+                            disabled={moderatingReviewId === rev.id}
+                            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold ${styles.buttonSecondary} flex items-center gap-1.5 hover:border-emerald-500/50 hover:text-emerald-600 transition-all`}
+                            title="Dismiss flag and keep review published"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                            <span>Dismiss Flag (Approve)</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            id={`delete-reported-review-${rev.id}`}
+                            onClick={() => handleDeleteReportedReview(rev.id, rev.userName)}
+                            disabled={moderatingReviewId === rev.id}
+                            className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50"
+                            title="Permanently remove violating review"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete Review</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Flag Reason Callout Banner */}
+                      <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-1">
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-amber-700 dark:text-amber-300">
+                          <span className="flex items-center gap-1.5">
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                            <span>Report Reason:</span>
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-normal">
+                            Flagged by: {rev.reportedByEmail || 'Community Member'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-amber-900 dark:text-amber-200 font-medium pl-5">
+                          {rev.reportReason || 'Unspecified community guideline concern'}
+                        </p>
+                      </div>
+
+                      {/* Review Comment Quote */}
+                      <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+                        <p className={`text-xs sm:text-sm ${styles.textPrimary} italic leading-relaxed`}>
+                          "{rev.comment}"
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -2443,6 +2719,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       <UserProfileModal
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
+      />
+
+      {/* --- RISK THRESHOLD CONFIG MODAL --- */}
+      <RiskThresholdConfigModal
+        isOpen={showRiskConfigModal}
+        onClose={() => setShowRiskConfigModal(false)}
+        config={riskThresholds}
+        onSaveConfig={(newConfig) => {
+          setRiskThresholds(newConfig);
+          localStorage.setItem('voyage_risk_thresholds', JSON.stringify(newConfig));
+          setShowRiskConfigModal(false);
+        }}
       />
 
     </div>

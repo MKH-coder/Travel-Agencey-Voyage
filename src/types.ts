@@ -126,22 +126,31 @@ export interface PriceAlert {
   createdAt: string;
 }
 
+export interface Review {
+  id: string;
+  listingId: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userAvatar?: string;
+  rating: number; // 1 to 5
+  comment: string;
+  createdAt: string; // ISO string
+  isReported?: boolean;
+  reportReason?: string;
+  reportedBy?: string;
+  reportedByEmail?: string;
+  reportedAt?: string;
+  moderationStatus?: 'PENDING' | 'DISMISSED' | 'REMOVED';
+  listingTitle?: string;
+}
+
 export interface FilterState {
   category: 'ALL' | ListingCategory;
   search: string;
   priceRange: 'ALL' | 'UNDER_200' | '200_400' | 'ABOVE_400';
   minRating: number;
   country: string;
-}
-
-export interface RiskThresholdConfig {
-  BYPASS_EVENTS: boolean;
-  RATE_LIMIT_EVENTS: boolean;
-  CONTENT_DELETIONS: boolean;
-  ROLE_MODIFICATIONS: boolean;
-  SECURITY_2FA_CHANGES: boolean;
-  CONTENT_CREATIONS: boolean;
-  ADMIN_LOGINS: boolean;
 }
 
 export interface RiskThresholdConfig {

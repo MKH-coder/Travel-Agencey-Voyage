@@ -205,6 +205,79 @@
         }
       },
       "required": ["id", "userId", "userEmail", "listingId", "listingTitle", "targetPrice", "active", "createdAt"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "User ratings and text reviews for travel destinations, hotels, and dining experiences",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique review identifier"
+        },
+        "listingId": {
+          "type": "string",
+          "description": "ID of the reviewed travel listing"
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the author user"
+        },
+        "userName": {
+          "type": "string",
+          "description": "Display name of the reviewer"
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "Email address of the reviewer"
+        },
+        "userAvatar": {
+          "type": "string",
+          "description": "Avatar image URL of reviewer"
+        },
+        "rating": {
+          "type": "number",
+          "description": "Star rating from 1 to 5"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Written review text feedback"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when review was created"
+        },
+        "isReported": {
+          "type": "boolean",
+          "description": "Flag indicating if review has been reported for moderation"
+        },
+        "reportReason": {
+          "type": "string",
+          "description": "Reason provided by reporting user"
+        },
+        "reportedBy": {
+          "type": "string",
+          "description": "User ID of the reporter"
+        },
+        "reportedByEmail": {
+          "type": "string",
+          "description": "Email address of the reporter"
+        },
+        "reportedAt": {
+          "type": "string",
+          "description": "ISO timestamp when the review was flagged"
+        },
+        "moderationStatus": {
+          "type": "string",
+          "enum": ["PENDING", "DISMISSED", "REMOVED"],
+          "description": "Moderation status of the review"
+        },
+        "listingTitle": {
+          "type": "string",
+          "description": "Title of the listing for display in admin queue"
+        }
+      },
+      "required": ["id", "listingId", "userId", "userName", "rating", "comment", "createdAt"]
     }
   },
   "firestore": {
@@ -227,6 +300,10 @@
     "/priceAlerts/{alertId}": {
       "schema": "PriceAlert",
       "description": "User price alerts for tracking discounts"
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "User guest ratings and reviews for destinations"
     }
   }
 }

@@ -88,5 +88,22 @@ service cloud.firestore {
       allow update: if isSignedIn() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
       allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
+
+    // Reviews Collection:
+    // - All users can read reviews for destinations
+    // - Authenticated users can create reviews with their own userId
+    // - Authors can update their own reviews
+    // - Authenticated users can flag/report a review for moderation
+    // - Authors and Tech Admins can delete reviews, Tech Admins can moderate
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        (resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid) ||
+        isTechAdmin() ||
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isReported', 'reportReason', 'reportedBy', 'reportedByEmail', 'reportedAt', 'moderationStatus', 'listingTitle']))
+      );
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isTechAdmin());
+    }
   }
 }

@@ -1,10 +1,11 @@
-import { User, Listing, AuditLog, UserRole, CustomPost, PostPrivilege } from '../types.ts';
-import { DEFAULT_LISTINGS } from '../data/defaultData.ts';
+import { User, Listing, AuditLog, UserRole, CustomPost, PostPrivilege, Review } from '../types.ts';
+import { DEFAULT_LISTINGS, DEFAULT_REVIEWS } from '../data/defaultData.ts';
 
 const USERS_STORAGE_KEY = 'voyage_db_users';
 const LISTINGS_STORAGE_KEY = 'voyage_db_listings';
 const LOGS_STORAGE_KEY = 'voyage_db_audit_logs';
 const CUSTOM_POSTS_STORAGE_KEY = 'voyage_db_custom_posts';
+const REVIEWS_STORAGE_KEY = 'voyage_db_reviews';
 
 export const INITIAL_CUSTOM_POSTS: CustomPost[] = [
   {
@@ -614,5 +615,160 @@ export class ClientStorageManager {
 
     const token = `token_${Date.now()}_${user.uid}`;
     return { success: true, user, token, requires2FA: false };
+  }
+
+  // --- Reviews Collection ---
+  static getReviews(listingId?: string): Review[] {
+    try {
+      const data = localStorage.getItem(REVIEWS_STORAGE_KEY);
+      let reviews: Review[] = [];
+      if (!data) {
+        reviews = [...DEFAULT_REVIEWS];
+        localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(reviews));
+      } else {
+        reviews = JSON.parse(data);
+        if (!Array.isArray(reviews) || reviews.length === 0) {
+          reviews = [...DEFAULT_REVIEWS];
+          localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(reviews));
+        }
+      }
+
+      if (listingId) {
+        return reviews.filter(r => r.listingId === listingId);
+      }
+      return reviews;
+    } catch {
+      return listingId ? DEFAULT_REVIEWS.filter(r => r.listingId === listingId) : DEFAULT_REVIEWS;
+    }
+  }
+
+  static saveReview(review: Review): Review {
+    const reviews = this.getReviews();
+    const index = reviews.findIndex(r => r.id === review.id);
+    if (index >= 0) {
+      reviews[index] = { ...reviews[index], ...review };
+    } else {
+      reviews.unshift(review);
+    }
+    try {
+      localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(reviews));
+    } catch (e) {
+      console.warn('Failed to save review to localStorage:', e);
+    }
+    return review;
+  }
+
+  static deleteReview(reviewId: string, adminEmail?: string): boolean {
+    const reviews = this.getReviews();
+    const target = reviews.find(r => r.id === reviewId);
+    const filtered = reviews.filter(r => r.id !== reviewId);
+    try {
+      localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(filtered));
+      if (adminEmail && target) {
+        this.addAuditLog({
+          action: 'REVIEW_DELETED',
+          performedBy: adminEmail,
+          performedByEmail: adminEmail,
+          targetId: reviewId,
+          targetType: 'Review',
+          ipAddress: '127.0.0.1',
+          details: {
+            listingId: target.listingId,
+            author: target.userName,
+            commentSnippet: target.comment.substring(0, 60),
+            reason: target.reportReason || 'Moderation removal'
+          }
+        });
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  static reportReview(
+    reviewId: string,
+    reason: string,
+    reporterEmail: string,
+    reporterId: string,
+    listingTitle?: string
+  ): Review | null {
+    const reviews = this.getReviews();
+    const index = reviews.findIndex(r => r.id === reviewId);
+    if (index === -1) return null;
+
+    reviews[index] = {
+      ...reviews[index],
+      isReported: true,
+      reportReason: reason,
+      reportedBy: reporterId,
+      reportedByEmail: reporterEmail,
+      reportedAt: new Date().toISOString(),
+      moderationStatus: 'PENDING',
+      listingTitle: listingTitle || reviews[index].listingTitle
+    };
+
+    try {
+      localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(reviews));
+    } catch (e) {
+      console.warn('Failed to save reported review in localStorage:', e);
+    }
+
+    this.addAuditLog({
+      action: 'REVIEW_REPORTED',
+      performedBy: reporterEmail,
+      performedByEmail: reporterEmail,
+      targetId: reviewId,
+      targetType: 'Review',
+      ipAddress: '127.0.0.1',
+      details: {
+        listingId: reviews[index].listingId,
+        listingTitle: reviews[index].listingTitle,
+        author: reviews[index].userName,
+        reason,
+        rating: reviews[index].rating
+      }
+    });
+
+    return reviews[index];
+  }
+
+  static getReportedReviews(): Review[] {
+    const reviews = this.getReviews();
+    return reviews.filter(r => r.isReported && r.moderationStatus === 'PENDING');
+  }
+
+  static dismissReviewReport(reviewId: string, adminEmail: string): boolean {
+    const reviews = this.getReviews();
+    const index = reviews.findIndex(r => r.id === reviewId);
+    if (index === -1) return false;
+
+    reviews[index] = {
+      ...reviews[index],
+      isReported: false,
+      moderationStatus: 'DISMISSED'
+    };
+
+    try {
+      localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(reviews));
+    } catch (e) {
+      console.warn('Failed to update review in localStorage:', e);
+    }
+
+    this.addAuditLog({
+      action: 'REVIEW_REPORT_DISMISSED',
+      performedBy: adminEmail,
+      performedByEmail: adminEmail,
+      targetId: reviewId,
+      targetType: 'Review',
+      ipAddress: '127.0.0.1',
+      details: {
+        listingId: reviews[index].listingId,
+        author: reviews[index].userName,
+        action: 'Report dismissed; review retained'
+      }
+    });
+
+    return true;
   }
 }

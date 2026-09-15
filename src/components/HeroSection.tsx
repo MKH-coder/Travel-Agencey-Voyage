@@ -126,7 +126,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 className={`w-full pl-10 pr-20 py-2.5 text-sm rounded-xl outline-none transition-all ${styles.inputBg}`}
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                {localSearch && (
+                {localSearch ? (
                   <button
                     id="hero-clear-search-btn"
                     type="button"
@@ -139,6 +139,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
+                ) : (
+                  <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-200/80 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300/60 dark:border-slate-700 shadow-xs pointer-events-none" title="Press '/' to search">
+                    /
+                  </kbd>
                 )}
                 {localSearch !== debouncedSearch ? (
                   <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" title="Searching..." />
