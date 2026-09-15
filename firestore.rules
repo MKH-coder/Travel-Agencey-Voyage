@@ -78,5 +78,15 @@ service cloud.firestore {
       allow create: if isSignedIn();
       allow update, delete: if false; // Append-only immutable logs
     }
+
+    // Price Alerts Collection:
+    // - Users can read, create, update, and delete their own price alerts
+    // - Tech Admins can read all price alerts
+    match /priceAlerts/{alertId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isTechAdmin());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
   }
 }

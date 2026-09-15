@@ -46,7 +46,7 @@ function MainLayout() {
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [hoveredListingId, setHoveredListingId] = useState<string | null>(null);
   const [showSavedModal, setShowSavedModal] = useState(false);
-  const [adminTab, setAdminTab] = useState<'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | null>(null);
+  const [adminTab, setAdminTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | null>(null);
 
   // Search and filters
   const [filters, setFilters] = useState<FilterState>({

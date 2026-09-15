@@ -15,11 +15,14 @@ import {
   Utensils,
   Hotel,
   Landmark,
-  Share2
+  Share2,
+  Bell,
+  BellOff
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
-import { Listing, Booking } from '../types.ts';
+import { Listing, Booking, PriceAlert } from '../types.ts';
+import { FirebaseSyncService } from '../services/firebase.ts';
 
 interface DetailModalProps {
   listing: Listing | null;
@@ -54,6 +57,76 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   const [isBooking, setIsBooking] = useState(false);
   const [bookingConfirmed, setBookingConfirmed] = useState<Booking | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const [hasPriceAlert, setHasPriceAlert] = useState(false);
+  const [priceAlertLoading, setPriceAlertLoading] = useState(false);
+  const [priceAlertId, setPriceAlertId] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (user && listing) {
+      const checkAlert = async () => {
+        setPriceAlertLoading(true);
+        try {
+          const alert = await FirebaseSyncService.getPriceAlertForUserAndListing(user.uid, listing.id);
+          if (alert && alert.active) {
+            setHasPriceAlert(true);
+            setPriceAlertId(alert.id);
+          } else {
+            setHasPriceAlert(false);
+            setPriceAlertId(null);
+          }
+        } catch (err) {
+          console.error("Error fetching price alert:", err);
+        } finally {
+          setPriceAlertLoading(false);
+        }
+      };
+      checkAlert();
+    } else {
+      setHasPriceAlert(false);
+      setPriceAlertId(null);
+    }
+  }, [user, listing]);
+
+  const handleTogglePriceAlert = async () => {
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+    if (!listing) return;
+
+    setPriceAlertLoading(true);
+    try {
+      if (hasPriceAlert && priceAlertId) {
+        const success = await FirebaseSyncService.deletePriceAlert(priceAlertId);
+        if (success) {
+          setHasPriceAlert(false);
+          setPriceAlertId(null);
+        }
+      } else {
+        const newAlertId = `alert_${Date.now()}`;
+        const newAlert: PriceAlert = {
+          id: newAlertId,
+          userId: user.uid,
+          userEmail: user.email,
+          listingId: listing.id,
+          listingTitle: listing.title,
+          targetPrice: listing.price,
+          active: true,
+          createdAt: new Date().toISOString()
+        };
+        const success = await FirebaseSyncService.savePriceAlert(newAlert);
+        if (success) {
+          setHasPriceAlert(true);
+          setPriceAlertId(newAlertId);
+        }
+      }
+    } catch (err) {
+      console.error("Error toggling price alert:", err);
+    } finally {
+      setPriceAlertLoading(false);
+    }
+  };
 
   if (!listing) return null;
 
@@ -499,6 +572,38 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       Free cancellation up to 48 hours before check-in. Instant confirmation slip issued.
                     </div>
 
+                  </div>
+                )}
+              </div>
+
+              {/* Price Drop Alerts Widget */}
+              <div className={`p-4 rounded-2xl border ${styles.border} ${styles.cardBg} shadow-sm space-y-3`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bell className={`w-4 h-4 ${hasPriceAlert ? 'text-amber-500 fill-amber-500/20' : 'text-slate-400'}`} />
+                    <div>
+                      <h5 className={`text-xs font-bold ${styles.textPrimary}`}>Price Drop Alerts</h5>
+                      <p className="text-[10px] text-slate-400">Get notified if this price decreases</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleTogglePriceAlert}
+                    disabled={priceAlertLoading}
+                    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      hasPriceAlert ? 'bg-sky-500' : 'bg-slate-200 dark:bg-slate-700'
+                    } ${priceAlertLoading ? 'opacity-50' : ''}`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        hasPriceAlert ? 'translate-x-4' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+                {hasPriceAlert && (
+                  <div className="text-[10px] text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2 flex items-center gap-1.5 animate-in slide-in-from-top-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                    <span>Alert active! We'll email <strong>{user?.email}</strong> on price drops.</span>
                   </div>
                 )}
               </div>

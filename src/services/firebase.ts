@@ -12,10 +12,11 @@ import {
   orderBy, 
   limit, 
   onSnapshot,
+  where,
   Timestamp 
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
-import { Listing, User, AuditLog, CustomPost } from '../types.ts';
+import { Listing, User, AuditLog, CustomPost, PriceAlert } from '../types.ts';
 
 // 1. Initialize Firebase App (Singleton)
 let app: FirebaseApp;
@@ -250,6 +251,66 @@ export class FirebaseSyncService {
         syncedCounts: counts,
         error: msg,
       };
+    }
+  }
+
+  // --- Price Alerts Collection ---
+  static async savePriceAlert(alert: PriceAlert): Promise<boolean> {
+    try {
+      const docRef = doc(firestoreDb, 'priceAlerts', alert.id);
+      await setDoc(docRef, {
+        ...alert,
+        syncedAt: Timestamp.now(),
+      }, { merge: true });
+      return true;
+    } catch (err) {
+      console.warn('Firestore savePriceAlert error:', err);
+      return false;
+    }
+  }
+
+  static async deletePriceAlert(alertId: string): Promise<boolean> {
+    try {
+      await deleteDoc(doc(firestoreDb, 'priceAlerts', alertId));
+      return true;
+    } catch (err) {
+      console.warn('Firestore deletePriceAlert error:', err);
+      return false;
+    }
+  }
+
+  static async getPriceAlertsForUser(userId: string): Promise<PriceAlert[]> {
+    try {
+      const q = query(collection(firestoreDb, 'priceAlerts'), where('userId', '==', userId));
+      const snap = await getDocs(q);
+      const alerts: PriceAlert[] = [];
+      snap.forEach(d => {
+        alerts.push(d.data() as PriceAlert);
+      });
+      return alerts;
+    } catch (err) {
+      console.warn('Firestore getPriceAlertsForUser error:', err);
+      return [];
+    }
+  }
+
+  static async getPriceAlertForUserAndListing(userId: string, listingId: string): Promise<PriceAlert | null> {
+    try {
+      const q = query(
+        collection(firestoreDb, 'priceAlerts'), 
+        where('userId', '==', userId),
+        where('listingId', '==', listingId)
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) return null;
+      let alert: PriceAlert | null = null;
+      snap.forEach(d => {
+        alert = d.data() as PriceAlert;
+      });
+      return alert;
+    } catch (err) {
+      console.warn('Firestore getPriceAlertForUserAndListing error:', err);
+      return null;
     }
   }
 }

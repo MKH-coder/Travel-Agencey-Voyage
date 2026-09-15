@@ -10,7 +10,7 @@ interface BreadcrumbsProps {
   setSelectedListing: (listing: Listing | null) => void;
   filters: FilterState;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
-  adminTab: 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | null;
+  adminTab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | null;
 }
 
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
@@ -40,6 +40,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   // Helper to format admin tab labels beautifully
   const getAdminTabLabel = (tab: string) => {
     switch (tab) {
+      case 'analytics': return 'Analytics & Trends';
       case 'create': return 'Create Listing';
       case 'inventory': return 'Inventory Manager';
       case 'queue': return 'Approvals Queue';

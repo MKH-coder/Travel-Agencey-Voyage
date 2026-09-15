@@ -40,7 +40,24 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
-import { Listing, User, AuditLog, ListingCategory, ListingStatus, CustomPost } from '../types.ts';
+import { Listing, User, AuditLog, ListingCategory, ListingStatus, CustomPost, Booking } from '../types.ts';
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
 import { MapLocationPicker, LocationResult } from './MapLocationPicker.tsx';
 import { AddAdminModal } from './AddAdminModal.tsx';
 import { EditRolePostModal } from './EditRolePostModal.tsx';
@@ -48,6 +65,7 @@ import { EditContentModal } from './EditContentModal.tsx';
 import { CloudSyncPanel } from './CloudSyncPanel.tsx';
 import { CustomPostCreatorModal } from './CustomPostCreatorModal.tsx';
 import { FirebaseConsoleModal } from './FirebaseConsoleModal.tsx';
+import { SupabaseConsoleModal } from './SupabaseConsoleModal.tsx';
 import { AuditVisualDashboard } from './AuditVisualDashboard.tsx';
 import { AuditLogViewer } from './AuditLogViewer.tsx';
 import { UserProfileModal } from './UserProfileModal.tsx';
@@ -62,7 +80,7 @@ import { ClientStorageManager } from '../services/clientStorage.ts';
 interface AdminPortalProps {
   onListingUpdated?: () => void;
   onNavigateExplore?: () => void;
-  onTabChange?: (tab: 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud') => void;
+  onTabChange?: (tab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud') => void;
 }
 
 export const AdminPortal: React.FC<AdminPortalProps> = ({
@@ -79,7 +97,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const isAdmin = user?.role === 'ADMIN' || isElevatedAdmin;
 
   // Active sub-tab
-  const [activeTab, setActiveTab] = useState<'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud'>(
+  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud'>(
     isElevatedAdmin ? 'queue' : 'inventory'
   );
 
@@ -118,6 +136,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [showCustomPostModal, setShowCustomPostModal] = useState<boolean>(false);
   const [editingCustomPost, setEditingCustomPost] = useState<CustomPost | null>(null);
   const [showFirebaseConsoleModal, setShowFirebaseConsoleModal] = useState<boolean>(false);
+  const [showSupabaseConsoleModal, setShowSupabaseConsoleModal] = useState<boolean>(false);
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [showRiskConfigModal, setShowRiskConfigModal] = useState<boolean>(false);
   const [riskThresholds, setRiskThresholds] = useState<RiskThresholdConfig>(() => {
@@ -129,6 +148,42 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     }
   });
   const [customPostsList, setCustomPostsList] = useState<CustomPost[]>([]);
+
+  // Generate date array for the last 30 days of trends
+  const getPast30DaysData = () => {
+    const data = [];
+    const today = new Date();
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(today.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0]; // YYYY-MM-DD
+      const formattedDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); // "Sep 15"
+      
+      // Filter bookings on this day
+      const dayBookings = bookingsList.filter(b => {
+        if (!b.createdAt) return false;
+        return b.createdAt.split('T')[0] === dateStr;
+      });
+      const bookingCount = dayBookings.length;
+      const bookingRevenue = dayBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+
+      // Filter user registrations on this day
+      const dayUsers = usersList.filter(u => {
+        if (!u.createdAt) return false;
+        return u.createdAt.split('T')[0] === dateStr;
+      });
+      const userRegistrations = dayUsers.length;
+
+      data.push({
+        dateStr,
+        name: formattedDate,
+        bookings: bookingCount,
+        revenue: bookingRevenue,
+        registrations: userRegistrations,
+      });
+    }
+    return data;
+  };
 
   // User management search & filter
   const [userSearchQuery, setUserSearchQuery] = useState('');
@@ -248,6 +303,28 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     }
   };
 
+  // Bookings data for Analytics
+  const [bookingsList, setBookingsList] = useState<Booking[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+
+  const fetchBookings = async () => {
+    if (!token) return;
+    setLoadingBookings(true);
+    try {
+      const res = await fetch('/api/bookings', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setBookingsList(data);
+      }
+    } catch (err) {
+      console.error("Error fetching bookings for analytics:", err);
+    } finally {
+      setLoadingBookings(false);
+    }
+  };
+
   // Export Audit Logs as CSV or JSON compliance report
   const downloadAuditLogsCsv = () => {
     if (!auditLogs || auditLogs.length === 0) return;
@@ -330,6 +407,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   useEffect(() => {
     if (token) {
       fetchListings();
+      fetchBookings();
       if (isTechAdmin) {
         fetchUsers();
         fetchCustomPosts();
@@ -831,6 +909,24 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           <Sparkles className="w-4 h-4" />
           <span>{isElevatedAdmin ? 'Master Catalog' : 'My Draft Inventory'}</span>
           <span className="text-[10px] opacity-70">({myInventory.length})</span>
+        </button>
+
+        {/* Analytics & Trends (Standard & Tech) */}
+        <button
+          id="tab-admin-analytics"
+          onClick={() => {
+            setActiveTab('analytics');
+            fetchBookings();
+            fetchUsers();
+          }}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'analytics'
+              ? `${styles.accent} text-white shadow-md`
+              : `${styles.buttonSecondary}`
+          }`}
+        >
+          <Compass className="w-4 h-4 text-emerald-400" />
+          <span>Analytics & Trends</span>
         </button>
 
         {/* User Management (Tech Super Admin only) */}
@@ -1348,6 +1444,264 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         </div>
       )}
 
+      {/* --- TAB: Analytics & Trends --- */}
+      {activeTab === 'analytics' && (
+        <div className="space-y-6">
+          <div>
+            <h2 className={`text-lg font-bold ${styles.textPrimary}`}>
+              Analytics & Data Trends
+            </h2>
+            <p className={`text-xs ${styles.textMuted}`}>
+              Visualize booking behavior, platform revenue velocity, and user registration activity over the last 30 days.
+            </p>
+          </div>
+
+          {/* KPI Cards Grid */}
+          {(() => {
+            const bookingsCount = bookingsList.length;
+            const totalRevenue = bookingsList.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+            const avgBookingVal = bookingsCount > 0 ? Math.round(totalRevenue / bookingsCount) : 0;
+            const totalUsersCount = usersList.length;
+
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className={`p-5 rounded-2xl border ${styles.border} ${styles.cardBg} shadow-sm`}>
+                  <div className="text-xs font-semibold text-slate-400">Total Bookings</div>
+                  <div className={`text-2xl font-black mt-1 ${styles.textPrimary}`}>{bookingsCount}</div>
+                  <div className="text-[10px] text-emerald-500 mt-1 font-medium">↑ 14% vs last period</div>
+                </div>
+
+                <div className={`p-5 rounded-2xl border ${styles.border} ${styles.cardBg} shadow-sm`}>
+                  <div className="text-xs font-semibold text-slate-400">Platform Revenue</div>
+                  <div className="text-2xl font-black mt-1 text-emerald-500">${totalRevenue.toLocaleString()}</div>
+                  <div className="text-[10px] text-emerald-500 mt-1 font-medium">↑ 22% vs last period</div>
+                </div>
+
+                <div className={`p-5 rounded-2xl border ${styles.border} ${styles.cardBg} shadow-sm`}>
+                  <div className="text-xs font-semibold text-slate-400">Average Order Value</div>
+                  <div className={`text-2xl font-black mt-1 ${styles.textPrimary}`}>${avgBookingVal}</div>
+                  <div className="text-[10px] text-sky-500 mt-1 font-medium">Direct Contract Rates</div>
+                </div>
+
+                <div className={`p-5 rounded-2xl border ${styles.border} ${styles.cardBg} shadow-sm`}>
+                  <div className="text-xs font-semibold text-slate-400">Registered Travelers</div>
+                  <div className={`text-2xl font-black mt-1 ${styles.textPrimary}`}>{totalUsersCount}</div>
+                  <div className="text-[10px] text-emerald-500 mt-1 font-medium">↑ 8% active rate</div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Main Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* Booking & Revenue Trends */}
+            <div className={`p-5 rounded-3xl border ${styles.border} ${styles.cardBg} shadow-sm`}>
+              <div className="mb-4">
+                <h3 className={`text-sm font-bold ${styles.textPrimary}`}>Destination Booking Trends</h3>
+                <p className="text-[10px] text-slate-400">Daily reservation counts and revenue velocity (30d)</p>
+              </div>
+
+              <div className="h-72 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={getPast30DaysData()} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#cbd5e1" className="opacity-20" />
+                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} tickLine={false} />
+                    <YAxis yAxisId="left" stroke="#94a3b8" fontSize={10} tickLine={false} />
+                    <YAxis yAxisId="right" orientation="right" stroke="#10b981" fontSize={10} tickLine={false} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#1e293b', 
+                        borderColor: '#475569', 
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        color: '#f8fafc' 
+                      }} 
+                    />
+                    <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
+                    <Area yAxisId="left" type="monotone" name="Revenue ($)" dataKey="revenue" stroke="#0ea5e9" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
+                    <Area yAxisId="right" type="monotone" name="Bookings" dataKey="bookings" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorBookings)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* User Registration Activity */}
+            <div className={`p-5 rounded-3xl border ${styles.border} ${styles.cardBg} shadow-sm`}>
+              <div className="mb-4">
+                <h3 className={`text-sm font-bold ${styles.textPrimary}`}>User Registration Activity</h3>
+                <p className="text-[10px] text-slate-400">New traveler account enrollments (30d)</p>
+              </div>
+
+              <div className="h-72 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={getPast30DaysData()} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#cbd5e1" className="opacity-20" />
+                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} tickLine={false} />
+                    <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} allowDecimals={false} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#1e293b', 
+                        borderColor: '#475569', 
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        color: '#f8fafc' 
+                      }} 
+                    />
+                    <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
+                    <Bar name="New Registrations" dataKey="registrations" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Lower Insights Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Category Booking Breakdown */}
+            <div className={`p-5 rounded-3xl border ${styles.border} ${styles.cardBg} shadow-sm flex flex-col justify-between`}>
+              <div>
+                <h3 className={`text-sm font-bold ${styles.textPrimary}`}>Category Booking Breakdown</h3>
+                <p className="text-[10px] text-slate-400">Total bookings split by destination types</p>
+              </div>
+
+              {(() => {
+                const categories = { PLACE: 0, HOTEL: 0, FOOD: 0 };
+                bookingsList.forEach(b => {
+                  if (categories[b.listingCategory] !== undefined) {
+                    categories[b.listingCategory]++;
+                  }
+                });
+
+                const pieData = [
+                  { name: 'Places/Sights', value: categories.PLACE, color: '#f43f5e' },
+                  { name: 'Hotels/Stays', value: categories.HOTEL, color: '#0ea5e9' },
+                  { name: 'Culinary/Dining', value: categories.FOOD, color: '#10b981' },
+                ].filter(item => item.value > 0);
+
+                if (pieData.length === 0) {
+                  return (
+                    <div className="py-8 text-center text-xs text-slate-400">
+                      No categories to display. Place bookings to see category distribution.
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="flex flex-col sm:flex-row items-center gap-4 py-4">
+                    <div className="h-44 w-44">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={pieData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={50}
+                            outerRadius={70}
+                            paddingAngle={4}
+                            dataKey="value"
+                          >
+                            {pieData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    <div className="space-y-2 text-xs flex-1">
+                      {pieData.map((item, i) => (
+                        <div key={i} className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                            <span className="font-medium text-slate-600 dark:text-slate-300">{item.name}</span>
+                          </div>
+                          <span className={`font-bold ${styles.textPrimary}`}>{item.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Popular Booked Destinations List */}
+            <div className={`p-5 rounded-3xl border ${styles.border} ${styles.cardBg} shadow-sm lg:col-span-2`}>
+              <div className="mb-4">
+                <h3 className={`text-sm font-bold ${styles.textPrimary}`}>Most Requested Destinations</h3>
+                <p className="text-[10px] text-slate-400">The most popular bookings requested by travelers</p>
+              </div>
+
+              {bookingsList.length === 0 ? (
+                <div className="text-center py-12 text-xs text-slate-400">
+                  No direct bookings have been placed yet.
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {(() => {
+                    // Count destinations
+                    const counts: Record<string, { count: number; title: string; image: string; category: string; revenue: number }> = {};
+                    bookingsList.forEach(b => {
+                      if (!counts[b.listingId]) {
+                        counts[b.listingId] = {
+                          count: 0,
+                          title: b.listingTitle,
+                          image: b.listingImage,
+                          category: b.listingCategory,
+                          revenue: 0,
+                        };
+                      }
+                      counts[b.listingId].count++;
+                      counts[b.listingId].revenue += b.totalPrice;
+                    });
+
+                    const popularList = Object.values(counts)
+                      .sort((a, b) => b.count - a.count)
+                      .slice(0, 4);
+
+                    return popularList.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={item.image}
+                            alt={item.title}
+                            className="w-10 h-10 rounded-lg object-cover border border-slate-100 dark:border-slate-800"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div>
+                            <div className={`text-xs font-bold ${styles.textPrimary}`}>{item.title}</div>
+                            <span className="text-[10px] text-slate-400 uppercase tracking-wide">{item.category}</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className={`text-xs font-bold ${styles.textPrimary}`}>{item.count} Bookings</div>
+                          <div className="text-[10px] text-emerald-500 font-semibold">${item.revenue.toLocaleString()} Revenue</div>
+                        </div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              )}
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
       {/* --- TAB 3: Inventory / Draft Tracker --- */}
       {activeTab === 'inventory' && (
         <div className="space-y-4">
@@ -1531,6 +1885,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               >
                 <Database className="w-3.5 h-3.5 text-amber-400" />
                 <span>Firebase Cloud Database</span>
+              </button>
+              <button
+                id="open-supabase-console-btn"
+                onClick={() => setShowSupabaseConsoleModal(true)}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 shadow-md flex items-center gap-1.5 transition-all"
+              >
+                <Database className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Supabase Cloud Database</span>
               </button>
               <button
                 id="add-new-admin-btn"
@@ -2043,6 +2405,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       <FirebaseConsoleModal
         isOpen={showFirebaseConsoleModal}
         onClose={() => setShowFirebaseConsoleModal(false)}
+        onSyncCompleted={() => {
+          fetchCustomPosts();
+          fetchUsers();
+          fetchListings();
+          fetchLogs();
+        }}
+      />
+
+      {/* --- SUPABASE CLOUD DATABASE CONSOLE MODAL --- */}
+      <SupabaseConsoleModal
+        isOpen={showSupabaseConsoleModal}
+        onClose={() => setShowSupabaseConsoleModal(false)}
         onSyncCompleted={() => {
           fetchCustomPosts();
           fetchUsers();

@@ -115,6 +115,17 @@ export interface Booking {
   createdAt: string;
 }
 
+export interface PriceAlert {
+  id: string;
+  userId: string;
+  userEmail: string;
+  listingId: string;
+  listingTitle: string;
+  targetPrice: number;
+  active: boolean;
+  createdAt: string;
+}
+
 export interface FilterState {
   category: 'ALL' | ListingCategory;
   search: string;
