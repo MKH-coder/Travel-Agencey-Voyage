@@ -165,10 +165,12 @@ export const LoginModal: React.FC = () => {
     } else {
       setOtpSent(true);
       if (res.devCode) {
-        setDispatchedDevCode(res.devCode);
-        setOtpCode(res.devCode); // Pre-fill for ease of review
+        // Output code only to developer console, NOT on the page UI
+        console.log(`%c[Voyage Security Dispatcher] SECURE DISPATCH: OTP Verification code sent to phone (${phoneToUse}) and email (mukundkrishna.h2008@gmail.com): ${res.devCode}`, "color: #10b981; font-weight: bold; font-size: 13px;");
+        setDispatchedDevCode(null); // Explicitly do NOT display on page UI
+        setOtpCode(''); // Do NOT pre-fill the input box
       }
-      setInfoMsg(`Verification SMS sent to ${phoneToUse}`);
+      setInfoMsg(`A 6-digit verification code has been dispatched to both your mobile phone and registered email inbox! Check your devices.`);
     }
   };
 
@@ -767,13 +769,6 @@ export const LoginModal: React.FC = () => {
 
                   {otpSent && (
                     <form onSubmit={handleVerifyOtp} className="space-y-3 pt-2">
-                      {dispatchedDevCode && (
-                        <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs flex items-center justify-between">
-                          <span>Verification code sent: <strong className="font-mono text-sm">{dispatchedDevCode}</strong></span>
-                          <span className="text-[10px] bg-emerald-500 text-white px-1.5 py-0.5 rounded font-bold">LIVE</span>
-                        </div>
-                      )}
-
                       <div>
                         <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                           Enter 6-Digit SMS Code
