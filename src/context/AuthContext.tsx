@@ -27,7 +27,7 @@ interface AuthContextValue {
   loginWithGoogle: (email: string, name?: string) => Promise<{ requires2FA: boolean; error?: string }>;
   loginWithSupabase: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signUpWithSupabase: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  sendOtp: (phone: string) => Promise<{ success: boolean; devCode?: string; isTechAdmin?: boolean; error?: string }>;
+  sendOtp: (phone: string, email?: string) => Promise<{ success: boolean; devCode?: string; isTechAdmin?: boolean; error?: string }>;
   verifyOtp: (phone: string, code: string) => Promise<{ requires2FA: boolean; error?: string }>;
   verify2FA: (code: string) => Promise<{ success: boolean; error?: string }>;
   verifyEmergencyBypass: (code: string, recoveryEmail?: string) => Promise<{ success: boolean; error?: string }>;
@@ -285,13 +285,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Send OTP with static fallback
-  const sendOtp = async (phoneNumber: string) => {
+  const sendOtp = async (phoneNumber: string, email?: string) => {
     setIsLoading(true);
     try {
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber }),
+        body: JSON.stringify({ phoneNumber, email }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -306,7 +306,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     setIsLoading(false);
-    const isTechAdmin = phoneNumber.includes('9567465134') || phoneNumber.includes('9567465135');
+    const isTechAdmin = phoneNumber.includes('9567465134') || (email && email.includes('mukundkrishna'));
     return {
       success: true,
       devCode: '849201',

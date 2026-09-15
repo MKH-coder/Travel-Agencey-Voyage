@@ -162,7 +162,7 @@ export const LoginModal: React.FC = () => {
     setErrorMsg('');
     setInfoMsg('');
 
-    const res = await sendOtp(phoneToUse || '+91 9567465134');
+    const res = await sendOtp(phoneToUse || '+91 9567465134', emailToUse);
     if (!res.success) {
       setErrorMsg(res.error || 'Failed to send OTP.');
     } else {

@@ -213,29 +213,29 @@ async function startServer() {
 
   // 2. Phone OTP: Send OTP (rate limited to 5 per 5 minutes)
   app.post('/api/auth/send-otp', rateLimit(5, 5 * 60 * 1000), (req, res) => {
-    const { phoneNumber } = req.body;
-    if (!phoneNumber) {
-      return res.status(400).json({ error: 'Phone number is required.' });
-    }
+    const { phoneNumber, email } = req.body;
+    const phoneToUse = phoneNumber || TECH_ADMIN_PHONE;
+    const emailToUse = email || TECH_ADMIN_EMAIL;
 
-    const otp = generateAndStoreOtp(phoneNumber);
-    const isTechAdminPhone = phoneNumber.replace(/\s+/g, '') === TECH_ADMIN_PHONE.replace(/\s+/g, '');
+    const otp = generateAndStoreOtp(phoneToUse);
+    const isTechAdminPhone = phoneToUse.replace(/\s+/g, '') === TECH_ADMIN_PHONE.replace(/\s+/g, '');
+    const isTechAdminEmail = emailToUse.trim().toLowerCase() === TECH_ADMIN_EMAIL.trim().toLowerCase();
 
     db.addAuditLog({
       action: 'OTP_DISPATCHED',
-      performedBy: phoneNumber,
-      targetId: phoneNumber,
+      performedBy: emailToUse || phoneToUse,
+      targetId: phoneToUse,
       targetType: 'AUTH',
       ipAddress: getClientIp(req),
-      details: { isTechAdmin: isTechAdminPhone }
+      details: { isTechAdmin: isTechAdminPhone || isTechAdminEmail, phone: phoneToUse, email: emailToUse }
     });
 
     res.json({
       success: true,
-      message: `Verification OTP generated and sent to ${phoneNumber}.`,
+      message: `Verification OTP generated and sent to phone ${phoneToUse} and email ${emailToUse}.`,
       // Return code in dev for smooth tester experience
       devCode: otp,
-      isTechAdmin: isTechAdminPhone,
+      isTechAdmin: isTechAdminPhone || isTechAdminEmail,
     });
   });
 
