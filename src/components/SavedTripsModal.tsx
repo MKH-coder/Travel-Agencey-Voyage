@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Bookmark,
   X,
@@ -11,8 +11,10 @@ import {
   Hotel,
   UtensilsCrossed,
   Sparkles,
-  Luggage
+  Luggage,
+  Download
 } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 import { Listing } from '../types.ts';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -38,6 +40,188 @@ export const SavedTripsModal: React.FC<SavedTripsModalProps> = ({
 }) => {
   const { styles } = useTheme();
   const { user, setShowLoginModal } = useAuth();
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadItinerary = async () => {
+    if (savedListings.length === 0) return;
+    setIsDownloading(true);
+    try {
+      // 1. Initialize portrait PDF document
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      // Colors
+      const rPrimary = 14;
+      const gPrimary = 165;
+      const bPrimary = 233;
+
+      const rTextPrimary = 15;
+      const gTextPrimary = 23;
+      const bTextPrimary = 42;
+
+      const rTextSec = 71;
+      const gTextSec = 85;
+      const bTextSec = 105;
+
+      // Title & Header Banner
+      doc.setFillColor(248, 250, 252); // Light background header card
+      doc.rect(0, 0, 210, 50, 'F');
+
+      // Top branding line
+      doc.setDrawColor(rPrimary, gPrimary, bPrimary);
+      doc.setLineWidth(1.5);
+      doc.line(0, 0, 210, 0);
+
+      // Logo/Brand Text
+      doc.setTextColor(rPrimary, gPrimary, bPrimary);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(22);
+      doc.text('VOYAGE PLATFORM', 15, 20);
+
+      doc.setTextColor(rTextSec, gTextSec, bTextSec);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text('Smart Traveler Booking & Wishlist Itinerary', 15, 26);
+
+      // Metadata card right side
+      const dateStr = new Date().toLocaleDateString(undefined, { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      doc.setFontSize(9);
+      doc.setTextColor(rTextSec, gTextSec, bTextSec);
+      doc.text(`Generated on: ${dateStr}`, 140, 20);
+      doc.text(`Curated for: ${user?.name || 'Guest Explorer'}`, 140, 25);
+      doc.text(`E-mail: ${user?.email || 'N/A'}`, 140, 30);
+
+      // Main line divider
+      doc.setDrawColor(226, 232, 240); // slate-200
+      doc.setLineWidth(0.5);
+      doc.line(15, 45, 195, 45);
+
+      // Heading: SAVED DESTINATIONS
+      doc.setTextColor(rTextPrimary, gTextPrimary, bTextPrimary);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('YOUR CURATED ITINERARY SUMMARY', 15, 58);
+
+      let currentY = 66;
+
+      // Draw listings
+      savedListings.forEach((listing, index) => {
+        // Handle page breaking safely
+        if (currentY > 250) {
+          doc.addPage();
+          currentY = 20;
+          // Sub-header on new page
+          doc.setTextColor(rTextSec, gTextSec, bTextSec);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          doc.text('Voyage Curated Itinerary (Continued)', 15, 12);
+          doc.line(15, 14, 195, 14);
+          currentY = 22;
+        }
+
+        // Draw card background
+        doc.setFillColor(252, 253, 254);
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.2);
+        doc.roundedRect(15, currentY, 180, 26, 3, 3, 'FD');
+
+        // Draw index badge
+        doc.setFillColor(rPrimary, gPrimary, bPrimary);
+        doc.roundedRect(18, currentY + 4, 8, 8, 1.5, 1.5, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text(String(index + 1), 21, currentY + 9.5);
+
+        // Category Tag
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'bold');
+        if (listing.category === 'HOTEL') {
+          doc.setTextColor(14, 116, 144); // Cyan-700
+        } else if (listing.category === 'FOOD') {
+          doc.setTextColor(180, 83, 9); // Amber-700
+        } else {
+          doc.setTextColor(4, 120, 87); // Emerald-700
+        }
+        doc.text(listing.category, 30, currentY + 8);
+
+        // Title
+        doc.setTextColor(rTextPrimary, gTextPrimary, bTextPrimary);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        // Truncate title if extremely long
+        const titleText = listing.title.length > 50 ? listing.title.slice(0, 48) + '...' : listing.title;
+        doc.text(titleText, 30, currentY + 14);
+
+        // Location Info
+        doc.setTextColor(rTextSec, gTextSec, bTextSec);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.text(`${listing.location}, ${listing.country}`, 30, currentY + 20);
+
+        // Right side details: Rating and Price
+        doc.setTextColor(217, 119, 6); // rating gold
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.text(`Rating: ${listing.rating.toFixed(1)} / 5.0`, 145, currentY + 8);
+
+        doc.setTextColor(rTextPrimary, gTextPrimary, bTextPrimary);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        const term = listing.category === 'HOTEL' ? '/night' : listing.category === 'FOOD' ? '/person' : '/tour';
+        doc.text(`$${listing.price}`, 145, currentY + 15);
+        doc.setTextColor(rTextSec, gTextSec, bTextSec);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.text(term, 145, currentY + 19);
+
+        currentY += 31;
+      });
+
+      // Total estimated cost block
+      if (currentY > 240) {
+        doc.addPage();
+        currentY = 20;
+      }
+
+      // Draw Price Summary Card
+      doc.setFillColor(240, 249, 255); // Light sky background
+      doc.setDrawColor(186, 230, 253);
+      doc.roundedRect(15, currentY, 180, 22, 3, 3, 'FD');
+
+      const totalEstimated = savedListings.reduce((sum, item) => sum + item.price, 0);
+      doc.setTextColor(3, 105, 161); // sky-700
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.text('TOTAL ESTIMATED BASE BUDGET:', 22, currentY + 13);
+
+      doc.setTextColor(rTextPrimary, gTextPrimary, bTextPrimary);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(15);
+      doc.text(`$${totalEstimated.toLocaleString()}`, 145, currentY + 14);
+
+      // Terms/Footer at bottom of page
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(148, 163, 184); // slate-400
+      doc.setFontSize(8);
+      doc.text('Disclaimer: This PDF serves as a personalized travel planning summary. Actual rates and availability are subject to change.', 15, 280);
+      doc.text('Generated via Voyage multi-factor verified portal. Happy travels!', 15, 284);
+
+      // Save PDF
+      doc.save(`Voyage_Itinerary_${Date.now()}.pdf`);
+    } catch (err) {
+      console.error('Failed to generate PDF:', err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const handleRemove = (id: string) => {
     if (onRemoveSavedTrip) {
@@ -258,13 +442,25 @@ export const SavedTripsModal: React.FC<SavedTripsModalProps> = ({
               </span>
             </div>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary}`}
-            >
-              Done
-            </button>
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={handleDownloadItinerary}
+                disabled={isDownloading}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonSecondary} flex items-center gap-1.5 shadow-sm`}
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>{isDownloading ? 'Exporting...' : 'Download Itinerary'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary}`}
+              >
+                Done
+              </button>
+            </div>
           </div>
         )}
       </div>
