@@ -54,6 +54,7 @@ import { UserProfileModal } from './UserProfileModal.tsx';
 import { HighRiskAuditBanner } from './HighRiskAuditBanner.tsx';
 import { RiskThresholdConfigModal, DEFAULT_RISK_THRESHOLDS } from './RiskThresholdConfigModal.tsx';
 import { AdminSecurityAdoptionCard } from './AdminSecurityAdoptionCard.tsx';
+import { SecurityOverviewCard } from './SecurityOverviewCard.tsx';
 import { AuditTrailDashboard } from './AuditTrailDashboard.tsx';
 import { RiskThresholdConfig } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
@@ -1485,8 +1486,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       {/* --- TAB 4: User Management (Tech Admin only) --- */}
       {activeTab === 'users' && isTechAdmin && (
         <div className="space-y-6">
-          {/* User 2FA Adoption & Security Summary Card */}
-          <AdminSecurityAdoptionCard users={usersList} />
+          {/* User 2FA Adoption & Security Summary Card Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <AdminSecurityAdoptionCard users={usersList} />
+            </div>
+            <div className="lg:col-span-1">
+              <SecurityOverviewCard users={usersList} />
+            </div>
+          </div>
 
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>

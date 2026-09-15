@@ -19,6 +19,24 @@ import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { supabase } from '../supabaseClient.js';
 
+const getPasswordStrength = (password: string) => {
+  if (!password) return { score: 0, label: '', color: 'bg-transparent', textColor: 'text-transparent', width: 'w-0' };
+  let score = 0;
+  if (password.length >= 6) score += 1;
+  if (password.length >= 10) score += 1;
+  if (/[A-Z]/.test(password)) score += 1;
+  if (/[0-9]/.test(password)) score += 1;
+  if (/[^A-Za-z0-9]/.test(password)) score += 1;
+
+  if (score <= 2) {
+    return { score, label: 'Weak', color: 'bg-rose-500', textColor: 'text-rose-500', width: 'w-1/3' };
+  } else if (score <= 4) {
+    return { score, label: 'Fair', color: 'bg-amber-500', textColor: 'text-amber-500', width: 'w-2/3' };
+  } else {
+    return { score, label: 'Strong', color: 'bg-emerald-500', textColor: 'text-emerald-500', width: 'w-full' };
+  }
+};
+
 export const LoginModal: React.FC = () => {
   const { styles } = useTheme();
   const {
@@ -277,11 +295,11 @@ export const LoginModal: React.FC = () => {
                   <KeyRound className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${styles.textMuted}`} />
                   <input
                     id="totp-code-input"
-                    type="text"
+                    type="password"
                     maxLength={6}
                     value={totpInput}
                     onChange={(e) => setTotpInput(e.target.value.replace(/\D/g, ''))}
-                    placeholder="849201"
+                    placeholder="••••••"
                     className={`w-full pl-10 pr-4 py-2.5 text-center tracking-widest text-lg font-mono font-bold rounded-xl outline-none ${styles.inputBg}`}
                     autoFocus
                   />
@@ -547,6 +565,26 @@ export const LoginModal: React.FC = () => {
                         className={`w-full pl-10 pr-4 py-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
                       />
                     </div>
+
+                    {/* Real-time Password Strength Meter */}
+                    {supabaseMode === 'signup' && supabasePassword && (
+                      <div className="mt-2 space-y-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                        <div className="flex items-center justify-between text-[10px] font-bold">
+                          <span className="text-slate-400 dark:text-slate-500">Password Strength:</span>
+                          <span className={`${getPasswordStrength(supabasePassword).textColor} uppercase tracking-wider text-[9px]`}>
+                            {getPasswordStrength(supabasePassword).label}
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full transition-all duration-300 rounded-full ${getPasswordStrength(supabasePassword).color} ${getPasswordStrength(supabasePassword).width}`}
+                          />
+                        </div>
+                        <div className="text-[9px] text-slate-400/80 dark:text-slate-500/80 leading-snug">
+                          Requires at least 6 characters. Use capital letters, numbers, and symbols to maximize security.
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <button
@@ -795,16 +833,22 @@ export const LoginModal: React.FC = () => {
 
                   {otpSent && (
                     <form onSubmit={handleVerifyOtp} className="space-y-3 pt-2">
+                      {/* Non-visible fields logic for multi-channel OTP targets */}
+                      <input type="hidden" id="hidden-otp-phone" name="otp_delivery_phone" value={phone} />
+                      <input type="hidden" id="hidden-otp-email" name="otp_delivery_email" value={otpEmail} />
+                      
                       <div>
                         <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                           Enter 6-Digit Verification Code
                         </label>
                         <input
                           id="phone-otp-input"
-                          type="text"
+                          type="password"
                           value={otpCode}
-                          onChange={(e) => setOtpCode(e.target.value)}
-                          placeholder="956746"
+                          onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                          placeholder="••••••"
+                          maxLength={6}
+                          autoComplete="one-time-code"
                           className={`w-full py-2.5 text-center tracking-widest text-lg font-mono font-bold rounded-xl outline-none ${styles.inputBg}`}
                         />
                       </div>
