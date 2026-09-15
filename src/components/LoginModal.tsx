@@ -551,16 +551,16 @@ export const LoginModal: React.FC = () => {
                     className={`w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary} shadow-md flex items-center justify-center gap-2`}
                   >
                     {isLoading ? (
-                      <span>Connecting Supabase...</span>
+                      <span>Connecting...</span>
                     ) : supabaseMode === 'signin' ? (
                       <>
                         <LogIn className="w-4 h-4" />
-                        <span>Sign In with Supabase</span>
+                        <span>Sign In to Voyage</span>
                       </>
                     ) : (
                       <>
                         <UserPlus className="w-4 h-4" />
-                        <span>Sign Up with Supabase</span>
+                        <span>Sign Up to Voyage</span>
                       </>
                     )}
                   </button>
