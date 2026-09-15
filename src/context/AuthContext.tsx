@@ -3,6 +3,8 @@ import { User, AuditLog } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 import { AuditService } from '../services/auditService.ts';
 import { supabase } from '../supabaseClient.js';
+import { firebaseAuth, googleAuthProvider } from '../services/firebase.ts';
+import { signInWithPopup } from 'firebase/auth';
 
 interface TwoFactorChallenge {
   uid: string;
@@ -24,7 +26,7 @@ interface AuthContextValue {
   setShowLoginModal: (show: boolean) => void;
   setShowBypassModal: (show: boolean) => void;
   setTwoFactorChallenge: (challenge: TwoFactorChallenge | null) => void;
-  loginWithGoogle: (email: string, name?: string) => Promise<{ requires2FA: boolean; error?: string }>;
+  loginWithGoogle: (email?: string, name?: string) => Promise<{ requires2FA: boolean; error?: string }>;
   loginWithSupabase: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signUpWithSupabase: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   sendOtp: (phone: string, email?: string) => Promise<{ success: boolean; devCode?: string; isTechAdmin?: boolean; error?: string }>;
@@ -167,15 +169,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => clearInterval(interval);
   }, [token, user, setAuthSession]);
 
-  // Google Login with automatic static fallback for GitHub Pages
-  const loginWithGoogle = async (email: string, name?: string) => {
+  // Google Login with authentic Firebase OAuth popup and fallback verification
+  const loginWithGoogle = async (manualEmail?: string, name?: string) => {
     setIsLoading(true);
     try {
+      let emailToUse = manualEmail ? manualEmail.trim() : '';
+      let nameToUse = name;
+      let idToken: string | undefined = undefined;
+      let isOAuthVerified = false;
+
+      // 1. If user clicks "Sign In with Google" directly (or without manual typed email)
+      if (!emailToUse) {
+        try {
+          const result = await signInWithPopup(firebaseAuth, googleAuthProvider);
+          if (result.user && result.user.email) {
+            emailToUse = result.user.email;
+            nameToUse = result.user.displayName || name || result.user.email.split('@')[0];
+            idToken = await result.user.getIdToken();
+            isOAuthVerified = true;
+          }
+        } catch (popupErr: any) {
+          // If the user cancelled or closed the popup window
+          if (popupErr.code === 'auth/popup-closed-by-user' || popupErr.code === 'auth/cancelled-popup-request') {
+            setIsLoading(false);
+            return { requires2FA: false, error: 'Google sign-in popup was cancelled.' };
+          }
+          console.warn('[Firebase Auth] Notice during Google popup sign-in:', popupErr.message);
+        }
+      }
+
+      if (!emailToUse) {
+        setIsLoading(false);
+        return { requires2FA: false, error: 'Please authenticate with your Google account or enter your email address.' };
+      }
+
+      // 2. Request backend verification
       const res = await fetch('/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name }),
+        body: JSON.stringify({ 
+          email: emailToUse, 
+          name: nameToUse,
+          isOAuthVerified,
+          idToken
+        }),
       });
+
       if (res.ok) {
         const data = await res.json();
         if (data.requires2FA) {
@@ -183,13 +222,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             uid: data.uid,
             email: data.email,
             phoneNumber: data.phoneNumber,
-            message: data.message,
+            message: data.message || 'Security Verification Required for this account.',
           });
           return { requires2FA: true };
         }
         setAuthSession(data.user, data.token);
         setShowLoginModal(false);
         return { requires2FA: false };
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        if (errData.error) {
+          setIsLoading(false);
+          return { requires2FA: false, error: errData.error };
+        }
       }
     } catch {
       // Backend not accessible (e.g. GitHub Pages static hosting) - proceed with client fallback
@@ -197,12 +242,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Static fallback execution
     try {
-      const fallbackResult = ClientStorageManager.authenticateGoogle(email, name);
+      const fallbackResult = ClientStorageManager.authenticateGoogle(manualEmail || '', name, false);
       if (fallbackResult.requires2FA && fallbackResult.challenge) {
         setTwoFactorChallenge({
           uid: fallbackResult.challenge.uid,
           email: fallbackResult.challenge.email,
-          message: 'MFA Verification Required',
+          message: fallbackResult.challenge.message || 'MFA Verification Required',
         });
         return { requires2FA: true };
       }

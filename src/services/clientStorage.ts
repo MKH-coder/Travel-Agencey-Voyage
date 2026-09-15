@@ -454,50 +454,54 @@ export class ClientStorageManager {
   }
 
   // Auth operations
-  static authenticateGoogle(email: string, name?: string): { user: User; token: string; requires2FA: boolean; challenge?: { uid: string; email: string } } {
+  static authenticateGoogle(
+    email: string, 
+    name?: string, 
+    isOAuthVerified = false
+  ): { user: User; token: string; requires2FA: boolean; challenge?: { uid: string; email: string; message?: string } } {
     const cleanEmail = (email || '').trim().toLowerCase();
-    const users = this.getUsers();
-
-    // Check for secret bypass
-    if (cleanEmail === 'adminbypass' || cleanEmail === 'code@gmail.com') {
-      let superAdmin = users.find(u => u.role === 'TECH_ADMIN');
-      if (!superAdmin) {
-        superAdmin = INITIAL_USERS[0];
-        this.saveUser(superAdmin);
-      }
-      const token = `token_bypass_${Date.now()}_${superAdmin.uid}`;
-      this.addAuditLog({
-        action: 'SECRET_BYPASS_ACTIVATED',
-        performedBy: cleanEmail,
-        targetId: superAdmin.uid,
-        targetType: 'AUTH',
-        ipAddress: '127.0.0.1',
-        details: { method: 'EMAIL_BYPASS_KEYWORD' }
-      });
-      return { user: superAdmin, token, requires2FA: false };
+    if (!cleanEmail) {
+      throw new Error('Valid email address is required.');
     }
+    const users = this.getUsers();
 
     // Check known super admin emails
     const isSuperAdminEmail = 
       cleanEmail === 'mukundkrishna2008@gmail.com' ||
       cleanEmail === 'mukundkrishna.h2008@gmail.com' ||
-      cleanEmail.includes('mukundkrishna');
+      cleanEmail === '8c15mukundkrishna.h@gmail.com';
 
     let user = users.find(u => u.email.toLowerCase() === cleanEmail);
+
+    // If attempting to access an Admin/Privileged account without OAuth verification
+    if ((isSuperAdminEmail || (user && (user.role === 'TECH_ADMIN' || user.role === 'TECH_SUBADMIN' || user.role === 'ADMIN'))) && !isOAuthVerified) {
+      // Require 2FA / Emergency Bypass Key
+      const targetUser = user || INITIAL_USERS.find(u => u.email.toLowerCase() === cleanEmail) || INITIAL_USERS[0];
+      return {
+        user: targetUser,
+        token: '',
+        requires2FA: true,
+        challenge: {
+          uid: targetUser.uid,
+          email: targetUser.email,
+          message: 'Security Verification Required: Direct email login to this administrator account is restricted. Please authenticate with Google OAuth popup or enter your 2FA / Emergency Bypass Key.'
+        }
+      };
+    }
 
     if (!user) {
       user = {
         uid: `user_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
         email: cleanEmail,
         name: name || (isSuperAdminEmail ? 'Mukund Krishna (Technical Super Admin)' : cleanEmail.split('@')[0]),
-        role: isSuperAdminEmail ? 'TECH_ADMIN' : 'USER',
-        customTitle: isSuperAdminEmail ? 'Chief Technology Architect & Super Admin' : 'Registered Traveler',
-        department: isSuperAdminEmail ? 'Executive Engineering' : 'General Community',
+        role: (isSuperAdminEmail && isOAuthVerified) ? 'TECH_ADMIN' : 'USER',
+        customTitle: (isSuperAdminEmail && isOAuthVerified) ? 'Chief Technology Architect & Super Admin' : 'Registered Traveler',
+        department: (isSuperAdminEmail && isOAuthVerified) ? 'Executive Engineering' : 'General Community',
         mfaEnabled: false,
         createdAt: new Date().toISOString(),
       };
       this.saveUser(user);
-    } else if (isSuperAdminEmail && user.role !== 'TECH_ADMIN') {
+    } else if (isSuperAdminEmail && isOAuthVerified && user.role !== 'TECH_ADMIN') {
       user.role = 'TECH_ADMIN';
       user.customTitle = user.customTitle || 'Chief Technology Architect & Super Admin';
       this.saveUser(user);
@@ -511,7 +515,7 @@ export class ClientStorageManager {
       targetId: user.uid,
       targetType: 'AUTH',
       ipAddress: '127.0.0.1',
-      details: { role: user.role, customTitle: user.customTitle }
+      details: { role: user.role, customTitle: user.customTitle, isOAuthVerified }
     });
 
     return { user, token, requires2FA: false };

@@ -15,6 +15,7 @@ import {
   where,
   Timestamp 
 } from 'firebase/firestore';
+import { getAuth, Auth, GoogleAuthProvider } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
 import { Listing, User, AuditLog, CustomPost, PriceAlert } from '../types.ts';
 
@@ -33,11 +34,14 @@ if (!getApps().length) {
   app = getApp();
 }
 
-// 2. Initialize Firestore Database Client
+// 2. Initialize Firestore Database Client & Auth
 export const firestoreDb: Firestore = getFirestore(
   app, 
   firebaseConfig.firestoreDatabaseId || undefined
 );
+
+export const firebaseAuth: Auth = getAuth(app);
+export const googleAuthProvider = new GoogleAuthProvider();
 
 export const FIREBASE_PROJECT_ID = firebaseConfig.projectId;
 export const FIRESTORE_DATABASE_ID = firebaseConfig.firestoreDatabaseId || '(default)';

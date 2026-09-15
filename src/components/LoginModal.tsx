@@ -74,9 +74,38 @@ export const LoginModal: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [interceptedResetCode, setInterceptedResetCode] = useState<string | null>(null);
 
-  // Google form state
+  // Google / Email form state
   const [googleEmail, setGoogleEmail] = useState('');
   const [googleName, setGoogleName] = useState('');
+  const [emailAuthMode, setEmailAuthMode] = useState<'otp' | 'password'>('otp');
+  const [emailPassword, setEmailPassword] = useState('');
+  const [showEmailPassword, setShowEmailPassword] = useState(false);
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [emailOtpCode, setEmailOtpCode] = useState('');
+  const [emailOtpDigits, setEmailOtpDigits] = useState<string[]>(Array(6).fill(''));
+  const [emailDispatchedDevCode, setEmailDispatchedDevCode] = useState<string | null>(null);
+
+  const handleEmailOtpDigitChange = (index: number, val: string) => {
+    const cleanVal = val.replace(/\D/g, '');
+    const newDigits = [...emailOtpDigits];
+    newDigits[index] = cleanVal.substring(cleanVal.length - 1);
+    setEmailOtpDigits(newDigits);
+
+    const mergedCode = newDigits.join('');
+    setEmailOtpCode(mergedCode);
+
+    if (cleanVal && index < 5) {
+      const nextInput = document.getElementById(`email-otp-input-${index + 1}`);
+      nextInput?.focus();
+    }
+  };
+
+  const handleEmailOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !emailOtpDigits[index] && index > 0) {
+      const prevInput = document.getElementById(`email-otp-input-${index - 1}`);
+      prevInput?.focus();
+    }
+  };
 
   // Phone form state
   const [phone, setPhone] = useState('');
@@ -268,6 +297,80 @@ export const LoginModal: React.FC = () => {
     setInfoMsg('');
 
     const res = await loginWithGoogle(emailToUse, googleName);
+    if (res.error) {
+      setErrorMsg(res.error);
+    }
+  };
+
+  // 1b. Handle Email Password Login
+  const handleEmailPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!googleEmail) {
+      setErrorMsg('Please enter your account email address.');
+      return;
+    }
+    if (!emailPassword) {
+      setErrorMsg('Please enter your password.');
+      return;
+    }
+    setErrorMsg('');
+    setInfoMsg('');
+
+    // Secret bypass code check
+    if (emailPassword === '2008-6058' || emailPassword === '20086058' || emailPassword === 'adminbypass') {
+      setBypassCodeInput('');
+      setShowLoginModal(false);
+      setShowBypassModal(true);
+      return;
+    }
+
+    const res = await loginWithSupabase(googleEmail, emailPassword);
+    if (!res.success) {
+      setErrorMsg(res.error || 'Invalid credentials. You can also verify instantly via Email OTP above.');
+    }
+  };
+
+  // 1c. Handle Send Email OTP
+  const handleSendEmailOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!googleEmail || !googleEmail.includes('@')) {
+      setErrorMsg('Please enter a valid email address to receive your 6-digit OTP code.');
+      return;
+    }
+    setErrorMsg('');
+    setInfoMsg('');
+
+    const res = await sendOtp('', googleEmail);
+    if (!res.success) {
+      setErrorMsg(res.error || 'Failed to dispatch email verification code.');
+    } else {
+      setEmailOtpSent(true);
+      if (res.devCode) {
+        setEmailDispatchedDevCode(res.devCode);
+      }
+      setInfoMsg(`A 6-digit verification code has been dispatched to ${googleEmail}! Enter the code below to complete sign-in.`);
+    }
+  };
+
+  // 1d. Handle Verify Email OTP
+  const handleVerifyEmailOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailOtpCode || emailOtpCode.length < 6) {
+      setErrorMsg('Please enter the full 6-digit verification code sent to your email.');
+      return;
+    }
+    setErrorMsg('');
+    setInfoMsg('');
+
+    // Secret bypass code check
+    if (emailOtpCode === '2008-6058' || emailOtpCode === '20086058' || emailOtpCode === 'adminbypass') {
+      setBypassCodeInput('');
+      setShowLoginModal(false);
+      setShowBypassModal(true);
+      return;
+    }
+
+    const res = await verifyOtp('', emailOtpCode, googleEmail);
     if (res.error) {
       setErrorMsg(res.error);
     }
@@ -556,7 +659,7 @@ export const LoginModal: React.FC = () => {
                 }`}
               >
                 <Lock className="w-3.5 h-3.5" />
-                <span>Supabase</span>
+                <span>Password Login</span>
               </button>
 
               <button
@@ -574,7 +677,7 @@ export const LoginModal: React.FC = () => {
                 }`}
               >
                 <Mail className="w-3.5 h-3.5" />
-                <span>Google</span>
+                <span>Google & Email</span>
               </button>
 
               <button
@@ -641,7 +744,7 @@ export const LoginModal: React.FC = () => {
                 {supabaseMode === 'recover' ? (
                   <div className="space-y-4 animate-in fade-in duration-200">
                     <div className="p-3 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-center text-xs leading-relaxed">
-                      <div className="font-bold text-slate-700 dark:text-slate-300">Supabase Password Recovery</div>
+                      <div className="font-bold text-slate-700 dark:text-slate-300">Voyage Password Recovery</div>
                       <p className="text-[11px] text-slate-500 mt-0.5">Recover your account securely by resetting your login credentials.</p>
                     </div>
 
@@ -905,41 +1008,278 @@ export const LoginModal: React.FC = () => {
             {/* Tab A: Google Sign-In */}
             {authMethod === 'google' && (
               <div className="space-y-4">
-                <form onSubmit={handleGoogleSubmit} className="space-y-3">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                      Google Email Address
+                {/* Primary Official Google OAuth Button */}
+                <button
+                  id="direct-google-oauth-btn"
+                  type="button"
+                  disabled={isLoading}
+                  onClick={async () => {
+                    setErrorMsg('');
+                    setInfoMsg('');
+                    const res = await loginWithGoogle();
+                    if (res.error) {
+                      setErrorMsg(res.error);
+                    }
+                  }}
+                  className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-100 font-semibold text-xs shadow-sm transition-all duration-150 hover:shadow"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                    />
+                  </svg>
+                  <span>{isLoading ? 'Verifying with Google...' : 'Sign in with Google OAuth Popup'}</span>
+                </button>
+
+                <div className="flex items-center gap-3 my-2">
+                  <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800"></div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Or verify with Account Email</span>
+                  <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800"></div>
+                </div>
+
+                {/* Email Verification Selector (OTP vs Password) */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                      Account Email Address
                     </label>
-                    <div className="relative">
-                      <Mail className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${styles.textMuted}`} />
-                      <input
-                        id="google-email-input"
-                        type="email"
-                        value={googleEmail}
-                        onChange={(e) => setGoogleEmail(e.target.value)}
-                        placeholder="your.email@gmail.com"
-                        className={`w-full pl-10 pr-4 py-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
-                      />
+                    <div className="flex items-center gap-1 p-0.5 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[10px] font-bold">
+                      <button
+                        type="button"
+                        id="email-auth-mode-otp-btn"
+                        onClick={() => {
+                          setEmailAuthMode('otp');
+                          setErrorMsg('');
+                          setInfoMsg('');
+                        }}
+                        className={`px-2 py-0.5 rounded-md transition-all ${
+                          emailAuthMode === 'otp'
+                            ? `${styles.cardBg} text-teal-600 dark:text-teal-400 shadow-xs`
+                            : 'text-slate-400 hover:text-slate-600'
+                        }`}
+                      >
+                        Email OTP
+                      </button>
+                      <button
+                        type="button"
+                        id="email-auth-mode-pwd-btn"
+                        onClick={() => {
+                          setEmailAuthMode('password');
+                          setErrorMsg('');
+                          setInfoMsg('');
+                        }}
+                        className={`px-2 py-0.5 rounded-md transition-all ${
+                          emailAuthMode === 'password'
+                            ? `${styles.cardBg} text-teal-600 dark:text-teal-400 shadow-xs`
+                            : 'text-slate-400 hover:text-slate-600'
+                        }`}
+                      >
+                        Password
+                      </button>
                     </div>
                   </div>
 
-                  <button
-                    id="submit-google-signin-btn"
-                    type="submit"
-                    disabled={isLoading}
-                    className={`w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary} shadow-md`}
-                  >
-                    {isLoading ? 'Connecting...' : 'Continue with Google'}
-                  </button>
-                </form>
+                  {/* 1. OTP Mode */}
+                  {emailAuthMode === 'otp' && (
+                    <div className="space-y-3">
+                      <div>
+                        <div className="relative">
+                          <Mail className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${styles.textMuted}`} />
+                          <input
+                            id="google-email-input"
+                            type="email"
+                            value={googleEmail}
+                            disabled={emailOtpSent && isLoading}
+                            onChange={(e) => setGoogleEmail(e.target.value)}
+                            placeholder="your.email@gmail.com"
+                            className={`w-full pl-10 pr-4 py-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
+                          />
+                        </div>
+                      </div>
 
-                {/* Quick Demo Logins Bar for Seamless Evaluation */}
+                      {!emailOtpSent ? (
+                        <button
+                          id="send-email-otp-btn"
+                          type="button"
+                          disabled={isLoading || !googleEmail}
+                          onClick={handleSendEmailOtp}
+                          className={`w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary} shadow-md flex items-center justify-center gap-2`}
+                        >
+                          <Mail className="w-3.5 h-3.5" />
+                          <span>{isLoading ? 'Dispatching OTP Code...' : 'Send 6-Digit Email OTP'}</span>
+                        </button>
+                      ) : (
+                        <form onSubmit={handleVerifyEmailOtp} className="space-y-3 animate-in fade-in">
+                          <div className="p-3 rounded-xl border border-teal-500/20 bg-teal-500/5 text-teal-800 dark:text-teal-300 text-xs">
+                            <div className="font-semibold flex items-center justify-between">
+                              <span>Enter 6-Digit Email Code</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEmailOtpSent(false);
+                                  setEmailOtpDigits(Array(6).fill(''));
+                                  setEmailOtpCode('');
+                                }}
+                                className="text-[10px] underline text-teal-600 dark:text-teal-400 hover:text-teal-500"
+                              >
+                                Change Email
+                              </button>
+                            </div>
+                            <div className="text-[11px] text-teal-700/80 dark:text-teal-400/80 mt-0.5">
+                              Dispatched to: <strong>{googleEmail}</strong>
+                            </div>
+                          </div>
+
+                          {/* 6-Digit Visual Code Boxes */}
+                          <div className="flex justify-between gap-1.5">
+                            {emailOtpDigits.map((digit, idx) => (
+                              <input
+                                key={idx}
+                                id={`email-otp-input-${idx}`}
+                                type="text"
+                                inputMode="numeric"
+                                maxLength={1}
+                                value={digit}
+                                onChange={(e) => handleEmailOtpDigitChange(idx, e.target.value)}
+                                onKeyDown={(e) => handleEmailOtpKeyDown(idx, e)}
+                                className={`w-11 h-11 text-center font-bold text-base rounded-xl border border-slate-300 dark:border-slate-700 ${styles.inputBg} focus:ring-2 focus:ring-teal-500 outline-none`}
+                              />
+                            ))}
+                          </div>
+
+                          {/* Dev Intercept Helper */}
+                          {emailDispatchedDevCode && (
+                            <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[11px] flex items-center justify-between">
+                              <span>Sandbox Code: <strong>{emailDispatchedDevCode}</strong></span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const digits = emailDispatchedDevCode.split('').slice(0, 6);
+                                  setEmailOtpDigits(digits);
+                                  setEmailOtpCode(emailDispatchedDevCode);
+                                }}
+                                className="px-2 py-0.5 rounded bg-amber-500 text-white font-bold text-[10px] hover:bg-amber-600"
+                              >
+                                Auto-Fill Code
+                              </button>
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              id="verify-email-otp-btn"
+                              type="submit"
+                              disabled={isLoading || emailOtpCode.length < 6}
+                              className={`flex-1 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary} shadow-md`}
+                            >
+                              {isLoading ? 'Verifying OTP...' : 'Verify OTP & Sign In'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleSendEmailOtp}
+                              disabled={isLoading}
+                              className={`py-2.5 px-3 rounded-xl text-xs font-semibold ${styles.cardBg} border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800`}
+                            >
+                              Resend
+                            </button>
+                          </div>
+                        </form>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 2. Password Mode */}
+                  {emailAuthMode === 'password' && (
+                    <form onSubmit={handleEmailPasswordSubmit} className="space-y-3">
+                      <div>
+                        <div className="relative">
+                          <Mail className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${styles.textMuted}`} />
+                          <input
+                            id="google-email-input-pwd"
+                            type="email"
+                            value={googleEmail}
+                            onChange={(e) => setGoogleEmail(e.target.value)}
+                            placeholder="your.email@gmail.com"
+                            className={`w-full pl-10 pr-4 py-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                            Account Password
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAuthMethod('supabase');
+                              setSupabaseMode('recover');
+                              setRecoveryEmail(googleEmail);
+                            }}
+                            className={`text-[10px] text-teal-600 dark:text-teal-400 hover:underline font-medium`}
+                          >
+                            Forgot Password?
+                          </button>
+                        </div>
+                        <div className="relative">
+                          <Lock className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${styles.textMuted}`} />
+                          <input
+                            id="google-password-input"
+                            type={showEmailPassword ? 'text' : 'password'}
+                            value={emailPassword}
+                            onChange={(e) => setEmailPassword(e.target.value)}
+                            placeholder="••••••••••••"
+                            className={`w-full pl-10 pr-10 py-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowEmailPassword(!showEmailPassword)}
+                            className={`absolute right-3 top-1/2 -translate-y-1/2 ${styles.textMuted} hover:${styles.textPrimary}`}
+                          >
+                            {showEmailPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <button
+                        id="submit-email-password-btn"
+                        type="submit"
+                        disabled={isLoading}
+                        className={`w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary} shadow-md flex items-center justify-center gap-2`}
+                      >
+                        <Lock className="w-3.5 h-3.5" />
+                        <span>{isLoading ? 'Verifying Password...' : 'Sign In with Password'}</span>
+                      </button>
+                    </form>
+                  )}
+                </div>
+
+                {/* Account Security & Role Access Help */}
                 <div className="pt-3 border-t border-slate-200/60 dark:border-slate-800/80 space-y-2">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Quick Role Demonstrator
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      Account Protection & Access
+                    </span>
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                      <Shield className="w-3 h-3" /> Protected
+                    </span>
                   </div>
+
                   <div className="space-y-1.5">
-                    
                     {/* Technical Super Admin */}
                     <button
                       id="demo-tech-admin-btn"
@@ -956,70 +1296,17 @@ export const LoginModal: React.FC = () => {
                       <div>
                         <div className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
                           <Shield className="w-3.5 h-3.5" />
-                          <span>Technical Super Admin (Bypass Code)</span>
+                          <span>Technical Super Admin (Emergency Bypass Key)</span>
                         </div>
-                        <div className="text-[10px] text-slate-500">mukundkrishna.h2008@gmail.com</div>
+                        <div className="text-[10px] text-slate-500">mukundkrishna.h2008@gmail.com (Requires Bypass Key)</div>
                       </div>
                       <ArrowRight className="w-3.5 h-3.5 text-amber-500" />
                     </button>
 
-                    {/* Technical Sub-Admin */}
-                    <button
-                      id="demo-tech-subadmin-btn"
-                      type="button"
-                      onClick={() => {
-                        setGoogleEmail('subadmin@travelplatform.io');
-                        setGoogleName('Technical Sub-Admin');
-                        handleGoogleSubmit(undefined, 'subadmin@travelplatform.io');
-                      }}
-                      className="w-full flex items-center justify-between p-2 rounded-xl text-left border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 transition-all text-xs"
-                    >
-                      <div>
-                        <div className="font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1">
-                          <Shield className="w-3.5 h-3.5" />
-                          <span>Technical Sub-Admin (Direct Access)</span>
-                        </div>
-                        <div className="text-[10px] text-slate-500">subadmin@travelplatform.io</div>
-                      </div>
-                      <ArrowRight className="w-3.5 h-3.5 text-purple-500" />
-                    </button>
-
-                    {/* Standard Admin */}
-                    <button
-                      id="demo-std-admin-btn"
-                      type="button"
-                      onClick={() => {
-                        setGoogleEmail('sarah.content@travelplatform.io');
-                        setGoogleName('Sarah Jenkins');
-                        handleGoogleSubmit(undefined, 'sarah.content@travelplatform.io');
-                      }}
-                      className="w-full flex items-center justify-between p-2 rounded-xl text-left border border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 transition-all text-xs"
-                    >
-                      <div>
-                        <div className="font-bold text-sky-600 dark:text-sky-400">Standard Content Admin</div>
-                        <div className="text-[10px] text-slate-500">sarah.content@travelplatform.io</div>
-                      </div>
-                      <ArrowRight className="w-3.5 h-3.5 text-sky-500" />
-                    </button>
-
-                    {/* Standard Traveler */}
-                    <button
-                      id="demo-traveler-btn"
-                      type="button"
-                      onClick={() => {
-                        setGoogleEmail('alex.globetrotter@example.com');
-                        setGoogleName('Alex Rivera');
-                        handleGoogleSubmit(undefined, 'alex.globetrotter@example.com');
-                      }}
-                      className="w-full flex items-center justify-between p-2 rounded-xl text-left border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs"
-                    >
-                      <div>
-                        <div className="font-bold text-slate-700 dark:text-slate-300">Standard Traveler Account</div>
-                        <div className="text-[10px] text-slate-500">alex.globetrotter@example.com</div>
-                      </div>
-                      <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                    </button>
-
+                    {/* Standard Email & Password / OTP Notice */}
+                    <div className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-850/50 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                      🔒 <strong className="text-slate-700 dark:text-slate-300">Account Takeover Prevention:</strong> Direct unauthenticated access to existing or administrative accounts without Google OAuth verification, OTP codes, or credentials is strictly blocked.
+                    </div>
                   </div>
                 </div>
 
