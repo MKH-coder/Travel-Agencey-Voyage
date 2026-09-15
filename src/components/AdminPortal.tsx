@@ -53,6 +53,8 @@ import { AuditLogViewer } from './AuditLogViewer.tsx';
 import { UserProfileModal } from './UserProfileModal.tsx';
 import { HighRiskAuditBanner } from './HighRiskAuditBanner.tsx';
 import { RiskThresholdConfigModal, DEFAULT_RISK_THRESHOLDS } from './RiskThresholdConfigModal.tsx';
+import { AdminSecurityAdoptionCard } from './AdminSecurityAdoptionCard.tsx';
+import { AuditTrailDashboard } from './AuditTrailDashboard.tsx';
 import { RiskThresholdConfig } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 
@@ -1482,7 +1484,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
       {/* --- TAB 4: User Management (Tech Admin only) --- */}
       {activeTab === 'users' && isTechAdmin && (
-        <div className="space-y-5">
+        <div className="space-y-6">
+          {/* User 2FA Adoption & Security Summary Card */}
+          <AdminSecurityAdoptionCard users={usersList} />
+
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
               <h2 className={`text-lg font-bold ${styles.textPrimary} flex items-center gap-2`}>
@@ -1811,6 +1816,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
           {/* Visual Recharts Analytics Dashboard */}
           <AuditVisualDashboard logs={auditLogs} />
+
+          {/* Chronological Security & 2FA Audit Trail Dashboard */}
+          <AuditTrailDashboard logs={auditLogs} onRefresh={() => fetchLogs(logFilter)} />
 
           {/* Interactive AuditLogViewer Component */}
           <AuditLogViewer
