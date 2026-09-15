@@ -1,6 +1,8 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { 
   getFirestore, 
+  initializeFirestore,
+  setLogLevel,
   Firestore, 
   collection, 
   doc, 
@@ -34,12 +36,34 @@ if (!getApps().length) {
   app = getApp();
 }
 
-// 2. Initialize Firestore Database Client & Auth
-export const firestoreDb: Firestore = getFirestore(
-  app, 
-  firebaseConfig.firestoreDatabaseId || undefined
-);
+// Suppress noisy benign idle stream disconnect logs from gRPC stream timeouts
+try {
+  setLogLevel('error');
+} catch {
+  // ignore if already set
+}
 
+// 2. Initialize Firestore Database Client & Auth with robust long-polling auto-detect
+let dbInstance: Firestore;
+try {
+  const dbId = firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)' 
+    ? firebaseConfig.firestoreDatabaseId 
+    : undefined;
+  
+  if (dbId) {
+    dbInstance = initializeFirestore(app, {
+      experimentalAutoDetectLongPolling: true,
+    }, dbId);
+  } else {
+    dbInstance = initializeFirestore(app, {
+      experimentalAutoDetectLongPolling: true,
+    });
+  }
+} catch {
+  dbInstance = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);
+}
+
+export const firestoreDb: Firestore = dbInstance;
 export const firebaseAuth: Auth = getAuth(app);
 export const googleAuthProvider = new GoogleAuthProvider();
 
