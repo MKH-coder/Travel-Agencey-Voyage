@@ -1,4 +1,4 @@
-export type ThemeMode = 'cyan-light' | 'dark-slate' | 'crimson-black';
+export type ThemeMode = 'cyan-light' | 'dark-slate' | 'crimson-black' | 'emerald-warm' | 'royal-gold' | 'violet-glass' | 'emerald-black' | 'rose-gold' | 'nordic-frost';
 
 export type UserRole = 'USER' | 'ADMIN' | 'TECH_SUBADMIN' | 'TECH_ADMIN';
 
@@ -69,6 +69,8 @@ export interface Listing {
   amenities?: string[];
   diningSpecialties?: string[];
   hotelPerks?: string[];
+  pinned?: boolean;
+  pinnedAt?: string;
   timestamps: {
     createdAt: string;
     updatedAt: string;

@@ -10,7 +10,7 @@ interface SecurityOverviewCardProps {
 
 export const SecurityOverviewCard: React.FC<SecurityOverviewCardProps> = ({ users }) => {
   const { styles, theme } = useTheme();
-  const isDark = theme === 'dark-slate' || theme === 'crimson-black';
+  const isDark = theme === 'dark-slate' || theme === 'crimson-black' || theme === 'royal-gold' || theme === 'violet-glass';
 
   const stats = useMemo(() => {
     const total = users.length;

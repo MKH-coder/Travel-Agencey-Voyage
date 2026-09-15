@@ -9,6 +9,7 @@ import { SavedTripsModal } from './components/SavedTripsModal.tsx';
 import { LoginModal } from './components/LoginModal.tsx';
 import { AdminPortal } from './components/AdminPortal.tsx';
 import { MapView } from './components/MapView.tsx';
+import { Breadcrumbs } from './components/Breadcrumbs.tsx';
 import { Listing, FilterState } from './types.ts';
 import { DEFAULT_LISTINGS } from './data/defaultData.ts';
 import {
@@ -45,6 +46,7 @@ function MainLayout() {
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [hoveredListingId, setHoveredListingId] = useState<string | null>(null);
   const [showSavedModal, setShowSavedModal] = useState(false);
+  const [adminTab, setAdminTab] = useState<'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | null>(null);
 
   // Search and filters
   const [filters, setFilters] = useState<FilterState>({
@@ -222,6 +224,17 @@ function MainLayout() {
         onOpenSavedTrips={() => setShowSavedModal(true)}
         searchQuery={filters.search}
         setSearchQuery={(q) => setFilters(prev => ({ ...prev, search: q }))}
+      />
+
+      {/* Dynamic Breadcrumbs Navigation */}
+      <Breadcrumbs
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        selectedListing={selectedListing}
+        setSelectedListing={setSelectedListing}
+        filters={filters}
+        setFilters={setFilters}
+        adminTab={adminTab}
       />
 
       {/* Main Content Area */}
@@ -454,6 +467,7 @@ function MainLayout() {
           <AdminPortal
             onListingUpdated={loadListings}
             onNavigateExplore={() => setCurrentView('dashboard')}
+            onTabChange={setAdminTab}
           />
         )}
       </main>

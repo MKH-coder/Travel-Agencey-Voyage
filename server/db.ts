@@ -1,6 +1,29 @@
 import fs from 'fs';
 import path from 'path';
+import { createRequire } from 'module';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeFirestore, collection, doc, setDoc, deleteDoc, getDocs } from 'firebase/firestore';
 import { User, Listing, AuditLog, Booking, SavedTrip, CustomPost } from './types.ts';
+
+const require = createRequire(import.meta.url);
+const firebaseConfig = require('../firebase-applet-config.json');
+
+// Initialize Firebase App for Server DB Sync
+const app = !getApps().length
+  ? initializeApp({
+      apiKey: firebaseConfig.apiKey,
+      authDomain: firebaseConfig.authDomain,
+      projectId: firebaseConfig.projectId,
+      storageBucket: firebaseConfig.storageBucket,
+      messagingSenderId: firebaseConfig.messagingSenderId,
+      appId: firebaseConfig.appId,
+    })
+  : getApp();
+
+// Use initializeFirestore with experimentalForceLongPolling to eliminate benign idle gRPC stream warnings
+const firestoreDb = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+}, firebaseConfig.firestoreDatabaseId || undefined);
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'database.json');
@@ -465,6 +488,119 @@ class Database {
   constructor() {
     this.ensureDataDir();
     this.data = this.readFromDisk();
+    this.initFirestoreSync();
+  }
+
+  private async safeFirestoreWrite(collectionName: string, docId: string, data: any) {
+    try {
+      await setDoc(doc(firestoreDb, collectionName, docId), data, { merge: true });
+    } catch (err) {
+      console.error(`Failed to write document ${docId} to Firestore collection ${collectionName}:`, err);
+    }
+  }
+
+  private async safeFirestoreDelete(collectionName: string, docId: string) {
+    try {
+      await deleteDoc(doc(firestoreDb, collectionName, docId));
+    } catch (err) {
+      console.error(`Failed to delete document ${docId} from Firestore collection ${collectionName}:`, err);
+    }
+  }
+
+  private async initFirestoreSync() {
+    try {
+      console.log('Initializing background Firestore sync with local cache...');
+      // Sync listings
+      try {
+        const listingsSnap = await getDocs(collection(firestoreDb, 'listings'));
+        if (!listingsSnap.empty) {
+          const firestoreListings: Listing[] = [];
+          listingsSnap.forEach(d => {
+            firestoreListings.push(d.data() as Listing);
+          });
+          for (const fListing of firestoreListings) {
+            const idx = this.data.listings.findIndex(l => l.id === fListing.id);
+            if (idx >= 0) {
+              this.data.listings[idx] = fListing;
+            } else {
+              this.data.listings.unshift(fListing);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to query listings from Firestore:', err);
+      }
+
+      // Sync users
+      try {
+        const usersSnap = await getDocs(collection(firestoreDb, 'users'));
+        if (!usersSnap.empty) {
+          const firestoreUsers: User[] = [];
+          usersSnap.forEach(d => {
+            firestoreUsers.push(d.data() as User);
+          });
+          for (const fUser of firestoreUsers) {
+            const idx = this.data.users.findIndex(u => u.uid === fUser.uid);
+            if (idx >= 0) {
+              this.data.users[idx] = fUser;
+            } else {
+              this.data.users.push(fUser);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to query users from Firestore:', err);
+      }
+
+      // Sync custom posts
+      try {
+        const customPostsSnap = await getDocs(collection(firestoreDb, 'custom_posts'));
+        if (!customPostsSnap.empty) {
+          const firestoreCustomPosts: CustomPost[] = [];
+          customPostsSnap.forEach(d => {
+            firestoreCustomPosts.push(d.data() as CustomPost);
+          });
+          for (const fPost of firestoreCustomPosts) {
+            const idx = this.data.custom_posts.findIndex(p => p.id === fPost.id);
+            if (idx >= 0) {
+              this.data.custom_posts[idx] = fPost;
+            } else {
+              this.data.custom_posts.unshift(fPost);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to query custom posts from Firestore:', err);
+      }
+
+      // Sync audit logs
+      try {
+        const auditLogsSnap = await getDocs(collection(firestoreDb, 'audit_logs'));
+        if (!auditLogsSnap.empty) {
+          const firestoreAuditLogs: AuditLog[] = [];
+          auditLogsSnap.forEach(d => {
+            firestoreAuditLogs.push(d.data() as AuditLog);
+          });
+          for (const fLog of firestoreAuditLogs) {
+            const idx = this.data.audit_logs.findIndex(l => l.id === fLog.id);
+            if (idx === -1) {
+              this.data.audit_logs.push(fLog);
+            }
+          }
+          this.data.audit_logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+          if (this.data.audit_logs.length > 500) {
+            this.data.audit_logs = this.data.audit_logs.slice(0, 500);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to query audit logs from Firestore:', err);
+      }
+
+      this.writeToDisk(this.data);
+      console.log('Background Firestore sync finished.');
+    } catch (err) {
+      console.warn('Failed to sync Firestore data with local database on startup:', err);
+    }
   }
 
   private ensureDataDir() {
@@ -563,6 +699,7 @@ class Database {
       this.data.users.push(user);
     }
     this.writeToDisk(this.data);
+    this.safeFirestoreWrite('users', user.uid, user);
     return user;
   }
 
@@ -581,6 +718,7 @@ class Database {
     this.data.users = this.data.users.filter(u => u.uid !== uid);
     if (this.data.users.length !== initialLen) {
       this.writeToDisk(this.data);
+      this.safeFirestoreDelete('users', uid);
       return true;
     }
     return false;
@@ -598,6 +736,7 @@ class Database {
   createListing(listing: Listing): Listing {
     this.data.listings.unshift(listing);
     this.writeToDisk(this.data);
+    this.safeFirestoreWrite('listings', listing.id, listing);
     return listing;
   }
 
@@ -617,6 +756,7 @@ class Database {
     };
     this.data.listings[idx] = updated;
     this.writeToDisk(this.data);
+    this.safeFirestoreWrite('listings', id, updated);
     return updated;
   }
 
@@ -625,6 +765,7 @@ class Database {
     this.data.listings = this.data.listings.filter(l => l.id !== id);
     if (this.data.listings.length !== initialLen) {
       this.writeToDisk(this.data);
+      this.safeFirestoreDelete('listings', id);
       return true;
     }
     return false;
@@ -647,6 +788,7 @@ class Database {
       this.data.audit_logs = this.data.audit_logs.slice(0, 500);
     }
     this.writeToDisk(this.data);
+    this.safeFirestoreWrite('audit_logs', newLog.id, newLog);
     return newLog;
   }
 
@@ -730,6 +872,7 @@ class Database {
       this.data.custom_posts.unshift(post);
     }
     this.writeToDisk(this.data);
+    this.safeFirestoreWrite('custom_posts', post.id, post);
     return post;
   }
 
@@ -739,6 +882,7 @@ class Database {
     this.data.custom_posts = this.data.custom_posts.filter(p => p.id !== id);
     if (this.data.custom_posts.length !== initialLen) {
       this.writeToDisk(this.data);
+      this.safeFirestoreDelete('custom_posts', id);
       return true;
     }
     return false;

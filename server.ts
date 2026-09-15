@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
+import nodemailer from 'nodemailer';
 import { db } from './server/db.ts';
 import {
   rateLimit,
@@ -212,7 +213,7 @@ async function startServer() {
   });
 
   // 2. Phone OTP: Send OTP (rate limited to 5 per 5 minutes)
-  app.post('/api/auth/send-otp', rateLimit(5, 5 * 60 * 1000), (req, res) => {
+  app.post('/api/auth/send-otp', rateLimit(5, 5 * 60 * 1000), async (req, res) => {
     const { phoneNumber, email } = req.body;
     const phoneToUse = phoneNumber || TECH_ADMIN_PHONE;
     const emailToUse = email || TECH_ADMIN_EMAIL;
@@ -229,6 +230,63 @@ async function startServer() {
       ipAddress: getClientIp(req),
       details: { isTechAdmin: isTechAdminPhone || isTechAdminEmail, phone: phoneToUse, email: emailToUse }
     });
+
+    // Try sending email via Gmail if GMAIL_USER and GMAIL_PASS are configured
+    const gmailUser = process.env.GMAIL_USER;
+    const gmailPass = process.env.GMAIL_PASS;
+
+    if (gmailUser && gmailPass) {
+      console.log(`[Gmail Dispatcher] Attempting real SMTP email dispatch of OTP ${otp} to ${emailToUse}...`);
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: gmailUser,
+            pass: gmailPass,
+          },
+        });
+
+        const mailOptions = {
+          from: `"Voyage Security" <${gmailUser}>`,
+          to: emailToUse,
+          subject: '🔐 Voyage Security: Your Secure Verification Code',
+          html: `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 32px 24px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; color: #0f172a;">
+              <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="font-size: 24px; font-weight: 800; color: #0ea5e9; margin: 0; letter-spacing: -0.025em;">Voyage Secure</h1>
+                <p style="font-size: 13px; color: #64748b; margin: 4px 0 0 0;">Traveler Identity & Verification Service</p>
+              </div>
+              <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0;" />
+              <p style="font-size: 15px; line-height: 24px; color: #334155; margin: 0 0 16px 0;">Hello,</p>
+              <p style="font-size: 15px; line-height: 24px; color: #334155; margin: 0 0 24px 0;">You have requested a secure verification code to log in to your Voyage account. Use the following 6-digit passcode to verify your identity:</p>
+              <div style="text-align: center; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                <span style="font-family: monospace; font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #0f172a;">${otp}</span>
+              </div>
+              <p style="font-size: 12px; line-height: 18px; color: #64748b; margin: 0 0 8px 0;">⚠️ <strong>Security Notice:</strong> This verification code is valid for a limited time and should never be shared with anyone, including Voyage support agents.</p>
+              <p style="font-size: 12px; line-height: 18px; color: #94a3b8; margin: 0;">If you did not request this verification code, please ignore this email or contact security support.</p>
+              <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 24px 0;" />
+              <div style="text-align: center; font-size: 11px; color: #94a3b8;">
+                <p style="margin: 0 0 4px 0;">&copy; 2026 Voyage Platform Inc. All rights reserved.</p>
+                <p style="margin: 0;">Secured by Multi-Factor Authentication</p>
+              </div>
+            </div>
+          `,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log(`[Gmail Dispatcher] Successfully sent OTP verification code ${otp} to ${emailToUse}`);
+      } catch (emailErr) {
+        console.error('[Gmail Dispatcher] SMTP error during mail dispatch:', emailErr);
+      }
+    } else {
+      console.warn(`[Gmail Dispatcher] GMAIL_USER and GMAIL_PASS environment variables are not configured in your settings.
+To enable real email dispatch via Gmail:
+  1. Open the "Settings" / "Secrets" panel in AI Studio.
+  2. Set GMAIL_USER (e.g. myaccount@gmail.com)
+  3. Set GMAIL_PASS (Generate a Gmail App Password via Google Account Settings > Security)
+  
+Proceeding with sandbox delivery...`);
+    }
 
     res.json({
       success: true,
@@ -717,6 +775,37 @@ async function startServer() {
       targetType: 'LISTING',
       ipAddress: getClientIp(req),
       details: { previousStatus: existing.status, newStatus: status, rejectionReason }
+    });
+
+    res.json(updated);
+  });
+
+  // 12.5. Listings: PIN TOGGLE - Allows ADMIN, TECH_SUBADMIN, TECH_ADMIN
+  app.patch('/api/listings/:id/pin', (req, res) => {
+    const authData = extractUserOrSession(req);
+    const allowedRoles = ['ADMIN', 'TECH_SUBADMIN', 'TECH_ADMIN'];
+    if (!authData?.user || !allowedRoles.includes(authData.user.role)) {
+      return res.status(403).json({ error: 'Administrative privileges required to pin listings.' });
+    }
+
+    const listing = db.getListingById(req.params.id);
+    if (!listing) {
+      return res.status(404).json({ error: 'Listing not found.' });
+    }
+
+    const isPinned = !listing.pinned;
+    const updated = db.updateListing(req.params.id, {
+      pinned: isPinned,
+      pinnedAt: isPinned ? new Date().toISOString() : undefined,
+    });
+
+    db.addAuditLog({
+      action: isPinned ? 'PIN_LISTING' : 'UNPIN_LISTING',
+      performedBy: authData.user.email,
+      targetId: req.params.id,
+      targetType: 'LISTING',
+      ipAddress: getClientIp(req),
+      details: { title: listing.title, pinned: isPinned }
     });
 
     res.json(updated);

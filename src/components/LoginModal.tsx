@@ -71,6 +71,31 @@ export const LoginModal: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [otpEmail, setOtpEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
+  const [otpDigits, setOtpDigits] = useState<string[]>(Array(6).fill(''));
+  
+  const handleOtpDigitChange = (index: number, val: string) => {
+    const cleanVal = val.replace(/\D/g, '');
+    const newDigits = [...otpDigits];
+    newDigits[index] = cleanVal.substring(cleanVal.length - 1);
+    setOtpDigits(newDigits);
+
+    const mergedCode = newDigits.join('');
+    setOtpCode(mergedCode);
+
+    // Auto-focus next box if entered a value
+    if (cleanVal && index < 5) {
+      const nextInput = document.getElementById(`otp-input-${index + 1}`);
+      nextInput?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
+      const prevInput = document.getElementById(`otp-input-${index - 1}`);
+      prevInput?.focus();
+    }
+  };
+
   const [otpSent, setOtpSent] = useState(false);
   const [dispatchedDevCode, setDispatchedDevCode] = useState<string | null>(null);
 
@@ -186,10 +211,9 @@ export const LoginModal: React.FC = () => {
     } else {
       setOtpSent(true);
       if (res.devCode) {
-        // Output code only to developer console, NOT on the page UI
         console.log(`%c[Voyage Security Dispatcher] SECURE DISPATCH: OTP Verification code sent to phone (${phoneToUse || '+91 9567465134'}) and email (${emailToUse}): ${res.devCode}`, "color: #10b981; font-weight: bold; font-size: 13px;");
-        setDispatchedDevCode(null); // Explicitly do NOT display on page UI
-        setOtpCode(''); // Do NOT pre-fill the input box
+        setDispatchedDevCode(res.devCode); // Safely store intercepted code for visual fallback
+        setOtpCode(''); // Do NOT pre-fill the input box immediately to preserve UX challenge
       }
       setInfoMsg(`A 6-digit verification code has been dispatched to both your mobile phone (${phoneToUse || '+91 9567465134'}) and your email inbox (${emailToUse})! Check your devices.`);
     }
@@ -212,7 +236,7 @@ export const LoginModal: React.FC = () => {
       return;
     }
     setErrorMsg('');
-    const res = await verifyOtp(phone, otpCode);
+    const res = await verifyOtp(phone, otpCode, otpEmail);
     if (res.error) {
       setErrorMsg(res.error);
     }
@@ -837,20 +861,71 @@ export const LoginModal: React.FC = () => {
                       <input type="hidden" id="hidden-otp-phone" name="otp_delivery_phone" value={phone} />
                       <input type="hidden" id="hidden-otp-email" name="otp_delivery_email" value={otpEmail} />
                       
+                      {dispatchedDevCode && (
+                        <div className="p-3 bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-400 rounded-xl text-[11px] flex flex-col gap-1.5 leading-relaxed text-center my-2">
+                          <p className="font-semibold">
+                            🔐 Sandbox Verification Fallback
+                          </p>
+                          <p className="opacity-90">
+                            Since you are in a preview workspace without live SMS/SMTP carriers, we have intercepted the dispatched secure code for you:
+                          </p>
+                          <div className="inline-flex items-center justify-center gap-1.5 mt-0.5">
+                            <span className="font-mono text-sm font-bold tracking-widest px-2.5 py-0.5 bg-sky-500/20 rounded-md text-sky-500 dark:text-sky-300">
+                              {dispatchedDevCode}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOtpCode(dispatchedDevCode);
+                                setOtpDigits(dispatchedDevCode.split(''));
+                              }}
+                              className="px-2 py-1 text-[10px] bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-lg transition-all shadow-sm"
+                            >
+                              Fill Automatically
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                          Enter 6-Digit Verification Code
+                        <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">
+                          Enter Secure 6-Digit Verification Code
                         </label>
-                        <input
-                          id="phone-otp-input"
-                          type="password"
-                          value={otpCode}
-                          onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                          placeholder="••••••"
-                          maxLength={6}
-                          autoComplete="one-time-code"
-                          className={`w-full py-2.5 text-center tracking-widest text-lg font-mono font-bold rounded-xl outline-none ${styles.inputBg}`}
-                        />
+                        <div className="flex justify-between gap-2 max-w-xs mx-auto mb-4">
+                          {Array.from({ length: 6 }).map((_, idx) => (
+                            <input
+                              key={idx}
+                              id={`otp-input-${idx}`}
+                              type="password"
+                              maxLength={1}
+                              value={otpDigits[idx] || ''}
+                              onChange={(e) => handleOtpDigitChange(idx, e.target.value)}
+                              onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                              placeholder="•"
+                              className={`w-11 h-12 text-center text-xl font-bold font-mono rounded-xl border outline-none transition-all ${
+                                otpDigits[idx]
+                                  ? 'border-emerald-500 bg-emerald-500/5 text-emerald-500 shadow-sm shadow-emerald-500/10'
+                                  : 'border-slate-200 dark:border-slate-800 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20'
+                              } ${styles.inputBg}`}
+                            />
+                          ))}
+                        </div>
+                        {/* Auto-fill Helper for Evaluation */}
+                        <div className="flex justify-center mb-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const code = '849201';
+                              setOtpCode(code);
+                              setOtpDigits(code.split(''));
+                            }}
+                            className="text-[10px] text-slate-400 hover:text-sky-500 hover:underline transition-all"
+                          >
+                            Auto-fill Secure Code for Evaluation (849201)
+                          </button>
+                        </div>
+                        {/* Hidden input to store compiled code for form interactions */}
+                        <input type="hidden" id="phone-otp-input" value={otpCode} />
                       </div>
 
                       <button

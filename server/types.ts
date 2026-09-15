@@ -67,6 +67,8 @@ export interface Listing {
   amenities?: string[];
   diningSpecialties?: string[];
   hotelPerks?: string[];
+  pinned?: boolean;
+  pinnedAt?: string;
   timestamps: {
     createdAt: string;
     updatedAt: string;

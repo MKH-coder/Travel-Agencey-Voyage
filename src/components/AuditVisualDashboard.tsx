@@ -35,7 +35,7 @@ const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b
 
 export const AuditVisualDashboard: React.FC<AuditVisualDashboardProps> = ({ logs }) => {
   const { theme } = useTheme();
-  const isDark = theme === 'dark-slate' || theme === 'crimson-black';
+  const isDark = theme === 'dark-slate' || theme === 'crimson-black' || theme === 'royal-gold' || theme === 'violet-glass';
 
   // Color tokens based on dark/light mode
   const gridColor = isDark ? '#334155' : '#e2e8f0';

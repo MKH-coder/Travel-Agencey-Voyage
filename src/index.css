@@ -1,1 +1,31 @@
 @import "tailwindcss";
+
+/* Smooth global cross-fade theme transitions for body, cards, and all container elements */
+body, 
+div, 
+header, 
+footer, 
+nav, 
+section, 
+article, 
+aside, 
+button, 
+input, 
+textarea, 
+select, 
+span, 
+p, 
+label,
+h1, 
+h2, 
+h3, 
+h4, 
+h5, 
+h6, 
+svg,
+path,
+a {
+  transition-property: background-color, border-color, text-decoration-color, fill, stroke, box-shadow, color, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 400ms;
+}

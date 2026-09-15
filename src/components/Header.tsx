@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Compass,
   Sun,
@@ -14,12 +14,18 @@ import {
   Search,
   KeyRound,
   LayoutDashboard,
-  ShieldCheck
+  ShieldCheck,
+  Leaf,
+  Sparkles,
+  Palette,
+  Snowflake,
+  Calendar
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { ThemeMode } from '../types.ts';
 import { UserProfileModal } from './UserProfileModal.tsx';
+import { Clock as ClockComponent } from './Clock.tsx';
 
 interface HeaderProps {
   currentView: 'dashboard' | 'admin';
@@ -62,6 +68,42 @@ export const Header: React.FC<HeaderProps> = ({
       label: 'Crimson Red & Black',
       icon: <Flame className="w-4 h-4 text-rose-500" />,
       color: 'bg-rose-600',
+    },
+    {
+      id: 'emerald-warm',
+      label: 'Emerald Warm (Light)',
+      icon: <Leaf className="w-4 h-4 text-emerald-600" />,
+      color: 'bg-emerald-600',
+    },
+    {
+      id: 'royal-gold',
+      label: 'Royal Gold (Dark)',
+      icon: <Sparkles className="w-4 h-4 text-amber-400" />,
+      color: 'bg-amber-500',
+    },
+    {
+      id: 'violet-glass',
+      label: 'Violet Amethyst (Dark)',
+      icon: <Palette className="w-4 h-4 text-fuchsia-400" />,
+      color: 'bg-fuchsia-600',
+    },
+    {
+      id: 'emerald-black',
+      label: 'Emerald Black (Dark)',
+      icon: <Leaf className="w-4 h-4 text-emerald-400" />,
+      color: 'bg-emerald-950',
+    },
+    {
+      id: 'rose-gold',
+      label: 'Rose Gold (Dark)',
+      icon: <Heart className="w-4 h-4 text-rose-300" />,
+      color: 'bg-rose-400',
+    },
+    {
+      id: 'nordic-frost',
+      label: 'Nordic Frost (Light)',
+      icon: <Snowflake className="w-4 h-4 text-sky-400" />,
+      color: 'bg-sky-400',
     },
   ];
 
@@ -162,6 +204,9 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Right Action Cluster */}
         <div className="flex items-center gap-2 sm:gap-3">
 
+          {/* Reusable Real-Time Clock & Date using date-fns */}
+          <ClockComponent />
+
           {/* Admin Inactivity Countdown Badge */}
           {user && (user.role === 'ADMIN' || user.role === 'TECH_SUBADMIN' || user.role === 'TECH_ADMIN') && sessionRemainingSec !== null && (
             <div
@@ -188,8 +233,21 @@ export const Header: React.FC<HeaderProps> = ({
               {theme === 'cyan-light' && <Sun className="w-4 h-4 text-cyan-500" />}
               {theme === 'dark-slate' && <Moon className="w-4 h-4 text-sky-400" />}
               {theme === 'crimson-black' && <Flame className="w-4 h-4 text-rose-500" />}
+              {theme === 'emerald-warm' && <Leaf className="w-4 h-4 text-emerald-600" />}
+              {theme === 'royal-gold' && <Sparkles className="w-4 h-4 text-amber-400" />}
+              {theme === 'violet-glass' && <Palette className="w-4 h-4 text-fuchsia-400" />}
+              {theme === 'emerald-black' && <Leaf className="w-4 h-4 text-emerald-400" />}
+              {theme === 'rose-gold' && <Heart className="w-4 h-4 text-rose-300" />}
+              {theme === 'nordic-frost' && <Snowflake className="w-4 h-4 text-sky-400" />}
               <span className="hidden md:inline capitalize">
-                {theme === 'cyan-light' ? 'Cyan' : theme === 'dark-slate' ? 'Dark' : 'Crimson'}
+                {theme === 'cyan-light' ? 'Cyan' : 
+                 theme === 'dark-slate' ? 'Dark' : 
+                 theme === 'crimson-black' ? 'Crimson' : 
+                 theme === 'emerald-warm' ? 'Emerald Warm' : 
+                 theme === 'royal-gold' ? 'Royal Gold' : 
+                 theme === 'violet-glass' ? 'Violet Amethyst' : 
+                 theme === 'emerald-black' ? 'Emerald Dark' : 
+                 theme === 'rose-gold' ? 'Rose Gold' : 'Nordic Frost'}
               </span>
               <ChevronDown className="w-3 h-3 opacity-60" />
             </button>

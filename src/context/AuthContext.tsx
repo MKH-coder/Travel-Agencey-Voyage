@@ -28,7 +28,7 @@ interface AuthContextValue {
   loginWithSupabase: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signUpWithSupabase: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   sendOtp: (phone: string, email?: string) => Promise<{ success: boolean; devCode?: string; isTechAdmin?: boolean; error?: string }>;
-  verifyOtp: (phone: string, code: string) => Promise<{ requires2FA: boolean; error?: string }>;
+  verifyOtp: (phone: string, code: string, email?: string) => Promise<{ requires2FA: boolean; error?: string }>;
   verify2FA: (code: string) => Promise<{ success: boolean; error?: string }>;
   verifyEmergencyBypass: (code: string, recoveryEmail?: string) => Promise<{ success: boolean; error?: string }>;
   verifyPasskey: (passkey: string) => Promise<boolean>;
@@ -284,9 +284,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Send OTP with static fallback
+  // Send OTP with static fallback and real Supabase Auth OTP integration
   const sendOtp = async (phoneNumber: string, email?: string) => {
     setIsLoading(true);
+
+    // Attempt real Supabase OTP Auth first
+    try {
+      if (email) {
+        const { data, error } = await supabase.auth.signInWithOtp({
+          email: email,
+        });
+        if (error) {
+          console.warn('Supabase Email OTP failed:', error.message);
+        } else {
+          console.log('Supabase Email OTP dispatched successfully', data);
+        }
+      }
+
+      if (phoneNumber) {
+        const { data, error } = await supabase.auth.signInWithOtp({
+          phone: phoneNumber,
+        });
+        if (error) {
+          console.warn('Supabase Phone OTP failed:', error.message);
+        } else {
+          console.log('Supabase Phone OTP dispatched successfully', data);
+        }
+      }
+    } catch (supaErr) {
+      console.warn('Supabase sign-in with OTP skipped or failed:', supaErr);
+    }
+
+    // Call standard backend /api/auth/send-otp endpoint to sync the session state
     try {
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
@@ -295,6 +324,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       if (res.ok) {
         const data = await res.json();
+        setIsLoading(false);
         return {
           success: true,
           devCode: data.devCode,
@@ -314,14 +344,69 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   };
 
-  // Verify OTP with static fallback
-  const verifyOtp = async (phoneNumber: string, code: string) => {
+  // Verify OTP with static fallback and real Supabase verification support
+  const verifyOtp = async (phoneNumber: string, code: string, email?: string) => {
     setIsLoading(true);
+
+    // Try verifying via Supabase OTP verification if active
+    try {
+      if (email) {
+        const { data, error } = await supabase.auth.verifyOtp({
+          email: email,
+          token: code,
+          type: 'email'
+        });
+        if (!error && data?.user) {
+          console.log('Supabase Email OTP verification succeeded', data);
+          const appUser: User = {
+            uid: data.user.id,
+            email: email,
+            name: data.user.user_metadata?.full_name || email.split('@')[0] || 'Traveler',
+            role: 'USER',
+            mfaEnabled: false,
+            createdAt: data.user.created_at || new Date().toISOString(),
+          };
+          ClientStorageManager.saveUser(appUser);
+          setAuthSession(appUser, data.session?.access_token || `token_${data.user.id}`);
+          setShowLoginModal(false);
+          setIsLoading(false);
+          return { requires2FA: false };
+        }
+      }
+
+      if (phoneNumber) {
+        const { data, error } = await supabase.auth.verifyOtp({
+          phone: phoneNumber,
+          token: code,
+          type: 'sms'
+        });
+        if (!error && data?.user) {
+          console.log('Supabase Phone OTP verification succeeded', data);
+          const appUser: User = {
+            uid: data.user.id,
+            email: data.user.email || `${phoneNumber.replace(/[^0-9]/g, '')}@mobile.voyage`,
+            phoneNumber: phoneNumber,
+            name: data.user.user_metadata?.full_name || 'Mobile Verified Traveler',
+            role: 'USER',
+            mfaEnabled: false,
+            createdAt: data.user.created_at || new Date().toISOString(),
+          };
+          ClientStorageManager.saveUser(appUser);
+          setAuthSession(appUser, data.session?.access_token || `token_${data.user.id}`);
+          setShowLoginModal(false);
+          setIsLoading(false);
+          return { requires2FA: false };
+        }
+      }
+    } catch (supaErr) {
+      console.warn('Supabase verifyOtp failed or skipped:', supaErr);
+    }
+
     try {
       const res = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber, code }),
+        body: JSON.stringify({ phoneNumber, code, email }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -332,10 +417,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             phoneNumber: data.phoneNumber,
             message: data.message,
           });
+          setIsLoading(false);
           return { requires2FA: true };
         }
         setAuthSession(data.user, data.token);
         setShowLoginModal(false);
+        setIsLoading(false);
         return { requires2FA: false };
       }
     } catch {
@@ -360,10 +447,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ClientStorageManager.saveUser(user);
         setAuthSession(user, `token_phone_${Date.now()}`);
         setShowLoginModal(false);
+        setIsLoading(false);
         return { requires2FA: false };
       }
+      setIsLoading(false);
       return { requires2FA: false, error: 'Invalid verification code.' };
     } catch (err: unknown) {
+      setIsLoading(false);
       return { requires2FA: false, error: err instanceof Error ? err.message : 'Verification failed' };
     } finally {
       setIsLoading(false);

@@ -62,11 +62,13 @@ import { ClientStorageManager } from '../services/clientStorage.ts';
 interface AdminPortalProps {
   onListingUpdated?: () => void;
   onNavigateExplore?: () => void;
+  onTabChange?: (tab: 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud') => void;
 }
 
 export const AdminPortal: React.FC<AdminPortalProps> = ({
   onListingUpdated,
   onNavigateExplore,
+  onTabChange,
 }) => {
   const { styles } = useTheme();
   const { user, token, sessionRemainingSec, verifyPasskey, refreshSessionHealth, logout, auditLog } = useAuth();
@@ -80,6 +82,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [activeTab, setActiveTab] = useState<'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud'>(
     isElevatedAdmin ? 'queue' : 'inventory'
   );
+
+  useEffect(() => {
+    onTabChange?.(activeTab);
+  }, [activeTab, onTabChange]);
 
   // Listings data
   const [listings, setListings] = useState<Listing[]>([]);
