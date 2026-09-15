@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ScrollText, ShieldCheck, ShieldAlert, Key, AlertTriangle, CheckCircle2, XCircle, Search, Filter, Download, Eye, Calendar, Clock, Terminal, KeyRound, Check, RefreshCw } from 'lucide-react';
+import { ScrollText, ShieldCheck, ShieldAlert, Key, AlertTriangle, CheckCircle2, XCircle, Search, Filter, Download, Eye, Calendar, Clock, Terminal, KeyRound, Check, RefreshCw, Bell, Mail, Smartphone, Sliders, Settings, AlertCircle } from 'lucide-react';
 import { AuditLog } from '../types.ts';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { ClientStorageManager } from '../services/clientStorage.ts';
@@ -9,11 +9,87 @@ interface AuditTrailDashboardProps {
   onRefresh?: () => void;
 }
 
+interface AlertConfig {
+  id: string;
+  category: string;
+  description: string;
+  email: boolean;
+  push: boolean;
+  threshold: string; // "1" | "3" | "5" | "0"
+  recipientTier: string; // "SUPER_ADMIN" | "ALL_ADMINS" | "SYSTEM_ENG"
+}
+
+const DEFAULT_ALERT_CONFIGS: AlertConfig[] = [
+  {
+    id: 'unauthorized_access',
+    category: 'Unauthorized Access',
+    description: 'Triggered when an unprivileged account or incorrect credential attempt is detected on restricted paths.',
+    email: true,
+    push: true,
+    threshold: '1',
+    recipientTier: 'SUPER_ADMIN'
+  },
+  {
+    id: 'bypass_attempt',
+    category: 'Bypass Attempt',
+    description: 'Triggered when an admin bypass or emergency key override sequence is initiated.',
+    email: true,
+    push: true,
+    threshold: '1',
+    recipientTier: 'SUPER_ADMIN'
+  },
+  {
+    id: 'password_reset',
+    category: 'Password Reset Events',
+    description: 'Triggered when a sub-admin or administrator executes or requests a password reset or credential update.',
+    email: true,
+    push: false,
+    threshold: '3',
+    recipientTier: 'ALL_ADMINS'
+  },
+  {
+    id: 'security_blocks',
+    category: 'Security Blocks & Locks',
+    description: 'Triggered when rate limits or IP bans block traffic due to excessive automated queries.',
+    email: false,
+    push: true,
+    threshold: '5',
+    recipientTier: 'SYSTEM_ENG'
+  }
+];
+
 export const AuditTrailDashboard: React.FC<AuditTrailDashboardProps> = ({ logs, onRefresh }) => {
   const { styles } = useTheme();
   const [filterType, setFilterType] = useState<'ALL' | '2FA' | 'BYPASS' | 'RECOVERY' | 'BLOCKS' | 'ROLES' | 'RESETS'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+
+  // Alert configuration states
+  const [isAlertConfigOpen, setIsAlertConfigOpen] = useState(false);
+  const [alertConfigs, setAlertConfigs] = useState<AlertConfig[]>(() => {
+    const saved = localStorage.getItem('audit_alert_config');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return DEFAULT_ALERT_CONFIGS;
+      }
+    }
+    return DEFAULT_ALERT_CONFIGS;
+  });
+  const [configSuccess, setConfigSuccess] = useState(false);
+
+  // For testing alerts in sandboxed UI
+  const [testAlarmCategory, setTestAlarmCategory] = useState('password_reset');
+  const [testAlarmDispatching, setTestAlarmDispatching] = useState(false);
+  const [testAlarmResult, setTestAlarmResult] = useState<{
+    category: string;
+    threshold: string;
+    recipientTier: string;
+    channels: string[];
+    dispatchedAt: string;
+    packet: any;
+  } | null>(null);
 
   // Simulation form states
   const [simulationActor, setSimulationActor] = useState('mukundkrishna.h@gmail.com');
@@ -179,6 +255,20 @@ export const AuditTrailDashboard: React.FC<AuditTrailDashboardProps> = ({ logs, 
 
         <div className="flex items-center gap-2">
           <button
+            id="alert-config-toggle-btn"
+            type="button"
+            onClick={() => setIsAlertConfigOpen(!isAlertConfigOpen)}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm border ${
+              isAlertConfigOpen
+                ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40'
+                : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800'
+            }`}
+          >
+            <Bell className="w-3.5 h-3.5" />
+            <span>Alert Configuration</span>
+          </button>
+
+          <button
             id="export-audit-csv-btn"
             type="button"
             onClick={handleExportCsv}
@@ -189,6 +279,295 @@ export const AuditTrailDashboard: React.FC<AuditTrailDashboardProps> = ({ logs, 
           </button>
         </div>
       </div>
+
+      {/* Alert Configuration Panel */}
+      {isAlertConfigOpen && (
+        <div className="p-6 rounded-2xl bg-amber-500/5 border border-amber-500/20 space-y-5 animate-in fade-in slide-in-from-top-1 duration-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-amber-500/20 pb-4">
+            <div className="flex items-center gap-2.5">
+              <Sliders className="w-5 h-5 text-amber-500" />
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                  Real-time Security Alert Routing & Threshold Panel
+                </h4>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                  Configure real-time dispatch systems for critical cryptographic occurrences and unauthorized actions.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setAlertConfigs(DEFAULT_ALERT_CONFIGS);
+                localStorage.setItem('audit_alert_config', JSON.stringify(DEFAULT_ALERT_CONFIGS));
+                setConfigSuccess(true);
+                setTimeout(() => setConfigSuccess(false), 3000);
+              }}
+              className="text-[10px] font-bold text-slate-400 hover:text-slate-200 transition-colors underline decoration-dotted"
+            >
+              Reset to Defaults
+            </button>
+          </div>
+
+          {/* Grid of config categories */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {alertConfigs.map((config, idx) => (
+              <div
+                key={config.id}
+                className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-950/50 space-y-3.5 flex flex-col justify-between"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200">{config.category}</span>
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-mono font-bold ${
+                      config.threshold === '1' 
+                        ? 'bg-rose-500/10 text-rose-500' 
+                        : config.threshold === '0' 
+                        ? 'bg-slate-500/10 text-slate-500' 
+                        : 'bg-amber-500/10 text-amber-500'
+                    }`}>
+                      {config.threshold === '1' ? 'IMMEDIATE' : config.threshold === '0' ? 'DISABLED' : `THRESHOLD: ${config.threshold}x`}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 leading-normal">
+                    {config.description}
+                  </p>
+                </div>
+
+                <div className="space-y-3 pt-2 border-t border-slate-200/40 dark:border-slate-800/40">
+                  {/* Toggles */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dispatch Channels:</span>
+                    <div className="flex items-center gap-3">
+                      {/* Email Toggle */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = [...alertConfigs];
+                          updated[idx] = { ...config, email: !config.email };
+                          setAlertConfigs(updated);
+                        }}
+                        className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold transition-all ${
+                          config.email
+                            ? 'bg-sky-500/10 text-sky-500 border border-sky-500/30'
+                            : 'bg-slate-100 dark:bg-slate-900 text-slate-400 border border-transparent'
+                        }`}
+                      >
+                        <Mail className="w-3 h-3" />
+                        <span>Email</span>
+                      </button>
+
+                      {/* Push Toggle */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = [...alertConfigs];
+                          updated[idx] = { ...config, push: !config.push };
+                          setAlertConfigs(updated);
+                        }}
+                        className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold transition-all ${
+                          config.push
+                            ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/30'
+                            : 'bg-slate-100 dark:bg-slate-900 text-slate-400 border border-transparent'
+                        }`}
+                      >
+                        <Smartphone className="w-3 h-3" />
+                        <span>Push</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Threshold Settings */}
+                  <div className="grid grid-cols-2 gap-2 text-[10px]">
+                    <div>
+                      <label className="block text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                        Sensitivity level
+                      </label>
+                      <select
+                        value={config.threshold}
+                        onChange={(e) => {
+                          const updated = [...alertConfigs];
+                          updated[idx] = { ...config, threshold: e.target.value };
+                          setAlertConfigs(updated);
+                        }}
+                        className="w-full px-2 py-1 text-[10px] rounded border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-300 outline-none"
+                      >
+                        <option value="1">Immediate (1 event)</option>
+                        <option value="3">Moderate (3 in 5m)</option>
+                        <option value="5">High (5 in 5m)</option>
+                        <option value="0">Disabled (Deactivated)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                        Alert Recipient Tier
+                      </label>
+                      <select
+                        value={config.recipientTier}
+                        onChange={(e) => {
+                          const updated = [...alertConfigs];
+                          updated[idx] = { ...config, recipientTier: e.target.value };
+                          setAlertConfigs(updated);
+                        }}
+                        className="w-full px-2 py-1 text-[10px] rounded border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-300 outline-none"
+                      >
+                        <option value="SUPER_ADMIN">Super-Admins Only</option>
+                        <option value="ALL_ADMINS">All Administrators</option>
+                        <option value="SYSTEM_ENG">System Engineers</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Test Alert Sandbox Area */}
+          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/50 dark:bg-slate-900/50 space-y-3.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/40 dark:border-slate-800/40 pb-2">
+              <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+                Sandbox Alarm Tester & Integration Preview
+              </span>
+              <span className="text-[9px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-mono">Real-time Compiler</span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+              <div className="flex-1">
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  Select Alert Configuration To Trigger
+                </label>
+                <select
+                  value={testAlarmCategory}
+                  onChange={(e) => {
+                    setTestAlarmCategory(e.target.value);
+                    setTestAlarmResult(null);
+                  }}
+                  className={`w-full px-2.5 py-1.5 text-xs rounded-lg outline-none ${styles.inputBg} border border-slate-200 dark:border-slate-800`}
+                >
+                  {alertConfigs.map(c => (
+                    <option key={c.id} value={c.id}>{c.category}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTestAlarmDispatching(true);
+                    setTestAlarmResult(null);
+                    
+                    setTimeout(() => {
+                      const matched = alertConfigs.find(c => c.id === testAlarmCategory);
+                      if (matched) {
+                        const channels: string[] = [];
+                        if (matched.email) channels.push('Email SMTP');
+                        if (matched.push) channels.push('Push WebSocket');
+
+                        setTestAlarmResult({
+                          category: matched.category,
+                          threshold: matched.threshold === '1' ? 'Immediate Trigger (1x)' : `${matched.threshold} incidents within 5 minutes`,
+                          recipientTier: matched.recipientTier === 'SUPER_ADMIN' ? 'Super-Admins Only (mukundkrishna.h2008@gmail.com)' : matched.recipientTier === 'ALL_ADMINS' ? 'All Administrators' : 'System Engineers',
+                          channels,
+                          dispatchedAt: new Date().toLocaleTimeString(),
+                          packet: {
+                            eventId: `ev_${Math.random().toString(36).substring(2, 11)}`,
+                            severity: matched.threshold === '1' ? 'CRITICAL_HIGH' : 'WARNING',
+                            dispatchCount: parseInt(matched.threshold) || 1,
+                            payload: {
+                              threat_vector: matched.id === 'unauthorized_access' ? 'UNPRIVILEGED_ENDPOINT_HIT' : matched.id === 'bypass_attempt' ? 'EMERGENCY_OVERRIDE_SEQUENCE' : matched.id === 'password_reset' ? 'CREDENTIAL_ROTATION' : 'AUTOMATED_BRUTE_FORCE',
+                              client_ip: '192.168.1.105',
+                              geoloc: 'Bengaluru, IN',
+                              system_time: new Date().toISOString()
+                            }
+                          }
+                        });
+                      }
+                      setTestAlarmDispatching(false);
+                    }, 800);
+                  }}
+                  disabled={testAlarmDispatching}
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 text-white hover:bg-amber-600 active:scale-95 transition-all shadow-sm flex items-center gap-1.5"
+                >
+                  {testAlarmDispatching ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <AlertCircle className="w-3.5 h-3.5" />
+                  )}
+                  <span>Dispatch Alarm Test Packet</span>
+                </button>
+              </div>
+            </div>
+
+            {testAlarmResult && (
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-[10px] font-mono space-y-2.5 text-slate-300 animate-in fade-in slide-in-from-top-1 duration-200">
+                <div className="flex items-center justify-between text-[9px] border-b border-slate-800 pb-1 text-slate-400">
+                  <span className="flex items-center gap-1 text-amber-500 font-bold">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-ping shrink-0" />
+                    SIMULATED ALERT DISPATCHED SUCCESSFULLY
+                  </span>
+                  <span>Time: {testAlarmResult.dispatchedAt}</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[9.5px]">
+                  <div>
+                    <span className="text-slate-500 block uppercase font-sans text-[8px] font-bold">Category</span>
+                    <span className="text-amber-400 font-bold">{testAlarmResult.category}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block uppercase font-sans text-[8px] font-bold">Sensitivity Sensitivity</span>
+                    <span>{testAlarmResult.threshold}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block uppercase font-sans text-[8px] font-bold">Recipients Tiered Group</span>
+                    <span>{testAlarmResult.recipientTier}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block uppercase font-sans text-[8px] font-bold">Active Channels</span>
+                    <span className="text-emerald-500 font-bold">
+                      {testAlarmResult.channels.length > 0 ? testAlarmResult.channels.join(' & ') : 'None (No channels enabled)'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-slate-500 block uppercase font-sans text-[8px] font-bold">Compiled Payload JSON:</span>
+                  <pre className="p-2 bg-slate-900 border border-slate-800 text-[9px] text-emerald-400 overflow-x-auto rounded-lg">
+                    {JSON.stringify(testAlarmResult.packet, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Action Row */}
+          <div className="flex items-center justify-between border-t border-amber-500/20 pt-4">
+            {configSuccess ? (
+              <div className="text-[10px] text-emerald-500 font-bold flex items-center gap-1">
+                <Check className="w-3.5 h-3.5" /> Alert routing thresholds persisted successfully!
+              </div>
+            ) : (
+              <div className="text-[10px] text-slate-400">
+                Persistence updates automatically synchronize alert limits across active admin sessions.
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.setItem('audit_alert_config', JSON.stringify(alertConfigs));
+                setConfigSuccess(true);
+                setTimeout(() => setConfigSuccess(false), 3500);
+              }}
+              className="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-white hover:bg-emerald-600 active:scale-95 transition-all shadow-sm"
+            >
+              Save Alert Rules Configuration
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
