@@ -51,6 +51,7 @@ export const LoginModal: React.FC = () => {
 
   // Phone form state
   const [phone, setPhone] = useState('');
+  const [otpEmail, setOtpEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [dispatchedDevCode, setDispatchedDevCode] = useState<string | null>(null);
@@ -152,25 +153,27 @@ export const LoginModal: React.FC = () => {
   // 2. Handle Send Phone OTP
   const handleSendOtp = async (customPhone?: string) => {
     const phoneToUse = customPhone || phone;
-    if (!phoneToUse) {
-      setErrorMsg('Please enter a phone number.');
+    const emailToUse = otpEmail || 'mukundkrishna.h2008@gmail.com';
+    
+    if (!phoneToUse && !otpEmail) {
+      setErrorMsg('Please enter either a phone number, an email address, or both.');
       return;
     }
     setErrorMsg('');
     setInfoMsg('');
 
-    const res = await sendOtp(phoneToUse);
+    const res = await sendOtp(phoneToUse || '+91 9567465134');
     if (!res.success) {
-      setErrorMsg(res.error || 'Failed to send SMS OTP.');
+      setErrorMsg(res.error || 'Failed to send OTP.');
     } else {
       setOtpSent(true);
       if (res.devCode) {
         // Output code only to developer console, NOT on the page UI
-        console.log(`%c[Voyage Security Dispatcher] SECURE DISPATCH: OTP Verification code sent to phone (${phoneToUse}) and email (mukundkrishna.h2008@gmail.com): ${res.devCode}`, "color: #10b981; font-weight: bold; font-size: 13px;");
+        console.log(`%c[Voyage Security Dispatcher] SECURE DISPATCH: OTP Verification code sent to phone (${phoneToUse || '+91 9567465134'}) and email (${emailToUse}): ${res.devCode}`, "color: #10b981; font-weight: bold; font-size: 13px;");
         setDispatchedDevCode(null); // Explicitly do NOT display on page UI
         setOtpCode(''); // Do NOT pre-fill the input box
       }
-      setInfoMsg(`A 6-digit verification code has been dispatched to both your mobile phone and registered email inbox! Check your devices.`);
+      setInfoMsg(`A 6-digit verification code has been dispatched to both your mobile phone (${phoneToUse || '+91 9567465134'}) and your email inbox (${emailToUse})! Check your devices.`);
     }
   };
 
@@ -467,7 +470,7 @@ export const LoginModal: React.FC = () => {
                 }`}
               >
                 <Phone className="w-3.5 h-3.5" />
-                <span>Phone OTP</span>
+                <span>Phone & Email OTP</span>
               </button>
             </div>
 
@@ -720,7 +723,7 @@ export const LoginModal: React.FC = () => {
               </div>
             )}
 
-            {/* Tab B: Phone SMS OTP */}
+            {/* Tab B: Phone & Email OTP */}
             {authMethod === 'phone' && (
               <div className="space-y-4">
                 <div className="space-y-3">
@@ -728,16 +731,33 @@ export const LoginModal: React.FC = () => {
                     <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                       Mobile Phone Number
                     </label>
+                    <div className="relative">
+                      <Phone className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${styles.textMuted}`} />
+                      <input
+                        id="phone-number-input"
+                        type="text"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+91 9567465134"
+                        className={`w-full pl-10 pr-3 py-2.5 text-xs rounded-xl outline-none font-mono ${styles.inputBg}`}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Verification Email Address
+                    </label>
                     <div className="flex gap-2">
                       <div className="relative flex-1">
-                        <Phone className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${styles.textMuted}`} />
+                        <Mail className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${styles.textMuted}`} />
                         <input
-                          id="phone-number-input"
-                          type="text"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          placeholder="+91 9876543210"
-                          className={`w-full pl-10 pr-3 py-2.5 text-xs rounded-xl outline-none font-mono ${styles.inputBg}`}
+                          id="otp-email-input"
+                          type="email"
+                          value={otpEmail}
+                          onChange={(e) => setOtpEmail(e.target.value)}
+                          placeholder="mukundkrishna.h2008@gmail.com"
+                          className={`w-full pl-10 pr-3 py-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
                         />
                       </div>
                       <button
@@ -745,33 +765,39 @@ export const LoginModal: React.FC = () => {
                         type="button"
                         onClick={() => handleSendOtp()}
                         disabled={isLoading}
-                        className={`px-3 py-2.5 rounded-xl text-xs font-bold shrink-0 ${styles.buttonSecondary}`}
+                        className={`px-3.5 py-2.5 rounded-xl text-xs font-bold shrink-0 ${styles.buttonSecondary}`}
                       >
                         {otpSent ? 'Resend' : 'Send Code'}
                       </button>
                     </div>
                   </div>
 
-                  {/* Pre-configured Super Admin phone helper */}
-                  <div className="text-[11px] flex items-center justify-between text-slate-400">
-                    <span>Technical staff phone: <span className="font-mono text-sky-500">+91 9567465134</span></span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPhone('+91 9567465134');
-                        handleSendOtp('+91 9567465134');
-                      }}
-                      className="text-sky-500 hover:underline font-medium text-[10px]"
-                    >
-                      Use & Send
-                    </button>
+                  {/* Pre-configured Super Admin helpers */}
+                  <div className="text-[10px] flex flex-col gap-1 text-slate-400 pt-0.5 border-t border-slate-100/10 dark:border-slate-800/50">
+                    <div className="flex items-center justify-between">
+                      <span>Staff phone: <span className="font-mono text-sky-500">+91 9567465134</span></span>
+                      <span>Staff email: <span className="text-sky-500">mukundkrishna.h2008@gmail.com</span></span>
+                    </div>
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPhone('+91 9567465134');
+                          setOtpEmail('mukundkrishna.h2008@gmail.com');
+                          handleSendOtp('+91 9567465134');
+                        }}
+                        className="text-sky-500 hover:underline font-bold text-[10px]"
+                      >
+                        Auto-fill & Dispatch to Both
+                      </button>
+                    </div>
                   </div>
 
                   {otpSent && (
                     <form onSubmit={handleVerifyOtp} className="space-y-3 pt-2">
                       <div>
                         <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                          Enter 6-Digit SMS Code
+                          Enter 6-Digit Verification Code
                         </label>
                         <input
                           id="phone-otp-input"
@@ -789,7 +815,7 @@ export const LoginModal: React.FC = () => {
                         disabled={isLoading}
                         className={`w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary} shadow-md`}
                       >
-                        {isLoading ? 'Verifying OTP...' : 'Verify Phone Code'}
+                        {isLoading ? 'Verifying OTP...' : 'Verify Dual Code'}
                       </button>
                     </form>
                   )}

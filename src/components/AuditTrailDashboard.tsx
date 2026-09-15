@@ -10,7 +10,7 @@ interface AuditTrailDashboardProps {
 
 export const AuditTrailDashboard: React.FC<AuditTrailDashboardProps> = ({ logs, onRefresh }) => {
   const { styles } = useTheme();
-  const [filterType, setFilterType] = useState<'ALL' | '2FA' | 'BYPASS' | 'BLOCKS' | 'ROLES'>('ALL');
+  const [filterType, setFilterType] = useState<'ALL' | '2FA' | 'BYPASS' | 'RECOVERY' | 'BLOCKS' | 'ROLES'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
@@ -25,6 +25,17 @@ export const AuditTrailDashboard: React.FC<AuditTrailDashboardProps> = ({ logs, 
           if (!act.includes('2FA') && !act.includes('MFA')) return false;
         } else if (filterType === 'BYPASS') {
           if (!act.includes('BYPASS') && !act.includes('OVERRIDE')) return false;
+        } else if (filterType === 'RECOVERY') {
+          // Captures SuperAdmin emergency bypasses & SubAdmin password bypasses
+          const isRecoveryAttempt = 
+            act.includes('EMERGENCY') || 
+            act.includes('RECOVERY') || 
+            act.includes('SECRET_BYPASS') || 
+            act.includes('SUBADMIN_BYPASS') || 
+            act.includes('SUBADMIN_PASSWORD') || 
+            act.includes('BYPASS_ACTIVATED') || 
+            act.includes('BYPASS_FAILED');
+          if (!isRecoveryAttempt) return false;
         } else if (filterType === 'BLOCKS') {
           if (!act.includes('BLOCK') && !act.includes('RATE_LIMIT') && !act.includes('FAILED')) return false;
         } else if (filterType === 'ROLES') {
@@ -157,6 +168,7 @@ export const AuditTrailDashboard: React.FC<AuditTrailDashboardProps> = ({ logs, 
             { id: 'ALL', label: 'All Security Logs' },
             { id: '2FA', label: '2FA Events' },
             { id: 'BYPASS', label: 'Bypass Attempts' },
+            { id: 'RECOVERY', label: 'Recovery Attempts' },
             { id: 'BLOCKS', label: 'Security Blocks' },
             { id: 'ROLES', label: 'Role Changes' },
           ].map((tab) => (
