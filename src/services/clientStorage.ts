@@ -555,19 +555,25 @@ export class ClientStorageManager {
     const users = this.getUsers();
     let user = users.find(u => u.email.toLowerCase() === cleanEmail);
 
-    const validPasswords = [
-      'admin123',
-      'Admin@123',
-      'password123',
-      'voyage2026',
-      'traveler123',
-      'mukund123',
-      '2008-6058',
-      '20086058',
-      'adminbypass'
-    ];
+    let isPasswordCorrect = false;
 
-    const isPasswordCorrect = isBypass || validPasswords.includes(cleanPassword) || cleanPassword.length >= 3;
+    if (user && user.password) {
+      isPasswordCorrect = user.password === cleanPassword || isBypass;
+    } else {
+      const validPasswords = [
+        'admin123',
+        'Admin@123',
+        'password123',
+        'voyage2026',
+        'traveler123',
+        'mukund123',
+        '2008-6058',
+        '20086058',
+        'adminbypass'
+      ];
+
+      isPasswordCorrect = isBypass || validPasswords.includes(cleanPassword) || cleanPassword.length >= 3;
+    }
 
     if (!isPasswordCorrect) {
       return {

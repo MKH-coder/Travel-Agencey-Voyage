@@ -64,6 +64,7 @@ import {
 } from 'recharts';
 import { MapLocationPicker, LocationResult } from './MapLocationPicker.tsx';
 import { AddAdminModal } from './AddAdminModal.tsx';
+import { SetPasswordModal } from './SetPasswordModal.tsx';
 import { EditRolePostModal } from './EditRolePostModal.tsx';
 import { EditContentModal } from './EditContentModal.tsx';
 import { CloudSyncPanel } from './CloudSyncPanel.tsx';
@@ -144,6 +145,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   // Modals for admin operations
   const [showAddAdminModal, setShowAddAdminModal] = useState<boolean>(false);
   const [editingRolePostUser, setEditingRolePostUser] = useState<User | null>(null);
+  const [setPasswordModalUser, setSetPasswordModalUser] = useState<User | null>(null);
   const [editingContentListing, setEditingContentListing] = useState<Listing | null>(null);
   const [showCustomPostModal, setShowCustomPostModal] = useState<boolean>(false);
   const [editingCustomPost, setEditingCustomPost] = useState<CustomPost | null>(null);
@@ -2408,6 +2410,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                         </td>
                         <td className="p-4 text-right">
                           <div className="flex items-center justify-end gap-1.5">
+                            {/* Super Admin Set Password Button */}
+                            <button
+                              onClick={() => setSetPasswordModalUser(u)}
+                              className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-teal-500/10 text-teal-500 hover:bg-teal-500/20 border border-teal-500/30 transition-all flex items-center gap-1"
+                              title="Super Admin: Set or Reset User Password"
+                            >
+                              <KeyRound className="w-3 h-3" />
+                              <span>Set Password</span>
+                            </button>
+
                             {/* Promote & Assign Post Modal Button */}
                             <button
                               onClick={() => setEditingRolePostUser(u)}
@@ -2643,6 +2655,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         onAdminCreated={(newUser) => {
           setUsersList(prev => [newUser, ...prev.filter(u => u.uid !== newUser.uid)]);
           setShowAddAdminModal(false);
+          fetchLogs();
+        }}
+      />
+
+      {/* --- SET USER PASSWORD MODAL (SUPER ADMIN PRIVILEGE) --- */}
+      <SetPasswordModal
+        isOpen={!!setPasswordModalUser}
+        user={setPasswordModalUser}
+        onClose={() => setSetPasswordModalUser(null)}
+        onPasswordUpdated={(updatedUser) => {
+          setUsersList(prev => prev.map(u => u.uid === updatedUser.uid ? updatedUser : u));
+          setSetPasswordModalUser(null);
           fetchLogs();
         }}
       />

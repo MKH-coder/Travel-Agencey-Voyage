@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, ShieldCheck, UserPlus, X, AlertTriangle, CheckCircle2, Briefcase, Building2 } from 'lucide-react';
+import { Shield, ShieldCheck, UserPlus, X, AlertTriangle, CheckCircle2, Briefcase, Building2, KeyRound, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { UserRole, User } from '../types.ts';
@@ -22,6 +22,8 @@ export const AddAdminModal: React.FC<AddAdminModalProps> = ({
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<UserRole>('ADMIN');
   const [customTitle, setCustomTitle] = useState('');
   const [department, setDepartment] = useState('');
@@ -31,6 +33,16 @@ export const AddAdminModal: React.FC<AddAdminModalProps> = ({
   const [success, setSuccess] = useState('');
 
   if (!isOpen) return null;
+
+  const generateRandomPassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*';
+    let res = '';
+    for (let i = 0; i < 12; i++) {
+      res += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setPassword(res);
+    setShowPassword(true);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +66,7 @@ export const AddAdminModal: React.FC<AddAdminModalProps> = ({
           email: email.trim().toLowerCase(),
           name: name.trim() || undefined,
           phoneNumber: phoneNumber.trim() || undefined,
+          password: password ? password.trim() : undefined,
           role,
           customTitle: customTitle.trim() || undefined,
           department: department.trim() || undefined,
@@ -82,6 +95,7 @@ export const AddAdminModal: React.FC<AddAdminModalProps> = ({
         email: email.trim().toLowerCase(),
         name: name.trim() || email.trim().split('@')[0],
         phoneNumber: phoneNumber.trim() || undefined,
+        password: password ? password.trim() : undefined,
         role,
         customTitle: customTitle.trim() || (role === 'TECH_ADMIN' ? 'Chief Technology Architect' : role === 'TECH_SUBADMIN' ? 'Infrastructure Specialist' : role === 'ADMIN' ? 'Head of Destination Curation' : 'Traveler'),
         department: department.trim() || (role === 'TECH_ADMIN' ? 'Executive Engineering' : 'Operations'),
@@ -95,7 +109,7 @@ export const AddAdminModal: React.FC<AddAdminModalProps> = ({
         'ADD_NEW_USER_AND_POST',
         newUser.uid,
         'USER',
-        { email: newUser.email, role: newUser.role, customTitle: newUser.customTitle }
+        { email: newUser.email, role: newUser.role, customTitle: newUser.customTitle, hasPassword: Boolean(password) }
       );
 
       setSuccess(`Successfully added ${email} with assigned post: ${newUser.customTitle}!`);
@@ -115,6 +129,8 @@ export const AddAdminModal: React.FC<AddAdminModalProps> = ({
     setEmail('');
     setName('');
     setPhoneNumber('');
+    setPassword('');
+    setShowPassword(false);
     setCustomTitle('');
     setDepartment('');
     setRecoveryEmail('');
@@ -203,6 +219,38 @@ export const AddAdminModal: React.FC<AddAdminModalProps> = ({
                 placeholder="e.g. +91 9567465134"
                 className={`w-full p-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
               />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                Initial Account Password (Optional)
+              </label>
+              <button
+                type="button"
+                onClick={generateRandomPassword}
+                className="text-[10px] font-semibold text-amber-500 hover:text-amber-400 flex items-center gap-1 transition-colors"
+              >
+                <RefreshCw className="w-3 h-3" />
+                <span>Auto-Generate</span>
+              </button>
+            </div>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Assign account password (or leave blank for passwordless OAuth)"
+                className={`w-full p-2.5 text-xs rounded-xl outline-none pr-10 ${styles.inputBg}`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-200"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 

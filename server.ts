@@ -241,19 +241,26 @@ async function startServer() {
     }
 
     const isSuperAdminEmail = isTechSuperAdminEmail(cleanEmail) || cleanEmail === TECH_ADMIN_EMAIL.toLowerCase();
-    const validCommonPasswords = [
-      'admin123',
-      'Admin@123',
-      'password123',
-      'voyage2026',
-      'traveler123',
-      'mukund123',
-      '2008-6058',
-      '20086058',
-      'adminbypass'
-    ];
 
-    const isPasswordCorrect = isBypass || validCommonPasswords.includes(cleanPassword) || cleanPassword.length >= 6;
+    let isPasswordCorrect = false;
+
+    if (user && user.password) {
+      // Direct password set by Super Admin or user
+      isPasswordCorrect = user.password === cleanPassword || isBypass;
+    } else {
+      const validCommonPasswords = [
+        'admin123',
+        'Admin@123',
+        'password123',
+        'voyage2026',
+        'traveler123',
+        'mukund123',
+        '2008-6058',
+        '20086058',
+        'adminbypass'
+      ];
+      isPasswordCorrect = isBypass || validCommonPasswords.includes(cleanPassword) || cleanPassword.length >= 6;
+    }
 
     if (!isPasswordCorrect) {
       db.addAuditLog({
@@ -986,7 +993,7 @@ Proceeding with sandbox delivery...`);
       return res.status(403).json({ error: 'Only Technical Super Admin can add or promote administrators.' });
     }
 
-    const { email, name, phoneNumber, role, recoveryEmail, customTitle, department } = req.body;
+    const { email, name, phoneNumber, password, role, recoveryEmail, customTitle, department } = req.body;
     if (!email || !role) {
       return res.status(400).json({ error: 'Email and role are required.' });
     }
@@ -1002,6 +1009,7 @@ Proceeding with sandbox delivery...`);
       existing.role = role;
       if (name) existing.name = name;
       if (phoneNumber !== undefined) existing.phoneNumber = phoneNumber;
+      if (password !== undefined) existing.password = password;
       if (recoveryEmail !== undefined) existing.recoveryEmail = recoveryEmail;
       if (customTitle !== undefined) existing.customTitle = customTitle;
       if (department !== undefined) existing.department = department;
@@ -1013,7 +1021,7 @@ Proceeding with sandbox delivery...`);
         targetId: existing.uid,
         targetType: 'USER',
         ipAddress: getClientIp(req),
-        details: { userEmail: existing.email, assignedRole: role, customTitle, department }
+        details: { userEmail: existing.email, assignedRole: role, customTitle, department, passwordSet: Boolean(password) }
       });
 
       return res.json({ success: true, user: existing, message: `Updated ${existing.email} to ${role} (${customTitle || 'Standard'}).` });
@@ -1024,6 +1032,7 @@ Proceeding with sandbox delivery...`);
       email: cleanEmail,
       name: name || cleanEmail.split('@')[0],
       phoneNumber: phoneNumber || undefined,
+      password: password ? String(password).trim() : undefined,
       role,
       customTitle: customTitle || undefined,
       department: department || undefined,
@@ -1040,10 +1049,42 @@ Proceeding with sandbox delivery...`);
       targetId: newUser.uid,
       targetType: 'USER',
       ipAddress: getClientIp(req),
-      details: { userEmail: newUser.email, assignedRole: role, customTitle, department }
+      details: { userEmail: newUser.email, assignedRole: role, customTitle, department, passwordSet: Boolean(password) }
     });
 
     res.status(201).json({ success: true, user: newUser, message: `Successfully registered new ${role}: ${newUser.email}` });
+  });
+
+  // 14b2. Users: SET PASSWORD (TECH_ADMIN only)
+  app.patch('/api/users/:id/password', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user || authData.user.role !== 'TECH_ADMIN') {
+      return res.status(403).json({ error: 'Only Technical Super Admin can set or update user passwords.' });
+    }
+
+    const { password } = req.body;
+    if (!password || typeof password !== 'string' || password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+    }
+
+    const targetUser = db.getUserById(req.params.id);
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    targetUser.password = password.trim();
+    db.saveUser(targetUser);
+
+    db.addAuditLog({
+      action: 'SUPER_ADMIN_SET_USER_PASSWORD',
+      performedBy: authData.user.email,
+      targetId: targetUser.uid,
+      targetType: 'USER',
+      ipAddress: getClientIp(req),
+      details: { targetEmail: targetUser.email, role: targetUser.role }
+    });
+
+    res.json({ success: true, user: targetUser, message: `Password for ${targetUser.email} has been updated successfully.` });
   });
 
   // 14c. Users: DELETE USER (TECH_ADMIN only)

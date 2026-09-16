@@ -6,6 +6,7 @@ export interface User {
   phoneNumber?: string;
   name: string;
   avatar?: string;
+  password?: string;
   role: UserRole;
   customTitle?: string;
   department?: string;
