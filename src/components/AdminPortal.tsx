@@ -125,6 +125,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   // Users data (Tech Admin)
   const [usersList, setUsersList] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [selectedUserUids, setSelectedUserUids] = useState<Set<string>>(new Set());
+  const [selectAllUsers, setSelectAllUsers] = useState(false);
 
   // Audit logs data (Tech Admin)
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
@@ -2648,10 +2650,26 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
                   <tr>
+                    <th className="p-4 w-4">
+                      <input
+                        type="checkbox"
+                        checked={selectAllUsers}
+                        onChange={(e) => {
+                          setSelectAllUsers(e.target.checked);
+                          if (e.target.checked) {
+                            setSelectedUserUids(new Set(usersList.map(u => u.uid)));
+                          } else {
+                            setSelectedUserUids(new Set());
+                          }
+                        }}
+                        className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                      />
+                    </th>
                     <th className="p-4">User & Email</th>
                     <th className="p-4">Assigned Post / Designation</th>
                     <th className="p-4">Phone / MFA</th>
                     <th className="p-4">Role Tier</th>
+                    <th className="p-4">Last Login</th>
                     <th className="p-4">Recovery Contact</th>
                     <th className="p-4 text-right">Privilege & Designation Actions</th>
                   </tr>
@@ -2682,6 +2700,23 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
                     return filtered.map(u => (
                       <tr key={u.uid} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                        <td className="p-4 w-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedUserUids.has(u.uid)}
+                            onChange={(e) => {
+                              const next = new Set(selectedUserUids);
+                              if (e.target.checked) {
+                                next.add(u.uid);
+                              } else {
+                                next.delete(u.uid);
+                              }
+                              setSelectedUserUids(next);
+                              setSelectAllUsers(next.size === usersList.length);
+                            }}
+                            className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                          />
+                        </td>
                         <td className="p-4">
                           <div className="flex items-center gap-2.5">
                             <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
@@ -2721,6 +2756,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                           }`}>
                             {u.role}
                           </span>
+                        </td>
+                        <td className="p-4 text-slate-400 text-[11px] font-mono">
+                          {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString(undefined, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          }) : 'Never'}
                         </td>
                         <td className="p-4 text-slate-400 text-[11px] font-mono">
                           {u.recoveryEmail || 'None configured'}
