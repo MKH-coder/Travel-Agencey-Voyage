@@ -339,9 +339,9 @@ export const LoginModal: React.FC = () => {
                 <input
                   id="totp-code-input"
                   type="text"
-                  maxLength={6}
+                  maxLength={12}
                   value={totpInput}
-                  onChange={(e) => setTotpInput(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => setTotpInput(e.target.value)}
                   placeholder="e.g. 956746"
                   className={`w-full px-3.5 py-3 text-center text-xl font-bold font-mono tracking-widest rounded-xl outline-none ${styles.inputBg}`}
                 />
