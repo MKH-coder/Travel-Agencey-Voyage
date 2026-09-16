@@ -4,7 +4,8 @@ import { ClientStorageManager } from '../services/clientStorage.ts';
 import { AuditService } from '../services/auditService.ts';
 import { supabase } from '../supabaseClient.js';
 import { firebaseAuth, googleAuthProvider } from '../services/firebase.ts';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { AuthAudit } from '../services/authAudit.ts';
 
 interface TwoFactorChallenge {
   uid: string;
@@ -26,7 +27,13 @@ interface AuthContextValue {
   setShowLoginModal: (show: boolean) => void;
   setShowBypassModal: (show: boolean) => void;
   setTwoFactorChallenge: (challenge: TwoFactorChallenge | null) => void;
-  loginWithGoogle: (email?: string, name?: string) => Promise<{ requires2FA: boolean; error?: string }>;
+  loginWithGoogle: (email?: string, name?: string, forceRedirect?: boolean) => Promise<{
+    requires2FA: boolean;
+    error?: string;
+    code?: string;
+    isDomainUnauthorized?: boolean;
+    isPopupBlocked?: boolean;
+  }>;
   loginWithSupabase: (email: string, password: string) => Promise<{ success: boolean; error?: string; field?: 'email' | 'password'; requires2FA?: boolean }>;
   signUpWithSupabase: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   sendOtp: (phone: string, email?: string) => Promise<{ success: boolean; devCode?: string; isTechAdmin?: boolean; error?: string }>;
@@ -169,95 +176,262 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => clearInterval(interval);
   }, [token, user, setAuthSession]);
 
+  // Google Redirect Result Handler (for mobile browsers and redirect flows)
+  useEffect(() => {
+    let isMounted = true;
+    getRedirectResult(firebaseAuth)
+      .then(async (result) => {
+        if (!isMounted || !result || !result.user?.email) return;
+        const emailToUse = result.user.email.toLowerCase();
+        const nameToUse = result.user.displayName || emailToUse.split('@')[0];
+        const idToken = await result.user.getIdToken();
+
+        AuthAudit.logAuthSuccess({
+          provider: 'google',
+          action: 'GET_REDIRECT_RESULT',
+          email: emailToUse,
+          uid: result.user.uid,
+          showToast: true,
+        });
+
+        try {
+          const res = await fetch('/api/auth/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: emailToUse,
+              name: nameToUse,
+              isOAuthVerified: true,
+              idToken
+            }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.requires2FA) {
+              setTwoFactorChallenge({
+                uid: data.uid,
+                email: data.email,
+                phoneNumber: data.phoneNumber,
+                message: data.message,
+              });
+              return;
+            }
+            setAuthSession(data.user, data.token);
+            setShowLoginModal(false);
+            return;
+          }
+        } catch {
+          // Backend offline
+        }
+
+        const fallbackResult = ClientStorageManager.authenticateGoogle(emailToUse, nameToUse, true);
+        if (fallbackResult.requires2FA && fallbackResult.challenge) {
+          setTwoFactorChallenge({
+            uid: fallbackResult.challenge.uid,
+            email: fallbackResult.challenge.email,
+            message: fallbackResult.challenge.message,
+          });
+          return;
+        }
+        setAuthSession(fallbackResult.user, fallbackResult.token);
+        setShowLoginModal(false);
+      })
+      .catch((err) => {
+        console.warn('[Firebase Auth] Redirect result processing:', err);
+        AuthAudit.logOAuthFailure({
+          provider: 'google',
+          action: 'GET_REDIRECT_RESULT',
+          error: err,
+          showToast: true,
+        });
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [setAuthSession, setShowLoginModal]);
+
   // Google Login with authentic Firebase OAuth popup and fallback verification
-  const loginWithGoogle = async (manualEmail?: string, name?: string) => {
+  const loginWithGoogle = async (manualEmail?: string, name?: string, forceRedirect = false): Promise<{
+    requires2FA: boolean;
+    error?: string;
+    code?: string;
+    isDomainUnauthorized?: boolean;
+    isPopupBlocked?: boolean;
+  }> => {
     setIsLoading(true);
     try {
-      let emailToUse = manualEmail ? manualEmail.trim() : '';
+      let emailToUse = manualEmail ? manualEmail.trim().toLowerCase() : '';
       let nameToUse = name;
       let idToken: string | undefined = undefined;
       let isOAuthVerified = false;
 
       // 1. If user clicks "Sign In with Google" directly (or without manual typed email)
       if (!emailToUse) {
+        if (forceRedirect) {
+          try {
+            await signInWithRedirect(firebaseAuth, googleAuthProvider);
+            return { requires2FA: false };
+          } catch (redirectErr: any) {
+            setIsLoading(false);
+            const code = redirectErr?.code || '';
+            const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
+
+            AuthAudit.logOAuthFailure({
+              provider: 'google',
+              action: 'OAUTH_REDIRECT',
+              error: redirectErr,
+              email: emailToUse || manualEmail,
+              showToast: true,
+            });
+
+            if (code === 'auth/unauthorized-domain') {
+              return {
+                requires2FA: false,
+                error: `Firebase Authorized Domain Notice: '${currentHost}' is not yet authorized in Firebase Console. Add '${currentHost}' under Firebase Console > Authentication > Settings > Authorized domains, or enter your email below to sign in directly.`,
+                code,
+                isDomainUnauthorized: true
+              };
+            }
+            return {
+              requires2FA: false,
+              error: redirectErr?.message || 'Failed to initialize Google redirect authentication.',
+              code
+            };
+          }
+        }
+
         try {
           const result = await signInWithPopup(firebaseAuth, googleAuthProvider);
           if (result.user && result.user.email) {
-            emailToUse = result.user.email;
+            emailToUse = result.user.email.toLowerCase();
             nameToUse = result.user.displayName || name || result.user.email.split('@')[0];
             idToken = await result.user.getIdToken();
             isOAuthVerified = true;
+
+            AuthAudit.logAuthSuccess({
+              provider: 'google',
+              action: 'OAUTH_POPUP',
+              email: emailToUse,
+              uid: result.user.uid,
+              showToast: true,
+            });
           }
         } catch (popupErr: any) {
-          // If the user cancelled or closed the popup window
-          if (popupErr.code === 'auth/popup-closed-by-user' || popupErr.code === 'auth/cancelled-popup-request') {
+          const code = popupErr?.code || '';
+          const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
+
+          AuthAudit.logOAuthFailure({
+            provider: 'google',
+            action: 'OAUTH_POPUP',
+            error: popupErr,
+            email: emailToUse || manualEmail,
+            showToast: true,
+            onActionClick: () => {
+              loginWithGoogle(manualEmail, name, true);
+            },
+          });
+
+          if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
             setIsLoading(false);
-            return { requires2FA: false, error: 'Google sign-in popup was cancelled.' };
+            return { requires2FA: false, error: 'Google sign-in popup was closed before completion. Please try again.', code };
           }
-          console.warn('[Firebase Auth] Notice during Google popup sign-in:', popupErr.message);
+
+          if (code === 'auth/unauthorized-domain') {
+            setIsLoading(false);
+            return {
+              requires2FA: false,
+              error: `Domain authorization notice: '${currentHost}' is not yet in your Firebase authorized domains list. In Firebase Console (Authentication > Settings > Authorized domains), add '${currentHost}', or enter your Google email below to sign in directly.`,
+              code,
+              isDomainUnauthorized: true
+            };
+          }
+
+          if (code === 'auth/popup-blocked') {
+            setIsLoading(false);
+            return {
+              requires2FA: false,
+              error: 'The Google sign-in popup was blocked by your browser. Please allow popups for this site, try the Redirect option below, or enter your email to continue.',
+              code,
+              isPopupBlocked: true
+            };
+          }
+
+          console.warn('[Firebase Auth] Notice during Google popup sign-in:', popupErr);
+          setIsLoading(false);
+          return {
+            requires2FA: false,
+            error: popupErr?.message ? `Google Sign-In notice: ${popupErr.message}` : 'Google sign-in popup could not be opened. Please enter your email below.',
+            code
+          };
         }
       }
 
       if (!emailToUse) {
         setIsLoading(false);
-        return { requires2FA: false, error: 'Please authenticate with your Google account or enter your email address.' };
+        return { requires2FA: false, error: 'Please enter your email address to continue.' };
       }
 
       // 2. Request backend verification
-      const res = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email: emailToUse, 
-          name: nameToUse,
-          isOAuthVerified,
-          idToken
-        }),
-      });
+      try {
+        const res = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            email: emailToUse, 
+            name: nameToUse,
+            isOAuthVerified,
+            idToken
+          }),
+        });
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data.requires2FA) {
+        if (res.ok) {
+          const data = await res.json();
+          if (data.requires2FA) {
+            setTwoFactorChallenge({
+              uid: data.uid,
+              email: data.email,
+              phoneNumber: data.phoneNumber,
+              message: data.message || 'Security Verification Required for this account.',
+            });
+            return { requires2FA: true };
+          }
+          setAuthSession(data.user, data.token);
+          setShowLoginModal(false);
+          return { requires2FA: false };
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          if (errData.error && res.status !== 404) {
+            setIsLoading(false);
+            return { requires2FA: false, error: errData.error };
+          }
+        }
+      } catch {
+        // Backend not accessible (e.g. static hosting on Vercel) - proceed with client fallback
+      }
+
+      // Static fallback execution
+      try {
+        const fallbackResult = ClientStorageManager.authenticateGoogle(emailToUse, nameToUse, isOAuthVerified);
+        if (fallbackResult.requires2FA && fallbackResult.challenge) {
           setTwoFactorChallenge({
-            uid: data.uid,
-            email: data.email,
-            phoneNumber: data.phoneNumber,
-            message: data.message || 'Security Verification Required for this account.',
+            uid: fallbackResult.challenge.uid,
+            email: fallbackResult.challenge.email,
+            message: fallbackResult.challenge.message || 'MFA Verification Required',
           });
           return { requires2FA: true };
         }
-        setAuthSession(data.user, data.token);
+        setAuthSession(fallbackResult.user, fallbackResult.token);
         setShowLoginModal(false);
         return { requires2FA: false };
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        if (errData.error) {
-          setIsLoading(false);
-          return { requires2FA: false, error: errData.error };
-        }
+      } catch (fallbackErr) {
+        return { requires2FA: false, error: fallbackErr instanceof Error ? fallbackErr.message : 'Authentication failed' };
+      } finally {
+        setIsLoading(false);
       }
-    } catch {
-      // Backend not accessible (e.g. GitHub Pages static hosting) - proceed with client fallback
-    }
-
-    // Static fallback execution
-    try {
-      const fallbackResult = ClientStorageManager.authenticateGoogle(manualEmail || '', name, false);
-      if (fallbackResult.requires2FA && fallbackResult.challenge) {
-        setTwoFactorChallenge({
-          uid: fallbackResult.challenge.uid,
-          email: fallbackResult.challenge.email,
-          message: fallbackResult.challenge.message || 'MFA Verification Required',
-        });
-        return { requires2FA: true };
-      }
-      setAuthSession(fallbackResult.user, fallbackResult.token);
-      setShowLoginModal(false);
-      return { requires2FA: false };
-    } catch (fallbackErr) {
-      return { requires2FA: false, error: fallbackErr instanceof Error ? fallbackErr.message : 'Authentication failed' };
-    } finally {
+    } catch (err: any) {
       setIsLoading(false);
+      return { requires2FA: false, error: err?.message || 'Authentication failed' };
     }
   };
 

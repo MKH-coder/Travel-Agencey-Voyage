@@ -8,10 +8,12 @@ import {
   Landmark,
   ArrowRight,
   Sparkles,
-  CheckCircle2
+  CheckCircle2,
+  Share2
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { Listing } from '../types.ts';
+import { AuthAudit } from '../services/authAudit.ts';
 
 interface ListingCardProps {
   listing: Listing;
@@ -78,21 +80,45 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           <span>{getCategoryLabel()}</span>
         </div>
 
-        {/* Save/Bookmark button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleSave(listing);
-          }}
-          className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all ${
-            isSaved
-              ? 'bg-rose-500 text-white shadow-md'
-              : 'bg-black/50 text-white hover:bg-black/80'
-          }`}
-          title={isSaved ? 'Remove from saved' : 'Save to wishlist'}
-        >
-          <Heart className={`w-4 h-4 ${isSaved ? 'fill-white' : ''}`} />
-        </button>
+        {/* Action Buttons Container */}
+        <div className="absolute top-3 right-3 flex items-center gap-2">
+          {/* Share button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const shareText = `Check out ${listing.title} in ${listing.location} for $${listing.price}!`;
+              if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareText);
+                AuthAudit.showToast({
+                  title: 'Link Copied',
+                  message: 'Listing details copied to clipboard.',
+                  type: 'success',
+                  duration: 3000
+                });
+              }
+            }}
+            className="p-2 rounded-full backdrop-blur-md bg-black/50 text-white hover:bg-black/80 transition-all"
+            title="Share listing"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+
+          {/* Save/Bookmark button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSave(listing);
+            }}
+            className={`p-2 rounded-full backdrop-blur-md transition-all ${
+              isSaved
+                ? 'bg-rose-500 text-white shadow-md'
+                : 'bg-black/50 text-white hover:bg-black/80'
+            }`}
+            title={isSaved ? 'Remove from saved' : 'Save to wishlist'}
+          >
+            <Heart className={`w-4 h-4 ${isSaved ? 'fill-white' : ''}`} />
+          </button>
+        </div>
 
         {/* Rating Overlay */}
         <div className="absolute bottom-3 left-3 flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold backdrop-blur-md bg-black/70 text-amber-300">

@@ -163,3 +163,50 @@ export interface RiskThresholdConfig {
   ADMIN_LOGINS: boolean;
 }
 
+export type AuthFailureCategory = 
+  | 'POPUP_BLOCKED'
+  | 'UNAUTHORIZED_DOMAIN'
+  | 'POPUP_CLOSED_BY_USER'
+  | 'CANCELLED_REQUEST'
+  | 'NETWORK_ERROR'
+  | 'INVALID_CREDENTIALS'
+  | 'SESSION_EXPIRED'
+  | 'MFA_REQUIRED'
+  | 'REDIRECT_ERROR'
+  | 'UNKNOWN';
+
+export interface AuthAuditLogEntry {
+  id: string;
+  timestamp: string;
+  provider: 'google' | 'supabase' | 'email_password' | 'session' | 'bypass';
+  action: 'OAUTH_POPUP' | 'OAUTH_REDIRECT' | 'GET_REDIRECT_RESULT' | 'PASSWORD_LOGIN' | 'PASSWORD_SIGNUP' | 'SESSION_RESTORE' | '2FA_VERIFY' | 'BYPASS_LOGIN';
+  status: 'SUCCESS' | 'FAILURE' | 'CANCELLED';
+  errorCode?: string;
+  errorMessage: string;
+  failureCategory?: AuthFailureCategory;
+  email?: string;
+  environment: {
+    origin: string;
+    hostname: string;
+    pathname: string;
+    isIframe: boolean;
+    isMobile: boolean;
+    userAgent: string;
+    cookieEnabled: boolean;
+  };
+  details?: Record<string, unknown>;
+}
+
+export interface ToastMessage {
+  id: string;
+  title: string;
+  message: string;
+  type: 'error' | 'warning' | 'info' | 'success';
+  duration?: number;
+  code?: string;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
+}
+

@@ -23,6 +23,7 @@ import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { Listing, Booking, PriceAlert, Review } from '../types.ts';
 import { FirebaseSyncService } from '../services/firebase.ts';
+import { AuthAudit } from '../services/authAudit.ts';
 import { UserReviewsSection } from './UserReviewsSection.tsx';
 
 interface DetailModalProps {
@@ -216,6 +217,24 @@ export const DetailModal: React.FC<DetailModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const shareText = `Check out ${listing.title} in ${listing.location} for $${listing.price}!\n${listing.description}`;
+                if (navigator.clipboard) {
+                  navigator.clipboard.writeText(shareText);
+                  AuthAudit.showToast({
+                    title: 'Link Copied',
+                    message: 'Listing details copied to clipboard.',
+                    type: 'success',
+                    duration: 3000
+                  });
+                }
+              }}
+              className={`p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors`}
+              title="Share listing"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
             <button
               onClick={() => onToggleSave(listing)}
               className={`p-2 rounded-xl border ${styles.border} transition-colors ${

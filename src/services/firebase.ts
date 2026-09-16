@@ -40,7 +40,7 @@ if (!getApps().length) {
 
 // Suppress noisy benign idle stream disconnect logs from gRPC stream timeouts
 try {
-  setLogLevel('error');
+  setLogLevel('silent');
 } catch {
   // ignore if already set
 }
@@ -67,7 +67,16 @@ try {
 
 export const firestoreDb: Firestore = dbInstance;
 export const firebaseAuth: Auth = getAuth(app);
+try {
+  firebaseAuth.useDeviceLanguage();
+} catch {
+  // ignore
+}
+
 export const googleAuthProvider = new GoogleAuthProvider();
+googleAuthProvider.setCustomParameters({ prompt: 'select_account' });
+googleAuthProvider.addScope('email');
+googleAuthProvider.addScope('profile');
 
 export const FIREBASE_PROJECT_ID = firebaseConfig.projectId;
 export const FIRESTORE_DATABASE_ID = firebaseConfig.firestoreDatabaseId || '(default)';

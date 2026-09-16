@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Search, Filter, RotateCcw, Download, FileJson, Calendar, ChevronLeft, ChevronRight, Eye, ShieldAlert, CheckCircle2, Info, Sliders } from 'lucide-react';
 import { AuditLog } from '../types.ts';
 import { useTheme } from '../context/ThemeContext.tsx';
+import { AuthAuditViewerModal } from './AuthAuditViewerModal.tsx';
 
 interface AuditLogViewerProps {
   logs: AuditLog[];
@@ -33,6 +34,7 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({
 
   // Selected Log for Deep Inspection Modal
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+  const [showAuthAuditModal, setShowAuthAuditModal] = useState(false);
 
   // Filter & Search Logic
   const filteredLogs = useMemo(() => {
@@ -223,6 +225,17 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({
                 <span>Risk Thresholds</span>
               </button>
             )}
+
+            <button
+              id="view-auth-audit-diagnostics-btn"
+              type="button"
+              onClick={() => setShowAuthAuditModal(true)}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 transition-all"
+              title="Inspect detailed client-side auth errors, OAuth popup restrictions, and debug logs"
+            >
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span>Auth Diagnostics</span>
+            </button>
           </div>
         </div>
       </div>
@@ -413,6 +426,12 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({
           </div>
         </div>
       )}
+
+      {/* Client-Side Auth Audit Diagnostics Modal */}
+      <AuthAuditViewerModal
+        isOpen={showAuthAuditModal}
+        onClose={() => setShowAuthAuditModal(false)}
+      />
     </div>
   );
 };

@@ -11,6 +11,7 @@ import { AdminPortal } from './components/AdminPortal.tsx';
 import { MapView } from './components/MapView.tsx';
 import { Breadcrumbs } from './components/Breadcrumbs.tsx';
 import { ShortcutsHelpModal } from './components/ShortcutsHelpModal.tsx';
+import { ToastContainer } from './components/ToastContainer.tsx';
 import { useGlobalShortcuts } from './hooks/useGlobalShortcuts.ts';
 import { Listing, FilterState, ThemeMode } from './types.ts';
 import { DEFAULT_LISTINGS } from './data/defaultData.ts';
@@ -628,6 +629,7 @@ export default function App() {
     <ThemeProvider>
       <AuthProvider>
         <MainLayout />
+        <ToastContainer />
       </AuthProvider>
     </ThemeProvider>
   );
