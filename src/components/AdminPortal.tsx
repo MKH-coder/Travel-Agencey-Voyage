@@ -304,22 +304,30 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
   // Fetch active sessions telemetry (Tech Admin and Sub-Admin)
   const fetchActiveSessions = async () => {
-    if (!token || (!isTechAdmin && !isTechSubAdmin)) return;
+    console.log(`[DEBUG] fetchActiveSessions called. Token: ${!!token}, isElevatedAdmin: ${isElevatedAdmin}`);
+    if (!token || (!isTechAdmin && !isTechSubAdmin)) {
+      console.log(`[DEBUG] fetchActiveSessions aborted (unauthorized)`);
+      return;
+    }
     setLoadingSessions(true);
     try {
       const res = await fetch('/api/users/active-sessions', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      console.log(`[DEBUG] active-sessions response: ${res.status}`);
       if (res.ok) {
         const data = await res.json();
+        console.log(`[DEBUG] Received sessions: ${JSON.stringify(data.sessions)}`);
         if (Array.isArray(data.sessions)) {
           setActiveSessions(data.sessions);
           return;
         }
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      console.log(`[DEBUG] fetchActiveSessions error: ${err}`);
     }
+    // ...
+
 
     // Static / Offline fallback for active sessions
     try {
@@ -1157,6 +1165,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           >
             <Users className="w-4 h-4" />
             <span>User & Admin Privileges</span>
+          </button>
+        )}
+
+        {/* Client Login History (Tech Admin only) */}
+        {isTechAdmin && (
+          <button
+            id="tab-admin-logins"
+            onClick={() => {
+              setActiveTab('logins');
+              fetchActiveSessions();
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'logins'
+                ? `${styles.accent} text-white shadow-md`
+                : `${styles.buttonSecondary}`
+            }`}
+          >
+            <Monitor className="w-4 h-4" />
+            <span>Client Login History</span>
           </button>
         )}
 

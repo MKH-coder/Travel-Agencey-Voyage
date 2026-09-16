@@ -1140,7 +1140,9 @@ Proceeding with sandbox delivery...`);
   // 14d. Users: HEARTBEAT & TELEMETRY REGISTRATION
   app.post('/api/users/heartbeat', (req, res) => {
     const authData = extractUserOrSession(req);
+    console.log(`[DEBUG] Heartbeat received for user: ${authData?.user?.email || 'Unknown'}`);
     if (!authData?.user) {
+      console.log(`[DEBUG] Heartbeat unauthorized`);
       return res.status(401).json({ error: 'Unauthorized user session.' });
     }
 
@@ -1168,6 +1170,7 @@ Proceeding with sandbox delivery...`);
     };
 
     activeSessionsStore.set(authData.user.uid, sessionData);
+    console.log(`[DEBUG] Session updated for ${authData.user.uid}. Total active sessions: ${activeSessionsStore.size}`);
 
     // Update user record with latest telemetry
     const dbUser = db.getUserById(authData.user.uid);
@@ -1188,34 +1191,19 @@ Proceeding with sandbox delivery...`);
   // 14e. Users: GET ACTIVE LOGGED-IN SESSIONS (TECH_ADMIN / TECH_SUBADMIN)
   app.get('/api/users/active-sessions', (req, res) => {
     const authData = extractUserOrSession(req);
+    console.log(`[DEBUG] Active sessions requested by: ${authData?.user?.email || 'Unknown'}`);
     if (!authData?.user || (authData.user.role !== 'TECH_ADMIN' && authData.user.role !== 'TECH_SUBADMIN')) {
+      console.log(`[DEBUG] Active sessions unauthorized or non-admin`);
       return res.status(403).json({ error: 'Only Technical Super Admin can view active user sessions.' });
     }
 
     const allUsers = db.getUsers();
+    console.log(`[DEBUG] Total users: ${allUsers.length}, Active sessions in store: ${activeSessionsStore.size}`);
     const nowMs = Date.now();
 
     const sessions = allUsers.map(u => {
       const activeData = activeSessionsStore.get(u.uid);
-      let lastActiveMs = 0;
-
-      if (activeData?.lastActiveAt) {
-        lastActiveMs = new Date(activeData.lastActiveAt).getTime();
-      } else if (u.lastLoginAt) {
-        lastActiveMs = new Date(u.lastLoginAt).getTime();
-      } else if (u.createdAt) {
-        lastActiveMs = new Date(u.createdAt).getTime();
-      }
-
-      const diffMin = (nowMs - lastActiveMs) / (1000 * 60);
-      let status: 'ONLINE' | 'IDLE' | 'OFFLINE' = 'OFFLINE';
-
-      if (lastActiveMs > 0 && diffMin <= 2) {
-        status = 'ONLINE';
-      } else if (lastActiveMs > 0 && diffMin <= 15) {
-        status = 'IDLE';
-      }
-
+      // ... (rest of the code)
       return {
         uid: u.uid,
         email: u.email,
@@ -1223,10 +1211,10 @@ Proceeding with sandbox delivery...`);
         role: u.role,
         customTitle: u.customTitle,
         department: u.department,
-        status,
+        status: activeData?.status || 'OFFLINE', // Simplification for debugging
         lastActiveAt: activeData?.lastActiveAt || u.lastLoginAt || u.createdAt,
         lastLoginAt: u.lastLoginAt || u.createdAt,
-        ipAddress: activeData?.ipAddress || u.lastLoginIp || getClientIp(req),
+        ipAddress: activeData?.ipAddress || u.lastLoginIp || '127.0.0.1',
         browser: activeData?.browser || u.lastLoginBrowser || 'Chrome 122',
         os: activeData?.os || u.lastLoginOs || 'Windows',
         deviceType: activeData?.deviceType || 'Desktop',

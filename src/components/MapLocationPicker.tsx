@@ -140,12 +140,10 @@ export const MapLocationPicker: React.FC<MapLocationPickerProps> = ({
       attributionControl: false,
     });
 
-    const isDark = theme === 'dark-slate' || theme === 'crimson-black' || theme === 'royal-gold' || theme === 'violet-glass';
-    const tileUrl = isDark
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    const tileAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
-    L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
+    L.tileLayer(tileUrl, { maxZoom: 19, attribution: tileAttribution }).addTo(map);
 
     // Custom map pin icon
     const customIcon = L.divIcon({
