@@ -37,7 +37,7 @@ export const Clock: React.FC<ClockProps> = ({ className = '' }) => {
   return (
     <div 
       id="travel-platform-clock"
-      className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} text-xs font-medium shadow-sm hover:shadow-md transition-all duration-300 ${className}`}
+      className={`hidden md:flex items-center justify-center gap-2 px-3 py-1.5 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} text-xs font-medium shadow-sm hover:shadow-md transition-all duration-300 ${className}`}
       title={`Local Time: ${format(time, 'PPPP p')}`}
     >
       <Calendar className="w-3.5 h-3.5 text-sky-500 shrink-0" />
@@ -45,7 +45,7 @@ export const Clock: React.FC<ClockProps> = ({ className = '' }) => {
         {formattedDate}
       </span>
       <span className="h-3 w-[1px] bg-slate-300 dark:bg-slate-700 mx-0.5 shrink-0" />
-      <span className="font-mono font-bold tracking-tight text-sky-500 dark:text-sky-400 shrink-0 select-none">
+      <span className="font-mono font-bold tracking-tight text-sky-500 dark:text-sky-400 shrink-0 select-none text-center">
         {formattedTime}
       </span>
     </div>

@@ -2670,6 +2670,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     <th className="p-4">Phone / MFA</th>
                     <th className="p-4">Role Tier</th>
                     <th className="p-4">Last Login</th>
+                    <th className="p-4">Account Created</th>
+                    <th className="p-4">Last Password Update</th>
                     <th className="p-4">Recovery Contact</th>
                     <th className="p-4 text-right">Privilege & Designation Actions</th>
                   </tr>
@@ -2719,10 +2721,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                         </td>
                         <td className="p-4">
                           <div className="flex items-center gap-2.5">
-                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
-                              u.role === 'TECH_ADMIN' ? 'bg-amber-500/20 text-amber-500' : 'bg-slate-200 dark:bg-slate-800'
-                            }`}>
-                              {u.name.charAt(0)}
+                            <div className="relative">
+                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
+                                u.role === 'TECH_ADMIN' ? 'bg-amber-500/20 text-amber-500' : 'bg-slate-200 dark:bg-slate-800'
+                              }`}>
+                                {u.name.charAt(0)}
+                              </div>
+                              <div className={`absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900 ${
+                                 (u.status || 'ACTIVE') === 'ACTIVE' ? 'bg-emerald-500' :
+                                 (u.status || 'ACTIVE') === 'PENDING' ? 'bg-amber-500' : 'bg-rose-500'
+                              }`} title={u.status || 'ACTIVE'} />
                             </div>
                             <div>
                               <div className={`font-bold ${styles.textPrimary}`}>{u.name}</div>
@@ -2763,6 +2771,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                             month: 'short',
                             day: 'numeric'
                           }) : 'Never'}
+                        </td>
+                        <td className="p-4 text-slate-400 text-[11px] font-mono">
+                          {u.createdAt ? new Date(u.createdAt).toLocaleDateString(undefined, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          }) : 'N/A'}
+                        </td>
+                        <td className="p-4 text-slate-400 text-[11px] font-mono">
+                          {u.lastPasswordUpdateAt ? new Date(u.lastPasswordUpdateAt).toLocaleDateString(undefined, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          }) : 'N/A'}
                         </td>
                         <td className="p-4 text-slate-400 text-[11px] font-mono">
                           {u.recoveryEmail || 'None configured'}

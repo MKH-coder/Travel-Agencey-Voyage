@@ -216,21 +216,6 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Reusable Real-Time Clock & Date using date-fns */}
           <ClockComponent />
 
-          {/* Admin Inactivity Countdown Badge */}
-          {user && (user.role === 'ADMIN' || user.role === 'TECH_SUBADMIN' || user.role === 'TECH_ADMIN') && sessionRemainingSec !== null && (
-            <div
-              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono border ${
-                sessionRemainingSec < 120
-                  ? 'bg-rose-500/10 text-rose-500 border-rose-500/30 animate-pulse'
-                  : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-              }`}
-              title="Automatic session security timeout after 15 minutes of inactivity"
-            >
-              <Clock className="w-3.5 h-3.5" />
-              <span>{formatTimer(sessionRemainingSec)}</span>
-            </div>
-          )}
-
           {/* Theme Selector Dropdown */}
           <div className="relative">
             <button

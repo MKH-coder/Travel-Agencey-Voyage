@@ -17,7 +17,9 @@ export interface User {
   mfaEnabled: boolean;
   recoveryEmail?: string;
   createdAt: string;
+  status?: 'ACTIVE' | 'SUSPENDED' | 'PENDING';
   lastLoginAt?: string;
+  lastPasswordUpdateAt?: string;
   lastLoginIp?: string;
   lastLoginDevice?: string;
   lastLoginBrowser?: string;
