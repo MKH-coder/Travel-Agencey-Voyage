@@ -276,6 +276,34 @@ export class ClientStorageManager {
     return user;
   }
 
+  static updateUserStatus(
+    uid: string,
+    status: 'ACTIVE' | 'SUSPENDED' | 'PENDING'
+  ): User | null {
+    const users = this.getUsers();
+    const user = users.find(u => u.uid === uid);
+    if (!user) return null;
+
+    user.status = status;
+
+    try {
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    } catch {
+      // ignore
+    }
+
+    this.addAuditLog({
+      action: 'UPDATE_USER_STATUS',
+      performedBy: 'Technical Super Admin',
+      targetId: user.uid,
+      targetType: 'USER',
+      ipAddress: '127.0.0.1',
+      details: { email: user.email, newStatus: status }
+    });
+
+    return user;
+  }
+
   static deleteUser(uid: string): boolean {
     const users = this.getUsers();
     const filtered = users.filter(u => u.uid !== uid);

@@ -50,7 +50,7 @@ function MainLayout() {
   const [hoveredListingId, setHoveredListingId] = useState<string | null>(null);
   const [showSavedModal, setShowSavedModal] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
-  const [adminTab, setAdminTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | null>(null);
+  const [adminTab, setAdminTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | null>(null);
 
   // Search and filters
   const [filters, setFilters] = useState<FilterState>({
@@ -550,7 +550,7 @@ function MainLayout() {
           <AdminPortal
             onListingUpdated={loadListings}
             onNavigateExplore={() => setCurrentView('dashboard')}
-            onTabChange={setAdminTab}
+            onTabChange={(tab) => setAdminTab(tab as 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins')}
           />
         )}
       </main>

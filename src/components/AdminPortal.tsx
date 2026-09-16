@@ -93,7 +93,7 @@ import { FirebaseSyncService } from '../services/firebase.ts';
 interface AdminPortalProps {
   onListingUpdated?: () => void;
   onNavigateExplore?: () => void;
-  onTabChange?: (tab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud') => void;
+  onTabChange?: (tab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins') => void;
 }
 
 export const AdminPortal: React.FC<AdminPortalProps> = ({
@@ -110,9 +110,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const isAdmin = user?.role === 'ADMIN' || isElevatedAdmin;
 
   // Active sub-tab
-  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud'>(
-    isElevatedAdmin ? 'queue' : 'inventory'
-  );
+  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins'>('queue');
 
   useEffect(() => {
     onTabChange?.(activeTab);
@@ -1514,6 +1512,42 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         </div>
       )}
 
+      {/* --- TAB 1.5: Client Login History --- */}
+      {activeTab === 'logins' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className={`text-lg font-bold ${styles.textPrimary}`}>
+                Client Login History
+              </h2>
+              <p className={`text-xs ${styles.textMuted}`}>
+                View the last login timestamps for all registered clients.
+              </p>
+            </div>
+          </div>
+          <div className={`rounded-3xl border ${styles.border} ${styles.cardBg} overflow-hidden shadow-sm`}>
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th className="p-4">User</th>
+                  <th className="p-4">Last Login</th>
+                  <th className="p-4">Login IP</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200/50 dark:divide-slate-800">
+                {usersList.map(u => (
+                  <tr key={u.uid} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                    <td className="p-4">{u.name} ({u.email})</td>
+                    <td className="p-4">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString() : 'N/A'}</td>
+                    <td className="p-4">{u.lastLoginIp || 'N/A'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* --- TAB 2: Add Travel Listing Form --- */}
       {activeTab === 'create' && (
         <div className={`p-6 sm:p-8 rounded-3xl border ${styles.border} ${styles.cardBg} shadow-sm space-y-6 max-w-4xl mx-auto`}>
@@ -2810,6 +2844,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                               <Pencil className="w-3 h-3" />
                               <span>Promote / Edit Post</span>
                             </button>
+
+                            {(u.status || 'ACTIVE') === 'SUSPENDED' && (
+                              <button
+                                onClick={() => {
+                                  ClientStorageManager.updateUserStatus(u.uid, 'ACTIVE');
+                                  setUsersList(ClientStorageManager.getUsers());
+                                }}
+                                className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/30 transition-all flex items-center gap-1"
+                                title="Restore User Access"
+                              >
+                                <RotateCcw className="w-3 h-3" />
+                                <span>Restore</span>
+                              </button>
+                            )}
 
                             {u.role !== 'TECH_ADMIN' && (
                               <>
