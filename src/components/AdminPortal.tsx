@@ -89,6 +89,7 @@ import { AuditTrailDashboard } from './AuditTrailDashboard.tsx';
 import { RiskThresholdConfig } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 import { FirebaseSyncService } from '../services/firebase.ts';
+import { AuthAudit } from '../services/authAudit.ts';
 
 interface AdminPortalProps {
   onListingUpdated?: () => void;
@@ -696,13 +697,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       });
 
       if (res.ok) {
-        setFormSuccessMessage(
-          effectiveStatus === 'PENDING_APPROVAL'
-            ? 'Listing successfully submitted to Technical Super Admin Queue for verification!'
-            : effectiveStatus === 'PUBLISHED'
-            ? 'Listing published directly to public explorer with Super Admin Privilege & Verified Badge!'
-            : 'Draft saved to your inventory tracker.'
-        );
+        const msg = effectiveStatus === 'PENDING_APPROVAL'
+          ? 'Listing successfully submitted to Technical Super Admin Queue for verification!'
+          : effectiveStatus === 'PUBLISHED'
+          ? 'Listing published directly to public explorer with Super Admin Privilege & Verified Badge!'
+          : 'Draft saved to your inventory tracker.';
+        setFormSuccessMessage(msg);
+        AuthAudit.showToast({
+          title: effectiveStatus === 'PUBLISHED' ? 'Listing Published' : 'Draft Saved',
+          message: `"${formData.title}" processed successfully.`,
+          type: 'success',
+          isAdminAction: true,
+          adminActionType: 'create',
+          duration: 5000
+        });
         resetListingForm();
         await fetchListings();
         if (onListingUpdated) onListingUpdated();
@@ -749,18 +757,33 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         { title: newListing.title, status: newListing.status, adminId: user?.uid }
       );
 
-      setFormSuccessMessage(
-        effectiveStatus === 'PENDING_APPROVAL'
-          ? 'Listing submitted to Technical Super Admin Queue (Offline/Static Storage)!'
-          : effectiveStatus === 'PUBLISHED'
-          ? 'Listing published directly with Super Admin Verified Status (Static/Local Storage)!'
-          : 'Draft saved to local inventory.'
-      );
+      const msg = effectiveStatus === 'PENDING_APPROVAL'
+        ? 'Listing submitted to Technical Super Admin Queue (Offline/Static Storage)!'
+        : effectiveStatus === 'PUBLISHED'
+        ? 'Listing published directly with Super Admin Verified Status (Static/Local Storage)!'
+        : 'Draft saved to local inventory.';
+      setFormSuccessMessage(msg);
+      AuthAudit.showToast({
+        title: effectiveStatus === 'PUBLISHED' ? 'Listing Published (Offline)' : 'Draft Saved (Offline)',
+        message: `"${newListing.title}" saved locally.`,
+        type: 'success',
+        isAdminAction: true,
+        adminActionType: 'create',
+        duration: 5000
+      });
       resetListingForm();
       await fetchListings();
       if (onListingUpdated) onListingUpdated();
     } catch {
       setUploadError('Error creating listing.');
+      AuthAudit.showToast({
+        title: 'Listing Save Error',
+        message: 'Could not write listing to local database fallback.',
+        type: 'error',
+        isAdminAction: true,
+        adminActionType: 'error',
+        duration: 5000
+      });
     } finally {
       setIsSubmittingListing(false);
     }
@@ -784,6 +807,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         await fetchListings();
         if (isElevatedAdmin) fetchLogs();
         if (onListingUpdated) onListingUpdated();
+        AuthAudit.showToast({
+          title: newStatus === 'PUBLISHED' ? 'Listing Approved' : 'Listing Rejected',
+          message: 'The selected experience status has been updated.',
+          type: 'success',
+          isAdminAction: true,
+          adminActionType: 'status',
+          duration: 5000
+        });
         return;
       }
     } catch {
@@ -819,6 +850,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         await fetchListings();
         if (isElevatedAdmin) fetchLogs();
         if (onListingUpdated) onListingUpdated();
+        AuthAudit.showToast({
+          title: newStatus === 'PUBLISHED' ? 'Listing Approved (Offline)' : 'Listing Rejected (Offline)',
+          message: 'The selected experience status has been updated locally.',
+          type: 'success',
+          isAdminAction: true,
+          adminActionType: 'status',
+          duration: 5000
+        });
       }
     } finally {
       setActionProcessing(false);
@@ -858,6 +897,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     await fetchListings();
     if (isElevatedAdmin) fetchLogs();
     if (onListingUpdated) onListingUpdated();
+    AuthAudit.showToast({
+      title: 'Listing Deleted',
+      message: 'The experience was permanently removed from the catalog.',
+      type: 'success',
+      isAdminAction: true,
+      adminActionType: 'delete',
+      duration: 5000
+    });
   };
 
   const handleDeleteAllListings = async () => {
@@ -883,6 +930,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     await fetchListings();
     if (isElevatedAdmin) fetchLogs();
     if (onListingUpdated) onListingUpdated();
+    AuthAudit.showToast({
+      title: 'Catalog Cleared',
+      message: 'All experiences in the master catalog have been permanently cleared.',
+      type: 'success',
+      isAdminAction: true,
+      adminActionType: 'clear',
+      duration: 7000
+    });
   };
 
   // Elevated Action Protection: Prompt Passkey before executing
@@ -926,6 +981,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         if (res.ok) {
           fetchUsers();
           fetchLogs();
+          AuthAudit.showToast({
+            title: 'User Role Updated',
+            message: `"${targetUser.email || 'User'}" promoted to ${nextRole}.`,
+            type: 'success',
+            isAdminAction: true,
+            adminActionType: 'user_role',
+            duration: 5000
+          });
           return;
         }
       } catch {
@@ -935,6 +998,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       ClientStorageManager.updateUserRoleAndPost(targetUser.uid, nextRole);
       fetchUsers();
       fetchLogs();
+      AuthAudit.showToast({
+        title: 'User Role Updated (Offline)',
+        message: `"${targetUser.email || 'User'}" promoted to ${nextRole} locally.`,
+        type: 'success',
+        isAdminAction: true,
+        adminActionType: 'user_role',
+        duration: 5000
+      });
     });
   };
 
@@ -954,6 +1025,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         if (res.ok) {
           fetchUsers();
           fetchLogs();
+          AuthAudit.showToast({
+            title: 'User Deleted',
+            message: `Account ${targetEmail} was deleted successfully.`,
+            type: 'success',
+            isAdminAction: true,
+            adminActionType: 'user_delete',
+            duration: 5000
+          });
           return;
         }
       } catch {
@@ -963,6 +1042,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       ClientStorageManager.deleteUser(targetUserId);
       fetchUsers();
       fetchLogs();
+      AuthAudit.showToast({
+        title: 'User Deleted (Offline)',
+        message: `Account ${targetEmail} was deleted locally.`,
+        type: 'success',
+        isAdminAction: true,
+        adminActionType: 'user_delete',
+        duration: 5000
+      });
     });
   };
 
@@ -975,8 +1062,24 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       setModerationFeedback('Report dismissed. Review approved and retained in explore feed.');
       setTimeout(() => setModerationFeedback(''), 5000);
       if (isElevatedAdmin) fetchLogs();
+      AuthAudit.showToast({
+        title: 'Report Dismissed',
+        message: 'Review approved and retained in explore feed.',
+        type: 'success',
+        isAdminAction: true,
+        adminActionType: 'moderation',
+        duration: 5000
+      });
     } catch (err) {
       console.error('Error dismissing review report:', err);
+      AuthAudit.showToast({
+        title: 'Moderation Error',
+        message: 'Could not dismiss the selected review report.',
+        type: 'error',
+        isAdminAction: true,
+        adminActionType: 'error',
+        duration: 5000
+      });
     } finally {
       setModeratingReviewId(null);
     }
@@ -994,8 +1097,24 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         setModerationFeedback('Violating review was permanently removed and action was recorded to the audit trail.');
         setTimeout(() => setModerationFeedback(''), 5000);
         if (isElevatedAdmin) fetchLogs();
+        AuthAudit.showToast({
+          title: 'Review Deleted',
+          message: `The review by "${authorName}" was permanently removed.`,
+          type: 'success',
+          isAdminAction: true,
+          adminActionType: 'moderation',
+          duration: 5000
+        });
       } catch (err) {
         console.error('Error removing reported review:', err);
+        AuthAudit.showToast({
+          title: 'Moderation Error',
+          message: `Could not delete the review by "${authorName}".`,
+          type: 'error',
+          isAdminAction: true,
+          adminActionType: 'error',
+          duration: 5000
+        });
       } finally {
         setModeratingReviewId(null);
       }

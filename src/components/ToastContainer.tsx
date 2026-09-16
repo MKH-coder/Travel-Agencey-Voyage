@@ -6,7 +6,16 @@ import {
   Info,
   X,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  ShieldCheck,
+  ShieldAlert,
+  Trash2,
+  PlusCircle,
+  FolderX,
+  UserCog,
+  UserMinus,
+  MessageSquareOff,
+  PenTool
 } from 'lucide-react';
 import { ToastMessage } from '../types.ts';
 import { AuthAudit } from '../services/authAudit.ts';
@@ -42,6 +51,85 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
   }, [duration, onDismiss, toast.id]);
 
   const getThemeDetails = () => {
+    if (toast.isAdminAction) {
+      if (toast.type === 'error') {
+        return {
+          icon: <ShieldAlert className="w-5 h-5 text-rose-500 shrink-0 mt-0.5 animate-bounce" />,
+          borderColor: 'border-rose-500/50 dark:border-rose-500/60 shadow-lg shadow-rose-500/5',
+          bgColor: 'bg-slate-50 dark:bg-slate-950',
+          badgeColor: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20',
+          titleColor: 'text-rose-600 dark:text-rose-400 font-extrabold',
+          progressBarColor: 'bg-gradient-to-r from-rose-500 via-red-500 to-rose-600 animate-pulse',
+          isAdmin: true,
+          adminBadgeText: 'SECURITY EVENT'
+        };
+      } else {
+        let actionIcon = <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />;
+        let barColor = 'bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600';
+        let badgeColor = 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20';
+        let titleCol = 'text-emerald-600 dark:text-emerald-400 font-extrabold';
+        let badgeText = 'ADMIN PORTAL';
+
+        if (toast.adminActionType === 'create') {
+          actionIcon = <PlusCircle className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />;
+          badgeText = 'CATALOG CREATE';
+        } else if (toast.adminActionType === 'delete') {
+          actionIcon = <Trash2 className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />;
+          badgeText = 'CATALOG DELETE';
+          barColor = 'bg-gradient-to-r from-rose-500 to-red-500';
+          titleCol = 'text-rose-600 dark:text-rose-400 font-extrabold';
+          badgeColor = 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20';
+        } else if (toast.adminActionType === 'clear') {
+          actionIcon = <FolderX className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />;
+          badgeText = 'CATALOG CLEAR';
+          barColor = 'bg-gradient-to-r from-red-600 to-rose-600';
+          titleCol = 'text-rose-600 dark:text-rose-400 font-extrabold';
+          badgeColor = 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20';
+        } else if (toast.adminActionType === 'user_role') {
+          actionIcon = <UserCog className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />;
+          badgeText = 'USER ROLE UPDATE';
+          barColor = 'bg-gradient-to-r from-amber-500 to-yellow-500';
+          titleCol = 'text-amber-600 dark:text-amber-400 font-extrabold';
+          badgeColor = 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20';
+        } else if (toast.adminActionType === 'user_delete') {
+          actionIcon = <UserMinus className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />;
+          badgeText = 'USER DELETE';
+          barColor = 'bg-gradient-to-r from-rose-600 to-red-600';
+          titleCol = 'text-rose-600 dark:text-rose-400 font-extrabold';
+          badgeColor = 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20';
+        } else if (toast.adminActionType === 'moderation') {
+          actionIcon = <MessageSquareOff className="w-5 h-5 text-purple-500 shrink-0 mt-0.5" />;
+          badgeText = 'MODERATION';
+          barColor = 'bg-gradient-to-r from-purple-500 to-violet-500';
+          titleCol = 'text-purple-600 dark:text-purple-400 font-extrabold';
+          badgeColor = 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20';
+        } else if (toast.adminActionType === 'status') {
+          actionIcon = <ShieldCheck className="w-5 h-5 text-teal-500 shrink-0 mt-0.5" />;
+          badgeText = 'VERIFICATION';
+          barColor = 'bg-gradient-to-r from-teal-500 to-emerald-500';
+          titleCol = 'text-teal-600 dark:text-teal-400 font-extrabold';
+          badgeColor = 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20';
+        }
+
+        return {
+          icon: actionIcon,
+          borderColor: toast.adminActionType === 'delete' || toast.adminActionType === 'clear' || toast.adminActionType === 'user_delete'
+            ? 'border-rose-500/50 dark:border-rose-500/60 shadow-lg shadow-rose-500/5'
+            : toast.adminActionType === 'user_role'
+            ? 'border-amber-500/50 dark:border-amber-500/60 shadow-lg shadow-amber-500/5'
+            : toast.adminActionType === 'moderation'
+            ? 'border-purple-500/50 dark:border-purple-500/60 shadow-lg shadow-purple-500/5'
+            : 'border-emerald-500/50 dark:border-emerald-500/60 shadow-lg shadow-emerald-500/5',
+          bgColor: 'bg-slate-50 dark:bg-slate-950',
+          badgeColor,
+          titleColor: titleCol,
+          progressBarColor: barColor,
+          isAdmin: true,
+          adminBadgeText: badgeText
+        };
+      }
+    }
+
     switch (toast.type) {
       case 'error':
         return {
@@ -51,6 +139,8 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
           badgeColor: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20',
           titleColor: 'text-rose-600 dark:text-rose-400',
           progressBarColor: 'bg-rose-500',
+          isAdmin: false,
+          adminBadgeText: undefined
         };
       case 'warning':
         return {
@@ -60,6 +150,8 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
           badgeColor: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20',
           titleColor: 'text-amber-700 dark:text-amber-400',
           progressBarColor: 'bg-amber-500',
+          isAdmin: false,
+          adminBadgeText: undefined
         };
       case 'success':
         return {
@@ -69,6 +161,8 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
           badgeColor: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20',
           titleColor: 'text-emerald-700 dark:text-emerald-400',
           progressBarColor: 'bg-emerald-500',
+          isAdmin: false,
+          adminBadgeText: undefined
         };
       case 'info':
       default:
@@ -79,11 +173,13 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
           badgeColor: 'bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20',
           titleColor: 'text-sky-700 dark:text-sky-400',
           progressBarColor: 'bg-sky-500',
+          isAdmin: false,
+          adminBadgeText: undefined
         };
     }
   };
 
-  const { icon, borderColor, bgColor, badgeColor, titleColor, progressBarColor } = getThemeDetails();
+  const { icon, borderColor, bgColor, badgeColor, titleColor, progressBarColor, isAdmin, adminBadgeText } = getThemeDetails();
 
   return (
     <div
@@ -95,6 +191,15 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
         {icon}
 
         <div className="flex-1 min-w-0 pr-1">
+          {isAdmin && adminBadgeText && (
+            <div className="flex items-center gap-1 mb-1.5">
+              <span className="inline-flex items-center gap-1 text-[8px] tracking-wider font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-900 text-slate-100 dark:bg-slate-100 dark:text-slate-900 whitespace-nowrap">
+                <ShieldCheck className="w-2.5 h-2.5" />
+                {adminBadgeText}
+              </span>
+            </div>
+          )}
+
           <div className="flex items-center gap-2 mb-1">
             <h4 className={`text-xs font-bold ${titleColor} truncate`}>{toast.title}</h4>
             {toast.code && (

@@ -218,5 +218,7 @@ export interface ToastMessage {
     label: string;
     onClick: () => void;
   };
+  isAdminAction?: boolean;
+  adminActionType?: 'create' | 'update' | 'delete' | 'status' | 'clear' | 'user_role' | 'user_delete' | 'moderation' | 'error';
 }
 

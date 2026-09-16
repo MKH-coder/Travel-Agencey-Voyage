@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { X, Upload, Plus, Trash2, Image as ImageIcon, Sparkles, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { X, Upload, Plus, Trash2, Image as ImageIcon, Sparkles, CheckCircle2, AlertTriangle, FileText } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { Listing } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
+import { AuthAudit } from '../services/authAudit.ts';
 
 interface EditContentModalProps {
   listing: Listing | null;
@@ -30,6 +31,11 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
   const { styles } = useTheme();
   const { token } = useAuth();
 
+  const [title, setTitle] = useState(listing?.title || '');
+  const [price, setPrice] = useState(listing?.price || 0);
+  const [location, setLocation] = useState(listing?.location || '');
+  const [country, setCountry] = useState(listing?.country || '');
+  const [category, setCategory] = useState<'PLACE' | 'HOTEL' | 'FOOD'>(listing?.category || 'PLACE');
   const [description, setDescription] = useState(listing?.description || '');
   const [images, setImages] = useState<string[]>(listing?.images || []);
   const [newPhotoUrl, setNewPhotoUrl] = useState('');
@@ -40,6 +46,11 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
   // Sync when listing changes
   React.useEffect(() => {
     if (listing) {
+      setTitle(listing.title || '');
+      setPrice(listing.price || 0);
+      setLocation(listing.location || '');
+      setCountry(listing.country || '');
+      setCategory(listing.category || 'PLACE');
       setDescription(listing.description);
       setImages(listing.images && listing.images.length > 0 ? listing.images : ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80']);
       setError('');
@@ -88,6 +99,22 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
   };
 
   const handleSave = async () => {
+    if (!title.trim()) {
+      setError('Title cannot be empty.');
+      return;
+    }
+    if (!location.trim()) {
+      setError('Location cannot be empty.');
+      return;
+    }
+    if (!country.trim()) {
+      setError('Country cannot be empty.');
+      return;
+    }
+    if (price <= 0) {
+      setError('Price must be greater than 0.');
+      return;
+    }
     if (!description.trim()) {
       setError('Description cannot be empty.');
       return;
@@ -109,13 +136,26 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
+          title: title.trim(),
+          price: Number(price),
+          location: location.trim(),
+          country: country.trim(),
+          category,
           description: description.trim(),
           images,
         }),
       });
 
       if (res.ok) {
-        setSuccess('Photos and description updated successfully!');
+        setSuccess('Master catalog experience updated successfully!');
+        AuthAudit.showToast({
+          title: 'Catalog Updated',
+          message: `"${title.trim()}" details successfully saved to the backend database.`,
+          type: 'success',
+          isAdminAction: true,
+          adminActionType: 'update',
+          duration: 6000
+        });
         onListingUpdated();
         setTimeout(() => {
           onClose();
@@ -128,8 +168,13 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
 
     // Static fallback execution
     try {
-      const updatedListing = {
+      const updatedListing: Listing = {
         ...listing,
+        title: title.trim(),
+        price: Number(price),
+        location: location.trim(),
+        country: country.trim(),
+        category,
         description: description.trim(),
         images,
         timestamps: {
@@ -138,7 +183,15 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
         }
       };
       ClientStorageManager.saveListing(updatedListing);
-      setSuccess('Photos and description updated successfully!');
+      setSuccess('Master catalog experience updated successfully (Offline Fallback)!');
+      AuthAudit.showToast({
+        title: 'Catalog Updated (Offline)',
+        message: `"${title.trim()}" saved locally to custom storage fallback.`,
+        type: 'success',
+        isAdminAction: true,
+        adminActionType: 'update',
+        duration: 5000
+      });
       onListingUpdated();
       setTimeout(() => {
         onClose();
@@ -168,10 +221,10 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
           </div>
           <div>
             <h3 className={`text-lg font-bold ${styles.textPrimary}`}>
-              Manage Photos & Description
+              Edit Catalog Destination
             </h3>
             <p className={`text-xs ${styles.textMuted}`}>
-              Update listing imagery and editorial copy for <span className="font-semibold text-rose-500">{listing.title}</span>
+              Update listing details, metadata, imagery, and copy for the global inventory.
             </p>
           </div>
         </div>
@@ -189,6 +242,83 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
             <span>{success}</span>
           </div>
         )}
+
+        {/* --- Core Metadata Fields for Admins --- */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 pb-2 border-b border-slate-100 dark:border-slate-800/60">
+          <div className="space-y-1.5">
+            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              Experience Title *
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g., Oia Sunset Villa"
+              className={`w-full p-2.5 text-xs rounded-xl outline-none border ${styles.border} ${styles.inputBg}`}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              Starting Price (USD) *
+            </label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(Number(e.target.value))}
+              placeholder="e.g., 350"
+              className={`w-full p-2.5 text-xs rounded-xl outline-none border ${styles.border} ${styles.inputBg}`}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              Location / Municipality *
+            </label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="e.g., Oia, Santorini Island"
+              className={`w-full p-2.5 text-xs rounded-xl outline-none border ${styles.border} ${styles.inputBg}`}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              Country *
+            </label>
+            <input
+              type="text"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              placeholder="e.g., Greece"
+              className={`w-full p-2.5 text-xs rounded-xl outline-none border ${styles.border} ${styles.inputBg}`}
+            />
+          </div>
+
+          <div className="space-y-1.5 sm:col-span-2">
+            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              Category *
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {(['PLACE', 'HOTEL', 'FOOD'] as const).map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategory(cat)}
+                  className={`py-2 text-xs font-bold rounded-xl border transition-all ${
+                    category === cat
+                      ? 'bg-rose-500/10 border-rose-500 text-rose-500 shadow-sm'
+                      : `border-slate-200 dark:border-slate-800 ${styles.textMuted} hover:bg-slate-100 dark:hover:bg-slate-800`
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* Photos Manager */}
         <div className="space-y-3">
@@ -282,11 +412,11 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
             </span>
           </div>
           <textarea
-            rows={5}
+            rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Highlight the architectural aesthetics, sensory impressions, culinary nuances, and curated host privileges..."
-            className={`w-full p-3 text-xs rounded-xl outline-none leading-relaxed ${styles.inputBg}`}
+            className={`w-full p-3 text-xs rounded-xl outline-none leading-relaxed border ${styles.border} ${styles.inputBg}`}
           />
         </div>
 
@@ -306,7 +436,7 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
             className={`px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary} shadow-md flex items-center gap-1.5`}
           >
             <CheckCircle2 className="w-4 h-4" />
-            <span>{isSaving ? 'Saving...' : 'Save Photos & Description'}</span>
+            <span>{isSaving ? 'Saving...' : 'Save Catalog Destination'}</span>
           </button>
         </div>
       </div>
