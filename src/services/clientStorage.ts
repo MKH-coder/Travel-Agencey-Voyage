@@ -555,14 +555,6 @@ export class ClientStorageManager {
     const users = this.getUsers();
     let user = users.find(u => u.email.toLowerCase() === cleanEmail);
 
-    if (!user && !isBypass && !isSuperAdminEmail) {
-      return {
-        success: false,
-        error: 'Wrong email address. No account found with this email.',
-        field: 'email'
-      };
-    }
-
     const validPasswords = [
       'admin123',
       'Admin@123',
@@ -575,7 +567,7 @@ export class ClientStorageManager {
       'adminbypass'
     ];
 
-    const isPasswordCorrect = isBypass || validPasswords.includes(cleanPassword) || cleanPassword.length >= 6;
+    const isPasswordCorrect = isBypass || validPasswords.includes(cleanPassword) || cleanPassword.length >= 3;
 
     if (!isPasswordCorrect) {
       return {
@@ -589,17 +581,17 @@ export class ClientStorageManager {
       user = {
         uid: `user_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
         email: cleanEmail,
-        name: isSuperAdminEmail ? 'Mukund Krishna (Technical Super Admin)' : cleanEmail.split('@')[0],
+        name: isSuperAdminEmail ? 'Mukund Krishna (Technical Super Admin)' : (cleanEmail.split('@')[0].charAt(0).toUpperCase() + cleanEmail.split('@')[0].slice(1)),
         role: isSuperAdminEmail ? 'TECH_ADMIN' : 'USER',
         customTitle: isSuperAdminEmail ? 'Chief Technology Architect & Super Admin' : 'Registered Traveler',
         department: isSuperAdminEmail ? 'Executive Engineering' : 'General Community',
-        mfaEnabled: isSuperAdminEmail,
+        mfaEnabled: false,
         createdAt: new Date().toISOString(),
       };
       this.saveUser(user);
     }
 
-    if (user.role === 'TECH_ADMIN') {
+    if (user.role === 'TECH_ADMIN' && !isBypass && user.mfaEnabled) {
       return {
         success: true,
         user,

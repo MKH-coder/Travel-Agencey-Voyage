@@ -2,11 +2,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Global deny-by-default
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
     // Helper functions
     function isSignedIn() {
       return request.auth != null;
@@ -14,7 +9,7 @@ service cloud.firestore {
 
     function isTechAdmin() {
       return isSignedIn() && (
-        request.auth.token.email in ['mukundkrishna.h2008@gmail.com', 'mukundkrishna2008@gmail.com'] ||
+        request.auth.token.email in ['mukundkrishna.h2008@gmail.com', 'mukundkrishna2008@gmail.com', '8c15mukundkrishna.h@gmail.com'] ||
         request.auth.token.role == 'TECH_ADMIN' ||
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'TECH_ADMIN'
       );
@@ -29,81 +24,39 @@ service cloud.firestore {
     }
 
     // Listings Collection:
-    // - Public reads for PUBLISHED listings
-    // - Standard & Tech Admins can read all listings (including drafts and pending)
-    // - Standard Admins can create listings (initial status DRAFT or PENDING_APPROVAL)
-    // - Standard Admins can update their own drafts
-    // - Tech Admins can approve, modify, publish, or delete any listing
     match /listings/{listingId} {
-      allow read: if resource.data.status == 'PUBLISHED' || isAdmin();
-      allow create: if isAdmin() && (
-        isTechAdmin() || request.resource.data.status in ['DRAFT', 'PENDING_APPROVAL']
-      );
-      allow update: if isTechAdmin() || (
-        isAdmin() && resource.data.createdBy == request.auth.uid &&
-        resource.data.status in ['DRAFT', 'REJECTED'] &&
-        request.resource.data.status in ['DRAFT', 'PENDING_APPROVAL']
-      );
-      allow delete: if isTechAdmin();
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if true;
     }
 
     // Users Collection:
-    // - Users can read their own profile; Tech Admins can read and manage all profiles
-    // - Only Tech Admin can assign ADMIN or TECH_ADMIN roles
     match /users/{userId} {
-      allow read: if isSignedIn() && (request.auth.uid == userId || isTechAdmin());
-      allow create: if isSignedIn() && (
-        request.auth.uid == userId && request.resource.data.role == 'USER'
-      ) || isTechAdmin();
-      allow update: if isTechAdmin() || (
-        isSignedIn() && request.auth.uid == userId &&
-        request.resource.data.role == resource.data.role // Prevents privilege self-escalation
-      );
-      allow delete: if isTechAdmin();
+      allow read, create, update: if true;
+      allow delete: if isTechAdmin() || true;
     }
 
     // Custom Posts / Privilege Templates Collection:
-    // - All authenticated users & admins can read defined custom posts
-    // - Only Tech Admin can create, modify, or delete custom posts
     match /custom_posts/{postId} {
-      allow read: if isSignedIn();
-      allow create, update, delete: if isTechAdmin();
+      allow read: if true;
+      allow create, update, delete: if true;
     }
 
     // Audit Logs Collection:
-    // - Only Tech Admin can read audit logs
-    // - System authenticated operations can append immutable audit records
     match /audit_logs/{logId} {
-      allow read: if isTechAdmin();
-      allow create: if isSignedIn();
+      allow read: if true;
+      allow create: if true;
       allow update, delete: if false; // Append-only immutable logs
     }
 
     // Price Alerts Collection:
-    // - Users can read, create, update, and delete their own price alerts
-    // - Tech Admins can read all price alerts
     match /priceAlerts/{alertId} {
-      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isTechAdmin());
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read, create, update, delete: if true;
     }
 
     // Reviews Collection:
-    // - All users can read reviews for destinations
-    // - Authenticated users can create reviews with their own userId
-    // - Authors can update their own reviews
-    // - Authenticated users can flag/report a review for moderation
-    // - Authors and Tech Admins can delete reviews, Tech Admins can moderate
     match /reviews/{reviewId} {
-      allow read: if true;
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isSignedIn() && (
-        (resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid) ||
-        isTechAdmin() ||
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isReported', 'reportReason', 'reportedBy', 'reportedByEmail', 'reportedAt', 'moderationStatus', 'listingTitle']))
-      );
-      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isTechAdmin());
+      allow read, create, update, delete: if true;
     }
   }
 }

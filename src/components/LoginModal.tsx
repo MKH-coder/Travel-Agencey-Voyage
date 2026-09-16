@@ -150,34 +150,12 @@ export const LoginModal: React.FC = () => {
     setErrorField(null);
     setInfoMsg('');
 
-    // Secret code trigger for emergency bypass
-    if (password === '2008-6058' || password === '20086058' || password === 'adminbypass') {
-      setBypassCodeInput('');
-      setRecoveryEmailInput(cleanEmail);
-      setShowLoginModal(false);
-      setShowBypassModal(true);
-      return;
-    }
-
     if (authMode === 'signup') {
-      const { data, error } = await supabase.auth.signUp({
-        email: cleanEmail,
-        password: password,
-      });
-
-      if (error) {
-        setErrorMsg(error.message);
-        return;
-      }
-
-      if (data?.user) {
-        const res = await signUpWithSupabase(cleanEmail, password);
-        if (res.error) {
-          setErrorMsg(res.error);
-        } else {
-          setShowLoginModal(false);
-          window.location.href = '/';
-        }
+      const res = await signUpWithSupabase(cleanEmail, password);
+      if (res.error) {
+        setErrorMsg(res.error);
+      } else {
+        setShowLoginModal(false);
       }
     } else {
       const res = await loginWithSupabase(cleanEmail, password);
@@ -187,7 +165,6 @@ export const LoginModal: React.FC = () => {
         setErrorMsg(res.error || 'Sign in failed.');
       } else if (!res.requires2FA) {
         setShowLoginModal(false);
-        window.location.href = '/';
       }
     }
   };
