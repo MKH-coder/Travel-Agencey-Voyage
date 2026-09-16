@@ -52,6 +52,14 @@ export interface CustomPost {
   createdAt: string;
 }
 
+export interface FeedPost {
+  id: string;
+  authorId: string;
+  authorName: string;
+  content: string;
+  createdAt: string;
+}
+
 export type ListingCategory = 'PLACE' | 'HOTEL' | 'FOOD';
 export type ListingStatus = 'DRAFT' | 'PENDING_APPROVAL' | 'PUBLISHED' | 'REJECTED';
 

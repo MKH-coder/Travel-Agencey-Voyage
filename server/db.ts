@@ -3,10 +3,10 @@ import path from 'path';
 import { createRequire } from 'module';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { initializeFirestore, collection, doc, setDoc, deleteDoc, getDocs, onSnapshot } from 'firebase/firestore';
-import { User, Listing, AuditLog, Booking, SavedTrip, CustomPost } from './types.ts';
+import { User, Listing, AuditLog, Booking, SavedTrip, CustomPost, FeedPost } from './types.ts';
 
-const require = createRequire(import.meta.url);
-const firebaseConfig = require('../firebase-applet-config.json');
+const configPath = path.join(process.cwd(), 'firebase-applet-config.json');
+const firebaseConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
 // Initialize Firebase App for Server DB Sync
 const app = !getApps().length
@@ -35,6 +35,7 @@ interface DatabaseSchema {
   bookings: Booking[];
   saved_trips: SavedTrip[];
   custom_posts: CustomPost[];
+  feed_posts: FeedPost[];
 }
 
 const INITIAL_CUSTOM_POSTS: CustomPost[] = [
@@ -361,6 +362,24 @@ class Database {
         console.warn('Failed to attach custom posts snapshot listener:', err);
       }
 
+      // 3.5. Real-time Feed Posts sync
+      try {
+        onSnapshot(collection(firestoreDb, 'feed_posts'), (snapshot) => {
+          const firestoreFeedPosts: FeedPost[] = [];
+          snapshot.forEach(d => {
+            firestoreFeedPosts.push(d.data() as FeedPost);
+          });
+          
+          this.data.feed_posts = firestoreFeedPosts;
+          this.writeToDisk(this.data);
+          console.log(`[Firestore Realtime] Synced ${this.data.feed_posts.length} feed posts.`);
+        }, (err) => {
+          console.warn('[Firestore Realtime] Error syncing feed posts:', err);
+        });
+      } catch (err) {
+        console.warn('Failed to attach feed posts snapshot listener:', err);
+      }
+
       // 4. Real-time Audit Logs sync
       try {
         onSnapshot(collection(firestoreDb, 'audit_logs'), (snapshot) => {
@@ -427,6 +446,7 @@ class Database {
           bookings: parsed.bookings || [],
           saved_trips: parsed.saved_trips || [],
           custom_posts,
+          feed_posts: parsed.feed_posts || [],
         };
         this.writeToDisk(data);
         return data;
@@ -441,6 +461,7 @@ class Database {
       bookings: [],
       saved_trips: [],
       custom_posts: INITIAL_CUSTOM_POSTS,
+      feed_posts: [],
     };
     this.writeToDisk(initial);
     return initial;
@@ -675,6 +696,38 @@ class Database {
     if (this.data.custom_posts.length !== initialLen) {
       this.writeToDisk(this.data);
       this.safeFirestoreDelete('custom_posts', id);
+      return true;
+    }
+    return false;
+  }
+
+  // --- Feed Posts ---
+  
+  getFeedPosts(): FeedPost[] {
+    if (!this.data.feed_posts) this.data.feed_posts = [];
+    return this.data.feed_posts;
+  }
+
+  saveFeedPost(post: FeedPost): FeedPost {
+    if (!this.data.feed_posts) this.data.feed_posts = [];
+    const idx = this.data.feed_posts.findIndex(p => p.id === post.id);
+    if (idx >= 0) {
+      this.data.feed_posts[idx] = post;
+    } else {
+      this.data.feed_posts.unshift(post);
+    }
+    this.writeToDisk(this.data);
+    this.safeFirestoreWrite('feed_posts', post.id, post);
+    return post;
+  }
+
+  deleteFeedPost(id: string): boolean {
+    if (!this.data.feed_posts) return false;
+    const initialLen = this.data.feed_posts.length;
+    this.data.feed_posts = this.data.feed_posts.filter(p => p.id !== id);
+    if (this.data.feed_posts.length !== initialLen) {
+      this.writeToDisk(this.data);
+      this.safeFirestoreDelete('feed_posts', id);
       return true;
     }
     return false;

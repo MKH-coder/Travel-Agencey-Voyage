@@ -1,4 +1,4 @@
-import { User, Listing, AuditLog, UserRole, CustomPost, PostPrivilege, Review } from '../types.ts';
+import { User, Listing, AuditLog, UserRole, CustomPost, PostPrivilege, Review, FeedPost } from '../types.ts';
 import { DEFAULT_LISTINGS, DEFAULT_REVIEWS } from '../data/defaultData.ts';
 
 const USERS_STORAGE_KEY = 'voyage_db_users';
@@ -6,6 +6,7 @@ const LISTINGS_STORAGE_KEY = 'voyage_db_listings';
 const LOGS_STORAGE_KEY = 'voyage_db_audit_logs';
 const CUSTOM_POSTS_STORAGE_KEY = 'voyage_db_custom_posts';
 const REVIEWS_STORAGE_KEY = 'voyage_db_reviews';
+const FEED_POSTS_STORAGE_KEY = 'voyage_db_feed_posts';
 
 export const INITIAL_CUSTOM_POSTS: CustomPost[] = [
   {
@@ -813,5 +814,52 @@ export class ClientStorageManager {
     });
 
     return true;
+  }
+
+  // --- FEED POSTS MANAGEMENT ---
+
+  static getFeedPosts(): FeedPost[] {
+    try {
+      const data = localStorage.getItem(FEED_POSTS_STORAGE_KEY);
+      if (!data) return [];
+      return JSON.parse(data);
+    } catch {
+      return [];
+    }
+  }
+
+  static saveFeedPost(post: FeedPost): FeedPost {
+    const posts = this.getFeedPosts();
+    const existingIndex = posts.findIndex(p => p.id === post.id);
+    if (existingIndex >= 0) {
+      posts[existingIndex] = post;
+    } else {
+      posts.unshift(post);
+    }
+    try {
+      localStorage.setItem(FEED_POSTS_STORAGE_KEY, JSON.stringify(posts));
+    } catch {
+      // ignore
+    }
+    return post;
+  }
+
+  static deleteFeedPost(id: string): boolean {
+    const posts = this.getFeedPosts();
+    const filtered = posts.filter(p => p.id !== id);
+    try {
+      localStorage.setItem(FEED_POSTS_STORAGE_KEY, JSON.stringify(filtered));
+    } catch {
+      // ignore
+    }
+    return true;
+  }
+  
+  static saveFeedPostsBulk(posts: FeedPost[]): void {
+    try {
+      localStorage.setItem(FEED_POSTS_STORAGE_KEY, JSON.stringify(posts));
+    } catch {
+      // ignore
+    }
   }
 }

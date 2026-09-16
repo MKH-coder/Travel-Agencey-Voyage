@@ -1,0 +1,437 @@
+{
+  "users": [
+    {
+      "email": "user_token_by@traveler.io",
+      "uid": "token_bypass_1789530264886",
+      "name": "Traveler",
+      "createdAt": "2026-09-16T06:25:33.835Z",
+      "role": "USER",
+      "mfaEnabled": false
+    },
+    {
+      "lastLoginIp": "2405:201:f01a:588a:76c0:532a:fb03:4d7",
+      "mfaEnabled": false,
+      "lastLoginBrowser": "Chrome 153",
+      "lastLoginTimezone": "Asia/Calcutta",
+      "uid": "token_bypass_1789541425703",
+      "lastLoginOs": "Android",
+      "lastLoginScreen": "384x832",
+      "name": "Traveler",
+      "email": "user_token_by@traveler.io",
+      "createdAt": "2026-09-16T06:50:25.693Z",
+      "lastLoginDevice": "Mobile (Android)",
+      "role": "USER",
+      "lastLoginAt": "2026-09-16T08:25:22.051Z"
+    },
+    {
+      "uid": "token_bypass_1789560960511",
+      "lastLoginIp": "49.37.233.109",
+      "lastLoginBrowser": "Chrome 152",
+      "lastLoginOs": "Windows",
+      "lastLoginTimezone": "Asia/Calcutta",
+      "lastLoginDevice": "Desktop (Windows)",
+      "lastLoginAt": "2026-09-16T12:16:10.342Z",
+      "role": "USER",
+      "createdAt": "2026-09-16T12:16:10.341Z",
+      "email": "user_token_by@traveler.io",
+      "mfaEnabled": false,
+      "name": "Traveler",
+      "lastLoginScreen": "1920x1080"
+    },
+    {
+      "uid": "token_bypass_1789577866096",
+      "email": "user_token_by@traveler.io",
+      "lastLoginDevice": "Desktop (Windows)",
+      "lastLoginBrowser": "Chrome 152",
+      "lastLoginAt": "2026-09-16T16:57:55.896Z",
+      "mfaEnabled": false,
+      "createdAt": "2026-09-16T16:57:55.895Z",
+      "name": "Traveler",
+      "lastLoginOs": "Windows",
+      "lastLoginIp": "49.37.233.109",
+      "role": "USER",
+      "lastLoginTimezone": "Asia/Calcutta",
+      "lastLoginScreen": "1920x1080"
+    },
+    {
+      "lastLoginIp": "49.37.233.109",
+      "mfaEnabled": false,
+      "role": "TECH_SUBADMIN",
+      "lastLoginOs": "Windows",
+      "lastLoginBrowser": "Chrome 152",
+      "lastLoginDevice": "Desktop (Windows)",
+      "name": "mukundkrishna.h2008",
+      "createdAt": "2026-09-14T15:51:21.942Z",
+      "lastLoginAt": "2026-09-16T12:13:52.503Z",
+      "lastLoginTimezone": "Asia/Calcutta",
+      "lastLoginScreen": "1920x1080",
+      "uid": "user_1789401081942",
+      "email": "mukundkrishna.h2008@gmail.com"
+    },
+    {
+      "email": "nihanabraham007@gmail.com",
+      "name": "Nihan Manoj Abhraham",
+      "recoveryEmail": "mukundkrishna.h2008@gmail.com",
+      "customTitle": "Manager",
+      "mfaEnabled": false,
+      "department": "Technical",
+      "role": "ADMIN",
+      "phoneNumber": "9858687459",
+      "createdAt": "2026-09-16T05:54:34.905Z",
+      "uid": "user_1789538074905_7toi"
+    },
+    {
+      "email": "sarah.content@travelplatform.io",
+      "phoneNumber": "+1 555-019-2834",
+      "uid": "user_admin_02",
+      "customTitle": "Head of Destination Curation",
+      "name": "Sarah Jenkins (Standard Admin)",
+      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80",
+      "createdAt": "2025-01-10T00:00:00.000Z",
+      "mfaEnabled": false,
+      "department": "Content & Editorial",
+      "role": "USER",
+      "recoveryEmail": "sarah.backup@gmail.com"
+    },
+    {
+      "recoveryEmail": "8c15mukundkrishna.h@gmail.com",
+      "uid": "user_tech_admin_01",
+      "email": "mukundkrishna2008@gmail.com",
+      "role": "TECH_ADMIN",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "customTitle": "Chief Technology Architect & Super Admin",
+      "name": "Mukund Krishna (Technical Super Admin)",
+      "mfaEnabled": true,
+      "department": "Executive Engineering",
+      "phoneNumber": "+91 9567465134"
+    },
+    {
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80",
+      "recoveryEmail": "8c15mukundkrishna.h@gmail.com",
+      "createdAt": "2026-09-16T03:29:39.446Z",
+      "email": "mukundkrishna.h2008@gmail.com",
+      "name": "Mukund Krishna (Technical Super Admin)",
+      "phoneNumber": "+91 9567465137",
+      "role": "TECH_ADMIN",
+      "mfaEnabled": true,
+      "department": "Executive Engineering",
+      "uid": "user_tech_admin_02",
+      "customTitle": "Chief Technology Architect & Super Admin"
+    },
+    {
+      "role": "TECH_SUBADMIN",
+      "customTitle": "Senior Infrastructure Engineer",
+      "createdAt": "2025-01-05T00:00:00.000Z",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80",
+      "mfaEnabled": false,
+      "department": "Core Infrastructure",
+      "phoneNumber": "+91 9567465135",
+      "email": "mukundkrishna.h@gmail.com",
+      "name": "Mukund Krishna (Technical Sub-Admin)",
+      "uid": "user_tech_subadmin_01"
+    },
+    {
+      "name": "Mukund Krishna Backup (Technical Sub-Admin)",
+      "customTitle": "Security Systems Specialist",
+      "email": "8c15mukundkrishna.h@gmail.com",
+      "phoneNumber": "+91 9567465136",
+      "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=256&q=80",
+      "role": "TECH_SUBADMIN",
+      "department": "Information Security",
+      "mfaEnabled": false,
+      "createdAt": "2025-01-08T00:00:00.000Z",
+      "uid": "user_tech_subadmin_02"
+    },
+    {
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
+      "email": "alex.globetrotter@example.com",
+      "uid": "user_traveler_03",
+      "phoneNumber": "+1 555-482-1920",
+      "name": "Alex Rivera (Verified Traveler)",
+      "createdAt": "2025-01-15T00:00:00.000Z",
+      "customTitle": "Featured Community Explorer",
+      "mfaEnabled": false,
+      "department": "Global Community",
+      "role": "USER"
+    }
+  ],
+  "listings": [],
+  "audit_logs": [
+    {
+      "timestamp": "2026-09-16T12:13:52.382Z",
+      "performedBy": "mukundkrishna.h2008@gmail.com",
+      "id": "audit-1789560832382-9wiu2",
+      "ipAddress": "49.37.233.109",
+      "action": "USER_PASSWORD_LOGIN_SUCCESS",
+      "targetType": "AUTH",
+      "targetId": "user_1789401081942"
+    },
+    {
+      "targetId": "user_1789538074905_7toi",
+      "performedByEmail": "mukundkrishna.h2008@gmail.com",
+      "action": "ADD_NEW_USER_AND_POST",
+      "performedBy": "user_tech_admin_02",
+      "ipAddress": "127.0.0.1",
+      "id": "log-1789538074908-r0i2m",
+      "targetType": "USER",
+      "timestamp": "2026-09-16T05:54:34.908Z",
+      "details": {
+        "timestamp": "2026-09-16T05:54:34.907Z",
+        "role": "ADMIN",
+        "customTitle": "Manager",
+        "adminId": "user_tech_admin_02",
+        "email": "nihanabraham007@gmail.com",
+        "adminEmail": "mukundkrishna.h2008@gmail.com"
+      }
+    },
+    {
+      "action": "UPDATE_USER_ROLE_AND_POST",
+      "targetId": "user_admin_02",
+      "targetType": "USER",
+      "ipAddress": "127.0.0.1",
+      "timestamp": "2026-09-16T05:27:19.137Z",
+      "details": {
+        "customTitle": "Head of Destination Curation",
+        "email": "sarah.content@travelplatform.io",
+        "newRole": "USER",
+        "department": "Content & Editorial"
+      },
+      "id": "log-1789536439137-x34gu",
+      "performedBy": "Technical Super Admin"
+    },
+    {
+      "timestamp": "2026-09-16T05:27:05.993Z",
+      "performedBy": "mukundkrishna.h2008@gmail.com",
+      "id": "log-1789536425993-tbogo",
+      "targetId": "post_travel_critic",
+      "targetType": "CUSTOM_POST",
+      "details": {
+        "privileges": [
+          "PUBLISH_DIRECTLY"
+        ],
+        "baseRole": "USER",
+        "department": "Hospitality Review",
+        "title": "Lead Travel & Culinary Critic"
+      },
+      "action": "SAVE_CUSTOM_POST_TEMPLATE",
+      "ipAddress": "127.0.0.1"
+    },
+    {
+      "id": "log-1789536415974-w2r8d",
+      "targetId": "post_1789536415589_cvyw",
+      "action": "SAVE_CUSTOM_POST_TEMPLATE",
+      "performedBy": "mukundkrishna.h2008@gmail.com",
+      "ipAddress": "127.0.0.1",
+      "details": {
+        "baseRole": "USER",
+        "department": "Content & Editorial",
+        "title": "Lead Destination & Hotel Curator",
+        "privileges": [
+          "PUBLISH_DIRECTLY",
+          "EDIT_ALL_CONTENT"
+        ]
+      },
+      "timestamp": "2026-09-16T05:26:55.974Z",
+      "targetType": "CUSTOM_POST"
+    },
+    {
+      "ipAddress": "127.0.0.1",
+      "action": "AUTH_FAILURE_UNAUTHORIZED_DOMAIN",
+      "details": {
+        "errorCode": "auth/unauthorized-domain",
+        "origin": "https://travel-agencey-voyage.vercel.app",
+        "category": "UNAUTHORIZED_DOMAIN",
+        "action": "OAUTH_POPUP",
+        "hostname": "travel-agencey-voyage.vercel.app",
+        "timestamp": "2026-09-16T04:59:03.419Z",
+        "adminEmail": "mukundkrishna.h2008@gmail.com",
+        "adminId": "mukundkrishna.h2008@gmail.com"
+      },
+      "targetType": "AUTHENTICATION_EVENT",
+      "id": "log-1789534743419-ebn5x",
+      "performedByEmail": "mukundkrishna.h2008@gmail.com",
+      "targetId": "mukundkrishna.h2008@gmail.com",
+      "timestamp": "2026-09-16T04:59:03.419Z",
+      "performedBy": "mukundkrishna.h2008@gmail.com"
+    },
+    {
+      "targetType": "AUTHENTICATION_EVENT",
+      "timestamp": "2026-09-16T04:58:38.272Z",
+      "ipAddress": "127.0.0.1",
+      "performedBy": "GUEST",
+      "details": {
+        "errorCode": "auth/unauthorized-domain",
+        "category": "UNAUTHORIZED_DOMAIN",
+        "action": "OAUTH_POPUP",
+        "hostname": "travel-agencey-voyage.vercel.app",
+        "timestamp": "2026-09-16T04:58:38.271Z",
+        "origin": "https://travel-agencey-voyage.vercel.app",
+        "adminId": "GUEST"
+      },
+      "targetId": "OAUTH_CLIENT",
+      "id": "log-1789534718272-m1ryj",
+      "action": "AUTH_FAILURE_UNAUTHORIZED_DOMAIN"
+    },
+    {
+      "action": "AUTH_FAILURE_UNAUTHORIZED_DOMAIN",
+      "performedBy": "GUEST",
+      "targetType": "AUTHENTICATION_EVENT",
+      "targetId": "OAUTH_CLIENT",
+      "id": "log-1789528960390-wsqry",
+      "details": {
+        "action": "OAUTH_POPUP",
+        "timestamp": "2026-09-16T03:22:40.388Z",
+        "origin": "https://travel-agencey-voyage.vercel.app",
+        "adminId": "GUEST",
+        "category": "UNAUTHORIZED_DOMAIN",
+        "errorCode": "auth/unauthorized-domain",
+        "hostname": "travel-agencey-voyage.vercel.app"
+      },
+      "ipAddress": "127.0.0.1",
+      "timestamp": "2026-09-16T03:22:40.390Z"
+    },
+    {
+      "details": {
+        "method": "GOOGLE_OAUTH_VERIFIED",
+        "role": "TECH_ADMIN"
+      },
+      "action": "TECH_ADMIN_LOGIN_SUCCESS",
+      "id": "log-init-02",
+      "performedBy": "mukundkrishna2008@gmail.com",
+      "ipAddress": "127.0.0.1",
+      "targetType": "AUTH",
+      "timestamp": "2026-09-16T01:22:27.264Z",
+      "targetId": "AUTH_SESSION"
+    },
+    {
+      "targetId": "TRAVEL_PLATFORM_CORE",
+      "id": "log-init-01",
+      "details": {
+        "environment": "Production & Static Hybrid",
+        "version": "2.4.0"
+      },
+      "performedBy": "System Engine",
+      "timestamp": "2026-09-15T03:22:27.264Z",
+      "action": "SYSTEM_BOOTSTRAP",
+      "targetType": "SYSTEM",
+      "ipAddress": "127.0.0.1"
+    }
+  ],
+  "bookings": [],
+  "saved_trips": [],
+  "custom_posts": [
+    {
+      "badgeColor": "sky",
+      "createdBy": "mukundkrishna.h2008@gmail.com",
+      "description": "Responsible for curating luxury destinations and editing curated hotel collections.",
+      "privileges": [
+        "PUBLISH_DIRECTLY",
+        "EDIT_ALL_CONTENT"
+      ],
+      "createdAt": "2026-09-16T05:26:55.589Z",
+      "department": "Content & Editorial",
+      "id": "post_1789536415589_cvyw",
+      "title": "Lead Destination & Hotel Curator",
+      "syncedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1789536415,
+        "nanoseconds": 975000000
+      },
+      "baseRole": "USER"
+    },
+    {
+      "createdAt": "2025-01-10T00:00:00.000Z",
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "id": "post_curation_lead",
+      "title": "Head of Destination & Hotel Curation",
+      "badgeColor": "sky",
+      "description": "Direct publishing of luxury travel guides, dining recommendations, and destination reviews.",
+      "privileges": [
+        "PUBLISH_DIRECTLY",
+        "EDIT_ALL_CONTENT"
+      ],
+      "department": "Content & Editorial",
+      "baseRole": "ADMIN"
+    },
+    {
+      "description": "Infrastructure health monitoring, security audit log analysis, and listing queue review.",
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "id": "post_infra_specialist",
+      "createdAt": "2025-01-05T00:00:00.000Z",
+      "department": "Information Security",
+      "baseRole": "TECH_SUBADMIN",
+      "title": "Senior Infrastructure & Security Specialist",
+      "privileges": [
+        "APPROVE_QUEUE",
+        "REJECT_QUEUE",
+        "VIEW_AUDIT_LOGS",
+        "EDIT_ALL_CONTENT",
+        "FIREBASE_CONSOLE_SYNC"
+      ],
+      "badgeColor": "purple"
+    },
+    {
+      "title": "Lead Platform Director & Super Admin",
+      "description": "Strategic oversight across platform operations, content verification, and cloud synchronization.",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "privileges": [
+        "PUBLISH_DIRECTLY",
+        "APPROVE_QUEUE",
+        "REJECT_QUEUE",
+        "MANAGE_USERS",
+        "ASSIGN_POSTS",
+        "VIEW_AUDIT_LOGS",
+        "DELETE_LISTINGS",
+        "EDIT_ALL_CONTENT",
+        "FIREBASE_CONSOLE_SYNC"
+      ],
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "baseRole": "TECH_ADMIN",
+      "badgeColor": "amber",
+      "department": "Platform Operations",
+      "id": "post_platform_director"
+    },
+    {
+      "title": "Chief Technology Architect & Super Admin",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "privileges": [
+        "PUBLISH_DIRECTLY",
+        "APPROVE_QUEUE",
+        "REJECT_QUEUE",
+        "MANAGE_USERS",
+        "ASSIGN_POSTS",
+        "VIEW_AUDIT_LOGS",
+        "DELETE_LISTINGS",
+        "EDIT_ALL_CONTENT",
+        "FIREBASE_CONSOLE_SYNC",
+        "BYPASS_SECURITY_2FA"
+      ],
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "baseRole": "TECH_ADMIN",
+      "badgeColor": "amber",
+      "department": "Executive Engineering",
+      "description": "Full root authority, system security architecture, user administration, and Firebase cloud management.",
+      "id": "post_tech_architect"
+    },
+    {
+      "createdBy": "mukundkrishna.h2008@gmail.com",
+      "createdAt": "2025-01-12T00:00:00.000Z",
+      "department": "Hospitality Review",
+      "title": "Lead Travel & Culinary Critic",
+      "description": "Authoring in-depth hotel and dining appraisals with verified badge attachments.",
+      "baseRole": "USER",
+      "syncedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1789536425,
+        "nanoseconds": 994000000
+      },
+      "privileges": [
+        "PUBLISH_DIRECTLY"
+      ],
+      "id": "post_travel_critic",
+      "badgeColor": "emerald"
+    }
+  ],
+  "feed_posts": []
+}

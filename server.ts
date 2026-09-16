@@ -1382,6 +1382,47 @@ Proceeding with sandbox delivery...`);
     res.json({ success: true, message: 'Custom post deleted.' });
   });
 
+  // --- 15.5 Feed Posts ---
+  app.get('/api/feed-posts', (req, res) => {
+    res.json(db.getFeedPosts());
+  });
+
+  app.post('/api/feed-posts', (req, res) => {
+    const authData = extractUserOrSession(req);
+    // Super admins and tech admins can post
+    if (!authData?.user || !['TECH_ADMIN', 'TECH_SUBADMIN', 'ADMIN'].includes(authData.user.role)) {
+      return res.status(403).json({ error: 'Unauthorized to post to the feed.' });
+    }
+    
+    const { content } = req.body;
+    if (!content) {
+      return res.status(400).json({ error: 'Content is required.' });
+    }
+
+    const newPost = db.saveFeedPost({
+      id: `fp_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      authorId: authData.user.uid,
+      authorName: authData.user.name,
+      content,
+      createdAt: new Date().toISOString()
+    });
+
+    res.json(newPost);
+  });
+
+  app.delete('/api/feed-posts/:id', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user || !['TECH_ADMIN', 'TECH_SUBADMIN', 'ADMIN'].includes(authData.user.role)) {
+      return res.status(403).json({ error: 'Unauthorized to delete feed posts.' });
+    }
+
+    const success = db.deleteFeedPost(req.params.id);
+    if (!success) {
+      return res.status(404).json({ error: 'Feed post not found.' });
+    }
+    res.json({ success: true });
+  });
+
   // 15e. Firebase Sync & Metadata Status
   app.get('/api/firebase/status', (req, res) => {
     res.json({
