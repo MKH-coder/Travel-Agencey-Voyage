@@ -247,9 +247,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [actionProcessing, setActionProcessing] = useState(false);
 
   // Fetch all listings for admin view
-  const fetchListings = async () => {
+  const fetchListings = async (silent = false) => {
     if (!token) return;
-    setLoadingListings(true);
+    if (!silent) setLoadingListings(true);
     try {
       const res = await fetch('/api/listings', {
         headers: { Authorization: `Bearer ${token}` }
@@ -270,7 +270,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     } catch {
       // fallback
     } finally {
-      setLoadingListings(false);
+      if (!silent) setLoadingListings(false);
     }
   };
 
@@ -591,8 +591,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         fetchActiveSessions();
       }
 
-      // Auto poll active logged-in sessions every 10 seconds for real-time accuracy
+      // Auto poll active logged-in sessions and listings every 10 seconds for real-time accuracy
       const sessionInterval = setInterval(() => {
+        fetchListings(true);
         if (isElevatedAdmin) {
           fetchActiveSessions();
         }
@@ -853,6 +854,31 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       id,
       'LISTING',
       { adminId: user?.uid, adminEmail: user?.email }
+    );
+    await fetchListings();
+    if (isElevatedAdmin) fetchLogs();
+    if (onListingUpdated) onListingUpdated();
+  };
+
+  const handleDeleteAllListings = async () => {
+    if (!window.confirm('CRITICAL WARNING: Are you sure you want to permanently delete ALL listings in the master catalog? This action is irreversible and will empty the explore screen.')) {
+      return;
+    }
+    ClientStorageManager.deleteAllListings();
+    try {
+      await fetch('/api/listings', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch {
+      // Static fallback
+    }
+
+    await auditLog(
+      'CLEAR_CATALOGUE',
+      'TRAVEL_PLATFORM_CORE',
+      'SYSTEM',
+      { adminId: user?.uid, adminEmail: user?.email, message: 'Admin deleted all listings.' }
     );
     await fetchListings();
     if (isElevatedAdmin) fetchLogs();
@@ -2185,13 +2211,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 Track submission statuses, verification reviews, and published items.
               </p>
             </div>
-            <button
-              onClick={fetchListings}
-              className={`p-2 rounded-xl text-xs font-semibold ${styles.buttonSecondary} flex items-center gap-1.5`}
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Refresh</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {(isTechAdmin || isElevatedAdmin) && (
+                <button
+                  onClick={handleDeleteAllListings}
+                  className="px-3 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 flex items-center gap-1.5 transition-all"
+                  title="Delete all listings from platform"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Clear Entire Catalog</span>
+                </button>
+              )}
+              <button
+                onClick={() => fetchListings()}
+                className={`p-2 rounded-xl text-xs font-semibold ${styles.buttonSecondary} flex items-center gap-1.5`}
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Refresh</span>
+              </button>
+            </div>
           </div>
 
           <div className={`rounded-3xl border ${styles.border} ${styles.cardBg} overflow-hidden shadow-sm`}>

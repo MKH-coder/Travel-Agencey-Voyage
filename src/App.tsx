@@ -146,7 +146,7 @@ function MainLayout() {
       const res = await fetch('/api/listings');
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           // Keep ClientStorageManager storage completely synchronized with server listings
           localStorage.setItem('voyage_db_listings', JSON.stringify(data));
           setListings(data);
@@ -162,6 +162,13 @@ function MainLayout() {
 
   useEffect(() => {
     loadListings();
+
+    // Set up periodic polling to keep listings always in-sync with any admin updates
+    const intervalId = setInterval(() => {
+      loadListings();
+    }, 10000); // sync every 10 seconds
+
+    return () => clearInterval(intervalId);
   }, []);
 
   // Fetch server-saved trips when user logs in

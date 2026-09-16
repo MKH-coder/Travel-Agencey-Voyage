@@ -384,6 +384,23 @@ export class ClientStorageManager {
     return true;
   }
 
+  static deleteAllListings(): boolean {
+    try {
+      localStorage.setItem(LISTINGS_STORAGE_KEY, JSON.stringify([]));
+    } catch {
+      // ignore
+    }
+    this.addAuditLog({
+      action: 'CLEAR_CATALOGUE',
+      performedBy: 'Technical Super Admin',
+      targetId: 'TRAVEL_PLATFORM_CORE',
+      targetType: 'SYSTEM',
+      ipAddress: '127.0.0.1',
+      details: { message: 'All listings cleared from local client storage.' }
+    });
+    return true;
+  }
+
   // Custom Posts / Privilege Templates
   static getCustomPosts(): CustomPost[] {
     try {

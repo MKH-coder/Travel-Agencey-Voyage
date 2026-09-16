@@ -996,6 +996,32 @@ Proceeding with sandbox delivery...`);
     res.json({ success: true, message: 'Listing deleted successfully.' });
   });
 
+  // 13b. Listings: DELETE ALL - Requires ADMIN, TECH_SUBADMIN, or TECH_ADMIN role
+  app.delete('/api/listings', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user) {
+      return res.status(401).json({ error: 'Authentication required to remove listings.' });
+    }
+
+    const allowedRoles = ['ADMIN', 'TECH_SUBADMIN', 'TECH_ADMIN'];
+    if (!allowedRoles.includes(authData.user.role)) {
+      return res.status(403).json({ error: 'Administrative privileges required to clear the catalogue.' });
+    }
+
+    db.deleteAllListings();
+
+    db.addAuditLog({
+      action: 'CLEAR_CATALOGUE',
+      performedBy: authData.user.email || 'Admin',
+      targetId: 'TRAVEL_PLATFORM_CORE',
+      targetType: 'SYSTEM',
+      ipAddress: getClientIp(req),
+      details: { message: 'All listings cleared from database.' }
+    });
+
+    res.json({ success: true, message: 'All listings cleared successfully.' });
+  });
+
   // 14. Users: GET All (TECH_ADMIN only)
   app.get('/api/users', (req, res) => {
     const authData = extractUserOrSession(req);

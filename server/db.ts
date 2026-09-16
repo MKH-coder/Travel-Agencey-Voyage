@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { createRequire } from 'module';
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { initializeFirestore, collection, doc, setDoc, deleteDoc, getDocs } from 'firebase/firestore';
+import { initializeFirestore, collection, doc, setDoc, deleteDoc, getDocs, onSnapshot } from 'firebase/firestore';
 import { User, Listing, AuditLog, Booking, SavedTrip, CustomPost } from './types.ts';
 
 const require = createRequire(import.meta.url);
@@ -194,258 +194,7 @@ const INITIAL_USERS: User[] = [
   }
 ];
 
-const INITIAL_LISTINGS: Listing[] = [
-  {
-    id: 'list-santorini-01',
-    title: 'Santorini Caldera Cliffside & Oia Sunset Panorama',
-    category: 'PLACE',
-    price: 340,
-    rating: 4.95,
-    reviewCount: 328,
-    location: 'Oia, Santorini Island',
-    country: 'Greece',
-    coordinates: { lat: 36.4618, lng: 25.3753 },
-    description: 'Iconic whitewashed cubic houses perched over Aegean volcanic cliffs, blue-domed chapels, and world-renowned sunset viewpoints over the sunken caldera lagoon.',
-    images: [
-      'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=1000&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'user_tech_admin_01',
-    createdByName: 'Mukund Krishna',
-    approvedBy: 'user_tech_admin_01',
-    tags: ['Island', 'Sunset', 'Iconic', 'Romantic'],
-    amenities: ['Catamaran Sailing Tour', 'Volcanic Hot Springs', 'Wine Tasting', 'Cliff Walks'],
-    timestamps: {
-      createdAt: new Date(Date.now() - 25 * 24 * 3600 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
-      approvedAt: new Date(Date.now() - 24 * 24 * 3600 * 1000).toISOString(),
-    }
-  },
-  {
-    id: 'list-hotel-amalfi-02',
-    title: 'Grand Hotel Excelsior Amalfi Palace & Spa',
-    category: 'HOTEL',
-    price: 590,
-    rating: 4.92,
-    reviewCount: 184,
-    location: 'Positano, Amalfi Coast',
-    country: 'Italy',
-    coordinates: { lat: 40.6281, lng: 14.4850 },
-    description: 'Historic 5-star cliffside sanctuary with direct Mediterranean sea elevators, heated infinity salt pool, Michelin-starred terraces, and private boat charter moorings.',
-    images: [
-      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1000&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'user_tech_admin_01',
-    createdByName: 'Mukund Krishna',
-    approvedBy: 'user_tech_admin_01',
-    tags: ['Luxury Stay', 'Sea View', 'Infinity Pool', 'Spa'],
-    amenities: ['Free High-Speed WiFi', 'Private Helipad Access', 'Valet Parking', 'Butler Service', 'Thermal Thalasso Spa'],
-    hotelPerks: ['Complimentary Italian Breakfast', 'Welcome Prosecco', 'Sunset Boat Shuttle to Positano Pier'],
-    timestamps: {
-      createdAt: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - 4 * 24 * 3600 * 1000).toISOString(),
-      approvedAt: new Date(Date.now() - 19 * 24 * 3600 * 1000).toISOString(),
-    }
-  },
-  {
-    id: 'list-dining-kyoto-03',
-    title: 'Gion Karyo Heritage Kaiseki & Garden Dining',
-    category: 'FOOD',
-    price: 165,
-    rating: 4.97,
-    reviewCount: 412,
-    location: 'Gion District, Kyoto',
-    country: 'Japan',
-    coordinates: { lat: 35.0037, lng: 135.7772 },
-    description: 'Traditional 10-course seasonal kaiseki banquet prepared by master artisans in a preserved 160-year-old wooden machiya overlooking an authentic stone zen garden.',
-    images: [
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1000&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'user_admin_02',
-    createdByName: 'Sarah Jenkins',
-    approvedBy: 'user_tech_admin_01',
-    tags: ['Fine Dining', 'Kaiseki', 'Historic Machiya', 'Tea Ceremony'],
-    diningSpecialties: ['Wagyu A5 Charcoal Sear', 'Seasonal Matsutake Dashi', 'Fresh Hokkaido Uni', 'Matcha Souffle'],
-    amenities: ['Private Tatami Rooms', 'Sake Sommelier Pairing', 'English Menu Available'],
-    timestamps: {
-      createdAt: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(),
-      approvedAt: new Date(Date.now() - 14 * 24 * 3600 * 1000).toISOString(),
-    }
-  },
-  {
-    id: 'list-swiss-alps-04',
-    title: 'Zermatt Glacier Alpine Traverse & Matterhorn Vista',
-    category: 'PLACE',
-    price: 280,
-    rating: 4.88,
-    reviewCount: 247,
-    location: 'Zermatt, Valais',
-    country: 'Switzerland',
-    coordinates: { lat: 45.9765, lng: 7.7491 },
-    description: 'High-altitude railway journey to Gornergrat, panoramic cable cars across the glacier paradise, and mirror alpine lake reflections of the majestic Matterhorn peak.',
-    images: [
-      'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1502784444187-359ac186c5bb?auto=format&fit=crop&w=1000&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'user_tech_admin_01',
-    createdByName: 'Mukund Krishna',
-    approvedBy: 'user_tech_admin_01',
-    tags: ['Mountains', 'Skiing', 'Alpine Lakes', 'Scenic Train'],
-    amenities: ['Gornergrat Train Pass', 'Glacier Ice Palace Entry', 'Fondue Tasting Experience'],
-    timestamps: {
-      createdAt: new Date(Date.now() - 12 * 24 * 3600 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
-      approvedAt: new Date(Date.now() - 11 * 24 * 3600 * 1000).toISOString(),
-    }
-  },
-  {
-    id: 'list-hotel-bali-05',
-    title: 'Ubud Hanging Gardens River Sanctuary & Villa',
-    category: 'HOTEL',
-    price: 420,
-    rating: 4.91,
-    reviewCount: 295,
-    location: 'Payangan, Ubud, Bali',
-    country: 'Indonesia',
-    coordinates: { lat: -8.5069, lng: 115.2625 },
-    description: 'Award-winning twin-tiered cascading infinity pools nestled deep in the Ayung River valley rainforest, with handcrafted teakwood villas and volcanic stone plunge pools.',
-    images: [
-      'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'user_admin_02',
-    createdByName: 'Sarah Jenkins',
-    approvedBy: 'user_tech_admin_01',
-    tags: ['Rainforest Villa', 'Twin Infinity Pool', 'Wellness', 'Ayurveda'],
-    amenities: ['Floating Breakfast in Pool', 'Daily Yoga Pavillion', 'River Valley Funicular', 'Spa by L’Occitane'],
-    hotelPerks: ['Free Afternoon Tea', 'Organic Herb Garden Tour', 'Cultural Dance Performance'],
-    timestamps: {
-      createdAt: new Date(Date.now() - 10 * 24 * 3600 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString(),
-      approvedAt: new Date(Date.now() - 9 * 24 * 3600 * 1000).toISOString(),
-    }
-  },
-  {
-    id: 'list-pending-banff-06',
-    title: 'Banff Moraine Lake Glacial Canoe & Valley of Ten Peaks',
-    category: 'PLACE',
-    price: 195,
-    rating: 4.96,
-    reviewCount: 152,
-    location: 'Banff National Park, Alberta',
-    country: 'Canada',
-    coordinates: { lat: 51.4968, lng: -115.9281 },
-    description: 'Electric turquoise glacial waters nestled beneath towering snow-capped pyramidal peaks. Features guided sunrise heritage cedar canoe paddles and larch valley alpine trail treks.',
-    images: [
-      'https://images.unsplash.com/photo-1503614472-8c93d56e92ce?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=1000&q=80'
-    ],
-    status: 'PENDING_APPROVAL',
-    createdBy: 'user_admin_02',
-    createdByName: 'Sarah Jenkins',
-    tags: ['National Park', 'Glacial Lake', 'Canoeing', 'Wildlife'],
-    amenities: ['Lakeside Canoe Rental', 'National Park Shuttle Express', 'Bear Safety Briefing'],
-    timestamps: {
-      createdAt: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
-      submittedAt: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
-    }
-  },
-  {
-    id: 'list-pending-paris-07',
-    title: 'Le Relais Saint-Germain Bistro & Cellar Tasting',
-    category: 'FOOD',
-    price: 130,
-    rating: 4.87,
-    reviewCount: 98,
-    location: 'Saint-Germain-des-Prés, Paris',
-    country: 'France',
-    coordinates: { lat: 48.8534, lng: 2.3338 },
-    description: 'Celebrated neo-bistronomy dining by chef Yves Camdeborde offering seasonal game, artisanal charcuterie, butter-poached oysters, and rare natural biodynamic wines.',
-    images: [
-      'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1000&q=80'
-    ],
-    status: 'PENDING_APPROVAL',
-    createdBy: 'user_admin_02',
-    createdByName: 'Sarah Jenkins',
-    tags: ['Bistronomy', 'Wine Cellar', 'Parisian', 'Culinary'],
-    diningSpecialties: ['Duck Confit Parmentier', 'Escargots de Bourgogne', 'Grand Cru Wine Flight'],
-    amenities: ['Outdoor Pavement Terrace', 'Historic Stone Cellar', 'Sommelier Guidance'],
-    timestamps: {
-      createdAt: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
-      submittedAt: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
-    }
-  },
-  {
-    id: 'list-tokyo-sushi-08',
-    title: 'Ginza Hachiman Edomae Sushi & Chef Counter',
-    category: 'FOOD',
-    price: 210,
-    rating: 4.98,
-    reviewCount: 310,
-    location: 'Ginza, Tokyo',
-    country: 'Japan',
-    coordinates: { lat: 35.6719, lng: 139.7640 },
-    description: 'Legendary 18-piece omakase experience featuring wild bluefin tuna dry-aged over binchotan ice, sea urchin from Rishiri Island, and warm red vinegar seasoned sushi rice.',
-    images: [
-      'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=1000&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'user_tech_admin_01',
-    createdByName: 'Mukund Krishna',
-    approvedBy: 'user_tech_admin_01',
-    tags: ['Omakase', 'Sushi', 'Michelin Star', 'Ginza'],
-    diningSpecialties: ['Otoro Nigiri Flamed', 'Uni Gunkan Triple Layer', 'Anago Sea Eel with Tare'],
-    amenities: ['8-Seat Hinoki Counter', 'Sake Flight Pairings', 'Direct Chef Consultation'],
-    timestamps: {
-      createdAt: new Date(Date.now() - 18 * 24 * 3600 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
-      approvedAt: new Date(Date.now() - 18 * 24 * 3600 * 1000).toISOString(),
-    }
-  },
-  {
-    id: 'list-hotel-como-09',
-    title: 'Villa del Balbianello & Como Shoreline Sanctuary',
-    category: 'HOTEL',
-    price: 680,
-    rating: 4.94,
-    reviewCount: 165,
-    location: 'Lenno, Lake Como',
-    country: 'Italy',
-    coordinates: { lat: 45.9658, lng: 9.2025 },
-    description: 'Magnificent neo-classical villa overlooking Lake Como with terraced gardens, private wooden speedboat transfers, cypress-lined walks, and waterfront dining.',
-    images: [
-      'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1000&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'user_tech_admin_01',
-    createdByName: 'Mukund Krishna',
-    approvedBy: 'user_tech_admin_01',
-    tags: ['Luxury Villa', 'Lakefront', 'Private Boat', 'Historic Garden'],
-    amenities: ['Private Boat Dock', 'Lakeview Infinity Spa', 'Helicopter Transfer', 'Personal Concierge'],
-    hotelPerks: ['Daily Riva Boat Tour', 'Champagne Sunset Aperitivo', 'Complimentary Breakfast'],
-    timestamps: {
-      createdAt: new Date(Date.now() - 14 * 24 * 3600 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString(),
-      approvedAt: new Date(Date.now() - 14 * 24 * 3600 * 1000).toISOString(),
-    }
-  }
-];
+const INITIAL_LISTINGS: Listing[] = [];
 
 const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
@@ -509,97 +258,130 @@ class Database {
 
   private async initFirestoreSync() {
     try {
-      console.log('Initializing background Firestore sync with local cache...');
-      // Sync listings
+      console.log('Initializing background real-time Firestore synchronization with local cache...');
+
+      // Clear out legacy default listings from Firestore if they exist to keep the catalogue empty to begin with
       try {
         const listingsSnap = await getDocs(collection(firestoreDb, 'listings'));
-        if (!listingsSnap.empty) {
+        const defaultListingIds = [
+          'list-santorini-01',
+          'list-kyoto-02',
+          'list-amalfi-03',
+          'list-swiss-04',
+          'list-tokyo-05',
+          'list-paris-06',
+          'list-hotel-amalfi-02',
+          'list-dining-kyoto-03',
+          'list-swiss-alps-04',
+          'list-hotel-bali-05',
+          'list-pending-banff-06',
+          'list-pending-paris-07',
+          'list-tokyo-sushi-08',
+          'list-hotel-como-09'
+        ];
+        for (const docObj of listingsSnap.docs) {
+          const id = docObj.id;
+          if (defaultListingIds.includes(id) || id.startsWith('list-')) {
+            console.log(`[Firestore Cleanup] Deleting legacy default listing: ${id}`);
+            await this.safeFirestoreDelete('listings', id);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to clean up legacy default listings from Firestore on startup:', err);
+      }
+
+      // 1. Real-time Listings sync
+      try {
+        onSnapshot(collection(firestoreDb, 'listings'), (snapshot) => {
           const firestoreListings: Listing[] = [];
-          listingsSnap.forEach(d => {
+          snapshot.forEach(d => {
             firestoreListings.push(d.data() as Listing);
           });
-          for (const fListing of firestoreListings) {
-            const idx = this.data.listings.findIndex(l => l.id === fListing.id);
-            if (idx >= 0) {
-              this.data.listings[idx] = fListing;
-            } else {
-              this.data.listings.unshift(fListing);
+
+          const mappedListings = firestoreListings.map((item: Listing) => {
+            if (!item.coordinates && DEFAULT_COORDS_MAP[item.id]) {
+              return { ...item, coordinates: DEFAULT_COORDS_MAP[item.id] };
             }
-          }
-        }
+            return item;
+          });
+
+          this.data.listings = mappedListings;
+          this.writeToDisk(this.data);
+          console.log(`[Firestore Realtime] Synced ${this.data.listings.length} listings.`);
+        }, (err) => {
+          console.warn('[Firestore Realtime] Error syncing listings:', err);
+        });
       } catch (err) {
-        console.warn('Failed to query listings from Firestore:', err);
+        console.warn('Failed to attach listings snapshot listener:', err);
       }
 
-      // Sync users
+      // 2. Real-time Users sync
       try {
-        const usersSnap = await getDocs(collection(firestoreDb, 'users'));
-        if (!usersSnap.empty) {
+        onSnapshot(collection(firestoreDb, 'users'), (snapshot) => {
           const firestoreUsers: User[] = [];
-          usersSnap.forEach(d => {
+          snapshot.forEach(d => {
             firestoreUsers.push(d.data() as User);
           });
-          for (const fUser of firestoreUsers) {
-            const idx = this.data.users.findIndex(u => u.uid === fUser.uid);
-            if (idx >= 0) {
-              this.data.users[idx] = fUser;
-            } else {
-              this.data.users.push(fUser);
+
+          // Ensure all initial users are in the synced user base
+          for (const initUser of INITIAL_USERS) {
+            const existingIdx = firestoreUsers.findIndex(u => u.email.toLowerCase() === initUser.email.toLowerCase());
+            if (existingIdx === -1) {
+              firestoreUsers.push(initUser);
+            } else if (initUser.role === 'TECH_SUBADMIN' && firestoreUsers[existingIdx].role !== 'TECH_SUBADMIN') {
+              firestoreUsers[existingIdx].role = 'TECH_SUBADMIN';
             }
           }
-        }
+
+          this.data.users = firestoreUsers;
+          this.writeToDisk(this.data);
+          console.log(`[Firestore Realtime] Synced ${this.data.users.length} users.`);
+        }, (err) => {
+          console.warn('[Firestore Realtime] Error syncing users:', err);
+        });
       } catch (err) {
-        console.warn('Failed to query users from Firestore:', err);
+        console.warn('Failed to attach users snapshot listener:', err);
       }
 
-      // Sync custom posts
+      // 3. Real-time Custom Posts sync
       try {
-        const customPostsSnap = await getDocs(collection(firestoreDb, 'custom_posts'));
-        if (!customPostsSnap.empty) {
+        onSnapshot(collection(firestoreDb, 'custom_posts'), (snapshot) => {
           const firestoreCustomPosts: CustomPost[] = [];
-          customPostsSnap.forEach(d => {
+          snapshot.forEach(d => {
             firestoreCustomPosts.push(d.data() as CustomPost);
           });
-          for (const fPost of firestoreCustomPosts) {
-            const idx = this.data.custom_posts.findIndex(p => p.id === fPost.id);
-            if (idx >= 0) {
-              this.data.custom_posts[idx] = fPost;
-            } else {
-              this.data.custom_posts.unshift(fPost);
-            }
-          }
-        }
+
+          this.data.custom_posts = firestoreCustomPosts.length > 0 ? firestoreCustomPosts : INITIAL_CUSTOM_POSTS;
+          this.writeToDisk(this.data);
+          console.log(`[Firestore Realtime] Synced ${this.data.custom_posts.length} custom posts.`);
+        }, (err) => {
+          console.warn('[Firestore Realtime] Error syncing custom posts:', err);
+        });
       } catch (err) {
-        console.warn('Failed to query custom posts from Firestore:', err);
+        console.warn('Failed to attach custom posts snapshot listener:', err);
       }
 
-      // Sync audit logs
+      // 4. Real-time Audit Logs sync
       try {
-        const auditLogsSnap = await getDocs(collection(firestoreDb, 'audit_logs'));
-        if (!auditLogsSnap.empty) {
+        onSnapshot(collection(firestoreDb, 'audit_logs'), (snapshot) => {
           const firestoreAuditLogs: AuditLog[] = [];
-          auditLogsSnap.forEach(d => {
+          snapshot.forEach(d => {
             firestoreAuditLogs.push(d.data() as AuditLog);
           });
-          for (const fLog of firestoreAuditLogs) {
-            const idx = this.data.audit_logs.findIndex(l => l.id === fLog.id);
-            if (idx === -1) {
-              this.data.audit_logs.push(fLog);
-            }
-          }
-          this.data.audit_logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-          if (this.data.audit_logs.length > 500) {
-            this.data.audit_logs = this.data.audit_logs.slice(0, 500);
-          }
-        }
+
+          firestoreAuditLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+          this.data.audit_logs = firestoreAuditLogs.slice(0, 500);
+          this.writeToDisk(this.data);
+          console.log(`[Firestore Realtime] Synced ${this.data.audit_logs.length} audit logs.`);
+        }, (err) => {
+          console.warn('[Firestore Realtime] Error syncing audit logs:', err);
+        });
       } catch (err) {
-        console.warn('Failed to query audit logs from Firestore:', err);
+        console.warn('Failed to attach audit logs snapshot listener:', err);
       }
 
-      this.writeToDisk(this.data);
-      console.log('Background Firestore sync finished.');
     } catch (err) {
-      console.warn('Failed to sync Firestore data with local database on startup:', err);
+      console.warn('Failed to initialize Firestore synchronization:', err);
     }
   }
 
@@ -627,7 +409,7 @@ class Database {
         }
 
         // Ensure listings have coordinates applied if needed
-        const listings: Listing[] = (parsed.listings ? parsed.listings : INITIAL_LISTINGS).map((item: Listing) => {
+        const listings: Listing[] = (Array.isArray(parsed.listings) ? parsed.listings : INITIAL_LISTINGS).map((item: Listing) => {
           if (!item.coordinates && DEFAULT_COORDS_MAP[item.id]) {
             return { ...item, coordinates: DEFAULT_COORDS_MAP[item.id] };
           }
@@ -769,6 +551,16 @@ class Database {
       return true;
     }
     return false;
+  }
+
+  deleteAllListings(): boolean {
+    const ids = this.data.listings.map(l => l.id);
+    this.data.listings = [];
+    this.writeToDisk(this.data);
+    for (const id of ids) {
+      this.safeFirestoreDelete('listings', id);
+    }
+    return true;
   }
 
   // Audit Logs
