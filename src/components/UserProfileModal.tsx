@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { User as UserIcon, Shield, ShieldCheck, Lock, Smartphone, CheckCircle2, X, Sparkles, Building2, Briefcase, Camera } from 'lucide-react';
+import { User as UserIcon, Shield, ShieldCheck, Lock, Smartphone, CheckCircle2, X, Sparkles, Building2, Briefcase, Camera, Monitor, Globe, Clock, Wifi } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
+import { getClientSessionInfo } from '../utils/clientInfo.ts';
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -10,7 +11,7 @@ interface UserProfileModalProps {
 
 export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose }) => {
   const { styles } = useTheme();
-  const { user, toggle2FA, updateProfilePicture } = useAuth();
+  const { user, toggle2FA, updateProfilePicture, isNetworkOnline } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isToggling, setIsToggling] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -18,7 +19,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
 
   if (!isOpen || !user) return null;
 
-  const isAdminUser = user.role === 'ADMIN' || user.role === 'TECH_SUBADMIN' || user.role === 'TECH_ADMIN';
+  const clientInfo = getClientSessionInfo();
 
   const handleToggle2FA = async () => {
     setIsToggling(true);
@@ -150,6 +151,69 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
             <span>{feedback.message}</span>
           </div>
         )}
+
+        {/* Client-Side Login Session Information Card */}
+        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-800 pb-2.5">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center border border-sky-500/20">
+                <Monitor className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="font-bold text-xs text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                  Client Login Session Info
+                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase ${isNetworkOnline ? 'bg-emerald-500/20 text-emerald-500' : 'bg-rose-500/20 text-rose-500'}`}>
+                    {isNetworkOnline ? 'Active Online' : 'Offline Mode'}
+                  </span>
+                </h4>
+                <p className="text-[10px] text-slate-400">
+                  Real-time browser, device, viewport & client connection telemetry.
+                </p>
+              </div>
+            </div>
+            <div className="text-[10px] font-mono text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+              Authenticated
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 text-[11px]">
+            <div className="p-2.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800/60 space-y-1">
+              <div className="text-[10px] text-slate-400 font-semibold flex items-center gap-1">
+                <Clock className="w-3 h-3 text-amber-500" /> Login Timestamp
+              </div>
+              <div className="font-bold text-slate-800 dark:text-slate-200 truncate">
+                {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : clientInfo.loginFormatted}
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800/60 space-y-1">
+              <div className="text-[10px] text-slate-400 font-semibold flex items-center gap-1">
+                <Monitor className="w-3 h-3 text-sky-500" /> Client Browser & OS
+              </div>
+              <div className="font-bold text-slate-800 dark:text-slate-200 truncate">
+                {user.lastLoginBrowser || clientInfo.browser} ({user.lastLoginOs || clientInfo.os})
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800/60 space-y-1">
+              <div className="text-[10px] text-slate-400 font-semibold flex items-center gap-1">
+                <Globe className="w-3 h-3 text-emerald-500" /> Timezone & Locale
+              </div>
+              <div className="font-bold text-slate-800 dark:text-slate-200 truncate">
+                {user.lastLoginTimezone || clientInfo.timeZone} ({clientInfo.language})
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800/60 space-y-1">
+              <div className="text-[10px] text-slate-400 font-semibold flex items-center gap-1">
+                <Wifi className="w-3 h-3 text-purple-500" /> Viewport & Client IP
+              </div>
+              <div className="font-bold text-slate-800 dark:text-slate-200 truncate">
+                {clientInfo.viewport} • {user.lastLoginIp || '127.0.0.1'}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Security & 2FA Toggle Section */}
         <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 space-y-3">

@@ -142,7 +142,7 @@ export const MapLocationPicker: React.FC<MapLocationPickerProps> = ({
 
     const isDark = theme === 'dark-slate' || theme === 'crimson-black' || theme === 'royal-gold' || theme === 'violet-glass';
     const tileUrl = isDark
-      ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
       : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
     L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);

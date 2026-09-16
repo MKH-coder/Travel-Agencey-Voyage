@@ -15,6 +15,13 @@ export interface User {
   mfaEnabled: boolean;
   recoveryEmail?: string;
   createdAt: string;
+  lastLoginAt?: string;
+  lastLoginIp?: string;
+  lastLoginDevice?: string;
+  lastLoginBrowser?: string;
+  lastLoginOs?: string;
+  lastLoginTimezone?: string;
+  lastLoginScreen?: string;
 }
 
 export type PostPrivilege =

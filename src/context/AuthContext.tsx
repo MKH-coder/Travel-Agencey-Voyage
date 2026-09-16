@@ -7,6 +7,7 @@ import { firebaseAuth, googleAuthProvider, firebaseStorage, FirebaseSyncService 
 import { signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { AuthAudit } from '../services/authAudit.ts';
+import { getClientSessionInfo } from '../utils/clientInfo.ts';
 
 interface TwoFactorChallenge {
   uid: string;
@@ -75,17 +76,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Save/Clear local user cache
   const setAuthSession = useCallback((newUser: User | null, newToken: string | null) => {
-    setUser(newUser);
-    setToken(newToken);
     if (newUser && newToken) {
-      localStorage.setItem('travel_user', JSON.stringify(newUser));
+      const clientInfo = getClientSessionInfo();
+      const enrichedUser: User = {
+        ...newUser,
+        lastLoginAt: newUser.lastLoginAt || clientInfo.loginTime,
+        lastLoginDevice: newUser.lastLoginDevice || `${clientInfo.deviceType} (${clientInfo.os})`,
+        lastLoginBrowser: newUser.lastLoginBrowser || clientInfo.browser,
+        lastLoginOs: newUser.lastLoginOs || clientInfo.os,
+        lastLoginTimezone: newUser.lastLoginTimezone || clientInfo.timeZone,
+        lastLoginScreen: newUser.lastLoginScreen || clientInfo.screenResolution,
+        lastLoginIp: newUser.lastLoginIp || '127.0.0.1 (Client Device)',
+      };
+      setUser(enrichedUser);
+      setToken(newToken);
+      localStorage.setItem('travel_user', JSON.stringify(enrichedUser));
       localStorage.setItem('travel_token', newToken);
+      ClientStorageManager.saveUser(enrichedUser);
       lastUserActivityRef.current = Date.now();
-      if (newUser.role === 'ADMIN' || newUser.role === 'TECH_SUBADMIN' || newUser.role === 'TECH_ADMIN') {
+      if (enrichedUser.role === 'ADMIN' || enrichedUser.role === 'TECH_SUBADMIN' || enrichedUser.role === 'TECH_ADMIN') {
         // Idle allowance: 60 minutes without any user movement
         setSessionRemainingSec(60 * 60);
       }
     } else {
+      setUser(null);
+      setToken(null);
       localStorage.removeItem('travel_user');
       localStorage.removeItem('travel_token');
       setSessionRemainingSec(null);

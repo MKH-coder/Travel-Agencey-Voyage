@@ -372,13 +372,13 @@ export const Header: React.FC<HeaderProps> = ({
                 <div
                   className={`absolute right-0 mt-2 w-64 rounded-2xl shadow-xl border ${styles.border} ${styles.cardBg} p-2 z-50 animate-in fade-in zoom-in-95`}
                 >
-                  <div className="px-3 py-2 border-b border-slate-200/50 dark:border-slate-800">
+                  <div className="px-3 py-2.5 border-b border-slate-200/50 dark:border-slate-800 space-y-1.5">
                     <div className={`text-xs font-bold ${styles.textPrimary}`}>{user.name}</div>
                     <div className={`text-[11px] truncate ${styles.textMuted}`}>{user.email}</div>
                     {user.phoneNumber && (
                       <div className={`text-[10px] font-mono ${styles.textMuted}`}>{user.phoneNumber}</div>
                     )}
-                    <div className="mt-2 flex items-center justify-between text-[11px]">
+                    <div className="flex items-center justify-between text-[11px] pt-0.5">
                       <span className={styles.textMuted}>Privilege:</span>
                       <span
                         className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${
@@ -393,6 +393,12 @@ export const Header: React.FC<HeaderProps> = ({
                       >
                         {user.role === 'TECH_SUBADMIN' ? 'TECH SUBADMIN' : user.role}
                       </span>
+                    </div>
+
+                    {/* Client Session Telemetry */}
+                    <div className="mt-2 p-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 text-[10px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                      <span className="truncate">Client: {user.lastLoginBrowser || 'Chrome'} ({user.lastLoginOs || 'Desktop'})</span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="Client session active" />
                     </div>
                   </div>
 
