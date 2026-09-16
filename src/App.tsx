@@ -15,6 +15,7 @@ import { ToastContainer } from './components/ToastContainer.tsx';
 import { useGlobalShortcuts } from './hooks/useGlobalShortcuts.ts';
 import { Listing, FilterState, ThemeMode } from './types.ts';
 import { DEFAULT_LISTINGS } from './data/defaultData.ts';
+import { ClientStorageManager } from './services/clientStorage.ts';
 import {
   Compass,
   Sparkles,
@@ -35,7 +36,7 @@ function MainLayout() {
 
   const [currentView, setCurrentView] = useState<'dashboard' | 'admin'>('dashboard');
   const [feedLayout, setFeedLayout] = useState<'split' | 'grid' | 'map'>('split');
-  const [listings, setListings] = useState<Listing[]>(DEFAULT_LISTINGS);
+  const [listings, setListings] = useState<Listing[]>(() => ClientStorageManager.getListings());
   const [loading, setLoading] = useState(false);
   const [savedListings, setSavedListings] = useState<Listing[]>(() => {
     try {
@@ -146,12 +147,17 @@ function MainLayout() {
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
+          // Keep ClientStorageManager storage completely synchronized with server listings
+          localStorage.setItem('voyage_db_listings', JSON.stringify(data));
           setListings(data);
+          return;
         }
       }
     } catch (err) {
       console.warn('API listings not available, using built-in curated destinations:', err);
     }
+    // Set from local client storage manager
+    setListings(ClientStorageManager.getListings());
   };
 
   useEffect(() => {

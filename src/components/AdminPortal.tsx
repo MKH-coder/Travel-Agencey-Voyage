@@ -703,6 +703,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             : 'Draft saved to your inventory tracker.'
         );
         resetListingForm();
+        await fetchListings();
+        if (onListingUpdated) onListingUpdated();
         return;
       }
     } catch {
@@ -754,6 +756,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           : 'Draft saved to local inventory.'
       );
       resetListingForm();
+      await fetchListings();
+      if (onListingUpdated) onListingUpdated();
     } catch {
       setUploadError('Error creating listing.');
     } finally {
