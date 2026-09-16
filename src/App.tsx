@@ -253,9 +253,9 @@ function MainLayout() {
     }
   };
 
-  // Filter listings based on criteria
+  // Filter and sort listings based on criteria
   const filteredListings = useMemo(() => {
-    return listings.filter(item => {
+    const filtered = listings.filter(item => {
       // In explore feed, only show published items (or public)
       if (item.status && item.status !== 'PUBLISHED') {
         return false;
@@ -292,6 +292,13 @@ function MainLayout() {
       if (filters.minRating > 0 && item.rating < filters.minRating) return false;
 
       return true;
+    });
+
+    // Sort: Newest created listings first
+    return filtered.sort((a, b) => {
+      const timeA = new Date(a.timestamps.createdAt).getTime();
+      const timeB = new Date(b.timestamps.createdAt).getTime();
+      return timeB - timeA;
     });
   }, [listings, filters]);
 
