@@ -138,6 +138,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [token, user, setAuthSession]);
 
+  // Periodic Active Session Heartbeat to Server & Client Storage
+  useEffect(() => {
+    if (!user || !token) return;
+
+    const sendSessionHeartbeat = async () => {
+      const clientInfo = getClientSessionInfo();
+      try {
+        await fetch('/api/users/heartbeat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            clientInfo,
+            lastActiveAt: new Date().toISOString(),
+          }),
+        });
+      } catch {
+        // Fallback silently if offline
+      }
+
+      // Sync active session in client storage registry
+      try {
+        const activeSessionsRaw = localStorage.getItem('travel_active_sessions') || '{}';
+        const activeMap = JSON.parse(activeSessionsRaw);
+        activeMap[user.uid] = {
+          uid: user.uid,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          customTitle: user.customTitle,
+          department: user.department,
+          lastActiveAt: new Date().toISOString(),
+          loginTime: user.lastLoginAt || clientInfo.loginTime,
+          browser: clientInfo.browser,
+          os: clientInfo.os,
+          deviceType: clientInfo.deviceType,
+          screenResolution: clientInfo.screenResolution,
+          viewport: clientInfo.viewport,
+          timezone: clientInfo.timeZone,
+          ipAddress: '127.0.0.1 (Client Device)',
+          status: 'ONLINE',
+        };
+        localStorage.setItem('travel_active_sessions', JSON.stringify(activeMap));
+      } catch {
+        // ignore
+      }
+    };
+
+    sendSessionHeartbeat();
+    const interval = setInterval(sendSessionHeartbeat, 15000); // Send heartbeat every 15 seconds
+    return () => clearInterval(interval);
+  }, [user, token]);
+
   const refreshSessionHealth = useCallback(async () => {
     if (!token) return;
     try {

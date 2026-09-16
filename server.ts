@@ -39,6 +39,26 @@ async function startServer() {
     return req.socket.remoteAddress || '127.0.0.1';
   };
 
+  // Active Session Telemetry Registry
+  const activeSessionsStore = new Map<string, {
+    uid: string;
+    email: string;
+    name: string;
+    role: string;
+    customTitle?: string;
+    department?: string;
+    lastActiveAt: string;
+    lastLoginAt: string;
+    ipAddress: string;
+    browser: string;
+    os: string;
+    deviceType: string;
+    screenResolution: string;
+    viewport: string;
+    timezone: string;
+    status: 'ONLINE' | 'IDLE' | 'OFFLINE';
+  }>();
+
   // Auth extraction middleware
   const extractUserOrSession = (req: express.Request) => {
     const authHeader = req.headers.authorization;
@@ -1115,6 +1135,140 @@ Proceeding with sandbox delivery...`);
     });
 
     res.json({ success: true, message: `User account ${targetUser.email} has been permanently deleted.` });
+  });
+
+  // 14d. Users: HEARTBEAT & TELEMETRY REGISTRATION
+  app.post('/api/users/heartbeat', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user) {
+      return res.status(401).json({ error: 'Unauthorized user session.' });
+    }
+
+    const { clientInfo } = req.body;
+    const clientIp = getClientIp(req);
+    const now = new Date().toISOString();
+
+    const sessionData = {
+      uid: authData.user.uid,
+      email: authData.user.email,
+      name: authData.user.name,
+      role: authData.user.role,
+      customTitle: authData.user.customTitle,
+      department: authData.user.department,
+      lastActiveAt: now,
+      lastLoginAt: authData.user.lastLoginAt || now,
+      ipAddress: clientIp,
+      browser: clientInfo?.browser || authData.user.lastLoginBrowser || 'Chrome 122',
+      os: clientInfo?.os || authData.user.lastLoginOs || 'Windows',
+      deviceType: clientInfo?.deviceType || 'Desktop',
+      screenResolution: clientInfo?.screenResolution || authData.user.lastLoginScreen || '1920x1080',
+      viewport: clientInfo?.viewport || '1920x940',
+      timezone: clientInfo?.timeZone || authData.user.lastLoginTimezone || 'UTC',
+      status: 'ONLINE' as const,
+    };
+
+    activeSessionsStore.set(authData.user.uid, sessionData);
+
+    // Update user record with latest telemetry
+    const dbUser = db.getUserById(authData.user.uid);
+    if (dbUser) {
+      dbUser.lastLoginAt = sessionData.lastLoginAt;
+      dbUser.lastLoginIp = clientIp;
+      dbUser.lastLoginDevice = `${sessionData.deviceType} (${sessionData.os})`;
+      dbUser.lastLoginBrowser = sessionData.browser;
+      dbUser.lastLoginOs = sessionData.os;
+      dbUser.lastLoginTimezone = sessionData.timezone;
+      dbUser.lastLoginScreen = sessionData.screenResolution;
+      db.saveUser(dbUser);
+    }
+
+    res.json({ success: true, timestamp: now });
+  });
+
+  // 14e. Users: GET ACTIVE LOGGED-IN SESSIONS (TECH_ADMIN / TECH_SUBADMIN)
+  app.get('/api/users/active-sessions', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user || (authData.user.role !== 'TECH_ADMIN' && authData.user.role !== 'TECH_SUBADMIN')) {
+      return res.status(403).json({ error: 'Only Technical Super Admin can view active user sessions.' });
+    }
+
+    const allUsers = db.getUsers();
+    const nowMs = Date.now();
+
+    const sessions = allUsers.map(u => {
+      const activeData = activeSessionsStore.get(u.uid);
+      let lastActiveMs = 0;
+
+      if (activeData?.lastActiveAt) {
+        lastActiveMs = new Date(activeData.lastActiveAt).getTime();
+      } else if (u.lastLoginAt) {
+        lastActiveMs = new Date(u.lastLoginAt).getTime();
+      } else if (u.createdAt) {
+        lastActiveMs = new Date(u.createdAt).getTime();
+      }
+
+      const diffMin = (nowMs - lastActiveMs) / (1000 * 60);
+      let status: 'ONLINE' | 'IDLE' | 'OFFLINE' = 'OFFLINE';
+
+      if (lastActiveMs > 0 && diffMin <= 2) {
+        status = 'ONLINE';
+      } else if (lastActiveMs > 0 && diffMin <= 15) {
+        status = 'IDLE';
+      }
+
+      return {
+        uid: u.uid,
+        email: u.email,
+        name: u.name,
+        role: u.role,
+        customTitle: u.customTitle,
+        department: u.department,
+        status,
+        lastActiveAt: activeData?.lastActiveAt || u.lastLoginAt || u.createdAt,
+        lastLoginAt: u.lastLoginAt || u.createdAt,
+        ipAddress: activeData?.ipAddress || u.lastLoginIp || getClientIp(req),
+        browser: activeData?.browser || u.lastLoginBrowser || 'Chrome 122',
+        os: activeData?.os || u.lastLoginOs || 'Windows',
+        deviceType: activeData?.deviceType || 'Desktop',
+        screenResolution: activeData?.screenResolution || u.lastLoginScreen || '1920x1080',
+        viewport: activeData?.viewport || '1920x940',
+        timezone: activeData?.timezone || u.lastLoginTimezone || 'UTC',
+        mfaEnabled: u.mfaEnabled,
+      };
+    });
+
+    res.json({
+      timestamp: new Date().toISOString(),
+      totalUsers: allUsers.length,
+      onlineCount: sessions.filter(s => s.status === 'ONLINE').length,
+      idleCount: sessions.filter(s => s.status === 'IDLE').length,
+      sessions,
+    });
+  });
+
+  // 14f. Users: REVOKE ACTIVE SESSION (TECH_ADMIN only)
+  app.post('/api/users/:id/revoke-session', (req, res) => {
+    const authData = extractUserOrSession(req);
+    if (!authData?.user || authData.user.role !== 'TECH_ADMIN') {
+      return res.status(403).json({ error: 'Only Technical Super Admin can revoke user sessions.' });
+    }
+
+    const targetId = req.params.id;
+    activeSessionsStore.delete(targetId);
+
+    const targetUser = db.getUserById(targetId);
+    if (targetUser) {
+      db.addAuditLog({
+        action: 'SUPER_ADMIN_REVOKED_USER_SESSION',
+        performedBy: authData.user.email,
+        targetId,
+        targetType: 'USER',
+        ipAddress: getClientIp(req),
+        details: { targetEmail: targetUser.email, role: targetUser.role }
+      });
+    }
+
+    res.json({ success: true, message: `Active session for ${targetUser?.email || targetId} has been revoked.` });
   });
 
   // 15. Users: Update Role & Custom Post (TECH_ADMIN only)

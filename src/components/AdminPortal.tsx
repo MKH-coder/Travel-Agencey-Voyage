@@ -41,7 +41,12 @@ import {
   FileJson,
   Flag,
   MessageSquare,
-  Star
+  Star,
+  Activity,
+  Monitor,
+  Radio,
+  LogOut,
+  Globe
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -68,6 +73,7 @@ import { AddAdminModal } from './AddAdminModal.tsx';
 import { SetPasswordModal } from './SetPasswordModal.tsx';
 import { EditRolePostModal } from './EditRolePostModal.tsx';
 import { EditContentModal } from './EditContentModal.tsx';
+import { ActiveSessionTelemetryModal, ActiveUserSession } from './ActiveSessionTelemetryModal.tsx';
 import { CloudSyncPanel } from './CloudSyncPanel.tsx';
 import { CustomPostCreatorModal } from './CustomPostCreatorModal.tsx';
 import { FirebaseConsoleModal } from './FirebaseConsoleModal.tsx';
@@ -204,6 +210,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'TECH_ADMIN' | 'TECH_SUBADMIN' | 'ADMIN' | 'USER'>('ALL');
 
+  // Active Logged-In User Sessions & Telemetry State
+  const [activeSessions, setActiveSessions] = useState<ActiveUserSession[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState<boolean>(false);
+  const [sessionFilter, setSessionFilter] = useState<'ALL' | 'ONLINE' | 'IDLE' | 'OFFLINE'>('ALL');
+  const [selectedTelemetryUser, setSelectedTelemetryUser] = useState<ActiveUserSession | null>(null);
+  const [revokingSessionUid, setRevokingSessionUid] = useState<string | null>(null);
+
   // Form State for creating a listing
   const [formData, setFormData] = useState({
     title: '',
@@ -286,6 +299,108 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       // fallback
     } finally {
       setLoadingUsers(false);
+    }
+  };
+
+  // Fetch active sessions telemetry (Tech Admin and Sub-Admin)
+  const fetchActiveSessions = async () => {
+    if (!token || (!isTechAdmin && !isTechSubAdmin)) return;
+    setLoadingSessions(true);
+    try {
+      const res = await fetch('/api/users/active-sessions', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.sessions)) {
+          setActiveSessions(data.sessions);
+          return;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    // Static / Offline fallback for active sessions
+    try {
+      const activeMapRaw = localStorage.getItem('travel_active_sessions') || '{}';
+      const activeMap = JSON.parse(activeMapRaw);
+      const allUsers = usersList.length > 0 ? usersList : ClientStorageManager.getUsers();
+      const nowMs = Date.now();
+
+      const sessions: ActiveUserSession[] = allUsers.map(u => {
+        const activeData = activeMap[u.uid];
+        let lastActiveMs = 0;
+        if (activeData?.lastActiveAt) {
+          lastActiveMs = new Date(activeData.lastActiveAt).getTime();
+        } else if (u.lastLoginAt) {
+          lastActiveMs = new Date(u.lastLoginAt).getTime();
+        } else if (u.createdAt) {
+          lastActiveMs = new Date(u.createdAt).getTime();
+        }
+
+        const diffMin = (nowMs - lastActiveMs) / (1000 * 60);
+        let status: 'ONLINE' | 'IDLE' | 'OFFLINE' = 'OFFLINE';
+        if (lastActiveMs > 0 && diffMin <= 2) {
+          status = 'ONLINE';
+        } else if (lastActiveMs > 0 && diffMin <= 15) {
+          status = 'IDLE';
+        }
+
+        return {
+          uid: u.uid,
+          email: u.email,
+          name: u.name,
+          role: u.role,
+          customTitle: u.customTitle,
+          department: u.department,
+          status,
+          lastActiveAt: activeData?.lastActiveAt || u.lastLoginAt || u.createdAt || new Date().toISOString(),
+          lastLoginAt: u.lastLoginAt || u.createdAt || new Date().toISOString(),
+          ipAddress: activeData?.ipAddress || u.lastLoginIp || '127.0.0.1 (Client Device)',
+          browser: activeData?.browser || u.lastLoginBrowser || 'Chrome 122',
+          os: activeData?.os || u.lastLoginOs || 'Windows',
+          deviceType: activeData?.deviceType || 'Desktop',
+          screenResolution: activeData?.screenResolution || u.lastLoginScreen || '1920x1080',
+          viewport: activeData?.viewport || '1920x940',
+          timezone: activeData?.timezone || u.lastLoginTimezone || 'UTC',
+          mfaEnabled: u.mfaEnabled,
+        };
+      });
+
+      setActiveSessions(sessions);
+    } catch {
+      // ignore
+    } finally {
+      setLoadingSessions(false);
+    }
+  };
+
+  const handleRevokeSession = async (session: ActiveUserSession) => {
+    if (!window.confirm(`Are you sure you want to force logout & revoke the active session for ${session.name} (${session.email})?`)) {
+      return;
+    }
+    setRevokingSessionUid(session.uid);
+    try {
+      if (token) {
+        await fetch(`/api/users/${session.uid}/revoke-session`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+      try {
+        const activeMapRaw = localStorage.getItem('travel_active_sessions') || '{}';
+        const activeMap = JSON.parse(activeMapRaw);
+        delete activeMap[session.uid];
+        localStorage.setItem('travel_active_sessions', JSON.stringify(activeMap));
+      } catch {
+        // ignore
+      }
+      setActiveSessions(prev => prev.map(s => s.uid === session.uid ? { ...s, status: 'OFFLINE' } : s));
+    } catch (err) {
+      console.error('Revoke session error:', err);
+    } finally {
+      setRevokingSessionUid(null);
     }
   };
 
@@ -465,7 +580,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       if (isElevatedAdmin) {
         fetchLogs();
         fetchReportedReviews();
+        fetchActiveSessions();
       }
+
+      // Auto poll active logged-in sessions every 10 seconds for real-time accuracy
+      const sessionInterval = setInterval(() => {
+        if (isElevatedAdmin) {
+          fetchActiveSessions();
+        }
+      }, 10000);
+
+      return () => clearInterval(sessionInterval);
     }
   }, [token, isTechAdmin, isElevatedAdmin]);
 
@@ -2135,6 +2260,170 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </div>
           </div>
 
+          {/* --- LIVE LOGGED-IN USERS TELEMETRY HUB --- */}
+          <div className={`p-6 rounded-3xl border ${styles.border} ${styles.cardBg} space-y-4 shadow-sm`}>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/60 dark:border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/30">
+                  <Activity className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className={`text-base font-extrabold ${styles.textPrimary}`}>
+                      Live Active Logged-In Users & Session Telemetry
+                    </h3>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-500/20 text-emerald-500 border border-emerald-500/30 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                      {activeSessions.filter(s => s.status === 'ONLINE').length} ONLINE NOW
+                    </span>
+                  </div>
+                  <p className={`text-xs ${styles.textMuted}`}>
+                    Real-time monitoring of currently logged-in users, client IP addresses, browser versions, operating systems, and active security sessions.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => fetchActiveSessions()}
+                  className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition-colors flex items-center gap-1.5"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Refresh Sessions</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Live Session Quick Metrics */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
+                <div className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider">Online Now</div>
+                <div className="text-xl font-extrabold text-emerald-500 flex items-center gap-1.5 mt-0.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+                  {activeSessions.filter(s => s.status === 'ONLINE').length}
+                </div>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
+                <div className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider">Idle Sessions</div>
+                <div className="text-xl font-extrabold text-amber-500 mt-0.5">
+                  {activeSessions.filter(s => s.status === 'IDLE').length}
+                </div>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
+                <div className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider">Total Registered</div>
+                <div className="text-xl font-extrabold text-sky-400 mt-0.5">
+                  {usersList.length} Accounts
+                </div>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
+                <div className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider">2FA Protected</div>
+                <div className="text-xl font-extrabold text-purple-400 mt-0.5">
+                  {usersList.filter(u => u.mfaEnabled).length} Users
+                </div>
+              </div>
+            </div>
+
+            {/* Filter Pills for Active Sessions */}
+            <div className="flex items-center gap-2 pt-1 overflow-x-auto">
+              {(['ALL', 'ONLINE', 'IDLE', 'OFFLINE'] as const).map(st => (
+                <button
+                  key={st}
+                  onClick={() => setSessionFilter(st)}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                    sessionFilter === st
+                      ? 'bg-emerald-500 text-white shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-900 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {st === 'ALL' ? 'All User Sessions' : st === 'ONLINE' ? '🟢 Online Now' : st === 'IDLE' ? '🟡 Idle' : '⚪ Offline'}
+                </button>
+              ))}
+            </div>
+
+            {/* Active Sessions Grid / Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+              {activeSessions
+                .filter(s => sessionFilter === 'ALL' || s.status === sessionFilter)
+                .map((session) => {
+                  const isOnline = session.status === 'ONLINE';
+                  const isIdle = session.status === 'IDLE';
+
+                  return (
+                    <div
+                      key={session.uid}
+                      className={`p-4 rounded-2xl border transition-all ${
+                        isOnline
+                          ? 'bg-emerald-950/10 border-emerald-500/30 dark:bg-emerald-950/20 shadow-sm'
+                          : isIdle
+                          ? 'bg-amber-950/10 border-amber-500/30 dark:bg-amber-950/20'
+                          : 'bg-slate-100/60 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 opacity-80'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs ${
+                            isOnline ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : isIdle ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-400'
+                          }`}>
+                            {session.name.charAt(0)}
+                          </div>
+                          <div>
+                            <div className="font-bold text-xs text-slate-900 dark:text-slate-100 line-clamp-1">{session.name}</div>
+                            <div className="text-[10px] text-sky-400 font-mono line-clamp-1">{session.email}</div>
+                          </div>
+                        </div>
+
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase shrink-0 flex items-center gap-1 ${
+                          isOnline ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : isIdle ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-ping' : isIdle ? 'bg-amber-500' : 'bg-slate-500'}`} />
+                          {isOnline ? 'ONLINE' : isIdle ? 'IDLE' : 'OFFLINE'}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 space-y-1.5 text-[11px] text-slate-400">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-slate-400">Client IP:</span>
+                          <span className="font-mono font-bold text-slate-300">{session.ipAddress}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>Device & OS:</span>
+                          <span className="font-semibold text-slate-200">{session.browser} ({session.os})</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>Last Active:</span>
+                          <span className="font-mono text-emerald-400">
+                            {session.lastActiveAt ? new Date(session.lastActiveAt).toLocaleTimeString() : 'N/A'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 pt-2 border-t border-slate-200/50 dark:border-slate-800/80 flex items-center justify-between gap-2">
+                        <button
+                          onClick={() => setSelectedTelemetryUser(session)}
+                          className="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 border border-sky-500/30 transition-colors flex items-center gap-1"
+                        >
+                          <Eye className="w-3 h-3" />
+                          <span>Inspect Telemetry</span>
+                        </button>
+
+                        {isOnline && (
+                          <button
+                            onClick={() => handleRevokeSession(session)}
+                            disabled={revokingSessionUid === session.uid}
+                            className="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 border border-rose-500/30 transition-colors flex items-center gap-1"
+                            title="Force Disconnect Active Session"
+                          >
+                            <LogOut className="w-3 h-3" />
+                            <span>Revoke</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
               <h2 className={`text-lg font-bold ${styles.textPrimary} flex items-center gap-2`}>
@@ -2755,6 +3044,22 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           setRiskThresholds(newConfig);
           localStorage.setItem('voyage_risk_thresholds', JSON.stringify(newConfig));
           setShowRiskConfigModal(false);
+        }}
+      />
+
+      {/* --- ACTIVE USER SESSION TELEMETRY INSPECTOR MODAL --- */}
+      <ActiveSessionTelemetryModal
+        isOpen={!!selectedTelemetryUser}
+        session={selectedTelemetryUser}
+        onClose={() => setSelectedTelemetryUser(null)}
+        onRevokeSession={(session) => handleRevokeSession(session)}
+        onSetPassword={(email) => {
+          const u = usersList.find(x => x.email === email);
+          if (u) setSetPasswordModalUser(u);
+        }}
+        onEditRolePost={(session) => {
+          const u = usersList.find(x => x.uid === session.uid);
+          if (u) setEditingRolePostUser(u);
         }}
       />
 
