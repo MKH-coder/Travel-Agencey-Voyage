@@ -790,7 +790,7 @@ Proceeding with sandbox delivery...`);
       return res.status(400).json({ error: 'Missing required listing parameters.' });
     }
 
-    const canDirectPublish = authData.user.role === 'TECH_ADMIN' || authData.user.role === 'TECH_SUBADMIN';
+    const canDirectPublish = authData.user.role === 'TECH_ADMIN' || authData.user.role === 'TECH_SUBADMIN' || authData.user.role === 'ADMIN';
     const postAsSuperAdmin = Boolean(req.body.postAsSuperAdmin) && canDirectPublish;
     let finalStatus = requestedStatus || 'PENDING_APPROVAL';
     if (postAsSuperAdmin || (canDirectPublish && requestedStatus === 'PUBLISHED')) {
@@ -859,7 +859,7 @@ Proceeding with sandbox delivery...`);
       return res.status(404).json({ error: 'Listing not found.' });
     }
 
-    const canEditAny = authData.user.role === 'TECH_ADMIN' || authData.user.role === 'TECH_SUBADMIN';
+    const canEditAny = authData.user.role === 'TECH_ADMIN' || authData.user.role === 'TECH_SUBADMIN' || authData.user.role === 'ADMIN';
     const isCreator = listing.createdBy === authData.user.uid;
 
     if (!canEditAny && !isCreator) {

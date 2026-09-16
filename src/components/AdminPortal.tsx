@@ -1004,7 +1004,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
   // Filter listings
   const pendingQueue = listings.filter(l => l.status === 'PENDING_APPROVAL');
-  const myInventory = isTechAdmin ? listings : listings.filter(l => l.createdBy === user?.uid);
+  const myInventory = isAdmin ? listings : listings.filter(l => l.createdBy === user?.uid);
 
   // Inactivity timer format
   const formatSec = (sec: number | null) => {
@@ -1157,7 +1157,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           }`}
         >
           <Sparkles className="w-4 h-4" />
-          <span>{isElevatedAdmin ? 'Master Catalog' : 'My Draft Inventory'}</span>
+          <span>{isAdmin ? 'Master Catalog' : 'My Draft Inventory'}</span>
           <span className="text-[10px] opacity-70">({myInventory.length})</span>
         </button>
 
@@ -1904,7 +1904,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               Save as Draft
             </button>
 
-            {isElevatedAdmin && postAsSuperAdmin ? (
+             {isElevatedAdmin && postAsSuperAdmin ? (
               <button
                 id="publish-direct-btn"
                 type="button"
@@ -1915,7 +1915,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 <ShieldCheck className="w-4 h-4" />
                 <span>Publish with Super Admin Privilege</span>
               </button>
-            ) : isTechAdmin ? (
+            ) : isAdmin ? (
               <button
                 id="publish-direct-btn"
                 type="button"
