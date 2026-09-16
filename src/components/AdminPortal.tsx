@@ -25,6 +25,7 @@ import {
   Trash2,
   MapPin,
   UserPlus,
+  Save,
   Pencil,
   Cloud,
   Utensils,
@@ -2175,10 +2176,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               <button
                 id="add-new-admin-btn"
                 onClick={() => setShowAddAdminModal(true)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary} shadow-md flex items-center gap-1.5`}
+                className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-600 hover:bg-emerald-500 text-white shadow-md flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
-                <UserPlus className="w-3.5 h-3.5" />
-                <span>Add User & Post</span>
+                <Save className="w-3.5 h-3.5 text-emerald-100" />
+                <span>Add & Save User</span>
               </button>
               <button
                 onClick={() => setActiveTab('create')}

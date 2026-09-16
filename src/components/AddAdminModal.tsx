@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, ShieldCheck, UserPlus, X, AlertTriangle, CheckCircle2, Briefcase, Building2, KeyRound, Eye, EyeOff, RefreshCw } from 'lucide-react';
+import { Shield, ShieldCheck, UserPlus, X, AlertTriangle, CheckCircle2, Briefcase, Building2, KeyRound, Eye, EyeOff, RefreshCw, Save } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { UserRole, User } from '../types.ts';
@@ -150,17 +150,19 @@ export const AddAdminModal: React.FC<AddAdminModalProps> = ({
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/30">
-            <UserPlus className="w-6 h-6" />
-          </div>
-          <div>
-            <h3 className={`text-lg font-bold ${styles.textPrimary}`}>
-              Add User & Assign Official Post
-            </h3>
-            <p className={`text-xs ${styles.textMuted}`}>
-              Technical Super Admin authorization to register emails, designate roles, and assign official job posts.
-            </p>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/30">
+              <UserPlus className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className={`text-lg font-bold ${styles.textPrimary}`}>
+                Add & Save User (Super Admin Privilege)
+              </h3>
+              <p className={`text-xs ${styles.textMuted}`}>
+                Technical Super Admin privilege to register emails, assign passwords, roles, and official job posts.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -373,21 +375,21 @@ export const AddAdminModal: React.FC<AddAdminModalProps> = ({
             />
           </div>
 
-          <div className="pt-3 flex items-center justify-end gap-3">
+          <div className="pt-4 border-t border-slate-200/50 dark:border-slate-800 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold ${styles.buttonSecondary}`}
+              className={`px-4 py-2.5 rounded-xl text-xs font-semibold ${styles.buttonSecondary}`}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonPrimary} shadow-md flex items-center gap-1.5`}
+              className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
-              <UserPlus className="w-4 h-4" />
-              <span>{isSubmitting ? 'Authorizing...' : 'Save & Authorize User'}</span>
+              <Save className="w-4 h-4 text-emerald-100" />
+              <span>{isSubmitting ? 'Saving User...' : 'Save & Authorize User'}</span>
             </button>
           </div>
         </form>
