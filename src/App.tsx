@@ -16,6 +16,7 @@ import { useGlobalShortcuts } from './hooks/useGlobalShortcuts.ts';
 import { Listing, FilterState, ThemeMode } from './types.ts';
 import { DEFAULT_LISTINGS } from './data/defaultData.ts';
 import { ClientStorageManager } from './services/clientStorage.ts';
+import { SupabaseSyncService } from './services/supabaseSync.ts';
 import {
   Compass,
   Sparkles,
@@ -27,7 +28,8 @@ import {
   ArrowRight,
   Map as MapIcon,
   LayoutGrid,
-  Columns
+  Columns,
+  Database
 } from 'lucide-react';
 
 function MainLayout() {
@@ -140,24 +142,53 @@ function MainLayout() {
     ],
   });
 
-  // Fetch listings (with fallback to default listings on static GitHub Pages)
+  // Fetch listings (synchronizing with Supabase cloud backup database and local backend)
   const loadListings = async () => {
     try {
-      const res = await fetch('/api/listings');
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          // Keep ClientStorageManager storage completely synchronized with server listings
-          localStorage.setItem('voyage_db_listings', JSON.stringify(data));
-          setListings(data);
-          return;
+      // 1. Fetch live listings from Supabase PostgreSQL Backup table
+      const supabaseItems = await SupabaseSyncService.fetchListingsFromSupabase();
+
+      // 2. Fetch listings from backend Express server
+      let serverItems: Listing[] = [];
+      try {
+        const res = await fetch('/api/listings');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            serverItems = data;
+          }
+        }
+      } catch (err) {
+        console.warn('Backend API listings offline, using local storage/Supabase:', err);
+      }
+
+      // Base items from server or client storage fallback
+      const baseItems = serverItems.length > 0 ? serverItems : ClientStorageManager.getListings();
+
+      // Combine & prioritize Supabase items
+      const listingMap = new Map<string, Listing>();
+      for (const item of baseItems) {
+        listingMap.set(item.id, item);
+      }
+
+      if (supabaseItems && supabaseItems.length > 0) {
+        for (const sItem of supabaseItems) {
+          const existing = listingMap.get(sItem.id);
+          listingMap.set(sItem.id, {
+            ...existing,
+            ...sItem,
+            images: sItem.images?.length ? sItem.images : existing?.images || ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80']
+          });
         }
       }
+
+      const finalMerged = Array.from(listingMap.values());
+      localStorage.setItem('voyage_db_listings', JSON.stringify(finalMerged));
+      setListings(finalMerged);
     } catch (err) {
-      console.warn('API listings not available, using built-in curated destinations:', err);
+      console.warn('Error loading listings:', err);
+      setListings(ClientStorageManager.getListings());
     }
-    // Set from local client storage manager
-    setListings(ClientStorageManager.getListings());
   };
 
   useEffect(() => {
@@ -358,9 +389,13 @@ function MainLayout() {
               {/* Feed Header & Layout Controls */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/60 dark:border-slate-800 pb-4">
                 <div>
-                  <h2 className={`text-xl font-extrabold tracking-tight ${styles.textPrimary} flex items-center gap-2`}>
+                  <h2 className={`text-xl font-extrabold tracking-tight ${styles.textPrimary} flex items-center gap-2 flex-wrap`}>
                     <Sparkles className="w-5 h-5 text-sky-500" />
                     <span>Featured Travel Collections</span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm">
+                      <Database className="w-3 h-3 text-emerald-500" />
+                      Supabase Cloud Sync
+                    </span>
                   </h2>
                   <p className={`text-xs ${styles.textMuted} mt-0.5`}>
                     Showing {filteredListings.length} hand-vetted destinations, five-star accommodations, and culinary experiences
