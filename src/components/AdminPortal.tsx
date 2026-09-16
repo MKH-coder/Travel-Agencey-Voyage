@@ -89,6 +89,7 @@ import { AuditTrailDashboard } from './AuditTrailDashboard.tsx';
 import { RiskThresholdConfig } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 import { FirebaseSyncService } from '../services/firebase.ts';
+import { SupabaseSyncService } from '../services/supabaseSync.ts';
 import { AuthAudit } from '../services/authAudit.ts';
 
 interface AdminPortalProps {
@@ -697,6 +698,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       });
 
       if (res.ok) {
+        const resData = await res.json().catch(() => null);
+        if (resData?.listing) {
+          SupabaseSyncService.syncSingleListing(resData.listing).catch(err => console.warn('Supabase backup error:', err));
+        }
         const msg = effectiveStatus === 'PENDING_APPROVAL'
           ? 'Listing successfully submitted to Technical Super Admin Queue for verification!'
           : effectiveStatus === 'PUBLISHED'
@@ -750,6 +755,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       };
 
       ClientStorageManager.saveListing(newListing);
+      SupabaseSyncService.syncSingleListing(newListing).catch(err => console.warn('Supabase backup error:', err));
       await auditLog(
         effectiveStatus === 'PUBLISHED' ? 'CREATE_AND_PUBLISH_LISTING' : 'CREATE_LISTING_DRAFT',
         newListing.id,
@@ -839,6 +845,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           item.rejectionReason = reason;
         }
         ClientStorageManager.saveListing(item);
+        SupabaseSyncService.syncSingleListing(item).catch(err => console.warn('Supabase status sync error:', err));
         await auditLog(
           newStatus === 'PUBLISHED' ? 'APPROVE_LISTING' : 'REJECT_LISTING',
           id,
@@ -879,6 +886,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       return;
     }
     ClientStorageManager.deleteListing(id);
+    SupabaseSyncService.deleteSingleListing(id).catch(err => console.warn('Supabase delete error:', err));
     try {
       await fetch(`/api/listings/${id}`, {
         method: 'DELETE',
@@ -912,6 +920,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       return;
     }
     ClientStorageManager.deleteAllListings();
+    SupabaseSyncService.deleteAllListings().catch(err => console.warn('Supabase clear error:', err));
     try {
       await fetch('/api/listings', {
         method: 'DELETE',

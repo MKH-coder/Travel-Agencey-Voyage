@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { Listing } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
+import { SupabaseSyncService } from '../services/supabaseSync.ts';
 import { AuthAudit } from '../services/authAudit.ts';
 
 interface EditContentModalProps {
@@ -147,6 +148,10 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
       });
 
       if (res.ok) {
+        const resData = await res.json().catch(() => null);
+        if (resData?.listing) {
+          SupabaseSyncService.syncSingleListing(resData.listing).catch(err => console.warn('Supabase sync error:', err));
+        }
         setSuccess('Master catalog experience updated successfully!');
         AuthAudit.showToast({
           title: 'Catalog Updated',
@@ -183,6 +188,7 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
         }
       };
       ClientStorageManager.saveListing(updatedListing);
+      SupabaseSyncService.syncSingleListing(updatedListing).catch(err => console.warn('Supabase sync error:', err));
       setSuccess('Master catalog experience updated successfully (Offline Fallback)!');
       AuthAudit.showToast({
         title: 'Catalog Updated (Offline)',

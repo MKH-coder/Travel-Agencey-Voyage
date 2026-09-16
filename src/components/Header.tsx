@@ -27,6 +27,7 @@ import { useAuth } from '../context/AuthContext.tsx';
 import { ThemeMode } from '../types.ts';
 import { UserProfileModal } from './UserProfileModal.tsx';
 import { Clock as ClockComponent } from './Clock.tsx';
+import { SupabaseSyncIndicator } from './SupabaseSyncIndicator.tsx';
 
 interface HeaderProps {
   currentView: 'dashboard' | 'admin';
@@ -34,6 +35,7 @@ interface HeaderProps {
   savedTripsCount: number;
   onOpenSavedTrips: () => void;
   onOpenShortcutsHelp?: () => void;
+  onOpenSupabaseConsole?: () => void;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
 }
@@ -44,6 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
   savedTripsCount,
   onOpenSavedTrips,
   onOpenShortcutsHelp,
+  onOpenSupabaseConsole,
   searchQuery,
   setSearchQuery,
 }) => {
@@ -303,6 +306,9 @@ export const Header: React.FC<HeaderProps> = ({
               <Command className="w-4 h-4 text-sky-500" />
             </button>
           )}
+
+          {/* Supabase Real-Time Sync Indicator */}
+          <SupabaseSyncIndicator onOpenSupabaseConsole={onOpenSupabaseConsole} />
 
           {/* User Profile & Auth */}
           {user ? (
