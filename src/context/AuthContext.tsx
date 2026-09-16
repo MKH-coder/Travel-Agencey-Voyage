@@ -3,8 +3,9 @@ import { User, AuditLog } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 import { AuditService } from '../services/auditService.ts';
 import { supabase } from '../supabaseClient.js';
-import { firebaseAuth, googleAuthProvider } from '../services/firebase.ts';
+import { firebaseAuth, googleAuthProvider, firebaseStorage, FirebaseSyncService } from '../services/firebase.ts';
 import { signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { AuthAudit } from '../services/authAudit.ts';
 
 interface TwoFactorChallenge {
@@ -42,6 +43,7 @@ interface AuthContextValue {
   verifyEmergencyBypass: (code: string, recoveryEmail?: string) => Promise<{ success: boolean; error?: string }>;
   verifyPasskey: (passkey: string) => Promise<boolean>;
   toggle2FA: (enabled?: boolean) => Promise<{ success: boolean; mfaEnabled: boolean; error?: string }>;
+  updateProfilePicture: (file: File) => Promise<{ success: boolean; url?: string; error?: string }>;
   auditLog: (
     action: string,
     targetId: string,
@@ -948,6 +950,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [user, token]
   );
 
+  const updateProfilePicture = useCallback(
+    async (file: File): Promise<{ success: boolean; url?: string; error?: string }> => {
+      if (!user) return { success: false, error: 'User not authenticated' };
+      try {
+        const storageRef = ref(firebaseStorage, `profile_pictures/${user.uid}`);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+        
+        const updatedUser: User = {
+          ...user,
+          avatar: downloadURL,
+        };
+        
+        setUser(updatedUser);
+        localStorage.setItem('travel_user', JSON.stringify(updatedUser));
+        ClientStorageManager.saveUser(updatedUser);
+        await FirebaseSyncService.saveUser(updatedUser);
+        
+        AuditService.recordAction(
+          {
+            action: 'UPDATE_PROFILE_PICTURE',
+            targetId: user.uid,
+            targetType: 'USER_PROFILE',
+            performedBy: user.uid,
+            performedByEmail: user.email,
+            details: { avatar: downloadURL },
+          },
+          updatedUser,
+          token
+        );
+        
+        return { success: true, url: downloadURL };
+      } catch (err: any) {
+        return { success: false, error: err.message || 'Failed to upload profile picture' };
+      }
+    },
+    [user, token]
+  );
+
   // Record administrative audit log
   const auditLog = useCallback(
     async (
@@ -1012,6 +1053,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         verifyEmergencyBypass,
         verifyPasskey,
         toggle2FA,
+        updateProfilePicture,
         auditLog,
         logout,
         refreshSessionHealth,

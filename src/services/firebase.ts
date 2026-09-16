@@ -19,6 +19,7 @@ import {
   Timestamp 
 } from 'firebase/firestore';
 import { getAuth, Auth, GoogleAuthProvider } from 'firebase/auth';
+import { getStorage, FirebaseStorage } from 'firebase/storage';
 import firebaseConfig from '../../firebase-applet-config.json';
 import { Listing, User, AuditLog, CustomPost, PriceAlert, Review } from '../types.ts';
 import { ClientStorageManager } from './clientStorage.ts';
@@ -67,6 +68,7 @@ try {
 
 export const firestoreDb: Firestore = dbInstance;
 export const firebaseAuth: Auth = getAuth(app);
+export const firebaseStorage: FirebaseStorage = getStorage(app);
 try {
   firebaseAuth.useDeviceLanguage();
 } catch {

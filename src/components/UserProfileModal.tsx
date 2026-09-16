@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { User as UserIcon, Shield, ShieldCheck, Lock, Smartphone, CheckCircle2, X, Sparkles, Building2, Briefcase } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { User as UserIcon, Shield, ShieldCheck, Lock, Smartphone, CheckCircle2, X, Sparkles, Building2, Briefcase, Camera } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 
@@ -10,8 +10,10 @@ interface UserProfileModalProps {
 
 export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose }) => {
   const { styles } = useTheme();
-  const { user, toggle2FA } = useAuth();
+  const { user, toggle2FA, updateProfilePicture } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isToggling, setIsToggling] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   if (!isOpen || !user) return null;
@@ -46,19 +48,47 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setIsUploading(true);
+    setFeedback(null);
+    const res = await updateProfilePicture(file);
+    if (res.success) {
+      setFeedback({ type: 'success', message: 'Profile picture updated successfully!' });
+    } else {
+      setFeedback({ type: 'error', message: res.error || 'Failed to upload profile picture.' });
+    }
+    setIsUploading(false);
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
       <div className={`w-full max-w-lg rounded-3xl border ${styles.border} ${styles.cardBg} shadow-2xl overflow-hidden p-6 space-y-5`}>
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className={`w-10 h-10 rounded-2xl ${styles.accent} text-white flex items-center justify-center font-bold text-lg shadow-md`}>
+            <div 
+              className={`relative w-10 h-10 rounded-2xl ${styles.accent} text-white flex items-center justify-center font-bold text-lg shadow-md cursor-pointer group`}
+              onClick={() => fileInputRef.current?.click()}
+            >
               {user.avatar ? (
                 <img src={user.avatar} alt={user.name} className="w-full h-full rounded-2xl object-cover" />
               ) : (
                 user.name.charAt(0)
               )}
+              <div className={`absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity ${isUploading ? 'opacity-100' : ''}`}>
+                {isUploading ? <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white"></div> : <Camera className="w-5 h-5 text-white" />}
+              </div>
             </div>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              accept="image/*" 
+              className="hidden" 
+            />
             <div>
               <h3 className={`font-bold text-base ${styles.textPrimary}`}>{user.name}</h3>
               <p className={`text-xs ${styles.textMuted}`}>{user.email}</p>
