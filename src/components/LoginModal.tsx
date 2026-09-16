@@ -216,6 +216,18 @@ export const LoginModal: React.FC = () => {
         return;
       }
 
+      // Verify the OTP/Reset code to establish a temporary session
+      const { error: otpError } = await supabase.auth.verifyOtp({
+        type: 'recovery',
+        token: cleanCode,
+        email: recoveryEmail,
+      });
+
+      if (otpError) {
+        setErrorMsg(otpError.message);
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: newPassword
       });
