@@ -23,6 +23,7 @@ import {
   isValidBypassCode,
 } from './server/security.ts';
 import { Listing, User } from './server/types.ts';
+import { supabaseAdmin } from './server/supabase.ts';
 
 async function startServer() {
   const app = express();
@@ -1383,11 +1384,20 @@ Proceeding with sandbox delivery...`);
   });
 
   // --- 15.5 Feed Posts ---
-  app.get('/api/feed-posts', (req, res) => {
-    res.json(db.getFeedPosts());
+  app.get('/api/feed-posts', async (req, res) => {
+    try {
+      const { data, error } = await supabaseAdmin.from('feed_posts').select('*').order('createdAt', { ascending: false });
+      if (error) {
+        // Fallback silently if table doesn't exist
+        return res.json(db.getFeedPosts()); 
+      }
+      return res.json(data);
+    } catch (err) {
+      return res.json(db.getFeedPosts()); // fallback
+    }
   });
 
-  app.post('/api/feed-posts', (req, res) => {
+  app.post('/api/feed-posts', async (req, res) => {
     const authData = extractUserOrSession(req);
     // Super admins and tech admins can post
     if (!authData?.user || !['TECH_ADMIN', 'TECH_SUBADMIN', 'ADMIN'].includes(authData.user.role)) {
@@ -1399,24 +1409,41 @@ Proceeding with sandbox delivery...`);
       return res.status(400).json({ error: 'Content is required.' });
     }
 
-    const newPost = db.saveFeedPost({
+    const newPost = {
       id: `fp_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       authorId: authData.user.uid,
       authorName: authData.user.name,
       content,
       createdAt: new Date().toISOString()
-    });
+    };
+
+    // Save to local/Firebase DB as well
+    db.saveFeedPost(newPost);
+
+    try {
+      // Sync to Supabase
+      const { error } = await supabaseAdmin.from('feed_posts').insert([newPost]);
+    } catch (err) {
+      // Ignore fallback
+    }
 
     res.json(newPost);
   });
 
-  app.delete('/api/feed-posts/:id', (req, res) => {
+  app.delete('/api/feed-posts/:id', async (req, res) => {
     const authData = extractUserOrSession(req);
     if (!authData?.user || !['TECH_ADMIN', 'TECH_SUBADMIN', 'ADMIN'].includes(authData.user.role)) {
       return res.status(403).json({ error: 'Unauthorized to delete feed posts.' });
     }
 
     const success = db.deleteFeedPost(req.params.id);
+    
+    try {
+      const { error } = await supabaseAdmin.from('feed_posts').delete().eq('id', req.params.id);
+    } catch (err) {
+      // Ignore fallback
+    }
+
     if (!success) {
       return res.status(404).json({ error: 'Feed post not found.' });
     }
