@@ -1,7 +1,7 @@
 import { Listing, User, CustomPost, AuditLog, Booking, PriceAlert } from '../types.ts';
 
-export const SUPABASE_URL = 'https://iunwfdzefyvwcvalhdzv.supabase.co';
-export const SUPABASE_ANON_KEY = 'sb_publishable_eb6-PYu0SLS5QlB4cBFMXg_a3UrtWNG';
+export const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://iunwfdzefyvwcvalhdzv.supabase.co';
+export const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_eb6-PYu0SLS5QlB4cBFMXg_a3UrtWNG';
 export const SUPABASE_CONSOLE_URL = 'https://supabase.com/dashboard';
 
 export type SupabaseSyncStatus = 'syncing' | 'synced' | 'offline';

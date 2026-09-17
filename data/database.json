@@ -1,19 +1,19 @@
 {
   "users": [
     {
-      "lastLoginScreen": "384x832",
-      "name": "Traveler",
+      "lastLoginTimezone": "Asia/Calcutta",
+      "lastLoginDevice": "Mobile (Android)",
+      "lastLoginIp": "2405:201:f01a:588a:be14:c575:dd90:cf4b",
+      "mfaEnabled": true,
       "lastLoginBrowser": "Chrome 153",
+      "role": "USER",
       "uid": "token_1e4a016d-c195-4e35-bc0b-f039abecaf49",
-      "lastLoginOs": "Android",
+      "createdAt": "2026-09-17T01:35:53.344Z",
+      "name": "Traveler",
+      "lastLoginScreen": "384x832",
       "email": "user_token_1e@traveler.io",
       "lastLoginAt": "2026-09-17T01:35:53.346Z",
-      "lastLoginTimezone": "Asia/Calcutta",
-      "createdAt": "2026-09-17T01:35:53.344Z",
-      "lastLoginIp": "2405:201:f01a:588a:87f7:c13e:238e:298e",
-      "lastLoginDevice": "Mobile (Android)",
-      "role": "USER",
-      "mfaEnabled": true
+      "lastLoginOs": "Android"
     },
     {
       "createdAt": "2026-09-16T06:25:33.835Z",
