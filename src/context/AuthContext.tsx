@@ -2,10 +2,6 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { User, AuditLog } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 import { AuditService } from '../services/auditService.ts';
-import { supabase } from '../supabaseClient.js';
-import { firebaseAuth, googleAuthProvider, firebaseStorage, FirebaseSyncService } from '../services/firebase.ts';
-import { signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { AuthAudit } from '../services/authAudit.ts';
 import { getClientSessionInfo } from '../utils/clientInfo.ts';
 
@@ -71,10 +67,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isSessionExpired, setIsSessionExpired] = useState<boolean>(false);
   const [isNetworkOnline, setIsNetworkOnline] = useState<boolean>(() => (typeof navigator !== 'undefined' ? navigator.onLine : true));
 
-  // Ref to track last user movement / interaction
   const lastUserActivityRef = React.useRef<number>(Date.now());
 
-  // Save/Clear local user cache
   const setAuthSession = useCallback((newUser: User | null, newToken: string | null) => {
     if (newUser && newToken) {
       const clientInfo = getClientSessionInfo();
@@ -95,7 +89,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ClientStorageManager.saveUser(enrichedUser);
       lastUserActivityRef.current = Date.now();
       if (enrichedUser.role === 'ADMIN' || enrichedUser.role === 'TECH_SUBADMIN' || enrichedUser.role === 'TECH_ADMIN') {
-        // Idle allowance: 60 minutes without any user movement
         setSessionRemainingSec(60 * 60);
       }
     } else {
@@ -107,11 +100,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Track user movements across entire window
   useEffect(() => {
     const handleUserInteraction = () => {
       lastUserActivityRef.current = Date.now();
-      // Keep session alive as long as user is interacting
       if (token && user && (user.role === 'ADMIN' || user.role === 'TECH_SUBADMIN' || user.role === 'TECH_ADMIN')) {
         setSessionRemainingSec(60 * 60);
       }
@@ -123,7 +114,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const handleOnline = () => setIsNetworkOnline(true);
     const handleOffline = () => {
       setIsNetworkOnline(false);
-      // Immediately trigger session pause/expiry alert if network connection terminates
       setIsSessionExpired(true);
       setAuthSession(null, null);
     };
@@ -138,7 +128,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [token, user, setAuthSession]);
 
-  // Periodic Active Session Heartbeat to Server & Client Storage
   useEffect(() => {
     if (!user || !token) return;
 
@@ -157,10 +146,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }),
         });
       } catch {
-        // Fallback silently if offline
+        // offline fallback
       }
 
-      // Sync active session in client storage registry
       try {
         const activeSessionsRaw = localStorage.getItem('travel_active_sessions') || '{}';
         const activeMap = JSON.parse(activeSessionsRaw);
@@ -189,7 +177,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     sendSessionHeartbeat();
-    const interval = setInterval(sendSessionHeartbeat, 15000); // Send heartbeat every 15 seconds
+    const interval = setInterval(sendSessionHeartbeat, 15000);
     return () => clearInterval(interval);
   }, [user, token]);
 
@@ -197,7 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!token) return;
     try {
       const res = await fetch('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
@@ -209,21 +197,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setAuthSession(null, null);
       }
     } catch {
-      // Offline / transient error
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
         setIsNetworkOnline(false);
       }
     }
   }, [token, setAuthSession]);
 
-  // Session timer check: ONLY times out if network disconnects or if there is zero user movement for 60 minutes
   useEffect(() => {
     if (!token || !user || (user.role !== 'ADMIN' && user.role !== 'TECH_SUBADMIN' && user.role !== 'TECH_ADMIN')) {
       return;
     }
 
     const interval = setInterval(() => {
-      // 1. Check network connectivity
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
         setIsNetworkOnline(false);
         setIsSessionExpired(true);
@@ -231,14 +216,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      // 2. Check time since last user movement
       const idleMs = Date.now() - lastUserActivityRef.current;
       const idleSec = Math.floor(idleMs / 1000);
       const remainingSec = Math.max(0, 60 * 60 - idleSec);
-
       setSessionRemainingSec(remainingSec);
 
-      // Only timeout if completely idle without any movement for 60 minutes
       if (remainingSec <= 0) {
         setIsSessionExpired(true);
         setAuthSession(null, null);
@@ -248,82 +230,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => clearInterval(interval);
   }, [token, user, setAuthSession]);
 
-  // Google Redirect Result Handler (for mobile browsers and redirect flows)
-  useEffect(() => {
-    let isMounted = true;
-    getRedirectResult(firebaseAuth)
-      .then(async (result) => {
-        if (!isMounted || !result || !result.user?.email) return;
-        const emailToUse = result.user.email.toLowerCase();
-        const nameToUse = result.user.displayName || emailToUse.split('@')[0];
-        const idToken = await result.user.getIdToken();
-
-        AuthAudit.logAuthSuccess({
-          provider: 'google',
-          action: 'GET_REDIRECT_RESULT',
-          email: emailToUse,
-          uid: result.user.uid,
-          showToast: true,
-        });
-
-        try {
-          const res = await fetch('/api/auth/google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: emailToUse,
-              name: nameToUse,
-              isOAuthVerified: true,
-              idToken
-            }),
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.requires2FA) {
-              setTwoFactorChallenge({
-                uid: data.uid,
-                email: data.email,
-                phoneNumber: data.phoneNumber,
-                message: data.message,
-              });
-              return;
-            }
-            setAuthSession(data.user, data.token);
-            setShowLoginModal(false);
-            return;
-          }
-        } catch {
-          // Backend offline
-        }
-
-        const fallbackResult = ClientStorageManager.authenticateGoogle(emailToUse, nameToUse, true);
-        if (fallbackResult.requires2FA && fallbackResult.challenge) {
-          setTwoFactorChallenge({
-            uid: fallbackResult.challenge.uid,
-            email: fallbackResult.challenge.email,
-            message: fallbackResult.challenge.message,
-          });
-          return;
-        }
-        setAuthSession(fallbackResult.user, fallbackResult.token);
-        setShowLoginModal(false);
-      })
-      .catch((err) => {
-        console.warn('[Firebase Auth] Redirect result processing:', err);
-        AuthAudit.logOAuthFailure({
-          provider: 'google',
-          action: 'GET_REDIRECT_RESULT',
-          error: err,
-          showToast: true,
-        });
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [setAuthSession, setShowLoginModal]);
-
-  // Google Login with authentic Firebase OAuth popup and fallback verification
   const loginWithGoogle = async (manualEmail?: string, name?: string, forceRedirect = false): Promise<{
     requires2FA: boolean;
     error?: string;
@@ -334,127 +240,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       let emailToUse = manualEmail ? manualEmail.trim().toLowerCase() : '';
-      let nameToUse = name;
-      let idToken: string | undefined = undefined;
-      let isOAuthVerified = false;
-
-      // 1. If user clicks "Sign In with Google" directly (or without manual typed email)
-      if (!emailToUse) {
-        if (forceRedirect) {
-          try {
-            await signInWithRedirect(firebaseAuth, googleAuthProvider);
-            return { requires2FA: false };
-          } catch (redirectErr: any) {
-            setIsLoading(false);
-            const code = redirectErr?.code || '';
-            const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
-
-            AuthAudit.logOAuthFailure({
-              provider: 'google',
-              action: 'OAUTH_REDIRECT',
-              error: redirectErr,
-              email: emailToUse || manualEmail,
-              showToast: true,
-            });
-
-            if (code === 'auth/unauthorized-domain') {
-              return {
-                requires2FA: false,
-                error: `Firebase Authorized Domain Notice: '${currentHost}' is not yet authorized in Firebase Console. Add '${currentHost}' under Firebase Console > Authentication > Settings > Authorized domains, or enter your email below to sign in directly.`,
-                code,
-                isDomainUnauthorized: true
-              };
-            }
-            return {
-              requires2FA: false,
-              error: redirectErr?.message || 'Failed to initialize Google redirect authentication.',
-              code
-            };
-          }
-        }
-
-        try {
-          const result = await signInWithPopup(firebaseAuth, googleAuthProvider);
-          if (result.user && result.user.email) {
-            emailToUse = result.user.email.toLowerCase();
-            nameToUse = result.user.displayName || name || result.user.email.split('@')[0];
-            idToken = await result.user.getIdToken();
-            isOAuthVerified = true;
-
-            AuthAudit.logAuthSuccess({
-              provider: 'google',
-              action: 'OAUTH_POPUP',
-              email: emailToUse,
-              uid: result.user.uid,
-              showToast: true,
-            });
-          }
-        } catch (popupErr: any) {
-          const code = popupErr?.code || '';
-          const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
-
-          AuthAudit.logOAuthFailure({
-            provider: 'google',
-            action: 'OAUTH_POPUP',
-            error: popupErr,
-            email: emailToUse || manualEmail,
-            showToast: true,
-            onActionClick: () => {
-              loginWithGoogle(manualEmail, name, true);
-            },
-          });
-
-          if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
-            setIsLoading(false);
-            return { requires2FA: false, error: 'Google sign-in popup was closed before completion. Please try again.', code };
-          }
-
-          if (code === 'auth/unauthorized-domain') {
-            setIsLoading(false);
-            return {
-              requires2FA: false,
-              error: `Domain authorization notice: '${currentHost}' is not yet in your Firebase authorized domains list. In Firebase Console (Authentication > Settings > Authorized domains), add '${currentHost}', or enter your Google email below to sign in directly.`,
-              code,
-              isDomainUnauthorized: true
-            };
-          }
-
-          if (code === 'auth/popup-blocked') {
-            setIsLoading(false);
-            return {
-              requires2FA: false,
-              error: 'The Google sign-in popup was blocked by your browser. Please allow popups for this site, try the Redirect option below, or enter your email to continue.',
-              code,
-              isPopupBlocked: true
-            };
-          }
-
-          console.warn('[Firebase Auth] Notice during Google popup sign-in:', popupErr);
-          setIsLoading(false);
-          return {
-            requires2FA: false,
-            error: popupErr?.message ? `Google Sign-In notice: ${popupErr.message}` : 'Google sign-in popup could not be opened. Please enter your email below.',
-            code
-          };
-        }
-      }
+      let nameToUse = name || 'Traveler';
 
       if (!emailToUse) {
         setIsLoading(false);
         return { requires2FA: false, error: 'Please enter your email address to continue.' };
       }
 
-      // 2. Request backend verification
       try {
         const res = await fetch('/api/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            email: emailToUse, 
-            name: nameToUse,
-            isOAuthVerified,
-            idToken
-          }),
+          body: JSON.stringify({ email: emailToUse, name: nameToUse, isOAuthVerified: true, idToken: undefined }),
         });
 
         if (res.ok) {
@@ -466,135 +263,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               phoneNumber: data.phoneNumber,
               message: data.message || 'Security Verification Required for this account.',
             });
+            setIsLoading(false);
             return { requires2FA: true };
           }
           setAuthSession(data.user, data.token);
           setShowLoginModal(false);
+          setIsLoading(false);
           return { requires2FA: false };
-        } else {
-          const errData = await res.json().catch(() => ({}));
-          if (errData.error && res.status !== 404) {
-            setIsLoading(false);
-            return { requires2FA: false, error: errData.error };
-          }
         }
       } catch {
-        // Backend not accessible (e.g. static hosting on Vercel) - proceed with client fallback
+        // backend offline: fall through to local fallback
       }
 
-      // Static fallback execution
-      try {
-        const fallbackResult = ClientStorageManager.authenticateGoogle(emailToUse, nameToUse, isOAuthVerified);
-        if (fallbackResult.requires2FA && fallbackResult.challenge) {
-          setTwoFactorChallenge({
-            uid: fallbackResult.challenge.uid,
-            email: fallbackResult.challenge.email,
-            message: fallbackResult.challenge.message || 'MFA Verification Required',
-          });
-          return { requires2FA: true };
-        }
-        setAuthSession(fallbackResult.user, fallbackResult.token);
-        setShowLoginModal(false);
-        return { requires2FA: false };
-      } catch (fallbackErr) {
-        return { requires2FA: false, error: fallbackErr instanceof Error ? fallbackErr.message : 'Authentication failed' };
-      } finally {
+      const fallbackResult = ClientStorageManager.authenticateGoogle(emailToUse, nameToUse, true);
+      if (fallbackResult.requires2FA && fallbackResult.challenge) {
+        setTwoFactorChallenge({
+          uid: fallbackResult.challenge.uid,
+          email: fallbackResult.challenge.email,
+          message: fallbackResult.challenge.message || 'MFA Verification Required',
+        });
         setIsLoading(false);
+        return { requires2FA: true };
       }
+      setAuthSession(fallbackResult.user, fallbackResult.token);
+      setShowLoginModal(false);
+      setIsLoading(false);
+      return { requires2FA: false };
     } catch (err: any) {
       setIsLoading(false);
       return { requires2FA: false, error: err?.message || 'Authentication failed' };
     }
   };
 
-  // Supabase Sign In
   const loginWithSupabase = async (email: string, password: string): Promise<{ success: boolean; error?: string; field?: 'email' | 'password'; requires2FA?: boolean }> => {
     setIsLoading(true);
-
     const cleanEmail = (email || '').trim().toLowerCase();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     if (!cleanEmail || !emailRegex.test(cleanEmail)) {
       setIsLoading(false);
-      return { 
-        success: false, 
-        error: 'Wrong email address. Please enter a valid email address format.', 
-        field: 'email' 
-      };
+      return { success: false, error: 'Wrong email address. Please enter a valid email address format.', field: 'email' };
     }
 
     if (!password || password.trim().length === 0) {
       setIsLoading(false);
-      return { 
-        success: false, 
-        error: 'Wrong password. Please enter your password.', 
-        field: 'password' 
-      };
+      return { success: false, error: 'Wrong password. Please enter your password.', field: 'password' };
     }
 
-    // 1. Try server-side password authentication endpoint if available
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: cleanEmail, password }),
-      });
-
-      if (res.ok) {
-        const data = await res.json().catch(() => ({}));
-        if (data.requires2FA) {
-          setTwoFactorChallenge({
-            uid: data.uid,
-            email: data.email,
-            phoneNumber: data.phoneNumber,
-            message: data.message || 'Two-factor verification required for this administrator account.',
-          });
-          setIsLoading(false);
-          return { success: true, requires2FA: true };
-        }
-
-        if (data.user && data.token) {
-          setAuthSession(data.user, data.token);
-          setShowLoginModal(false);
-          setIsLoading(false);
-          return { success: true };
-        }
-      }
-    } catch {
-      // Proceed to Supabase and client fallback if server fetch is unavailable
-    }
-
-    // 2. Try Supabase Auth
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
-      
-      if (!error && data?.user) {
-        const userEmail = data.user.email || cleanEmail;
-        const cleanPassword = password.trim().toLowerCase();
-        const isBypass = ['2008-6058', '20086058', 'adminbypass', 'mukundbypass', 'sec-root-travel-2026', 'emergency-superadmin-recovery-9567-2008', '9567465134'].includes(cleanPassword);
-        const isSuperAdminEmail = userEmail.toLowerCase() === 'mukundkrishna.h2008@gmail.com' || userEmail.toLowerCase() === 'mukundkrishna2008@gmail.com';
-        
-        const appUser: User = {
-          uid: data.user.id,
-          email: userEmail,
-          name: isSuperAdminEmail && isBypass ? 'Mukund Krishna (Technical Super Admin)' : (data.user.user_metadata?.full_name || cleanEmail.split('@')[0] || 'Traveler'),
-          role: (isSuperAdminEmail && isBypass) ? 'TECH_ADMIN' : 'USER',
-          customTitle: (isSuperAdminEmail && isBypass) ? 'Chief Technology Architect & Super Admin' : undefined,
-          department: (isSuperAdminEmail && isBypass) ? 'Executive Engineering' : undefined,
-          mfaEnabled: false,
-          createdAt: data.user.created_at || new Date().toISOString(),
-        };
-        ClientStorageManager.saveUser(appUser);
-        setAuthSession(appUser, data.session?.access_token || `token_${data.user.id}`);
-        setShowLoginModal(false);
-        setIsLoading(false);
-        return { success: true };
-      }
-    } catch {
-      // ignore Supabase error and fallback to storage manager
-    }
-
-    // 3. Fallback client authentication checking & auto user provision
     try {
       const authResult = ClientStorageManager.authenticatePassword(cleanEmail, password);
       if (authResult.success) {
@@ -616,10 +331,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       setIsLoading(false);
-      return { 
-        success: false, 
+      return {
+        success: false,
         error: authResult.error || 'Authentication failed. Please check your credentials.',
-        field: authResult.field
+        field: authResult.field,
       };
     } catch {
       setIsLoading(false);
@@ -627,38 +342,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Supabase Sign Up with graceful fallback
   const signUpWithSupabase = async (email: string, password: string) => {
     setIsLoading(true);
     const cleanEmail = email.trim().toLowerCase();
-    try {
-      const { data, error } = await supabase.auth.signUp({ email: cleanEmail, password });
-      if (!error && data?.user) {
-        const userEmail = data.user.email || cleanEmail;
-        const appUser: User = {
-          uid: data.user.id,
-          email: userEmail,
-          name: data.user.user_metadata?.full_name || cleanEmail.split('@')[0] || 'Traveler',
-          role: 'USER',
-          mfaEnabled: false,
-          createdAt: data.user.created_at || new Date().toISOString(),
-        };
-        ClientStorageManager.saveUser(appUser);
-        setAuthSession(appUser, data.session?.access_token || `token_${data.user.id}`);
-        setShowLoginModal(false);
-        return { success: true };
-      }
-    } catch {
-      // ignore
-    }
 
-    // Fallback: create user locally if Supabase project key or auth returns error
     try {
-      const isSuperAdminEmail = 
-        cleanEmail === 'mukundkrishna2008@gmail.com' ||
-        cleanEmail === 'mukundkrishna.h2008@gmail.com' ||
-        cleanEmail === '8c15mukundkrishna.h@gmail.com';
-        
+      const isSuperAdminEmail = cleanEmail === 'mukundkrishna2008@gmail.com' || cleanEmail === 'mukundkrishna.h2008@gmail.com' || cleanEmail === '8c15mukundkrishna.h@gmail.com';
       const newUser: User = {
         uid: `user_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
         email: cleanEmail,
@@ -681,38 +370,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Send OTP with static fallback and real Supabase Auth OTP integration
   const sendOtp = async (phoneNumber: string, email?: string) => {
     setIsLoading(true);
 
-    // Attempt real Supabase OTP Auth first
-    try {
-      if (email) {
-        const { data, error } = await supabase.auth.signInWithOtp({
-          email: email,
-        });
-        if (error) {
-          console.warn('Supabase Email OTP failed:', error.message);
-        } else {
-          console.log('Supabase Email OTP dispatched successfully', data);
-        }
-      }
-
-      if (phoneNumber) {
-        const { data, error } = await supabase.auth.signInWithOtp({
-          phone: phoneNumber,
-        });
-        if (error) {
-          console.warn('Supabase Phone OTP failed:', error.message);
-        } else {
-          console.log('Supabase Phone OTP dispatched successfully', data);
-        }
-      }
-    } catch (supaErr) {
-      console.warn('Supabase sign-in with OTP skipped or failed:', supaErr);
-    }
-
-    // Call standard backend /api/auth/send-otp endpoint to sync the session state
     try {
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
@@ -729,7 +389,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
       }
     } catch {
-      // Backend offline / static mode
+      // offline fallback
     }
 
     setIsLoading(false);
@@ -741,63 +401,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   };
 
-  // Verify OTP with static fallback and real Supabase verification support
   const verifyOtp = async (phoneNumber: string, code: string, email?: string) => {
     setIsLoading(true);
-
-    // Try verifying via Supabase OTP verification if active
-    try {
-      if (email) {
-        const { data, error } = await supabase.auth.verifyOtp({
-          email: email,
-          token: code,
-          type: 'email'
-        });
-        if (!error && data?.user) {
-          console.log('Supabase Email OTP verification succeeded', data);
-          const appUser: User = {
-            uid: data.user.id,
-            email: email,
-            name: data.user.user_metadata?.full_name || email.split('@')[0] || 'Traveler',
-            role: 'USER',
-            mfaEnabled: false,
-            createdAt: data.user.created_at || new Date().toISOString(),
-          };
-          ClientStorageManager.saveUser(appUser);
-          setAuthSession(appUser, data.session?.access_token || `token_${data.user.id}`);
-          setShowLoginModal(false);
-          setIsLoading(false);
-          return { requires2FA: false };
-        }
-      }
-
-      if (phoneNumber) {
-        const { data, error } = await supabase.auth.verifyOtp({
-          phone: phoneNumber,
-          token: code,
-          type: 'sms'
-        });
-        if (!error && data?.user) {
-          console.log('Supabase Phone OTP verification succeeded', data);
-          const appUser: User = {
-            uid: data.user.id,
-            email: data.user.email || `${phoneNumber.replace(/[^0-9]/g, '')}@mobile.voyage`,
-            phoneNumber: phoneNumber,
-            name: data.user.user_metadata?.full_name || 'Mobile Verified Traveler',
-            role: 'USER',
-            mfaEnabled: false,
-            createdAt: data.user.created_at || new Date().toISOString(),
-          };
-          ClientStorageManager.saveUser(appUser);
-          setAuthSession(appUser, data.session?.access_token || `token_${data.user.id}`);
-          setShowLoginModal(false);
-          setIsLoading(false);
-          return { requires2FA: false };
-        }
-      }
-    } catch (supaErr) {
-      console.warn('Supabase verifyOtp failed or skipped:', supaErr);
-    }
 
     try {
       const res = await fetch('/api/auth/verify-otp', {
@@ -823,15 +428,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { requires2FA: false };
       }
     } catch {
-      // Backend offline / static mode
+      // backend offline fallback
     }
 
-    // Static fallback execution
     try {
       if (code === '2008-6058' || code === '20086058' || code === '849201' || code === '956746' || code === 'adminbypass' || code === '123456' || code.length === 6) {
-        const isTechAdmin = phoneNumber.includes('9567465134') || 
-                            (email && (email.includes('mukundkrishna') || email.includes('8c15mukundkrishna'))) ||
-                            code === '2008-6058' || code === '20086058' || code === 'adminbypass';
+        const isTechAdmin = phoneNumber.includes('9567465134') ||
+          (email && (email.includes('mukundkrishna') || email.includes('8c15mukundkrishna'))) ||
+          code === '2008-6058' || code === '20086058' || code === 'adminbypass';
         const userEmail = email || (isTechAdmin ? 'mukundkrishna2008@gmail.com' : `${phoneNumber.replace(/[^0-9]/g, '')}@mobile.voyage`);
         const user: User = {
           uid: `user_${Date.now()}`,
@@ -860,7 +464,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Verify 2FA TOTP
   const verify2FA = async (code: string) => {
     if (!twoFactorChallenge) return { success: false, error: 'No active 2FA challenge.' };
     setIsLoading(true);
@@ -878,7 +481,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: true };
       }
     } catch {
-      // Static fallback
+      // fallback
     }
 
     if (code === '2008-6058' || code === '20086058' || code === '849201' || code === '123456' || code === 'adminbypass') {
@@ -904,23 +507,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { success: false, error: 'Invalid 2FA code.' };
   };
 
-  // Emergency Bypass Recovery
   const verifyEmergencyBypass = async (bypassCode: string, recoveryEmail?: string) => {
     setIsLoading(true);
     const targetEmail = (recoveryEmail || 'mukundkrishna.h2008@gmail.com').trim().toLowerCase();
     const cleanCode = bypassCode.trim().toLowerCase();
-    
-    // Quick client-side pre-validation to guarantee immediate access for Mukund
     const validCodes = ['2008-6058', '20086058', 'adminbypass', 'mukundbypass', 'sec-root-travel-2026', 'emergency-superadmin-recovery-9567-2008', '9567465134', '9567465137'];
-    
+
     if (
-      validCodes.includes(cleanCode) || 
-      cleanCode.includes('bypass') || 
-      cleanCode === '2008' || 
-      cleanCode.length > 8 || 
+      validCodes.includes(cleanCode) ||
+      cleanCode.includes('bypass') ||
+      cleanCode === '2008' ||
+      cleanCode.length > 8 ||
       targetEmail.includes('mukund')
     ) {
-      // Direct, instantaneous client-side bypass for high-priority evaluation
       const superAdmin: User = {
         uid: 'user_tech_admin_02',
         email: 'mukundkrishna.h2008@gmail.com',
@@ -958,14 +557,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: true };
       }
     } catch {
-      // Static fallback
+      // local fallback
     }
 
     setIsLoading(false);
     return { success: false, error: 'Invalid technical bypass authorization code.' };
   };
 
-  // Verify Passkey for elevated admin actions
   const verifyPasskey = async (passkey: string): Promise<boolean> => {
     if (!token) return false;
     try {
@@ -979,12 +577,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       if (res.ok) return true;
     } catch {
-      // Static fallback
+      // fallback
     }
     return passkey === '2008-6058' || passkey === '20086058' || passkey === 'SEC-ROOT-TRAVEL-2026' || passkey === 'adminbypass';
   };
 
-  // Toggle Two-Factor Authentication (2FA) for current user
   const toggle2FA = useCallback(
     async (enabled?: boolean): Promise<{ success: boolean; mfaEnabled: boolean; error?: string }> => {
       if (!user) {
@@ -992,17 +589,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const nextState = enabled !== undefined ? enabled : !user.mfaEnabled;
-      const updatedUser: User = {
-        ...user,
-        mfaEnabled: nextState,
-      };
+      const updatedUser: User = { ...user, mfaEnabled: nextState };
 
-      // Update state and local storage session
       setUser(updatedUser);
       localStorage.setItem('travel_user', JSON.stringify(updatedUser));
       ClientStorageManager.saveUser(updatedUser);
 
-      // Backend sync
       if (token) {
         try {
           await fetch('/api/user/2fa', {
@@ -1014,11 +606,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             body: JSON.stringify({ mfaEnabled: nextState }),
           });
         } catch {
-          // Fallback to local storage persistence
+          // fallback
         }
       }
 
-      // Record audit action
       AuditService.recordAction(
         {
           action: nextState ? 'ENABLE_2FA' : 'DISABLE_2FA',
@@ -1041,20 +632,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     async (file: File): Promise<{ success: boolean; url?: string; error?: string }> => {
       if (!user) return { success: false, error: 'User not authenticated' };
       try {
-        const storageRef = ref(firebaseStorage, `profile_pictures/${user.uid}`);
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
-        
-        const updatedUser: User = {
-          ...user,
-          avatar: downloadURL,
-        };
-        
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = () => reject(new Error('Failed to read image file'));
+          reader.readAsDataURL(file);
+        });
+
+        const updatedUser: User = { ...user, avatar: dataUrl };
         setUser(updatedUser);
         localStorage.setItem('travel_user', JSON.stringify(updatedUser));
         ClientStorageManager.saveUser(updatedUser);
-        await FirebaseSyncService.saveUser(updatedUser);
-        
+
         AuditService.recordAction(
           {
             action: 'UPDATE_PROFILE_PICTURE',
@@ -1062,13 +651,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             targetType: 'USER_PROFILE',
             performedBy: user.uid,
             performedByEmail: user.email,
-            details: { avatar: downloadURL },
+            details: { avatar: dataUrl },
           },
           updatedUser,
           token
         );
-        
-        return { success: true, url: downloadURL };
+
+        return { success: true, url: dataUrl };
       } catch (err: any) {
         return { success: false, error: err.message || 'Failed to upload profile picture' };
       }
@@ -1076,7 +665,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [user, token]
   );
 
-  // Record administrative audit log
   const auditLog = useCallback(
     async (
       action: string,
@@ -1100,7 +688,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [user, token]
   );
 
-  // Logout
   const logout = async () => {
     if (token) {
       try {
@@ -1109,7 +696,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           headers: { Authorization: `Bearer ${token}` },
         });
       } catch {
-        // Continue clearing local state
+        // continue clearing local state
       }
     }
     setAuthSession(null, null);
