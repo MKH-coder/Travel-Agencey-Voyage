@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel App - Supabase & Cloudinary</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    h1, h2 {
+      color: #2c3e50;
+    }
+    #image-container {
+      margin-bottom: 20px;
+    }
+    img {
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    pre {
+      background: #eef1f6;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Travel Destinations & Image Delivery</h1>
+  
+  <div id="image-container">
+    <h2>Cloudinary Resized Image:</h2>
+    <!-- Image will be injected here via JavaScript -->
+  </div>
+
+  <h2>Supabase Listings Data:</h2>
+  <pre id="data-output">Loading listings from Supabase...</pre>
+
+  <!-- ES Module Code Block -->
+  <script type="module">
+    import { Cloudinary } from "https://cdn.jsdelivr.net/npm/@cloudinary/url-gen/+esm";
+    import { fill } from "https://cdn.jsdelivr.net/npm/@cloudinary/url-gen/actions/resize/+esm";
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    /* -------------------------------------------------------------------------- */
+    /*                         1. CONFIGURATION & KEYS                            */
+    /* -------------------------------------------------------------------------- */
+    const CONFIG = {
+      cloudinary: {
+        cloudName: "pixfz43w"
+      },
+      supabase: {
+        url: "https://xyvvdficauvzgavssnln.supabase.co",
+        key: "sb_publishable_bgKDD00e2-0XHltBTToetw_oYi19319"
+      }
+    };
+
+    /* -------------------------------------------------------------------------- */
+    /*                         2. CLOUDINARY INTEGRATION                           */
+    /* -------------------------------------------------------------------------- */
+    const cld = new Cloudinary({
+      cloud: {
+        cloudName: CONFIG.cloudinary.cloudName
+      }
+    });
+
+    // Create Cloudinary image transformation
+    const myImage = cld.image("docs/models");
+    myImage.resize(fill().width(250).height(250));
+
+    // Render image to body
+    const imgElement = document.createElement("img");
+    imgElement.src = myImage.toURL();
+    imgElement.alt = "Resized Cloudinary Image";
+    document.getElementById("image-container").appendChild(imgElement);
+
+    /* -------------------------------------------------------------------------- */
+    /*                          3. SUPABASE INTEGRATION                           */
+    /* -------------------------------------------------------------------------- */
+    const supabase = createClient(CONFIG.supabase.url, CONFIG.supabase.key);
+
+    async function fetchListings() {
+      const output = document.getElementById("data-output");
+      try {
+        const { data, error } = await supabase
+          .from("listings")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          output.textContent = "Error fetching data: " + error.message;
+        } else {
+          output.textContent = JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        output.textContent = "Execution error: " + err.message;
+      }
+    }
+
+    // Execute data fetch
+    fetchListings();
+  </script>
+</body>
+</html>
