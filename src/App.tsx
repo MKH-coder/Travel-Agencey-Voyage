@@ -31,6 +31,8 @@ import {
 
 import { MarketingSections } from './components/MarketingSections.tsx';
 import { PackageCreatorModal } from './components/PackageCreatorModal.tsx';
+import { CustomTripBuilderModal } from './components/CustomTripBuilderModal.tsx';
+import { CustomTripsTrackerModal } from './components/CustomTripsTrackerModal.tsx';
 import { Newsletter } from './components/Newsletter.tsx';
 import { Footer } from './components/Footer.tsx';
 import { FloatingContact } from './components/FloatingContact.tsx';
@@ -56,10 +58,13 @@ function MainLayout() {
   const [packagePreviewActive, setPackagePreviewActive] = useState(false);
   const [packageInitialListing, setPackageInitialListing] = useState<Listing | null>(null);
   const [showPackageCreatorModal, setShowPackageCreatorModal] = useState<boolean>(false);
+  const [showCustomTripBuilderModal, setShowCustomTripBuilderModal] = useState<boolean>(false);
+  const [showCustomTripsTrackerModal, setShowCustomTripsTrackerModal] = useState<boolean>(false);
+  const [customTripInitialListing, setCustomTripInitialListing] = useState<Listing | null>(null);
   const [hoveredListingId, setHoveredListingId] = useState<string | null>(null);
   const [showSavedModal, setShowSavedModal] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
-  const [adminTab, setAdminTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | null>(null);
+  const [adminTab, setAdminTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips' | null>(null);
 
   const [filters, setFilters] = useState<FilterState>({
     category: 'ALL',
@@ -324,12 +329,13 @@ function MainLayout() {
   }, [listings]);
 
   const handlePlanTrip = useCallback(() => {
-    setFilters(prev => ({ ...prev, category: 'ALL' }));
-    const searchInput = document.getElementById('hero-search-input');
-    if (searchInput) {
-      searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      searchInput.focus();
-    }
+    setCustomTripInitialListing(null);
+    setShowCustomTripBuilderModal(true);
+  }, []);
+
+  const handleCustomTripFromListing = useCallback((listing: Listing) => {
+    setCustomTripInitialListing(listing);
+    setShowCustomTripBuilderModal(true);
   }, []);
 
   const handleCreatePackageFromListing = useCallback((listing: Listing) => {
@@ -345,6 +351,11 @@ function MainLayout() {
         savedTripsCount={savedListings.length}
         onOpenSavedTrips={() => setShowSavedModal(true)}
         onOpenShortcutsHelp={() => setShowShortcutsModal(true)}
+        onOpenCustomTripBuilder={() => {
+          setCustomTripInitialListing(null);
+          setShowCustomTripBuilderModal(true);
+        }}
+        onOpenCustomTripsTracker={() => setShowCustomTripsTrackerModal(true)}
         searchQuery={filters.search}
         setSearchQuery={(q) => setFilters(prev => ({ ...prev, search: q }))}
       />
@@ -604,8 +615,34 @@ function MainLayout() {
           isSaved={selectedListing ? savedListings.some(l => l.id === selectedListing.id) : false}
           onToggleSave={toggleSaveListing}
           onCreatePackage={handleCreatePackageFromListing}
+          onCustomTripBuild={handleCustomTripFromListing}
         />
       )}
+
+      {/* Traveler Custom Trip & Package Studio Modal */}
+      <CustomTripBuilderModal
+        isOpen={showCustomTripBuilderModal}
+        availableListings={listings}
+        initialListing={customTripInitialListing || undefined}
+        onClose={() => {
+          setShowCustomTripBuilderModal(false);
+          setCustomTripInitialListing(null);
+        }}
+        onTripCreated={() => {
+          // Keep active for review or tracker
+        }}
+        onOpenTracker={() => setShowCustomTripsTrackerModal(true)}
+      />
+
+      {/* Traveler Custom Trips & Package Tracker Modal */}
+      <CustomTripsTrackerModal
+        isOpen={showCustomTripsTrackerModal}
+        onClose={() => setShowCustomTripsTrackerModal(false)}
+        onOpenBuilder={() => setShowCustomTripBuilderModal(true)}
+        onBookingSuccess={() => {
+          loadListings();
+        }}
+      />
 
       {/* Admin Quick Package Creator Modal */}
       <PackageCreatorModal

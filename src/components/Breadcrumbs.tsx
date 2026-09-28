@@ -10,7 +10,7 @@ interface BreadcrumbsProps {
   setSelectedListing: (listing: Listing | null) => void;
   filters: FilterState;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
-  adminTab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | null;
+  adminTab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips' | null;
 }
 
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({

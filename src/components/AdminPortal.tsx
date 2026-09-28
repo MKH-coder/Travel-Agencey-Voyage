@@ -92,6 +92,7 @@ import { SecurityOverviewCard } from './SecurityOverviewCard.tsx';
 import { AuditTrailDashboard } from './AuditTrailDashboard.tsx';
 import { PackageBuilderTab } from './PackageBuilderTab.tsx';
 import { AdminPackageAnalytics } from './AdminPackageAnalytics.tsx';
+import { CustomTripsAdminTab } from './CustomTripsAdminTab.tsx';
 import { RiskThresholdConfig } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 import { FirebaseSyncService } from '../services/firebase.ts';
@@ -101,7 +102,7 @@ import { AuthAudit } from '../services/authAudit.ts';
 interface AdminPortalProps {
   onListingUpdated?: () => void;
   onNavigateExplore?: () => void;
-  onTabChange?: (tab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages') => void;
+  onTabChange?: (tab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips') => void;
 }
 
 export const AdminPortal: React.FC<AdminPortalProps> = ({
@@ -118,7 +119,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const isAdmin = user?.role === 'ADMIN' || isElevatedAdmin;
 
   // Active sub-tab
-  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages'>('queue');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips'>('queue');
 
   useEffect(() => {
     onTabChange?.(activeTab);
@@ -1403,6 +1404,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           <span>Package Builder</span>
           <span className="text-[10px] opacity-70">({listings.filter(l => l.category === 'PACKAGE').length})</span>
         </button>
+
+        {/* Custom Trips & Inquiries (Admins) */}
+        <button
+          id="tab-admin-custom-trips"
+          onClick={() => setActiveTab('custom-trips')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'custom-trips'
+              ? `${styles.accent} text-white shadow-md`
+              : `${styles.buttonSecondary}`
+          }`}
+        >
+          <Compass className="w-4 h-4 text-amber-400" />
+          <span>Custom Trips & Inquiries</span>
+        </button>
       </div>
 
       {/* --- TAB 1: Verification Queue (Tech Admin & Sub-Admin) --- */}
@@ -2579,6 +2594,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           onDelete={handleDeleteListing}
           onViewDetails={(pkg) => setSelectedPreviewPackage(pkg)}
         />
+      )}
+
+      {/* --- TAB: Custom Trips & Traveler Inquiries --- */}
+      {activeTab === 'custom-trips' && (
+        <CustomTripsAdminTab onRefreshListings={fetchListings} />
       )}
 
       {/* --- TAB 4: User Management (Tech Admin only) --- */}

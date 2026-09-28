@@ -19,7 +19,8 @@ import {
   Bell,
   BellOff,
   Package,
-  Layers
+  Layers,
+  Compass
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -35,6 +36,7 @@ interface DetailModalProps {
   onToggleSave: (listing: Listing) => void;
   onBookingSuccess?: (booking: Booking) => void;
   onCreatePackage?: (listing: Listing) => void;
+  onCustomTripBuild?: (listing: Listing) => void;
 }
 
 export const DetailModal: React.FC<DetailModalProps> = ({
@@ -44,6 +46,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   onToggleSave,
   onBookingSuccess,
   onCreatePackage,
+  onCustomTripBuild,
 }) => {
   const { styles } = useTheme();
   const { user, token, setShowLoginModal } = useAuth();
@@ -718,6 +721,21 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                         </>
                       )}
                     </button>
+
+                    {/* Custom Trip Planner Trigger */}
+                    {onCustomTripBuild && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          onCustomTripBuild(listing);
+                        }}
+                        className="w-full py-2.5 rounded-xl text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      >
+                        <Compass className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Add to Custom Trip & Package Planner</span>
+                      </button>
+                    )}
 
                     <div className="text-center text-[10px] text-slate-400">
                       Free cancellation up to 48 hours before check-in. Instant confirmation slip issued.

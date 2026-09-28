@@ -22,7 +22,7 @@ import {
   isTechSuperAdminEmail,
   isValidBypassCode,
 } from './server/security.ts';
-import { Listing, User } from './server/types.ts';
+import { Listing, User, CustomTripRequest } from './server/types.ts';
 import { supabaseAdmin } from './server/supabase.ts';
 
 async function startServer() {
@@ -1458,7 +1458,191 @@ Proceeding with sandbox delivery...`);
     res.json({ success: true });
   });
 
-  // 15e. Firebase Sync & Metadata Status
+  // --- 15e. Custom Trips & Custom Package Inquiry System ---
+
+  app.get('/api/custom-trips', (req, res) => {
+    const authData = extractUserOrSession(req);
+    const isPrivileged = authData?.user && ['ADMIN', 'TECH_ADMIN', 'TECH_SUBADMIN'].includes(authData.user.role);
+    
+    if (isPrivileged) {
+      return res.json(db.getCustomTrips());
+    } else if (authData?.user) {
+      return res.json(db.getCustomTrips(authData.user.uid));
+    } else {
+      const email = req.query.email as string;
+      if (email) {
+        return res.json(db.getCustomTrips(email));
+      }
+      return res.json([]);
+    }
+  });
+
+  app.get('/api/custom-trips/:id', (req, res) => {
+    const trip = db.getCustomTripById(req.params.id);
+    if (!trip) {
+      return res.status(404).json({ error: 'Custom trip inquiry not found.' });
+    }
+    res.json(trip);
+  });
+
+  app.post('/api/custom-trips', (req, res) => {
+    const authData = extractUserOrSession(req);
+    const {
+      tripTitle,
+      destination,
+      country,
+      travelStyle,
+      budgetTier,
+      startDate,
+      endDate,
+      durationDays,
+      adults,
+      children,
+      selectedListingIds,
+      selectedListings,
+      itinerary,
+      inclusions,
+      specialRequests,
+      dietaryPreferences,
+      estimatedTotal,
+      bundleDiscount,
+      finalPrice,
+      userEmail,
+      userName,
+    } = req.body;
+
+    if (!tripTitle || !destination) {
+      return res.status(400).json({ error: 'Trip title and destination are required.' });
+    }
+
+    const email = authData?.user?.email || userEmail || 'traveler@guest.voyage';
+    const name = authData?.user?.name || userName || 'Curated Traveler';
+    const uid = authData?.user?.uid || `guest_${Date.now()}`;
+
+    const newTrip: CustomTripRequest = {
+      id: `ctrip_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      userId: uid,
+      userEmail: email,
+      userName: name,
+      tripTitle: tripTitle.trim(),
+      destination: destination.trim(),
+      country: country || 'International',
+      travelStyle: travelStyle || 'LUXURY_WELLNESS',
+      budgetTier: budgetTier || 'PREMIUM',
+      startDate: startDate || new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+      endDate: endDate || new Date(Date.now() + 18 * 86400000).toISOString().split('T')[0],
+      durationDays: durationDays || 4,
+      adults: adults || 2,
+      children: children || 0,
+      selectedListingIds: selectedListingIds || [],
+      selectedListings: selectedListings || [],
+      itinerary: Array.isArray(itinerary) ? itinerary : [],
+      inclusions: Array.isArray(inclusions) ? inclusions : [
+        'Curated Luxury Stays',
+        '24/7 Dedicated Concierge Support',
+        'VIP Airport Meet & Greet Transfer',
+        'Verified Experience Reservations'
+      ],
+      specialRequests: specialRequests || '',
+      dietaryPreferences: dietaryPreferences || [],
+      estimatedTotal: Number(estimatedTotal) || 450,
+      bundleDiscount: Number(bundleDiscount) || 15,
+      finalPrice: Number(finalPrice) || Math.round((Number(estimatedTotal) || 450) * 0.85),
+      status: 'SUBMITTED',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.createCustomTrip(newTrip);
+
+    db.addAuditLog({
+      action: 'CUSTOM_TRIP_SUBMITTED',
+      performedBy: email,
+      targetId: newTrip.id,
+      targetType: 'CUSTOM_TRIP',
+      ipAddress: getClientIp(req),
+      details: { title: newTrip.tripTitle, destination: newTrip.destination, estimatedTotal: newTrip.finalPrice }
+    });
+
+    res.json(newTrip);
+  });
+
+  app.put('/api/custom-trips/:id', (req, res) => {
+    const authData = extractUserOrSession(req);
+    const isPrivileged = authData?.user && ['ADMIN', 'TECH_ADMIN', 'TECH_SUBADMIN'].includes(authData.user.role);
+    
+    const existing = db.getCustomTripById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ error: 'Custom trip inquiry not found.' });
+    }
+
+    if (!isPrivileged && authData?.user?.uid !== existing.userId && authData?.user?.email?.toLowerCase() !== existing.userEmail.toLowerCase()) {
+      return res.status(403).json({ error: 'Unauthorized to modify this custom trip request.' });
+    }
+
+    const updates = req.body;
+
+    // If Admin converts this custom trip into a live public tour package
+    if (updates.convertToPackage && isPrivileged) {
+      const newPackage: Listing = {
+        id: `pkg-custom-${Date.now()}`,
+        title: updates.packageTitle || existing.tripTitle,
+        category: 'PACKAGE',
+        price: updates.packagePrice || existing.quotedPrice || existing.finalPrice,
+        rating: 5.0,
+        reviewCount: 1,
+        location: existing.destination,
+        country: existing.country,
+        description: updates.packageDescription || `Hand-crafted luxury travel itinerary: ${existing.tripTitle}. Custom designed with private transfers, verified dining, and boutique accommodations.`,
+        images: existing.selectedListings?.map(l => l.image).filter(Boolean) || [
+          'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80'
+        ],
+        status: 'PUBLISHED',
+        createdBy: authData.user.email,
+        createdByName: authData.user.name,
+        listingIds: existing.selectedListingIds,
+        tags: ['Custom Package', 'Concierge Verified', 'Curated Tour', existing.destination],
+        amenities: existing.inclusions,
+        duration: `${existing.durationDays} Days / ${Math.max(1, existing.durationDays - 1)} Nights`,
+        timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+      };
+
+      db.createListing(newPackage);
+      updates.convertedToPackageId = newPackage.id;
+      updates.status = 'CONFIRMED';
+
+      db.addAuditLog({
+        action: 'CUSTOM_TRIP_CONVERTED_TO_PACKAGE',
+        performedBy: authData.user.email,
+        targetId: newPackage.id,
+        targetType: 'PACKAGE',
+        ipAddress: getClientIp(req),
+        details: { customTripId: existing.id, packageTitle: newPackage.title }
+      });
+    }
+
+    const updated = db.updateCustomTrip(req.params.id, updates);
+    res.json(updated);
+  });
+
+  app.delete('/api/custom-trips/:id', (req, res) => {
+    const authData = extractUserOrSession(req);
+    const isPrivileged = authData?.user && ['ADMIN', 'TECH_ADMIN', 'TECH_SUBADMIN'].includes(authData.user.role);
+    
+    const existing = db.getCustomTripById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ error: 'Custom trip not found.' });
+    }
+
+    if (!isPrivileged && authData?.user?.uid !== existing.userId && authData?.user?.email?.toLowerCase() !== existing.userEmail.toLowerCase()) {
+      return res.status(403).json({ error: 'Unauthorized to delete this custom trip.' });
+    }
+
+    db.deleteCustomTrip(req.params.id);
+    res.json({ success: true });
+  });
+
+  // 15f. Firebase Sync & Metadata Status
   app.get('/api/firebase/status', (req, res) => {
     res.json({
       configured: true,

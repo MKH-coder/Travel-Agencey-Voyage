@@ -95,6 +95,58 @@ export interface Listing {
   };
 }
 
+export type CustomTripStatus = 'SUBMITTED' | 'UNDER_REVIEW' | 'QUOTED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+
+export interface CustomTripDayItinerary {
+  day: number;
+  title: string;
+  description: string;
+  hotelId?: string;
+  hotelTitle?: string;
+  placeIds?: string[];
+  diningIds?: string[];
+  customNotes?: string;
+}
+
+export interface CustomTripRequest {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  tripTitle: string;
+  destination: string;
+  country: string;
+  travelStyle: 'LUXURY_WELLNESS' | 'CULTURAL_HERITAGE' | 'CULINARY_EXPLORER' | 'ROMANTIC_HONEYMOON' | 'ADVENTURE_NATURE' | 'CUSTOM';
+  budgetTier: 'ELITE' | 'PREMIUM' | 'SMART';
+  startDate: string;
+  endDate: string;
+  durationDays: number;
+  adults: number;
+  children: number;
+  selectedListingIds: string[];
+  selectedListings?: {
+    id: string;
+    title: string;
+    category: ListingCategory;
+    price: number;
+    location: string;
+    image: string;
+  }[];
+  itinerary: CustomTripDayItinerary[];
+  inclusions: string[];
+  specialRequests?: string;
+  dietaryPreferences?: string[];
+  estimatedTotal: number;
+  bundleDiscount: number;
+  finalPrice: number;
+  status: CustomTripStatus;
+  conciergeNotes?: string;
+  quotedPrice?: number;
+  convertedToPackageId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface SavedTrip {
   id: string;
   userId: string;

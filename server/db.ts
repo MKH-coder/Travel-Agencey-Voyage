@@ -3,7 +3,7 @@ import path from 'path';
 import { createRequire } from 'module';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { initializeFirestore, collection, doc, setDoc, deleteDoc, getDocs, onSnapshot } from 'firebase/firestore';
-import { User, Listing, AuditLog, Booking, SavedTrip, CustomPost, FeedPost } from './types.ts';
+import { User, Listing, AuditLog, Booking, SavedTrip, CustomPost, FeedPost, CustomTripRequest } from './types.ts';
 
 const configPath = path.join(process.cwd(), 'firebase-applet-config.json');
 const firebaseConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
@@ -36,6 +36,7 @@ interface DatabaseSchema {
   saved_trips: SavedTrip[];
   custom_posts: CustomPost[];
   feed_posts: FeedPost[];
+  custom_trips?: CustomTripRequest[];
 }
 
 const INITIAL_CUSTOM_POSTS: CustomPost[] = [
@@ -478,6 +479,99 @@ const INITIAL_AUDIT_LOGS: AuditLog[] = [
   }
 ];
 
+const INITIAL_CUSTOM_TRIPS: CustomTripRequest[] = [
+  {
+    id: 'ctrip-mannanthala-01',
+    userId: 'user_tech_admin_01',
+    userEmail: 'mukundkrishna2008@gmail.com',
+    userName: 'Mukund Krishna',
+    tripTitle: 'Kerala Ayurvedic Healing & Heritage Trail: Mannanthala Escape',
+    destination: 'Mannanthala, Trivandrum',
+    country: 'India',
+    travelStyle: 'LUXURY_WELLNESS',
+    budgetTier: 'ELITE',
+    startDate: '2026-10-15',
+    endDate: '2026-10-19',
+    durationDays: 4,
+    adults: 2,
+    children: 0,
+    selectedListingIds: ['list-mannanthala-place-01', 'list-mannanthala-hotel-02', 'list-mannanthala-food-03'],
+    selectedListings: [
+      {
+        id: 'list-mannanthala-hotel-02',
+        title: 'The Greenfields Ayurvedic Estate & Villa Resort',
+        category: 'HOTEL',
+        price: 340,
+        location: 'Mannanthala, Trivandrum',
+        image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80'
+      },
+      {
+        id: 'list-mannanthala-place-01',
+        title: 'Mannanthala Heritage Corridor & Hilltop Viewpoint',
+        category: 'PLACE',
+        price: 180,
+        location: 'Mannanthala, Trivandrum',
+        image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80'
+      },
+      {
+        id: 'list-mannanthala-food-03',
+        title: 'Travancore Spice Kitchen & Banana Leaf Sadhya',
+        category: 'FOOD',
+        price: 95,
+        location: 'Mannanthala, Trivandrum',
+        image: 'https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=1200&q=80'
+      }
+    ],
+    itinerary: [
+      {
+        day: 1,
+        title: 'Arrival in Trivandrum & Ayurvedic Consultation',
+        description: 'VIP pickup from Trivandrum International Airport, chauffeured transfer to The Greenfields Ayurvedic Estate in Mannanthala. Evening welcome herbal tea and private Vaidya pulse diagnosis.',
+        hotelId: 'list-mannanthala-hotel-02',
+        hotelTitle: 'The Greenfields Ayurvedic Estate',
+        customNotes: 'Sunset yoga by the palm grove pool'
+      },
+      {
+        day: 2,
+        title: 'Mannanthala Heritage Trail & Organic Temple Walk',
+        description: 'Morning walking exploration of Mannanthala historic temples and green valley viewpoints. Afternoon Abhyanga full-body therapeutic oil massage.',
+        placeIds: ['list-mannanthala-place-01'],
+        customNotes: 'Photography session at hilltop viewpoint'
+      },
+      {
+        day: 3,
+        title: 'Grand Travancore Sadhya & Spice Masterclass',
+        description: 'Exclusive 24-course Banana Leaf Sadhya banquet at Travancore Spice Kitchen, paired with fresh tender coconut water and cardamom payasam.',
+        diningIds: ['list-mannanthala-food-03'],
+        customNotes: 'Spice market visit with Master Chef'
+      },
+      {
+        day: 4,
+        title: 'Morning Yoga Shala & Farewell Departure',
+        description: 'Sunrise meditation session, breakfast featuring steamed idlis and fresh coconut chutney, followed by airport transfer.',
+        customNotes: 'Complimentary Ayurvedic wellness kit packed for flight'
+      }
+    ],
+    inclusions: [
+      '3 Nights in Private Pool Heritage Villa',
+      'Daily Rejuvenating Ayurvedic Therapy & Yoga',
+      'Grand 24-Dish Kerala Sadhya Banquet',
+      'Dedicated Chauffeur Airport Transfers (Mercedes E-Class)',
+      '24/7 Personal Travel Concierge'
+    ],
+    specialRequests: 'Please arrange private morning yoga master sessions and strictly authentic vegetarian Sadhya.',
+    dietaryPreferences: ['Vegetarian', 'Authentic Kerala Cuisine', 'Herbal Brews'],
+    estimatedTotal: 615,
+    bundleDiscount: 15,
+    finalPrice: 522,
+    status: 'QUOTED',
+    conciergeNotes: 'Approved with complimentary luxury airport Mercedes transfer and complimentary 60-min herbal steam bath.',
+    quotedPrice: 520,
+    createdAt: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 12 * 3600 * 1000).toISOString()
+  }
+];
+
 const DEFAULT_COORDS_MAP: Record<string, { lat: number; lng: number }> = {
   'list-santorini-01': { lat: 36.4618, lng: 25.3753 },
   'list-hotel-amalfi-02': { lat: 40.6281, lng: 14.4850 },
@@ -699,6 +793,7 @@ class Database {
           saved_trips: parsed.saved_trips || [],
           custom_posts,
           feed_posts: parsed.feed_posts || [],
+          custom_trips: Array.isArray(parsed.custom_trips) && parsed.custom_trips.length > 0 ? parsed.custom_trips : INITIAL_CUSTOM_TRIPS,
         };
         this.writeToDisk(data);
         return data;
@@ -714,6 +809,7 @@ class Database {
       saved_trips: [],
       custom_posts: INITIAL_CUSTOM_POSTS,
       feed_posts: [],
+      custom_trips: INITIAL_CUSTOM_TRIPS,
     };
     this.writeToDisk(initial);
     return initial;
@@ -980,6 +1076,57 @@ class Database {
     if (this.data.feed_posts.length !== initialLen) {
       this.writeToDisk(this.data);
       this.safeFirestoreDelete('feed_posts', id);
+      return true;
+    }
+    return false;
+  }
+
+  // --- Custom Trips & Package Requests ---
+
+  getCustomTrips(userId?: string): CustomTripRequest[] {
+    if (!this.data.custom_trips) this.data.custom_trips = INITIAL_CUSTOM_TRIPS;
+    if (userId) {
+      return this.data.custom_trips.filter(t => t.userId === userId || t.userEmail?.toLowerCase() === userId.toLowerCase());
+    }
+    return this.data.custom_trips;
+  }
+
+  getCustomTripById(id: string): CustomTripRequest | undefined {
+    if (!this.data.custom_trips) this.data.custom_trips = INITIAL_CUSTOM_TRIPS;
+    return this.data.custom_trips.find(t => t.id === id);
+  }
+
+  createCustomTrip(trip: CustomTripRequest): CustomTripRequest {
+    if (!this.data.custom_trips) this.data.custom_trips = INITIAL_CUSTOM_TRIPS;
+    this.data.custom_trips.unshift(trip);
+    this.writeToDisk(this.data);
+    this.safeFirestoreWrite('custom_trips', trip.id, trip);
+    return trip;
+  }
+
+  updateCustomTrip(id: string, updates: Partial<CustomTripRequest>): CustomTripRequest | null {
+    if (!this.data.custom_trips) this.data.custom_trips = INITIAL_CUSTOM_TRIPS;
+    const idx = this.data.custom_trips.findIndex(t => t.id === id);
+    if (idx === -1) return null;
+    const current = this.data.custom_trips[idx];
+    const updated: CustomTripRequest = {
+      ...current,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+    this.data.custom_trips[idx] = updated;
+    this.writeToDisk(this.data);
+    this.safeFirestoreWrite('custom_trips', id, updated);
+    return updated;
+  }
+
+  deleteCustomTrip(id: string): boolean {
+    if (!this.data.custom_trips) return false;
+    const initialLen = this.data.custom_trips.length;
+    this.data.custom_trips = this.data.custom_trips.filter(t => t.id !== id);
+    if (this.data.custom_trips.length !== initialLen) {
+      this.writeToDisk(this.data);
+      this.safeFirestoreDelete('custom_trips', id);
       return true;
     }
     return false;

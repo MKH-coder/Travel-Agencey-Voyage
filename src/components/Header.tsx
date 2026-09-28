@@ -36,6 +36,8 @@ interface HeaderProps {
   onOpenSavedTrips: () => void;
   onOpenShortcutsHelp?: () => void;
   onOpenSupabaseConsole?: () => void;
+  onOpenCustomTripBuilder?: () => void;
+  onOpenCustomTripsTracker?: () => void;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
 }
@@ -47,6 +49,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSavedTrips,
   onOpenShortcutsHelp,
   onOpenSupabaseConsole,
+  onOpenCustomTripBuilder,
+  onOpenCustomTripsTracker,
   searchQuery,
   setSearchQuery,
 }) => {
@@ -184,6 +188,18 @@ export const Header: React.FC<HeaderProps> = ({
             >
               Contact
             </button>
+
+            {onOpenCustomTripBuilder && (
+              <button
+                id="nav-custom-trip-btn"
+                onClick={onOpenCustomTripBuilder}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500 hover:to-orange-600 text-amber-700 dark:text-amber-300 hover:text-white border border-amber-500/30 transition-all flex items-center gap-1.5 shadow-xs"
+                title="Design Custom Trip & Package"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 group-hover:text-white" />
+                <span>Custom Trip</span>
+              </button>
+            )}
 
             {(user?.role === 'ADMIN' || user?.role === 'TECH_SUBADMIN' || user?.role === 'TECH_ADMIN') && (
               <button
@@ -433,6 +449,25 @@ export const Header: React.FC<HeaderProps> = ({
                             <span>Return to Explorer</span>
                           </>
                         )}
+                      </button>
+                    )}
+
+                    {onOpenCustomTripsTracker && (
+                      <button
+                        id="user-custom-trips-btn"
+                        onClick={() => {
+                          onOpenCustomTripsTracker();
+                          setShowUserMenu(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium ${styles.textSecondary} hover:${styles.bg}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Compass className="w-4 h-4 text-amber-500" />
+                          <span>My Custom Trips & Quotes</span>
+                        </div>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                          Live
+                        </span>
                       </button>
                     )}
 
