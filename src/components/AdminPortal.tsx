@@ -162,6 +162,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [editingRolePostUser, setEditingRolePostUser] = useState<User | null>(null);
   const [setPasswordModalUser, setSetPasswordModalUser] = useState<User | null>(null);
   const [editingContentListing, setEditingContentListing] = useState<Listing | null>(null);
+  const [packageInitialListing, setPackageInitialListing] = useState<Listing | null>(null);
   const [showPackageCreator, setShowPackageCreator] = useState<boolean>(false);
   const [showCustomPostModal, setShowCustomPostModal] = useState<boolean>(false);
   const [editingCustomPost, setEditingCustomPost] = useState<CustomPost | null>(null);
@@ -2503,11 +2504,27 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                               </button>
                             )}
 
+                            {/* Create Package from regular post */}
+                            {item.category !== 'PACKAGE' && (
+                              <button
+                                onClick={() => {
+                                  setPackageInitialListing(item);
+                                  setEditingContentListing(null);
+                                  setShowPackageCreator(true);
+                                }}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 transition-colors"
+                                title="Create Travel Package from this Post"
+                              >
+                                <Package className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+
                             {/* Option for ALL admins to add new photo and description */}
                             <button
                               onClick={() => {
                                 setEditingContentListing(item);
                                 if (item.category === 'PACKAGE') {
+                                  setPackageInitialListing(item);
                                   setShowPackageCreator(true);
                                 }
                               }}
@@ -3448,14 +3465,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
       <PackageCreatorModal
         isOpen={showPackageCreator}
-        initialData={editingContentListing?.category === 'PACKAGE' ? editingContentListing : null}
+        initialData={packageInitialListing || (editingContentListing?.category === 'PACKAGE' ? editingContentListing : null)}
         onClose={() => {
           setShowPackageCreator(false);
           setEditingContentListing(null);
+          setPackageInitialListing(null);
         }}
         onPackageCreated={() => {
           fetchListings();
           if (onListingUpdated) onListingUpdated();
+          setShowPackageCreator(false);
+          setEditingContentListing(null);
+          setPackageInitialListing(null);
         }}
       />
 

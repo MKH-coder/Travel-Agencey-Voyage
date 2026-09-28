@@ -371,6 +371,87 @@ const INITIAL_LISTINGS: Listing[] = [
     tags: ['Luxury Bundle', 'Multi-Country', 'Best Value'],
     amenities: ['Concierge Service', 'Private Transfers', 'Welcome Gift'],
     timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  },
+  {
+    id: 'list-mannanthala-place-01',
+    title: 'Mannanthala Heritage Corridor & Hilltop Viewpoint',
+    category: 'PLACE',
+    price: 180,
+    rating: 4.96,
+    reviewCount: 38,
+    location: 'Mannanthala, Trivandrum',
+    country: 'India',
+    coordinates: { lat: 8.5583, lng: 76.9458 },
+    description: 'Nestled in the lush greenery of Thiruvananthapuram, Mannanthala offers peaceful heritage paths, traditional Travancore temples, panoramic valley viewpoints, and serene tropical gardens.',
+    images: ['https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80'],
+    status: 'PUBLISHED',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdByName: 'Mukund Krishna',
+    tags: ['Kerala Heritage', 'Scenic Greens', 'Travancore Culture', 'Trivandrum'],
+    amenities: ['Guided Cultural Walk', 'Hilltop Viewpoint', 'Photography Vantage'],
+    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  },
+  {
+    id: 'list-mannanthala-hotel-02',
+    title: 'The Greenfields Ayurvedic Estate & Villa Resort',
+    category: 'HOTEL',
+    price: 340,
+    rating: 4.98,
+    reviewCount: 29,
+    location: 'Mannanthala, Trivandrum',
+    country: 'India',
+    coordinates: { lat: 8.5601, lng: 76.9482 },
+    description: 'An authentic luxury sanctuary surrounded by swaying coconut palms in Mannanthala, Trivandrum. Features traditional Kerala architecture, certified Ayurvedic rejuvenation therapies, private plunge pools, and open-air yoga shalas.',
+    images: ['https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80'],
+    status: 'PUBLISHED',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdByName: 'Mukund Krishna',
+    tags: ['Ayurveda Sanctuary', 'Kerala Luxury', 'Eco Retreat', 'Trivandrum'],
+    amenities: ['Ayurvedic Spa', 'Yoga Shala', 'Infinity Palm Pool', 'Farm-to-Table Kerala Dining'],
+    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  },
+  {
+    id: 'list-mannanthala-food-03',
+    title: 'Travancore Spice Kitchen & Banana Leaf Sadhya',
+    category: 'FOOD',
+    price: 95,
+    rating: 4.94,
+    reviewCount: 47,
+    location: 'Mannanthala, Trivandrum',
+    country: 'India',
+    coordinates: { lat: 8.5575, lng: 76.9460 },
+    description: 'Celebrated destination in Mannanthala for authentic Travancore culinary heritage. Experience the 24-dish Kerala Sadhya served on fresh plantain leaves, paired with freshly tapped tender coconut and warm cardamom payasam.',
+    images: ['https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=1200&q=80'],
+    status: 'PUBLISHED',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdByName: 'Mukund Krishna',
+    tags: ['Kerala Sadhya', 'Authentic Spices', 'Banana Leaf Dining', 'Travancore Cuisine'],
+    amenities: ['Plantain Leaf Banquet', 'Master Chef Spice Tour', 'Ayurvedic Herbal Brews'],
+    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  },
+  {
+    id: 'pkg-mannanthala-trivandrum-01',
+    title: "God's Own Country: Mannanthala & Trivandrum Heritage Package",
+    category: 'PACKAGE',
+    price: 580,
+    rating: 5.0,
+    reviewCount: 16,
+    location: 'Mannanthala, Trivandrum',
+    country: 'India',
+    description: 'An all-inclusive Kerala journey featuring a 3-night stay at The Greenfields Ayurvedic Estate in Mannanthala, guided Travancore heritage tours, private Ayurvedic massage sessions, and an authentic 24-course Kerala Sadhya feast.',
+    images: [
+      'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=1200&q=80'
+    ],
+    status: 'PUBLISHED',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdByName: 'Mukund Krishna',
+    listingIds: ['list-mannanthala-place-01', 'list-mannanthala-hotel-02', 'list-mannanthala-food-03'],
+    tags: ['Kerala Heritage', 'Tour Package', 'Ayurveda & Wellness', 'Trivandrum', 'Best Value'],
+    amenities: ['Ayurvedic Treatment Voucher', 'Airport Chauffeur Transfer', 'Banana Leaf Feast Included', 'Private Guide'],
+    duration: '4 Days / 3 Nights',
+    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
   }
 ];
 
@@ -407,6 +488,10 @@ const DEFAULT_COORDS_MAP: Record<string, { lat: number; lng: number }> = {
   'list-pending-paris-07': { lat: 48.8534, lng: 2.3338 },
   'list-tokyo-sushi-08': { lat: 35.6719, lng: 139.7640 },
   'list-hotel-como-09': { lat: 45.9658, lng: 9.2025 },
+  'list-mannanthala-place-01': { lat: 8.5583, lng: 76.9458 },
+  'list-mannanthala-hotel-02': { lat: 8.5601, lng: 76.9482 },
+  'list-mannanthala-food-03': { lat: 8.5575, lng: 76.9460 },
+  'pkg-mannanthala-trivandrum-01': { lat: 8.5583, lng: 76.9458 },
 };
 
 class Database {
@@ -438,34 +523,17 @@ class Database {
     try {
       console.log('Initializing background real-time Firestore synchronization with local cache...');
 
-      // Clear out legacy default listings from Firestore if they exist to keep the catalogue empty to begin with
+      // Seed Initial Platform Listings if Firestore is empty or missing
       try {
         const listingsSnap = await getDocs(collection(firestoreDb, 'listings'));
-        const defaultListingIds = [
-          'list-santorini-01',
-          'list-kyoto-02',
-          'list-amalfi-03',
-          'list-swiss-04',
-          'list-tokyo-05',
-          'list-paris-06',
-          'list-hotel-amalfi-02',
-          'list-dining-kyoto-03',
-          'list-swiss-alps-04',
-          'list-hotel-bali-05',
-          'list-pending-banff-06',
-          'list-pending-paris-07',
-          'list-tokyo-sushi-08',
-          'list-hotel-como-09'
-        ];
-        for (const docObj of listingsSnap.docs) {
-          const id = docObj.id;
-          if (defaultListingIds.includes(id) || id.startsWith('list-')) {
-            console.log(`[Firestore Cleanup] Deleting legacy default listing: ${id}`);
-            await this.safeFirestoreDelete('listings', id);
+        if (listingsSnap.empty) {
+          console.log('[Firestore Init] Seeding initial curated platform listings...');
+          for (const item of INITIAL_LISTINGS) {
+            await this.safeFirestoreWrite('listings', item.id, item);
           }
         }
       } catch (err) {
-        console.warn('Failed to clean up legacy default listings from Firestore on startup:', err);
+        console.warn('Failed to verify or seed initial platform listings in Firestore:', err);
       }
 
       // 1. Real-time Listings sync
@@ -604,8 +672,15 @@ class Database {
           }
         }
 
-        // Ensure listings have coordinates applied if needed
-        const listings: Listing[] = (Array.isArray(parsed.listings) ? parsed.listings : INITIAL_LISTINGS).map((item: Listing) => {
+        // Ensure listings have initial listings merged and coordinates applied
+        const diskListings: Listing[] = Array.isArray(parsed.listings) ? [...parsed.listings] : [];
+        for (const initListing of INITIAL_LISTINGS) {
+          if (!diskListings.some(l => l.id === initListing.id)) {
+            diskListings.push(initListing);
+          }
+        }
+
+        const listings: Listing[] = diskListings.map((item: Listing) => {
           if (!item.coordinates && DEFAULT_COORDS_MAP[item.id]) {
             return { ...item, coordinates: DEFAULT_COORDS_MAP[item.id] };
           }

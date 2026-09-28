@@ -21,12 +21,16 @@ interface HeroSectionProps {
   filters: FilterState;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
   totalCount: number;
+  onBrowsePackages?: () => void;
+  onPlanTrip?: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   filters,
   setFilters,
   totalCount,
+  onBrowsePackages,
+  onPlanTrip,
 }) => {
   const { theme, styles } = useTheme();
   const [localSearch, setLocalSearch] = useState(filters.search);
@@ -46,6 +50,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   }, [filters.search]);
 
   const quickSearchTags = [
+    'Mannanthala, Trivandrum',
     'Santorini',
     'Amalfi Coast',
     'Kyoto Kaiseki',
@@ -64,7 +69,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     { id: 'PACKAGE', label: 'Luxury Bundles', icon: <Package className="w-3.5 h-3.5" /> },
   ];
 
-  const popularCountries = ['All Countries', 'Greece', 'Italy', 'Japan', 'Switzerland', 'Indonesia', 'Canada', 'France', 'Albania'];
+  const popularCountries = ['All Countries', 'India', 'Greece', 'Italy', 'Japan', 'Switzerland', 'Indonesia', 'Canada', 'France', 'Albania'];
 
   const resetFilters = () => {
     setLocalSearch('');
@@ -118,9 +123,31 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             Extraordinary <br />
             <span className="text-sky-500">Places & Stays.</span>
           </h1>
-          <p className={`text-base sm:text-lg ${styles.textSecondary} leading-relaxed max-w-2xl animate-in slide-in-from-left-4 duration-700 delay-200`}>
+          <p className={`text-base sm:text-lg ${styles.textSecondary} leading-relaxed max-w-2xl animate-in slide-in-from-left-4 duration-700 delay-200 mb-6`}>
             The premier global travel agency for modern explorers. Hand-curated luxury stays, verified culinary secrets, and seamless interactive bookings.
           </p>
+
+          {/* Quick Action Buttons */}
+          <div className="flex flex-wrap items-center gap-3 animate-in slide-in-from-left-4 duration-700 delay-300">
+            <button
+              id="hero-browse-packages-btn"
+              type="button"
+              onClick={onBrowsePackages}
+              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-sm shadow-xl shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <Package className="w-4 h-4" />
+              <span>Explore Tour Packages</span>
+            </button>
+            <button
+              id="hero-plan-trip-btn"
+              type="button"
+              onClick={onPlanTrip}
+              className={`px-6 py-3 rounded-2xl font-bold text-sm ${styles.buttonSecondary} hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 cursor-pointer`}
+            >
+              <Compass className="w-4 h-4 text-sky-500" />
+              <span>Plan Custom Trip</span>
+            </button>
+          </div>
         </div>
 
         {/* Location Finder & Search Container */}

@@ -41,17 +41,31 @@ export const PackageCreatorModal: React.FC<PackageCreatorModalProps> = ({
     if (isOpen) {
       fetchListings();
       if (initialData) {
-        setTitle(initialData.title);
-        setPrice(initialData.price);
-        setDuration(initialData.duration || '');
-        setLocation(initialData.location);
-        setCountry(initialData.country);
-        setDescription(initialData.description);
-        setImages(initialData.images || []);
-        setSelectedListingIds(initialData.listingIds || []);
-        setStatus(initialData.status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT');
+        if (initialData.category === 'PACKAGE') {
+          // Editing existing package
+          setTitle(initialData.title);
+          setPrice(initialData.price);
+          setDuration(initialData.duration || '');
+          setLocation(initialData.location);
+          setCountry(initialData.country);
+          setDescription(initialData.description);
+          setImages(initialData.images || []);
+          setSelectedListingIds(initialData.listingIds || []);
+          setStatus(initialData.status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT');
+        } else {
+          // Creating a package from an existing post / listing
+          setTitle(`${initialData.title} Signature Tour Package`);
+          setPrice(initialData.price);
+          setDuration(initialData.duration || '4 Days / 3 Nights');
+          setLocation(initialData.location);
+          setCountry(initialData.country);
+          setDescription(`Experience the best of ${initialData.location}, ${initialData.country} with our hand-crafted tour package centered around ${initialData.title}. Features curated stays, local activities, and 24/7 dedicated concierge assistance.`);
+          setImages(initialData.images || []);
+          setSelectedListingIds([initialData.id]);
+          setStatus('PUBLISHED');
+        }
       } else {
-        // Reset for new creation
+        // Reset for brand new creation
         setTitle('');
         setPrice(0);
         setDuration('');
@@ -88,7 +102,7 @@ export const PackageCreatorModal: React.FC<PackageCreatorModalProps> = ({
 
   const handleSave = async () => {
     if (!title.trim()) return setError('Title is required');
-    if (selectedListingIds.length < 2) return setError('Select at least 2 listings to form a package');
+    if (selectedListingIds.length < 1) return setError('Please select at least 1 destination or experience listing');
     if (price <= 0) return setError('Price must be greater than 0');
     if (!location.trim()) return setError('Location is required');
     if (!country.trim()) return setError('Country is required');
@@ -102,10 +116,14 @@ export const PackageCreatorModal: React.FC<PackageCreatorModalProps> = ({
       const selected = availableListings.filter(l => selectedListingIds.includes(l.id));
       finalImages = selected.map(l => l.images[0]).filter(Boolean);
     }
+    if (finalImages.length === 0 && initialData?.images?.length) {
+      finalImages = initialData.images;
+    }
 
     try {
-      const method = initialData ? 'PATCH' : 'POST';
-      const url = initialData ? `/api/listings/${initialData.id}` : '/api/listings';
+      const isEditingExistingPackage = initialData && initialData.category === 'PACKAGE';
+      const method = isEditingExistingPackage ? 'PATCH' : 'POST';
+      const url = isEditingExistingPackage ? `/api/listings/${initialData.id}` : '/api/listings';
       
       const res = await fetch(url, {
         method,
@@ -124,21 +142,21 @@ export const PackageCreatorModal: React.FC<PackageCreatorModalProps> = ({
           images: finalImages,
           listingIds: selectedListingIds,
           status: status, 
-          tags: ['Luxury Bundle', 'Multi-Experience', 'Curated Package'],
+          tags: ['Luxury Bundle', 'Tour Package', 'Curated Journey', 'Verified Agency'],
         }),
       });
 
       if (res.ok) {
-        setSuccess(initialData ? 'Package updated successfully!' : 'Luxury package created successfully!');
+        setSuccess(isEditingExistingPackage ? 'Package updated successfully!' : 'Luxury package created successfully!');
         AuthAudit.showToast({
-          title: initialData ? 'Package Updated' : 'Package Created',
-          message: `"${title.trim()}" bundle is now ${status === 'PUBLISHED' ? 'live' : 'saved as draft'}.`,
+          title: isEditingExistingPackage ? 'Package Updated' : 'Tour Package Created',
+          message: `"${title.trim()}" is now ${status === 'PUBLISHED' ? 'live on the platform' : 'saved as draft'}.`,
           type: 'success',
           isAdminAction: true,
-          adminActionType: initialData ? 'update' : 'create',
+          adminActionType: isEditingExistingPackage ? 'update' : 'create',
         });
         onPackageCreated();
-        setTimeout(onClose, 1500);
+        setTimeout(onClose, 1200);
       } else {
         const data = await res.json();
         setError(data.error || 'Failed to process package');
@@ -389,10 +407,10 @@ export const PackageCreatorModal: React.FC<PackageCreatorModalProps> = ({
               Discard
             </button>
             <button
-              disabled={isSaving || selectedListingIds.length < 2}
+              disabled={isSaving || selectedListingIds.length < 1}
               onClick={handleSave}
               className={`flex-1 sm:flex-initial px-8 py-2.5 rounded-xl text-sm font-bold text-white shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2 transition-all ${
-                isSaving || selectedListingIds.length < 2 
+                isSaving || selectedListingIds.length < 1 
                   ? 'bg-slate-400 cursor-not-allowed' 
                   : status === 'PUBLISHED' 
                     ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:scale-[1.02] active:scale-[0.98]'

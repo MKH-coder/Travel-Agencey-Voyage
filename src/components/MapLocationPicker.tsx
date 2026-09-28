@@ -111,6 +111,15 @@ const PRESET_RESTAURANTS: LocationResult[] = [
     category: 'FOOD',
     tags: ['World Best Restaurant', 'Molecular Cuisine', 'Catalan Modern'],
     diningSpecialties: ['Panchino Dough with Caviar', 'Crispy Egg Yolk with Mushroom Gel', 'Idiazabal Multi-Sphere'],
+  },
+  {
+    coordinates: { lat: 8.5583, lng: 76.9458 },
+    location: 'Mannanthala, Trivandrum',
+    country: 'India',
+    suggestedTitle: 'Travancore Spice Kitchen & Banana Leaf Sadhya',
+    category: 'FOOD',
+    tags: ['Kerala Sadhya', 'Banana Leaf Dining', 'Travancore Spice Trail', 'Mannanthala', 'Trivandrum', 'Kerala'],
+    diningSpecialties: ['Grand Kerala Onam Sadhya (24 Dishes)', 'Travancore Fish Curry with Coconut', 'Palada Payasam & Fresh Nadan Parotta'],
   }
 ];
 

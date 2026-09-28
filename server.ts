@@ -1761,6 +1761,33 @@ Proceeding with sandbox delivery...`);
         category: 'FOOD',
         tags: ['World Best Restaurant', 'Molecular Cuisine', 'Catalan Modern'],
         diningSpecialties: ['Panchino Dough with Caviar', 'Crispy Egg Yolk with Mushroom Gel', 'Idiazabal Cheese Multi-Sphere'],
+      },
+      {
+        name: 'Travancore Spice Kitchen & Banana Leaf Sadhya',
+        location: 'Mannanthala, Trivandrum',
+        country: 'India',
+        coordinates: { lat: 8.5583, lng: 76.9458 },
+        category: 'FOOD',
+        tags: ['Kerala Sadhya', 'Banana Leaf Dining', 'Travancore Spice Trail', 'Mannanthala', 'Trivandrum', 'Kerala'],
+        diningSpecialties: ['Grand Kerala Onam Sadhya (24 Dishes)', 'Travancore Fish Curry with Coconut', 'Palada Payasam & Fresh Nadan Parotta'],
+      },
+      {
+        name: 'The Greenfields Ayurvedic Estate & Villa Resort',
+        location: 'Mannanthala, Trivandrum',
+        country: 'India',
+        coordinates: { lat: 8.5601, lng: 76.9482 },
+        category: 'HOTEL',
+        tags: ['Ayurvedic Sanctuary', 'Palm Groves', 'Eco Luxury', 'Mannanthala', 'Trivandrum'],
+        diningSpecialties: ['Organic Ayurvedic Dining', 'Trivandrum Herbal Brews', 'Traditional Kerala Breakfast'],
+      },
+      {
+        name: 'Mannanthala Heritage Corridor & Hilltop Viewpoint',
+        location: 'Mannanthala, Trivandrum',
+        country: 'India',
+        coordinates: { lat: 8.5570, lng: 76.9430 },
+        category: 'PLACE',
+        tags: ['Scenic Hilltop', 'Temple Architecture', 'Trivandrum Heritage', 'Mannanthala', 'Kerala'],
+        diningSpecialties: ['Traditional Samovar Chai & Banana Fritters', 'Kallappam & Vegetable Stew'],
       }
     ];
 

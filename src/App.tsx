@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 
 import { MarketingSections } from './components/MarketingSections.tsx';
+import { PackageCreatorModal } from './components/PackageCreatorModal.tsx';
 import { Newsletter } from './components/Newsletter.tsx';
 import { Footer } from './components/Footer.tsx';
 import { FloatingContact } from './components/FloatingContact.tsx';
@@ -53,6 +54,8 @@ function MainLayout() {
 
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [packagePreviewActive, setPackagePreviewActive] = useState(false);
+  const [packageInitialListing, setPackageInitialListing] = useState<Listing | null>(null);
+  const [showPackageCreatorModal, setShowPackageCreatorModal] = useState<boolean>(false);
   const [hoveredListingId, setHoveredListingId] = useState<string | null>(null);
   const [showSavedModal, setShowSavedModal] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
@@ -281,6 +284,59 @@ function MainLayout() {
     });
   }, [listings, filters]);
 
+  const handleBrowsePackages = useCallback(() => {
+    setFilters(prev => ({ ...prev, category: 'PACKAGE' }));
+    const exploreEl = document.getElementById('explore-feed-section') || document.querySelector('main');
+    if (exploreEl) {
+      exploreEl.scrollIntoView({ behavior: 'smooth' });
+    }
+    const pkg = listings.find(l => l.category === 'PACKAGE' && l.status === 'PUBLISHED') || listings.find(l => l.category === 'PACKAGE');
+    if (pkg) {
+      setSelectedListing(pkg);
+      setPackagePreviewActive(true);
+    } else {
+      setSelectedListing({
+        id: 'pkg-kyoto-zen-01',
+        title: 'Kyoto Zen & Gastronomy Signature Package',
+        category: 'PACKAGE',
+        price: 780,
+        rating: 4.99,
+        reviewCount: 14,
+        location: 'Arashiyama & Gion',
+        country: 'Japan',
+        description: 'Immerse yourself in Kyoto heritage with a luxury riverside stay at Hoshinoya, an authentic Michelin-grade Kaiseki dinner at Gion Karyo, private tea master ceremony, and chauffeured transfers.',
+        images: [
+          'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1200&q=80'
+        ],
+        status: 'PUBLISHED',
+        createdBy: 'mukundkrishna2008@gmail.com',
+        createdByName: 'Mukund Krishna',
+        listingIds: ['list-hotel-kyoto-04', 'list-dining-kyoto-03'],
+        tags: ['Zen Bundle', 'Kyoto Heritage', 'Best Value', 'Tour Package', 'VIP Concierge'],
+        amenities: ['Cultural Concierge', 'Private Boat Transfer', 'Priority Dining Reservation', 'Guided Historic Walk'],
+        duration: '4 Days / 3 Nights',
+        timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+      });
+      setPackagePreviewActive(true);
+    }
+  }, [listings]);
+
+  const handlePlanTrip = useCallback(() => {
+    setFilters(prev => ({ ...prev, category: 'ALL' }));
+    const searchInput = document.getElementById('hero-search-input');
+    if (searchInput) {
+      searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      searchInput.focus();
+    }
+  }, []);
+
+  const handleCreatePackageFromListing = useCallback((listing: Listing) => {
+    setPackageInitialListing(listing);
+    setShowPackageCreatorModal(true);
+  }, []);
+
   return (
     <div className={`min-h-screen w-full max-w-full overflow-x-hidden ${styles.bg} ${styles.textPrimary} transition-colors duration-300 flex flex-col font-sans selection:bg-cyan-500/20`}>
       <Header
@@ -306,7 +362,13 @@ function MainLayout() {
       <main className="flex-1">
         {currentView === 'dashboard' ? (
           <div className="space-y-8">
-            <HeroSection filters={filters} setFilters={setFilters} totalCount={filteredListings.length} />
+            <HeroSection 
+              filters={filters} 
+              setFilters={setFilters} 
+              totalCount={filteredListings.length}
+              onBrowsePackages={handleBrowsePackages}
+              onPlanTrip={handlePlanTrip}
+            />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-6">
               <ExploreFeed />
@@ -431,6 +493,7 @@ function MainLayout() {
                             listing={listing}
                             isSaved={savedListings.some(l => l.id === listing.id)}
                             onToggleSave={toggleSaveListing}
+                            onCreatePackage={handleCreatePackageFromListing}
                             onSelect={(item) => {
                               setSelectedListing(item);
                               if (item.category === 'PACKAGE') setPackagePreviewActive(true);
@@ -480,6 +543,7 @@ function MainLayout() {
                           listing={listing}
                           isSaved={savedListings.some(l => l.id === listing.id)}
                           onToggleSave={toggleSaveListing}
+                          onCreatePackage={handleCreatePackageFromListing}
                           onSelect={(item) => {
                             setSelectedListing(item);
                             if (item.category === 'PACKAGE') setPackagePreviewActive(true);
@@ -502,7 +566,16 @@ function MainLayout() {
 
         {currentView === 'dashboard' && (
           <>
-            <MarketingSections />
+            <MarketingSections 
+              onPlanTrip={handlePlanTrip}
+              onBrowsePackages={handleBrowsePackages}
+              onReadReviews={() => {
+                const reviewsEl = document.getElementById('marketing-advantage');
+                if (reviewsEl) {
+                  reviewsEl.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            />
             <Newsletter />
           </>
         )}
@@ -518,8 +591,7 @@ function MainLayout() {
             setPackagePreviewActive(false);
           }}
           onBook={() => {
-            // Internal success state is handled by the modal
-            // We can add global tracking or persistent storage here later
+            // Success state is presented in modal
           }}
         />
       ) : (
@@ -531,8 +603,24 @@ function MainLayout() {
           }}
           isSaved={selectedListing ? savedListings.some(l => l.id === selectedListing.id) : false}
           onToggleSave={toggleSaveListing}
+          onCreatePackage={handleCreatePackageFromListing}
         />
       )}
+
+      {/* Admin Quick Package Creator Modal */}
+      <PackageCreatorModal
+        isOpen={showPackageCreatorModal}
+        initialData={packageInitialListing}
+        onClose={() => {
+          setShowPackageCreatorModal(false);
+          setPackageInitialListing(null);
+        }}
+        onPackageCreated={() => {
+          loadListings();
+          setShowPackageCreatorModal(false);
+          setPackageInitialListing(null);
+        }}
+      />
 
       <SavedTripsModal
         isOpen={showSavedModal}

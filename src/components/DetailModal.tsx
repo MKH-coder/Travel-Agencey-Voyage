@@ -34,6 +34,7 @@ interface DetailModalProps {
   isSaved: boolean;
   onToggleSave: (listing: Listing) => void;
   onBookingSuccess?: (booking: Booking) => void;
+  onCreatePackage?: (listing: Listing) => void;
 }
 
 export const DetailModal: React.FC<DetailModalProps> = ({
@@ -42,6 +43,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   isSaved,
   onToggleSave,
   onBookingSuccess,
+  onCreatePackage,
 }) => {
   const { styles } = useTheme();
   const { user, token, setShowLoginModal } = useAuth();
@@ -369,6 +371,33 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             {/* Left Column: Details, Highlights & Comparison */}
             <div className="lg:col-span-2 space-y-6">
               
+              {/* Admin Convert to Package Banner */}
+              {user && ['ADMIN', 'TECH_ADMIN', 'TECH_SUBADMIN'].includes(user.role) && listing.category !== 'PACKAGE' && (
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/20 shrink-0">
+                      <Package className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className={`text-sm font-bold ${styles.textPrimary}`}>Admin Tour Package Generator</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">Transform this post into a multi-day luxury travel package</div>
+                    </div>
+                  </div>
+                  <button
+                    id="admin-create-package-from-modal-btn"
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onCreatePackage?.(listing);
+                    }}
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xs shadow-md shadow-amber-500/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0 hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Create Package from this Post</span>
+                  </button>
+                </div>
+              )}
+
               {/* Overview */}
               <div>
                 <h3 className={`text-base font-bold mb-2 ${styles.textPrimary}`}>

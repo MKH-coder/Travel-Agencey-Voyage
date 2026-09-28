@@ -2,7 +2,17 @@ import React from 'react';
 import { ShieldCheck, Zap, Heart, Award, Star, Quote, ArrowRight, MapPin, Users, Globe } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 
-export const MarketingSections: React.FC = () => {
+interface MarketingSectionsProps {
+  onPlanTrip?: () => void;
+  onBrowsePackages?: () => void;
+  onReadReviews?: () => void;
+}
+
+export const MarketingSections: React.FC<MarketingSectionsProps> = ({
+  onPlanTrip,
+  onBrowsePackages,
+  onReadReviews,
+}) => {
   const { styles } = useTheme();
 
   const features = [
@@ -116,7 +126,11 @@ export const MarketingSections: React.FC = () => {
               Stories from the World's Best Explorers
             </h3>
           </div>
-          <button className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm ${styles.buttonSecondary} transition-all`}>
+          <button 
+            id="marketing-read-reviews-btn"
+            onClick={onReadReviews}
+            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm ${styles.buttonSecondary} transition-all`}
+          >
             Read All Reviews <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -173,11 +187,21 @@ export const MarketingSections: React.FC = () => {
                 Join 50,000+ travelers who have discovered the smarter way to explore the globe. Curated by experts, powered by you.
              </p>
              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-bold transition-all shadow-xl shadow-sky-500/20 hover:scale-[1.02] active:scale-[0.98]">
-                  Plan Your Trip Now
+                <button 
+                  id="cta-plan-trip-btn"
+                  onClick={onPlanTrip}
+                  className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-bold transition-all shadow-xl shadow-sky-500/20 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>Plan Your Trip Now</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-                <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold backdrop-blur-md border border-white/10 transition-all">
-                  Browse Packages
+                <button 
+                  id="cta-browse-packages-btn"
+                  onClick={onBrowsePackages}
+                  className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold backdrop-blur-md border border-white/10 transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <MapPin className="w-4 h-4 text-amber-400" />
+                  <span>Browse Packages</span>
                 </button>
              </div>
           </div>
