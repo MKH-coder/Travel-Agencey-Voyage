@@ -64,7 +64,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     { id: 'PACKAGE', label: 'Luxury Bundles', icon: <Package className="w-3.5 h-3.5" /> },
   ];
 
-  const popularCountries = ['All Countries', 'Greece', 'Italy', 'Japan', 'Switzerland', 'Indonesia', 'Canada', 'France'];
+  const popularCountries = ['All Countries', 'Greece', 'Italy', 'Japan', 'Switzerland', 'Indonesia', 'Canada', 'France', 'Albania'];
 
   const resetFilters = () => {
     setLocalSearch('');

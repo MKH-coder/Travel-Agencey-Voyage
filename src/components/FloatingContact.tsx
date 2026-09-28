@@ -79,7 +79,7 @@ export const FloatingContact: React.FC = () => {
                    </button>
                    <button className={`w-full py-3 flex items-center justify-center gap-2 text-xs font-bold ${styles.textMuted} hover:text-sky-500 transition-colors`}>
                      <Phone className="w-4 h-4" />
-                     Prefer a call? +1 (555) VOYAGE
+                     Prefer a call? +91 9567465134
                    </button>
                 </div>
               </>

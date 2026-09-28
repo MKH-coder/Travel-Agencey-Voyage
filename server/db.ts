@@ -143,7 +143,7 @@ const INITIAL_USERS: User[] = [
   {
     uid: 'user_tech_subadmin_01',
     email: 'mukundkrishna.h@gmail.com',
-    phoneNumber: '+91 9567465135',
+    phoneNumber: '+91 9567465134',
     name: 'Mukund Krishna (Technical Sub-Admin)',
     role: 'TECH_SUBADMIN',
     mfaEnabled: false,
@@ -153,7 +153,7 @@ const INITIAL_USERS: User[] = [
   {
     uid: 'user_tech_subadmin_02',
     email: '8c15mukundkrishna.h@gmail.com',
-    phoneNumber: '+91 9567465136',
+    phoneNumber: '+91 9567465134',
     name: 'Mukund Krishna Backup (Technical Sub-Admin)',
     role: 'TECH_SUBADMIN',
     mfaEnabled: false,
@@ -163,7 +163,7 @@ const INITIAL_USERS: User[] = [
   {
     uid: 'user_tech_admin_02',
     email: 'mukundkrishna.h2008@gmail.com',
-    phoneNumber: '+91 9567465137',
+    phoneNumber: '+91 9567465134',
     name: 'Mukund Krishna Dev (Technical Super Admin)',
     role: 'TECH_ADMIN',
     customTitle: 'Lead Platform Director & Super Admin',
@@ -175,7 +175,7 @@ const INITIAL_USERS: User[] = [
   {
     uid: 'user_admin_02',
     email: 'sarah.content@travelplatform.io',
-    phoneNumber: '+1 555-019-2834',
+    phoneNumber: '+91 9567465134',
     name: 'Sarah Jenkins (Standard Admin)',
     role: 'ADMIN',
     mfaEnabled: false,
@@ -186,7 +186,7 @@ const INITIAL_USERS: User[] = [
   {
     uid: 'user_traveler_03',
     email: 'alex.globetrotter@example.com',
-    phoneNumber: '+1 555-482-1920',
+    phoneNumber: '+91 9567465134',
     name: 'Alex Rivera',
     role: 'USER',
     mfaEnabled: false,

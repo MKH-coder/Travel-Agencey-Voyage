@@ -517,7 +517,10 @@ function MainLayout() {
             setSelectedListing(null);
             setPackagePreviewActive(false);
           }}
-          onBook={() => setPackagePreviewActive(false)}
+          onBook={() => {
+            // Internal success state is handled by the modal
+            // We can add global tracking or persistent storage here later
+          }}
         />
       ) : (
         <DetailModal
