@@ -1,0 +1,281 @@
+{
+  "gameTitle": "Wanderlust Chronicles",
+  "version": "1.1",
+  "settings": {
+    "currency": "USD",
+    "startingMoney": 1000,
+    "startingEnergy": 100,
+    "maxInventorySlots": 10,
+    "globalEventChance": 0.35
+  },
+  "player": {
+    "name": "Traveler",
+    "currentLocation": "loc_tokyo",
+    "money": 1000,
+    "energy": 100,
+    "staminaMax": 100,
+    "inventory": [
+      {
+        "itemId": "item_passport",
+        "quantity": 1
+      },
+      {
+        "itemId": "item_water_bottle",
+        "quantity": 1
+      }
+    ],
+    "visitedLocations": [
+      "loc_tokyo"
+    ],
+    "activeBuffs": []
+  },
+  "locations": [
+    {
+      "id": "loc_tokyo",
+      "name": "Tokyo",
+      "country": "Japan",
+      "description": "A bustling metropolis blending ultra-modern skyscrapers with historic temples.",
+      "costOfLivingMultiplier": 1.2,
+      "locationSpecificEvents": [
+        "evt_typhoon_warning"
+      ],
+      "activities": [
+        "act_visit_shrine",
+        "act_eat_ramen"
+      ],
+      "availableTransport": [
+        {
+          "destinationId": "loc_paris",
+          "type": "Flight",
+          "cost": 650,
+          "travelTimeHours": 12,
+          "energyCost": 30,
+          "eventTriggerOnTravel": true
+        },
+        {
+          "destinationId": "loc_kyoto",
+          "type": "Bullet Train",
+          "cost": 130,
+          "travelTimeHours": 2,
+          "energyCost": 10,
+          "eventTriggerOnTravel": true
+        }
+      ]
+    },
+    {
+      "id": "loc_paris",
+      "name": "Paris",
+      "country": "France",
+      "description": "The city of light, famous for art, fashion, gastronomy, and culture.",
+      "costOfLivingMultiplier": 1.3,
+      "locationSpecificEvents": [],
+      "activities": [
+        "act_visit_eiffel"
+      ],
+      "availableTransport": [
+        {
+          "destinationId": "loc_tokyo",
+          "type": "Flight",
+          "cost": 700,
+          "travelTimeHours": 12,
+          "energyCost": 30,
+          "eventTriggerOnTravel": true
+        }
+      ]
+    },
+    {
+      "id": "loc_kyoto",
+      "name": "Kyoto",
+      "country": "Japan",
+      "description": "Famed for its classical Buddhist temples, gardens, and imperial palaces.",
+      "costOfLivingMultiplier": 1.0,
+      "locationSpecificEvents": [],
+      "activities": [],
+      "availableTransport": [
+        {
+          "destinationId": "loc_tokyo",
+          "type": "Bullet Train",
+          "cost": 130,
+          "travelTimeHours": 2,
+          "energyCost": 10,
+          "eventTriggerOnTravel": true
+        }
+      ]
+    }
+  ],
+  "randomEvents": [
+    {
+      "id": "evt_flight_delay",
+      "title": "Flight Delayed!",
+      "description": "Severe air traffic congestion has delayed your takeoff by 4 hours. You're stuck buying overpriced airport coffee.",
+      "category": "Travel",
+      "triggerCondition": "on_transport_type_Flight",
+      "probabilityWeight": 30,
+      "effects": {
+        "moneyDelta": -15,
+        "energyDelta": -15,
+        "timeDelayHours": 4
+      },
+      "choices": [
+        {
+          "choiceText": "Wait it out in the terminal",
+          "effects": {
+            "moneyDelta": -15,
+            "energyDelta": -15
+          }
+        },
+        {
+          "choiceText": "Pay for Airport Lounge Access",
+          "effects": {
+            "moneyDelta": -50,
+            "energyDelta": 10
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt_lost_wallet",
+      "title": "Pickpocket Attack!",
+      "description": "While navigating a crowded transit station, someone snatched a portion of your cash.",
+      "category": "Accident",
+      "triggerCondition": "on_location_arrival",
+      "probabilityWeight": 15,
+      "effects": {
+        "moneyPercentLoss": 0.15,
+        "energyDelta": -10
+      },
+      "choices": [
+        {
+          "choiceText": "Report to local police",
+          "effects": {
+            "timeDelayHours": 2,
+            "chanceToRecoverMoney": 0.4
+          }
+        },
+        {
+          "choiceText": "Cut your losses and move on",
+          "effects": {
+            "timeDelayHours": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt_lost_item",
+      "title": "Misplaced Gear",
+      "description": "You realized you left an item behind at your last stop!",
+      "category": "Accident",
+      "triggerCondition": "on_activity_completion",
+      "probabilityWeight": 20,
+      "effects": {
+        "removeRandomInventoryItem": true
+      },
+      "choices": []
+    },
+    {
+      "id": "evt_typhoon_warning",
+      "title": "Severe Weather Alert",
+      "description": "A sudden storm forces all outdoor activities to cancel for the day.",
+      "category": "Weather",
+      "triggerCondition": "on_daily_turn",
+      "probabilityWeight": 10,
+      "effects": {
+        "blockOutdoorActivities": true,
+        "energyDelta": -5
+      },
+      "choices": [
+        {
+          "choiceText": "Stay inside and rest at the hotel",
+          "effects": {
+            "energyDelta": 30
+          }
+        }
+      ]
+    }
+  ],
+  "activities": [
+    {
+      "id": "act_visit_shrine",
+      "name": "Visit Meiji Shrine",
+      "description": "Walk through the quiet forest trail to reach the historic shrine.",
+      "energyCost": 15,
+      "moneyCost": 0,
+      "rewards": {
+        "experience": 50,
+        "items": [
+          {
+            "itemId": "item_omamori_charm",
+            "chance": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "act_eat_ramen",
+      "name": "Eat Street Ramen",
+      "description": "Enjoy a hot bowl of authentic tonkotsu ramen.",
+      "energyCost": -20,
+      "moneyCost": 12,
+      "rewards": {
+        "experience": 10,
+        "items": []
+      }
+    },
+    {
+      "id": "act_visit_eiffel",
+      "name": "Climb the Eiffel Tower",
+      "description": "Enjoy a panoramic view of Paris from above.",
+      "energyCost": 25,
+      "moneyCost": 30,
+      "rewards": {
+        "experience": 100,
+        "items": []
+      }
+    }
+  ],
+  "items": [
+    {
+      "id": "item_passport",
+      "name": "Passport",
+      "type": "KeyItem",
+      "description": "Required to travel internationally.",
+      "value": 0,
+      "usable": false
+    },
+    {
+      "id": "item_water_bottle",
+      "name": "Reusable Water Bottle",
+      "type": "Consumable",
+      "description": "Restores 10 energy when used.",
+      "value": 15,
+      "usable": true,
+      "effect": {
+        "restoreEnergy": 10
+      }
+    },
+    {
+      "id": "item_omamori_charm",
+      "name": "Lucky Charm",
+      "type": "Souvenir",
+      "description": "A traditional Japanese amulet bought at a shrine.",
+      "value": 20,
+      "usable": false
+    }
+  ],
+  "quests": [
+    {
+      "id": "quest_first_trip",
+      "title": "First Stamp",
+      "description": "Travel to your first international destination.",
+      "isCompleted": false,
+      "requirements": {
+        "type": "visit_count",
+        "targetValue": 2
+      },
+      "rewards": {
+        "money": 200,
+        "experience": 100
+      }
+    }
+  ]
+}
