@@ -100,6 +100,19 @@ export const INITIAL_CUSTOM_POSTS: CustomPost[] = [
 
 export const INITIAL_USERS: User[] = [
   {
+    uid: 'user_voyage_official',
+    email: 'voyage@gmail.com',
+    phoneNumber: '+91 9567465134',
+    name: 'Voyage Official (Super Admin)',
+    role: 'TECH_ADMIN',
+    customTitle: 'Voyage Platform Director & Super Admin',
+    department: 'Platform Administration',
+    mfaEnabled: true,
+    recoveryEmail: 'voyage@gmail.com',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
+    createdAt: '2025-01-01T00:00:00.000Z',
+  },
+  {
     uid: 'user_tech_admin_01',
     email: 'mukundkrishna2008@gmail.com',
     phoneNumber: '+91 9567465134',
@@ -514,6 +527,7 @@ export class ClientStorageManager {
 
     // Check known super admin emails
     const isSuperAdminEmail = 
+      cleanEmail === 'voyage@gmail.com' ||
       cleanEmail === 'mukundkrishna2008@gmail.com' ||
       cleanEmail === 'mukundkrishna.h2008@gmail.com' ||
       cleanEmail === '8c15mukundkrishna.h@gmail.com';
@@ -594,6 +608,7 @@ export class ClientStorageManager {
     const cleanPassword = password.trim();
     const isBypass = ['2008-6058', '20086058', 'adminbypass', 'mukundbypass', 'sec-root-travel-2026', 'emergency-superadmin-recovery-9567-2008'].includes(cleanPassword);
     const isSuperAdminEmail = 
+      cleanEmail === 'voyage@gmail.com' ||
       cleanEmail === 'mukundkrishna2008@gmail.com' ||
       cleanEmail === 'mukundkrishna.h2008@gmail.com' ||
       cleanEmail === '8c15mukundkrishna.h@gmail.com';

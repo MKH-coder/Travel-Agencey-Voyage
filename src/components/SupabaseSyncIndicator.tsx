@@ -61,21 +61,20 @@ export const SupabaseSyncIndicator: React.FC<SupabaseSyncIndicatorProps> = ({ on
     switch (syncState.status) {
       case 'syncing':
         return (
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/30 text-xs font-semibold shadow-xs">
+          <div className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/30 text-xs font-semibold shadow-xs">
             <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500 shrink-0" />
             <span className="hidden sm:inline">Syncing...</span>
-            <span className="sm:hidden">Sync</span>
           </div>
         );
       case 'synced':
         return (
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-semibold shadow-xs">
+          <div className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-semibold shadow-xs">
             <span className="relative flex h-2 w-2 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span className="hidden sm:inline">Supabase Synced</span>
-            <span className="sm:hidden">Synced</span>
+            <span className="hidden md:inline">Supabase Synced</span>
+            <span className="hidden sm:inline md:hidden">Synced</span>
             {syncState.latencyMs !== null && (
               <span className="hidden lg:inline text-[10px] opacity-75 font-mono ml-0.5">
                 {syncState.latencyMs}ms
@@ -86,10 +85,9 @@ export const SupabaseSyncIndicator: React.FC<SupabaseSyncIndicatorProps> = ({ on
       case 'offline':
       default:
         return (
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30 text-xs font-semibold shadow-xs">
+          <div className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30 text-xs font-semibold shadow-xs">
             <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
-            <span className="hidden sm:inline">Supabase Offline</span>
-            <span className="sm:hidden">Offline</span>
+            <span className="hidden sm:inline">Offline</span>
           </div>
         );
     }

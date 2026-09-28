@@ -76,7 +76,9 @@ export const Footer: React.FC = () => {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-sky-500 shrink-0" />
-                <span className={`text-sm ${styles.textMuted}`}>concierge@voyage.app</span>
+                <a href="mailto:voyage@gmail.com" className={`text-sm ${styles.textMuted} hover:text-sky-500 transition-colors`}>
+                  voyage@gmail.com
+                </a>
               </li>
             </ul>
           </div>

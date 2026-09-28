@@ -282,7 +282,7 @@ function MainLayout() {
   }, [listings, filters]);
 
   return (
-    <div className={`min-h-screen ${styles.bg} ${styles.textPrimary} transition-colors duration-300 flex flex-col font-sans selection:bg-cyan-500/20`}>
+    <div className={`min-h-screen w-full max-w-full overflow-x-hidden ${styles.bg} ${styles.textPrimary} transition-colors duration-300 flex flex-col font-sans selection:bg-cyan-500/20`}>
       <Header
         currentView={currentView}
         setCurrentView={setCurrentView}

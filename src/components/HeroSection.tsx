@@ -124,19 +124,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* Location Finder & Search Container */}
-        <div className={`p-4 sm:p-5 rounded-2xl border ${styles.border} ${styles.cardBg} shadow-lg shadow-black/5`}>
+        <div className={`p-3.5 sm:p-5 rounded-2xl border ${styles.border} ${styles.cardBg} shadow-lg shadow-black/5 w-full max-w-full overflow-hidden`}>
           
           {/* Main search bar */}
-          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-3">
-            <div className="relative flex-1">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-3 w-full min-w-0">
+            <div className="relative flex-1 min-w-0 w-full">
               <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${styles.textMuted}`} />
               <input
                 id="hero-search-input"
                 type="text"
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
-                placeholder="Real-time search: destination, stay, culinary dish, or tag (e.g. Amalfi, Positano, Kyoto, Zermatt)..."
-                className={`w-full pl-10 pr-20 py-2.5 text-sm rounded-xl outline-none transition-all ${styles.inputBg}`}
+                placeholder="Search destinations, stays, or cuisines (e.g. Amalfi, Kyoto)..."
+                className={`w-full min-w-0 pl-10 pr-20 py-2.5 text-sm rounded-xl outline-none transition-all ${styles.inputBg}`}
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                 {localSearch ? (
@@ -168,7 +168,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             {/* Country Selector */}
-            <div className="flex items-center gap-2 min-w-[180px]">
+            <div className="flex items-center gap-2 w-full md:w-auto md:min-w-[180px]">
               <select
                 id="hero-country-select"
                 value={filters.country}
@@ -185,11 +185,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
 
           {/* Quick Search Suggestions Pills */}
-          <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 text-xs no-scrollbar">
+          <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 text-xs no-scrollbar w-full max-w-full">
             <span className={`text-[11px] font-bold uppercase tracking-wider ${styles.textMuted} shrink-0`}>
               Popular:
             </span>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 shrink-0">
               {quickSearchTags.map((tag) => (
                 <button
                   key={tag}
@@ -280,14 +280,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* Trusted By / Partners Bar */}
-        <div className="mt-12 pt-8 border-t border-slate-200/40 dark:border-slate-800/40 flex flex-wrap items-center gap-x-12 gap-y-6">
-          <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${styles.textMuted}`}>Official Partners</span>
-          <div className="flex flex-wrap items-center gap-8 opacity-30 grayscale hover:grayscale-0 hover:opacity-60 transition-all duration-500">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Airbnb_Logo_B%C3%A9lo.svg/2560px-Airbnb_Logo_B%C3%A9lo.svg.png" alt="Airbnb" className="h-4" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Booking.com_logo.svg/2560px-Booking.com_logo.svg.png" alt="Booking.com" className="h-3" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Expedia_Logo_2023.svg/2560px-Expedia_Logo_2023.svg.png" alt="Expedia" className="h-4" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Tripadvisor_logo.svg/1280px-Tripadvisor_logo.svg.png" alt="TripAdvisor" className="h-5" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Emirates_logo.svg/1024px-Emirates_logo.svg.png" alt="Emirates" className="h-5" />
+        <div className="mt-12 pt-8 border-t border-slate-200/40 dark:border-slate-800/40 flex flex-wrap items-center gap-x-8 gap-y-4 max-w-full overflow-hidden">
+          <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${styles.textMuted} shrink-0`}>Official Partners</span>
+          <div className="flex flex-wrap items-center gap-6 sm:gap-8 opacity-30 grayscale hover:grayscale-0 hover:opacity-60 transition-all duration-500 max-w-full">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Airbnb_Logo_B%C3%A9lo.svg/2560px-Airbnb_Logo_B%C3%A9lo.svg.png" alt="Airbnb" className="h-4 w-auto max-w-[80px] object-contain shrink-0" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Booking.com_logo.svg/2560px-Booking.com_logo.svg.png" alt="Booking.com" className="h-3 w-auto max-w-[90px] object-contain shrink-0" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Expedia_Logo_2023.svg/2560px-Expedia_Logo_2023.svg.png" alt="Expedia" className="h-4 w-auto max-w-[80px] object-contain shrink-0" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Tripadvisor_logo.svg/1280px-Tripadvisor_logo.svg.png" alt="TripAdvisor" className="h-5 w-auto max-w-[90px] object-contain shrink-0" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Emirates_logo.svg/1024px-Emirates_logo.svg.png" alt="Emirates" className="h-5 w-auto max-w-[80px] object-contain shrink-0" />
           </div>
         </div>
 

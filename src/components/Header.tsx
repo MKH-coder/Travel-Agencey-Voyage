@@ -122,11 +122,11 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className={`sticky top-0 z-40 w-full ${styles.headerBg} transition-colors duration-300`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <header className={`sticky top-0 z-40 w-full max-w-full overflow-hidden ${styles.headerBg} transition-colors duration-300`}>
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4 w-full min-w-0">
         
         {/* Brand & Logo */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3 sm:gap-6 shrink-0">
           <button
             id="brand-logo-btn"
             onClick={() => setCurrentView('dashboard')}
@@ -320,7 +320,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="shortcuts-help-btn"
               onClick={onOpenShortcutsHelp}
-              className={`p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center gap-1 text-xs font-medium`}
+              className={`hidden sm:flex p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all items-center gap-1 text-xs font-medium`}
               title="Keyboard Shortcuts (?)"
             >
               <Command className="w-4 h-4 text-sky-500" />

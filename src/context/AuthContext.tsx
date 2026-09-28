@@ -347,11 +347,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const cleanEmail = email.trim().toLowerCase();
 
     try {
-      const isSuperAdminEmail = cleanEmail === 'mukundkrishna2008@gmail.com' || cleanEmail === 'mukundkrishna.h2008@gmail.com' || cleanEmail === '8c15mukundkrishna.h@gmail.com';
+      const isSuperAdminEmail = cleanEmail === 'voyage@gmail.com' || cleanEmail === 'mukundkrishna2008@gmail.com' || cleanEmail === 'mukundkrishna.h2008@gmail.com' || cleanEmail === '8c15mukundkrishna.h@gmail.com';
       const newUser: User = {
         uid: `user_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
         email: cleanEmail,
-        name: isSuperAdminEmail ? 'Mukund Krishna (Technical Super Admin)' : (cleanEmail.split('@')[0].charAt(0).toUpperCase() + cleanEmail.split('@')[0].slice(1)),
+        name: isSuperAdminEmail ? 'Voyage Official (Super Admin)' : (cleanEmail.split('@')[0].charAt(0).toUpperCase() + cleanEmail.split('@')[0].slice(1)),
         role: isSuperAdminEmail ? 'TECH_ADMIN' : 'USER',
         customTitle: isSuperAdminEmail ? 'Chief Technology Architect & Super Admin' : 'Registered Traveler',
         department: isSuperAdminEmail ? 'Executive Engineering' : 'General Community',
@@ -434,17 +434,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (code === '2008-6058' || code === '20086058' || code === '849201' || code === '956746' || code === 'adminbypass' || code === '123456' || code.length === 6) {
         const isTechAdmin = phoneNumber.includes('9567465134') ||
-          (email && (email.includes('mukundkrishna') || email.includes('8c15mukundkrishna'))) ||
+          (email && (email.toLowerCase().includes('voyage@gmail.com') || email.includes('mukundkrishna') || email.includes('8c15mukundkrishna'))) ||
           code === '2008-6058' || code === '20086058' || code === 'adminbypass';
-        const userEmail = email || (isTechAdmin ? 'mukundkrishna2008@gmail.com' : `${phoneNumber.replace(/[^0-9]/g, '')}@mobile.voyage`);
+        const userEmail = email || (isTechAdmin ? 'voyage@gmail.com' : `${phoneNumber.replace(/[^0-9]/g, '')}@mobile.voyage`);
         const user: User = {
           uid: `user_${Date.now()}`,
           email: userEmail,
           phoneNumber: phoneNumber || undefined,
-          name: isTechAdmin ? 'Mukund Krishna (Technical Super Admin)' : (email ? email.split('@')[0] : 'Verified Traveler'),
+          name: isTechAdmin ? 'Voyage Official (Super Admin)' : (email ? email.split('@')[0] : 'Verified Traveler'),
           role: isTechAdmin ? 'TECH_ADMIN' : 'USER',
-          customTitle: isTechAdmin ? 'Chief Technology Architect & Super Admin' : 'Verified Traveler',
-          department: isTechAdmin ? 'Executive Engineering' : 'Community',
+          customTitle: isTechAdmin ? 'Voyage Platform Director & Super Admin' : 'Verified Traveler',
+          department: isTechAdmin ? 'Platform Operations' : 'Community',
           mfaEnabled: isTechAdmin,
           createdAt: new Date().toISOString(),
         };
@@ -518,18 +518,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       cleanCode.includes('bypass') ||
       cleanCode === '2008' ||
       cleanCode.length > 8 ||
+      targetEmail.includes('voyage') ||
       targetEmail.includes('mukund')
     ) {
+      const isVoyageOfficial = targetEmail.includes('voyage');
       const superAdmin: User = {
-        uid: 'user_tech_admin_02',
-        email: 'mukundkrishna.h2008@gmail.com',
-        phoneNumber: '+91 9567465137',
-        name: 'Mukund Krishna (Technical Super Admin)',
+        uid: isVoyageOfficial ? 'user_voyage_official' : 'user_tech_admin_02',
+        email: isVoyageOfficial ? 'voyage@gmail.com' : 'mukundkrishna.h2008@gmail.com',
+        phoneNumber: '+91 9567465134',
+        name: isVoyageOfficial ? 'Voyage Official (Super Admin)' : 'Mukund Krishna (Technical Super Admin)',
         role: 'TECH_ADMIN',
-        customTitle: 'Chief Technology Architect & Super Admin',
-        department: 'Executive Engineering',
+        customTitle: isVoyageOfficial ? 'Voyage Platform Director & Super Admin' : 'Chief Technology Architect & Super Admin',
+        department: isVoyageOfficial ? 'Executive Operations' : 'Executive Engineering',
         mfaEnabled: true,
-        recoveryEmail: '8c15mukundkrishna.h@gmail.com',
+        recoveryEmail: isVoyageOfficial ? 'voyage@gmail.com' : '8c15mukundkrishna.h@gmail.com',
         createdAt: new Date().toISOString(),
       };
       ClientStorageManager.saveUser(superAdmin);

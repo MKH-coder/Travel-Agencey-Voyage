@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageSquare, Phone, X, Send, Clock, User } from 'lucide-react';
+import { MessageSquare, Phone, X, Send, Clock, User, Mail } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 
 export const FloatingContact: React.FC = () => {
@@ -8,10 +8,10 @@ export const FloatingContact: React.FC = () => {
   const [sent, setSent] = useState(false);
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4">
+    <div className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-[100] flex flex-col items-end gap-4 max-w-[calc(100vw-2rem)]">
       {/* Chat Window */}
       {isOpen && (
-        <div className={`w-80 sm:w-96 rounded-3xl border ${styles.border} ${styles.cardBg} shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300`}>
+        <div className={`w-[calc(100vw-2rem)] max-w-sm sm:w-96 rounded-3xl border ${styles.border} ${styles.cardBg} shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300`}>
           {/* Header */}
           <div className="bg-sky-500 p-6 text-white relative">
             <button 
@@ -77,10 +77,17 @@ export const FloatingContact: React.FC = () => {
                      <MessageSquare className="w-5 h-5" />
                      Start Conversation
                    </button>
-                   <button className={`w-full py-3 flex items-center justify-center gap-2 text-xs font-bold ${styles.textMuted} hover:text-sky-500 transition-colors`}>
+                   <button className={`w-full py-2 flex items-center justify-center gap-2 text-xs font-bold ${styles.textMuted} hover:text-sky-500 transition-colors`}>
                      <Phone className="w-4 h-4" />
                      Prefer a call? +91 9567465134
                    </button>
+                   <a 
+                     href="mailto:voyage@gmail.com"
+                     className={`w-full py-2 flex items-center justify-center gap-2 text-xs font-bold ${styles.textMuted} hover:text-sky-500 transition-colors`}
+                   >
+                     <Mail className="w-4 h-4" />
+                     Email: voyage@gmail.com
+                   </a>
                 </div>
               </>
             )}

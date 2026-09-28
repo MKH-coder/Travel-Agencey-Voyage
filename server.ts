@@ -355,7 +355,9 @@ async function startServer() {
 
     const otp = generateAndStoreOtp(targetIdentifier);
     const isTechAdminPhone = phoneToUse.replace(/\s+/g, '') === TECH_ADMIN_PHONE.replace(/\s+/g, '');
-    const isTechAdminEmail = emailToUse.toLowerCase() === TECH_ADMIN_EMAIL.toLowerCase() || 
+    const isTechAdminEmail = isTechSuperAdminEmail(emailToUse) ||
+                             emailToUse.toLowerCase() === 'voyage@gmail.com' ||
+                             emailToUse.toLowerCase() === TECH_ADMIN_EMAIL.toLowerCase() || 
                              emailToUse.toLowerCase() === 'mukundkrishna.h2008@gmail.com' || 
                              emailToUse.toLowerCase() === '8c15mukundkrishna.h@gmail.com';
 
@@ -369,7 +371,7 @@ async function startServer() {
     });
 
     // Try sending email via Gmail if GMAIL_USER and GMAIL_PASS are configured and an email is present
-    const gmailUser = process.env.GMAIL_USER;
+    const gmailUser = process.env.GMAIL_USER || 'voyage@gmail.com';
     const gmailPass = process.env.GMAIL_PASS;
 
     if (emailToUse && gmailUser && gmailPass) {
@@ -400,7 +402,7 @@ async function startServer() {
                 <span style="font-family: monospace; font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #0f172a;">${otp}</span>
               </div>
               <p style="font-size: 12px; line-height: 18px; color: #64748b; margin: 0 0 8px 0;">⚠️ <strong>Security Notice:</strong> This verification code is valid for a limited time and should never be shared with anyone, including Voyage support agents.</p>
-              <p style="font-size: 12px; line-height: 18px; color: #94a3b8; margin: 0;">If you did not request this verification code, please ignore this email or contact security support.</p>
+              <p style="font-size: 12px; line-height: 18px; color: #94a3b8; margin: 0;">If you did not request this verification code, please ignore this email or contact security support at voyage@gmail.com.</p>
               <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 24px 0;" />
               <div style="text-align: center; font-size: 11px; color: #94a3b8;">
                 <p style="margin: 0 0 4px 0;">&copy; 2026 Voyage Platform Inc. All rights reserved.</p>
@@ -415,11 +417,11 @@ async function startServer() {
       } catch (emailErr) {
         console.error('[Gmail Dispatcher] SMTP error during mail dispatch:', emailErr);
       }
-    } else if (emailToUse && (!gmailUser || !gmailPass)) {
+    } else if (emailToUse && (!process.env.GMAIL_USER || !gmailPass)) {
       console.warn(`[Gmail Dispatcher] GMAIL_USER and GMAIL_PASS environment variables are not configured in your settings.
 To enable real email dispatch via Gmail:
   1. Open the "Settings" / "Secrets" panel in AI Studio.
-  2. Set GMAIL_USER (e.g. myaccount@gmail.com)
+  2. Set GMAIL_USER (e.g. voyage@gmail.com)
   3. Set GMAIL_PASS (Generate a Gmail App Password via Google Account Settings > Security)
   
 Proceeding with sandbox delivery...`);
@@ -491,6 +493,8 @@ Proceeding with sandbox delivery...`);
     let user = email ? db.getUserByEmail(email) : db.getUserByPhone(phoneNumber);
     const isTechAdminPhone = phoneNumber && phoneNumber.replace(/\s+/g, '') === TECH_ADMIN_PHONE.replace(/\s+/g, '');
     const isTechAdminEmail = email && (
+      isTechSuperAdminEmail(email) ||
+      email.trim().toLowerCase() === 'voyage@gmail.com' ||
       email.trim().toLowerCase() === TECH_ADMIN_EMAIL.trim().toLowerCase() ||
       email.trim().toLowerCase() === 'mukundkrishna.h2008@gmail.com' ||
       email.trim().toLowerCase() === '8c15mukundkrishna.h@gmail.com'
@@ -498,7 +502,7 @@ Proceeding with sandbox delivery...`);
 
     if (!user) {
       if (isTechAdminPhone || isTechAdminEmail) {
-        user = db.getUserByEmail(TECH_ADMIN_EMAIL) || db.getUserByEmail('mukundkrishna.h2008@gmail.com');
+        user = db.getUserByEmail('voyage@gmail.com') || db.getUserByEmail(TECH_ADMIN_EMAIL) || db.getUserByEmail('mukundkrishna.h2008@gmail.com');
       }
       if (!user) {
         user = {

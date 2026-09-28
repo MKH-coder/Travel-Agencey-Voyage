@@ -1,6 +1,74 @@
 @import "tailwindcss";
 
-/* Smooth global cross-fade theme transitions for body, cards, and all container elements */
+html,
+body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background-color: #020617;
+  color: #f8fafc;
+}
+
+html[data-theme='cyan-light'] body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+html[data-theme='emerald-warm'] body {
+  background-color: #fcfbf7;
+  color: #1c1917;
+}
+html[data-theme='nordic-frost'] body {
+  background-color: #f0fdf4;
+  color: #0f172a;
+}
+html[data-theme='crimson-black'] body {
+  background-color: #000000;
+  color: #ffffff;
+}
+html[data-theme='royal-gold'] body {
+  background-color: #09090b;
+  color: #fef08a;
+}
+html[data-theme='violet-glass'] body {
+  background-color: #090514;
+  color: #fdf4ff;
+}
+html[data-theme='emerald-black'] body {
+  background-color: #020d0a;
+  color: #ecfdf5;
+}
+html[data-theme='rose-gold'] body {
+  background-color: #120a0d;
+  color: #fff1f2;
+}
+
+#root {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Prevent box-model overflow */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Ensure images, svgs and media never overflow container */
+img, svg, video, canvas, audio, iframe, embed, object {
+  max-width: 100%;
+}
+
+/* Smooth global cross-fade theme transitions for body, cards, and container elements */
 body, 
 div, 
 header, 
@@ -12,20 +80,8 @@ aside,
 button, 
 input, 
 textarea, 
-select, 
-span, 
-p, 
-label,
-h1, 
-h2, 
-h3, 
-h4, 
-h5, 
-h6, 
-svg,
-path,
-a {
-  transition-property: background-color, border-color, text-decoration-color, fill, stroke, box-shadow, color, opacity;
+select {
+  transition-property: background-color, border-color, color;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 400ms;
+  transition-duration: 300ms;
 }

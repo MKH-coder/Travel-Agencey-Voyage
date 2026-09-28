@@ -14,8 +14,11 @@ currently being supported with security updates.
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+If you discover a security vulnerability within Voyage Travel Platform, please send an email to **voyage@gmail.com**.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+All security reports are triaged promptly. Please include:
+- A description of the issue and potential impact
+- Detailed steps to reproduce or proof of concept
+- Any potential mitigation suggestions
+
+We appreciate responsible disclosure to help protect our travelers and community.

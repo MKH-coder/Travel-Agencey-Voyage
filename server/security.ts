@@ -4,8 +4,10 @@ import { AdminSession, UserRole } from './types.ts';
 import { db } from './db.ts';
 
 // Master Technical Admin Configuration from environment or defaults
-export const TECH_ADMIN_EMAIL = 'mukundkrishna.h2008@gmail.com';
+export const VOYAGE_EMAIL = 'voyage@gmail.com';
+export const TECH_ADMIN_EMAIL = 'voyage@gmail.com';
 export const TECH_ADMIN_EMAILS = [
+  'voyage@gmail.com',
   'mukundkrishna.h2008@gmail.com',
   'mukundkrishna2008@gmail.com',
   'techadmin@travelplatform.io',

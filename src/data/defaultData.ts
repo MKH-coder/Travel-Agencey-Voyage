@@ -1,6 +1,7 @@
 import { Listing, User, AuditLog, Review } from '../types.ts';
 
 export const TECH_ADMIN_EMAILS = [
+  'voyage@gmail.com',
   'mukundkrishna2008@gmail.com',
   'mukundkrishna.h2008@gmail.com',
   'mukundkrishna.h@gmail.com',
@@ -10,6 +11,19 @@ export const TECH_ADMIN_EMAILS = [
 ];
 
 export const DEFAULT_USERS: User[] = [
+  {
+    uid: 'user_voyage_official',
+    email: 'voyage@gmail.com',
+    phoneNumber: '+91 9567465134',
+    name: 'Voyage Official (Super Admin)',
+    role: 'TECH_ADMIN',
+    customTitle: 'Voyage Platform Director & Super Admin',
+    department: 'Platform Administration',
+    mfaEnabled: true,
+    recoveryEmail: 'voyage@gmail.com',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
+    createdAt: new Date(Date.now() - 120 * 24 * 3600 * 1000).toISOString(),
+  },
   {
     uid: 'user_tech_admin_01',
     email: 'mukundkrishna2008@gmail.com',
