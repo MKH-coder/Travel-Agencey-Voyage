@@ -1167,7 +1167,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 w-full max-w-full overflow-x-hidden">
       
       {/* Top Banner & Privilege Indicator */}
       <div className={`p-5 rounded-3xl border ${styles.border} ${styles.cardBg} shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4`}>

@@ -72,12 +72,12 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
     <nav 
       id="dynamic-breadcrumbs"
       aria-label="Breadcrumb"
-      className={`border-b ${styles.border} ${styles.cardBg} py-2.5 px-4 sm:px-6 lg:px-8 transition-all`}
+      className={`border-b ${styles.border} ${styles.cardBg} py-2.5 px-3 sm:px-6 lg:px-8 transition-all w-full max-w-full overflow-x-auto`}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2 text-xs">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 text-xs min-w-max">
         
         {/* Breadcrumb Path Links */}
-        <ol className="flex items-center flex-wrap gap-1.5 sm:gap-2 font-medium">
+        <ol className="flex items-center gap-1.5 sm:gap-2 font-medium">
           
           {/* Level 1: Home / Voyage Root */}
           <li className="flex items-center">
