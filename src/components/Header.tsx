@@ -165,6 +165,26 @@ export const Header: React.FC<HeaderProps> = ({
               Explore
             </button>
 
+            <button
+              onClick={() => {
+                setCurrentView('dashboard');
+                setTimeout(() => document.getElementById('marketing-advantage')?.scrollIntoView({ behavior: 'smooth' }), 100);
+              }}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${styles.textSecondary} hover:${styles.cardBg}`}
+            >
+              About
+            </button>
+
+            <button
+              onClick={() => {
+                setCurrentView('dashboard');
+                setTimeout(() => document.getElementById('footer-contact')?.scrollIntoView({ behavior: 'smooth' }), 100);
+              }}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${styles.textSecondary} hover:${styles.cardBg}`}
+            >
+              Contact
+            </button>
+
             {(user?.role === 'ADMIN' || user?.role === 'TECH_SUBADMIN' || user?.role === 'TECH_ADMIN') && (
               <button
                 id="nav-admin-btn"

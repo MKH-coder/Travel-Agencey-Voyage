@@ -73,6 +73,7 @@ import { AddAdminModal } from './AddAdminModal.tsx';
 import { SetPasswordModal } from './SetPasswordModal.tsx';
 import { EditRolePostModal } from './EditRolePostModal.tsx';
 import { EditContentModal } from './EditContentModal.tsx';
+import { PackageCreatorModal } from './PackageCreatorModal.tsx';
 import { ActiveSessionTelemetryModal, ActiveUserSession } from './ActiveSessionTelemetryModal.tsx';
 import { CloudSyncPanel } from './CloudSyncPanel.tsx';
 import { CustomPostCreatorModal } from './CustomPostCreatorModal.tsx';
@@ -82,10 +83,13 @@ import { AuditVisualDashboard } from './AuditVisualDashboard.tsx';
 import { AuditLogViewer } from './AuditLogViewer.tsx';
 import { UserProfileModal } from './UserProfileModal.tsx';
 import { HighRiskAuditBanner } from './HighRiskAuditBanner.tsx';
+import { PackagePreviewModal } from './PackagePreviewModal.tsx';
 import { RiskThresholdConfigModal, DEFAULT_RISK_THRESHOLDS } from './RiskThresholdConfigModal.tsx';
 import { AdminSecurityAdoptionCard } from './AdminSecurityAdoptionCard.tsx';
 import { SecurityOverviewCard } from './SecurityOverviewCard.tsx';
 import { AuditTrailDashboard } from './AuditTrailDashboard.tsx';
+import { PackageBuilderTab } from './PackageBuilderTab.tsx';
+import { AdminPackageAnalytics } from './AdminPackageAnalytics.tsx';
 import { RiskThresholdConfig } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 import { FirebaseSyncService } from '../services/firebase.ts';
@@ -95,7 +99,7 @@ import { AuthAudit } from '../services/authAudit.ts';
 interface AdminPortalProps {
   onListingUpdated?: () => void;
   onNavigateExplore?: () => void;
-  onTabChange?: (tab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins') => void;
+  onTabChange?: (tab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages') => void;
 }
 
 export const AdminPortal: React.FC<AdminPortalProps> = ({
@@ -112,7 +116,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const isAdmin = user?.role === 'ADMIN' || isElevatedAdmin;
 
   // Active sub-tab
-  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins'>('queue');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages'>('queue');
 
   useEffect(() => {
     onTabChange?.(activeTab);
@@ -156,10 +160,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [editingRolePostUser, setEditingRolePostUser] = useState<User | null>(null);
   const [setPasswordModalUser, setSetPasswordModalUser] = useState<User | null>(null);
   const [editingContentListing, setEditingContentListing] = useState<Listing | null>(null);
+  const [showPackageCreator, setShowPackageCreator] = useState<boolean>(false);
   const [showCustomPostModal, setShowCustomPostModal] = useState<boolean>(false);
   const [editingCustomPost, setEditingCustomPost] = useState<CustomPost | null>(null);
   const [showFirebaseConsoleModal, setShowFirebaseConsoleModal] = useState<boolean>(false);
   const [showSupabaseConsoleModal, setShowSupabaseConsoleModal] = useState<boolean>(false);
+  const [selectedPreviewPackage, setSelectedPreviewPackage] = useState<Listing | null>(null);
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [showRiskConfigModal, setShowRiskConfigModal] = useState<boolean>(false);
   const [riskThresholds, setRiskThresholds] = useState<RiskThresholdConfig>(() => {
@@ -1379,6 +1385,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             <span>Cloud & GitHub Sync</span>
           </button>
         )}
+
+        {/* Package Builder (Admins) */}
+        <button
+          id="tab-admin-packages"
+          onClick={() => setActiveTab('packages')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'packages'
+              ? `${styles.accent} text-white shadow-md`
+              : `${styles.buttonSecondary}`
+          }`}
+        >
+          <Package className="w-4 h-4 text-amber-400" />
+          <span>Package Builder</span>
+          <span className="text-[10px] opacity-70">({listings.filter(l => l.category === 'PACKAGE').length})</span>
+        </button>
       </div>
 
       {/* --- TAB 1: Verification Queue (Tech Admin & Sub-Admin) --- */}
@@ -1526,6 +1547,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                             <Eye className="w-3.5 h-3.5" />
                             <span>Side-by-Side Review</span>
                           </button>
+
+                          {item.category === 'PACKAGE' && (
+                            <button
+                              onClick={() => setSelectedPreviewPackage(item)}
+                              className="p-2 rounded-xl text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/30 flex items-center gap-1.5"
+                              title="Preview Bundle Layout"
+                            >
+                              <Layers className="w-3.5 h-3.5" />
+                              <span>Preview</span>
+                            </button>
+                          )}
 
                           <button
                             onClick={() => handleUpdateStatus(item.id, 'PUBLISHED')}
@@ -1708,17 +1740,30 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
       {/* --- TAB 2: Add Travel Listing Form --- */}
       {activeTab === 'create' && (
-        <div className={`p-6 sm:p-8 rounded-3xl border ${styles.border} ${styles.cardBg} shadow-sm space-y-6 max-w-4xl mx-auto`}>
-          <div>
-            <h2 className={`text-xl font-bold ${styles.textPrimary}`}>
-              Create New Travel Inventory Item
-            </h2>
-            <p className={`text-xs ${styles.textMuted}`}>
-              {isTechAdmin
-                ? 'Technical Super Admins can publish items directly to the live feed or save drafts.'
-                : 'Submissions from Standard Admins will enter Pending Verification status until Super Admin approval.'}
-            </p>
+        <div className="space-y-6 max-w-4xl mx-auto">
+          {/* Quick Actions Header for Creation */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+             <div>
+              <h2 className={`text-xl font-bold ${styles.textPrimary}`}>
+                Create New Travel Inventory Item
+              </h2>
+              <p className={`text-xs ${styles.textMuted}`}>
+                {isTechAdmin
+                  ? 'Technical Super Admins can publish items directly to the live feed or save drafts.'
+                  : 'Submissions from Standard Admins will enter Pending Verification status until Super Admin approval.'}
+              </p>
+            </div>
+            
+            <button
+              onClick={() => setShowPackageCreator(true)}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm font-bold shadow-lg shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            >
+              <Package className="w-5 h-5" />
+              <span>Bundle Luxury Package</span>
+            </button>
           </div>
+
+          <div className={`p-6 sm:p-8 rounded-3xl border ${styles.border} ${styles.cardBg} shadow-sm space-y-6`}>
 
           {formSuccessMessage && (
             <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-medium flex items-center gap-2 animate-in fade-in">
@@ -2067,7 +2112,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             )}
           </div>
         </div>
-      )}
+      </div>
+    )}
 
       {/* --- TAB: Analytics & Trends --- */}
       {activeTab === 'analytics' && (
@@ -2324,6 +2370,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
           </div>
 
+          <div className="pt-4">
+             <AdminPackageAnalytics bookings={bookingsList} listings={listings} />
+          </div>
+
         </div>
       )}
 
@@ -2441,11 +2491,26 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                 Submit
                               </button>
                             )}
+                            {item.category === 'PACKAGE' && (
+                              <button
+                                onClick={() => setSelectedPreviewPackage(item)}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 transition-colors"
+                                title="Preview Bundle Components"
+                              >
+                                <Layers className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+
                             {/* Option for ALL admins to add new photo and description */}
                             <button
-                              onClick={() => setEditingContentListing(item)}
+                              onClick={() => {
+                                setEditingContentListing(item);
+                                if (item.category === 'PACKAGE') {
+                                  setShowPackageCreator(true);
+                                }
+                              }}
                               className="p-1.5 rounded-lg text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 transition-colors"
-                              title="Edit Photos & Description"
+                              title={item.category === 'PACKAGE' ? "Edit Bundle Components" : "Edit Photos & Description"}
                             >
                               <Pencil className="w-3.5 h-3.5" />
                             </button>
@@ -2478,6 +2543,23 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* --- TAB: Package Builder --- */}
+      {activeTab === 'packages' && (
+        <PackageBuilderTab 
+          listings={listings}
+          onBuildNew={() => {
+            setEditingContentListing(null);
+            setShowPackageCreator(true);
+          }}
+          onEdit={(pkg) => {
+            setEditingContentListing(pkg);
+            setShowPackageCreator(true);
+          }}
+          onDelete={handleDeleteListing}
+          onViewDetails={(pkg) => setSelectedPreviewPackage(pkg)}
+        />
       )}
 
       {/* --- TAB 4: User Management (Tech Admin only) --- */}
@@ -3132,7 +3214,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 <div>
                   <h4 className={`text-base font-bold ${styles.textPrimary}`}>{reviewListing.title}</h4>
                   <div className="text-xs text-sky-500 font-semibold">{reviewListing.location}, {reviewListing.country}</div>
-                  <div className="text-sm font-extrabold text-slate-700 dark:text-slate-200 mt-1">${reviewListing.price} / rate</div>
+                  
+                  {reviewListing.category === 'PACKAGE' && (
+                    <div className="mt-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <Layers className="w-4 h-4 text-amber-600" />
+                        <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase">Luxury Bundle Submission</span>
+                      </div>
+                      <button 
+                        onClick={() => setSelectedPreviewPackage(reviewListing)}
+                        className="px-2 py-1 rounded-lg bg-amber-500 text-white text-[10px] font-bold uppercase hover:bg-amber-600 transition-colors"
+                      >
+                        Inspect Bundle
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="text-sm font-extrabold text-slate-700 dark:text-slate-200 mt-1">
+                    {reviewListing.category === 'PACKAGE' ? 'Bundle Price' : 'Individual Rate'}: ${reviewListing.price}
+                  </div>
                   <p className="text-xs text-slate-500 mt-2 leading-relaxed">{reviewListing.description}</p>
                 </div>
               </div>
@@ -3325,7 +3425,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       />
 
       {/* --- EDIT CONTENT LISTING MODAL --- */}
-      {editingContentListing && (
+      {editingContentListing && editingContentListing.category !== 'PACKAGE' && (
         <EditContentModal
           isOpen={!!editingContentListing}
           listing={editingContentListing}
@@ -3342,6 +3442,29 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       <UserProfileModal
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
+      />
+
+      <PackageCreatorModal
+        isOpen={showPackageCreator}
+        initialData={editingContentListing?.category === 'PACKAGE' ? editingContentListing : null}
+        onClose={() => {
+          setShowPackageCreator(false);
+          setEditingContentListing(null);
+        }}
+        onPackageCreated={() => {
+          fetchListings();
+          if (onListingUpdated) onListingUpdated();
+        }}
+      />
+
+      {/* --- PACKAGE PREVIEW MODAL --- */}
+      <PackagePreviewModal
+        listing={selectedPreviewPackage}
+        onClose={() => setSelectedPreviewPackage(null)}
+        onBook={() => {
+          setSelectedPreviewPackage(null);
+          if (onNavigateExplore) onNavigateExplore();
+        }}
       />
 
       {/* --- RISK THRESHOLD CONFIG MODAL --- */}

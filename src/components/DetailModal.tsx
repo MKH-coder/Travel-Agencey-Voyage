@@ -17,7 +17,9 @@ import {
   Landmark,
   Share2,
   Bell,
-  BellOff
+  BellOff,
+  Package,
+  Layers
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -66,6 +68,34 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 
   const [liveRating, setLiveRating] = useState<number | null>(null);
   const [liveReviewCount, setLiveReviewCount] = useState<number | null>(null);
+  const [includedListings, setIncludedListings] = useState<Listing[]>([]);
+  const [loadingIncluded, setLoadingIncluded] = useState(false);
+
+  React.useEffect(() => {
+    if (listing?.category === 'PACKAGE' && listing.listingIds?.length) {
+      const fetchIncluded = async () => {
+        setLoadingIncluded(true);
+        try {
+          // Fetch all listings once and filter, much more efficient for the app's current scale
+          const res = await fetch('/api/listings');
+          if (res.ok) {
+            const allListings: Listing[] = await res.json();
+            const filtered = listing.listingIds!.map(id => 
+              allListings.find(l => l.id === id)
+            ).filter((l): l is Listing => !!l);
+            setIncludedListings(filtered);
+          }
+        } catch (err) {
+          console.warn('Failed to fetch included listings:', err);
+        } finally {
+          setLoadingIncluded(false);
+        }
+      };
+      fetchIncluded();
+    } else {
+      setIncludedListings([]);
+    }
+  }, [listing?.id, listing?.listingIds]);
 
   React.useEffect(() => {
     if (listing) {
@@ -214,6 +244,15 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               <MapPin className="w-3.5 h-3.5" />
               <span>{listing.location}, {listing.country}</span>
             </div>
+            {listing.duration && (
+              <>
+                <span className="text-slate-300 mx-1">•</span>
+                <div className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
+                  <Clock className="w-3 h-3" />
+                  <span>{listing.duration}</span>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -287,10 +326,12 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             </div>
 
             <div className="text-right">
-              <span className="text-xs text-slate-400 font-normal">Platform Direct Rate</span>
-              <div className="text-2xl sm:text-3xl font-black text-sky-500">
+              <span className="text-xs text-slate-400 font-normal">
+                {listing.category === 'PACKAGE' ? 'Total Bundle Price' : 'Platform Direct Rate'}
+              </span>
+              <div className={`text-2xl sm:text-3xl font-black ${listing.category === 'PACKAGE' ? 'text-amber-500' : 'text-sky-500'}`}>
                 ${listing.price}
-                <span className="text-xs text-slate-400 font-normal"> / {listing.category === 'HOTEL' ? 'night' : 'experience'}</span>
+                <span className="text-xs text-slate-400 font-normal"> {listing.category === 'HOTEL' ? '/ night' : listing.category === 'PACKAGE' ? '' : '/ experience'}</span>
               </div>
             </div>
           </div>
@@ -337,6 +378,39 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   {listing.description}
                 </p>
               </div>
+
+              {/* Package Components */}
+              {listing.category === 'PACKAGE' && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Layers className="w-5 h-5 text-amber-500" />
+                    <h3 className={`text-base font-bold ${styles.textPrimary}`}>
+                      Included in this Luxury Bundle
+                    </h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {loadingIncluded ? (
+                      Array.from({ length: 2 }).map((_, i) => (
+                        <div key={i} className={`h-24 rounded-2xl animate-pulse bg-slate-100 dark:bg-slate-800`} />
+                      ))
+                    ) : includedListings.map(inc => (
+                      <div key={inc.id} className={`flex gap-3 p-3 rounded-2xl border ${styles.border} ${styles.cardBg} shadow-sm`}>
+                        <img src={inc.images[0]} alt="" className="w-16 h-16 rounded-xl object-cover" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[9px] font-extrabold text-sky-500 uppercase">{inc.category}</span>
+                          <h4 className={`text-xs font-bold truncate ${styles.textPrimary}`}>{inc.title}</h4>
+                          <p className={`text-[10px] truncate ${styles.textMuted}`}>{inc.location}</p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                            <span className="text-[10px] font-bold text-slate-500">{inc.rating.toFixed(1)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Amenities / Specialties */}
               {listing.amenities && listing.amenities.length > 0 && (
@@ -475,7 +549,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             <div className="space-y-4">
               <div className={`p-5 rounded-2xl border ${styles.border} ${styles.cardBg} shadow-lg sticky top-2`}>
                 <h4 className={`text-base font-bold mb-3 ${styles.textPrimary}`}>
-                  {listing.category === 'HOTEL' ? 'Reserve Hotel Stay' : 'Book Experience'}
+                  {listing.category === 'HOTEL' ? 'Reserve Hotel Stay' : listing.category === 'PACKAGE' ? 'Reserve Bundle' : 'Book Experience'}
                 </h4>
 
                 {bookingConfirmed ? (

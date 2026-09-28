@@ -195,7 +195,171 @@ const INITIAL_USERS: User[] = [
   }
 ];
 
-const INITIAL_LISTINGS: Listing[] = [];
+const INITIAL_LISTINGS: Listing[] = [
+  {
+    id: 'list-santorini-01',
+    title: 'Santorini Caldera Cliffside & Oia Sunset Panorama',
+    category: 'PLACE',
+    price: 450,
+    rating: 4.95,
+    reviewCount: 42,
+    location: 'Oia, Santorini Island',
+    country: 'Greece',
+    coordinates: { lat: 36.4618, lng: 25.3753 },
+    description: 'Breathtaking views of the Aegean Sea and the famous blue-domed churches. Experience the world-renowned Oia sunset from the best vantage point.',
+    images: ['https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80'],
+    status: 'PUBLISHED',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdByName: 'Mukund Krishna',
+    tags: ['Scenic', 'Romantic', 'Sunset'],
+    amenities: ['Panoramic View', 'Photo Spots'],
+    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  },
+  {
+    id: 'list-hotel-amalfi-02',
+    title: 'Belmond Hotel Caruso Cliffside Stay',
+    category: 'HOTEL',
+    price: 850,
+    rating: 4.98,
+    reviewCount: 28,
+    location: 'Ravello, Amalfi Coast',
+    country: 'Italy',
+    coordinates: { lat: 40.6481, lng: 14.6111 },
+    description: 'A former 11th-century palace set on cliffs beside the Amalfi Coast, Belmond Hotel Caruso seems to drift between the sea and sky.',
+    images: ['https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80'],
+    status: 'PUBLISHED',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdByName: 'Mukund Krishna',
+    tags: ['Luxury', 'Historic', 'Infinity Pool'],
+    amenities: ['Spa', 'Infinity Pool', 'Fine Dining'],
+    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  },
+  {
+    id: 'list-dining-kyoto-03',
+    title: 'Gion Karyo Kaiseki Experience',
+    category: 'FOOD',
+    price: 250,
+    rating: 4.92,
+    reviewCount: 35,
+    location: 'Gion District, Kyoto',
+    country: 'Japan',
+    coordinates: { lat: 35.0037, lng: 135.7772 },
+    description: 'Authentic 10-course Kaiseki dinner in a beautifully restored tea house in the heart of historic Gion.',
+    images: ['https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80'],
+    status: 'PUBLISHED',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdByName: 'Mukund Krishna',
+    tags: ['Gourmet', 'Traditional', 'Michelin Star'],
+    amenities: ['Tea Ceremony', 'Private Room'],
+    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  },
+  {
+    id: 'list-hotel-kyoto-04',
+    title: 'Hoshinoya Kyoto Riverside Retreat',
+    category: 'HOTEL',
+    price: 650,
+    rating: 4.97,
+    reviewCount: 19,
+    location: 'Arashiyama, Kyoto',
+    country: 'Japan',
+    coordinates: { lat: 35.0116, lng: 135.6775 },
+    description: 'Accessible only by a private boat, this luxury riverside retreat offers the ultimate Zen experience in a secluded Arashiyama forest.',
+    images: ['https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80'],
+    status: 'PUBLISHED',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdByName: 'Mukund Krishna',
+    tags: ['Zen', 'Riverside', 'Exclusive'],
+    amenities: ['Boat Transfer', 'Zen Garden', 'Japanese Spa'],
+    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  },
+  {
+    id: 'list-swiss-alps-05',
+    title: 'Bürgenstock Resort Alpine Spa Experience',
+    category: 'PLACE',
+    price: 320,
+    rating: 4.99,
+    reviewCount: 54,
+    location: 'Lucerne',
+    country: 'Switzerland',
+    coordinates: { lat: 47.0012, lng: 8.3812 },
+    description: 'Enjoy the legendary infinity pool 500 meters above Lake Lucerne. A sanctuary of peace with panoramic views of the Swiss Alps.',
+    images: ['https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&w=1200&q=80'],
+    status: 'PUBLISHED',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdByName: 'Mukund Krishna',
+    tags: ['Spa', 'Alps', 'Infinity Pool'],
+    amenities: ['Thermal Baths', 'Panorama Terrace'],
+    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  },
+  {
+    id: 'pkg-kyoto-zen-01',
+    title: 'Kyoto Zen & Gastronomy Package',
+    category: 'PACKAGE',
+    price: 780,
+    rating: 4.99,
+    reviewCount: 8,
+    location: 'Arashiyama & Gion',
+    country: 'Japan',
+    description: 'Immerse yourself in Kyoto heritage with a riverside stay at Hoshinoya and a Michelin-grade Kaiseki dinner at Gion Karyo.',
+    images: [
+      'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80'
+    ],
+    status: 'PUBLISHED',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdByName: 'Mukund Krishna',
+    listingIds: ['list-hotel-kyoto-04', 'list-dining-kyoto-03'],
+    tags: ['Zen Bundle', 'Kyoto Heritage', 'Best Value'],
+    amenities: ['Cultural Concierge', 'Private Boat Transfer', 'Priority Dining Reservation'],
+    duration: '3 Days / 2 Nights',
+    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  },
+  {
+    id: 'pkg-alpine-wellness-01',
+    title: 'Alpine Wellness & Spa Escape',
+    category: 'PACKAGE',
+    price: 550,
+    rating: 5.0,
+    reviewCount: 5,
+    location: 'Lucerne',
+    country: 'Switzerland',
+    description: 'Rejuvenate your soul with an exclusive Alpine Spa bundle. Includes full day access to Bürgenstock Resort Spa and a guided panoramic mountain tour.',
+    images: [
+      'https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1517022812141-23620dba5c23?auto=format&fit=crop&w=1200&q=80'
+    ],
+    status: 'PUBLISHED',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdByName: 'Mukund Krishna',
+    listingIds: ['list-swiss-alps-05'], // Can bundle with more later
+    tags: ['Wellness Bundle', 'Alps Escape', 'Premium'],
+    amenities: ['Spa Access', 'Cable Car Pass', 'Mountain Guide'],
+    duration: '2 Days / 1 Night',
+    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  },
+  {
+    id: 'pkg-luxury-europe-01',
+    title: 'Mediterranean Luxury Gastronomy Bundle',
+    category: 'PACKAGE',
+    price: 1200,
+    rating: 5.0,
+    reviewCount: 12,
+    location: 'Ravello & Oia',
+    country: 'Italy & Greece',
+    description: 'The ultimate Mediterranean luxury experience combining a cliffside stay in Ravello with a sunset tour in Santorini. Save 10% by bundling.',
+    images: [
+      'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80'
+    ],
+    status: 'PUBLISHED',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdByName: 'Mukund Krishna',
+    listingIds: ['list-hotel-amalfi-02', 'list-santorini-01'],
+    tags: ['Luxury Bundle', 'Multi-Country', 'Best Value'],
+    amenities: ['Concierge Service', 'Private Transfers', 'Welcome Gift'],
+    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  }
+];
 
 const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
@@ -206,7 +370,7 @@ const INITIAL_AUDIT_LOGS: AuditLog[] = [
     targetType: 'SYSTEM',
     ipAddress: '127.0.0.1',
     timestamp: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-    details: { event: 'Provisioned Technical Admin and Multi-Theme Engine' }
+    details: { event: 'Provisioned Technical Admin, Multi-Theme Engine, and Luxury Bundling Service' }
   },
   {
     id: 'audit-init-02',

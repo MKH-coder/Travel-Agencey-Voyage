@@ -10,7 +10,8 @@ import {
   Star,
   SlidersHorizontal,
   X,
-  Compass
+  Compass,
+  Package
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { FilterState, ListingCategory } from '../types.ts';
@@ -60,6 +61,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     { id: 'PLACE', label: 'Iconic Places', icon: <Landmark className="w-3.5 h-3.5" /> },
     { id: 'HOTEL', label: 'Luxury Stays', icon: <Hotel className="w-3.5 h-3.5" /> },
     { id: 'FOOD', label: 'Culinary & Dining', icon: <Utensils className="w-3.5 h-3.5" /> },
+    { id: 'PACKAGE', label: 'Luxury Bundles', icon: <Package className="w-3.5 h-3.5" /> },
   ];
 
   const popularCountries = ['All Countries', 'Greece', 'Italy', 'Japan', 'Switzerland', 'Indonesia', 'Canada', 'France'];
@@ -83,7 +85,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     filters.country !== 'All Countries';
 
   return (
-    <section className="relative overflow-hidden py-8 sm:py-12 border-b border-slate-200/50 dark:border-slate-800/80">
+    <section className="relative overflow-hidden py-12 sm:py-20 border-b border-slate-200/50 dark:border-slate-800/80">
+      {/* Background Image Overlay */}
+      <div className="absolute inset-0 -z-20">
+        <img 
+          src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1920&q=80" 
+          alt="Hero Background" 
+          className="w-full h-full object-cover opacity-[0.05] dark:opacity-[0.03]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-white dark:via-slate-950/50 dark:to-slate-950"></div>
+      </div>
+
       {/* Decorative gradient overlay */}
       <div
         className={`absolute inset-0 pointer-events-none opacity-40 blur-3xl -z-10 ${
@@ -97,16 +109,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero title & subtitle */}
-        <div className="max-w-3xl mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-3 border bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20">
+        <div className="max-w-3xl mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-6 border bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20 shadow-sm animate-in slide-in-from-left-4 duration-700">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Discover Unforgettable Journeys</span>
           </div>
-          <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight ${styles.textPrimary} mb-3`}>
-            Explore Extraordinary Places, Stays & Gastronomy
+          <h1 className={`text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter ${styles.textPrimary} mb-6 leading-[0.95] animate-in slide-in-from-left-4 duration-700 delay-100`}>
+            Extraordinary <br />
+            <span className="text-sky-500">Places & Stays.</span>
           </h1>
-          <p className={`text-sm sm:text-base ${styles.textSecondary} leading-relaxed`}>
-            Hand-curated global travel collection with interactive map integration, transparent pricing, instant booking, verified culinary secrets, and community verification.
+          <p className={`text-base sm:text-lg ${styles.textSecondary} leading-relaxed max-w-2xl animate-in slide-in-from-left-4 duration-700 delay-200`}>
+            The premier global travel agency for modern explorers. Hand-curated luxury stays, verified culinary secrets, and seamless interactive bookings.
           </p>
         </div>
 
@@ -264,6 +277,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
           </div>
 
+        </div>
+
+        {/* Trusted By / Partners Bar */}
+        <div className="mt-12 pt-8 border-t border-slate-200/40 dark:border-slate-800/40 flex flex-wrap items-center gap-x-12 gap-y-6">
+          <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${styles.textMuted}`}>Official Partners</span>
+          <div className="flex flex-wrap items-center gap-8 opacity-30 grayscale hover:grayscale-0 hover:opacity-60 transition-all duration-500">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Airbnb_Logo_B%C3%A9lo.svg/2560px-Airbnb_Logo_B%C3%A9lo.svg.png" alt="Airbnb" className="h-4" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Booking.com_logo.svg/2560px-Booking.com_logo.svg.png" alt="Booking.com" className="h-3" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Expedia_Logo_2023.svg/2560px-Expedia_Logo_2023.svg.png" alt="Expedia" className="h-4" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Tripadvisor_logo.svg/1280px-Tripadvisor_logo.svg.png" alt="TripAdvisor" className="h-5" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Emirates_logo.svg/1024px-Emirates_logo.svg.png" alt="Emirates" className="h-5" />
+          </div>
         </div>
 
       </div>

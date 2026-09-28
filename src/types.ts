@@ -60,7 +60,7 @@ export interface FeedPost {
   createdAt: string;
 }
 
-export type ListingCategory = 'PLACE' | 'HOTEL' | 'FOOD';
+export type ListingCategory = 'PLACE' | 'HOTEL' | 'FOOD' | 'PACKAGE';
 export type ListingStatus = 'DRAFT' | 'PENDING_APPROVAL' | 'PUBLISHED' | 'REJECTED';
 
 export interface Listing {
@@ -87,6 +87,8 @@ export interface Listing {
   amenities?: string[];
   diningSpecialties?: string[];
   hotelPerks?: string[];
+  listingIds?: string[];
+  duration?: string;
   pinned?: boolean;
   pinnedAt?: string;
   timestamps: {

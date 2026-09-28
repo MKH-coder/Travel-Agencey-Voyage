@@ -9,7 +9,9 @@ import {
   ArrowRight,
   Sparkles,
   CheckCircle2,
-  Share2
+  Share2,
+  Package,
+  Clock
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { Listing } from '../types.ts';
@@ -40,6 +42,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         return <Hotel className="w-3 h-3" />;
       case 'FOOD':
         return <Utensils className="w-3 h-3" />;
+      case 'PACKAGE':
+        return <Package className="w-3 h-3" />;
       default:
         return <Landmark className="w-3 h-3" />;
     }
@@ -51,6 +55,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         return 'Luxury Stay';
       case 'FOOD':
         return 'Local Dining';
+      case 'PACKAGE':
+        return 'Luxury Bundle';
       default:
         return 'Destination';
     }
@@ -62,7 +68,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
     <div
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className={`group rounded-2xl border ${styles.border} ${styles.cardBg} overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col`}
+      className={`group rounded-2xl border ${styles.border} ${styles.cardBg} overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col ${
+        listing.category === 'PACKAGE' ? 'ring-2 ring-amber-500/20' : ''
+      }`}
     >
       {/* Media & Badges */}
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-800 cursor-pointer" onClick={() => onSelect(listing)}>
@@ -128,10 +136,18 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         </div>
 
         {/* Price Tag Overlay */}
-        <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-xl backdrop-blur-md bg-white/95 dark:bg-slate-900/90 text-slate-900 dark:text-white font-bold text-xs shadow-md">
-          <span className="text-xs text-slate-500 font-normal">from </span>
+        <div className={`absolute bottom-3 right-3 px-2.5 py-1 rounded-xl backdrop-blur-md font-bold text-xs shadow-md ${
+          listing.category === 'PACKAGE' 
+            ? 'bg-amber-500 text-white' 
+            : 'bg-white/95 dark:bg-slate-900/90 text-slate-900 dark:text-white'
+        }`}>
+          <span className={`text-xs ${listing.category === 'PACKAGE' ? 'text-white/80' : 'text-slate-500'} font-normal`}>
+            {listing.category === 'PACKAGE' ? 'bundle ' : 'from '}
+          </span>
           <span className="text-sm font-extrabold">${listing.price}</span>
-          <span className="text-[10px] text-slate-500 font-normal"> / {listing.category === 'HOTEL' ? 'night' : 'guest'}</span>
+          <span className={`text-[10px] ${listing.category === 'PACKAGE' ? 'text-white/80' : 'text-slate-500'} font-normal`}> 
+            {listing.category === 'PACKAGE' ? '' : ` / ${listing.category === 'HOTEL' ? 'night' : 'guest'}`}
+          </span>
         </div>
       </div>
 
@@ -145,12 +161,20 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           </div>
 
           {/* Title */}
-          <h3
-            onClick={() => onSelect(listing)}
-            className={`text-base font-bold line-clamp-1 ${styles.textPrimary} group-hover:text-sky-500 transition-colors cursor-pointer mb-2`}
-          >
-            {listing.title}
-          </h3>
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <h3
+              onClick={() => onSelect(listing)}
+              className={`text-base font-bold line-clamp-1 ${styles.textPrimary} group-hover:text-sky-500 transition-colors cursor-pointer flex-1`}
+            >
+              {listing.title}
+            </h3>
+            {listing.duration && (
+              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[9px] font-black text-slate-500 uppercase tracking-tighter shrink-0 border border-slate-200 dark:border-slate-700">
+                <Clock className="w-2.5 h-2.5" />
+                <span>{listing.duration}</span>
+              </div>
+            )}
+          </div>
 
           {/* Description snippet */}
           <p className={`text-xs ${styles.textMuted} line-clamp-2 mb-3 leading-relaxed`}>
@@ -175,7 +199,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         {/* Card Footer Actions */}
         <div className="pt-3 border-t border-slate-200/50 dark:border-slate-800 flex items-center justify-between">
           <div className="text-[11px] text-slate-400">
-            {listing.category === 'HOTEL' ? 'Free Cancellation' : 'Curated Experience'}
+            {listing.category === 'HOTEL' ? 'Free Cancellation' : 
+             listing.category === 'PACKAGE' ? `${listing.listingIds?.length || 0} Experiences Included` :
+             'Curated Experience'}
           </div>
 
           <button

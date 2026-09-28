@@ -5,6 +5,7 @@ import { Header } from './components/Header.tsx';
 import { HeroSection } from './components/HeroSection.tsx';
 import { ListingCard } from './components/ListingCard.tsx';
 import { DetailModal } from './components/DetailModal.tsx';
+import { PackagePreviewModal } from './components/PackagePreviewModal.tsx';
 import { SavedTripsModal } from './components/SavedTripsModal.tsx';
 import { LoginModal } from './components/LoginModal.tsx';
 import { AdminPortal } from './components/AdminPortal.tsx';
@@ -28,6 +29,11 @@ import {
   Columns,
 } from 'lucide-react';
 
+import { MarketingSections } from './components/MarketingSections.tsx';
+import { Newsletter } from './components/Newsletter.tsx';
+import { Footer } from './components/Footer.tsx';
+import { FloatingContact } from './components/FloatingContact.tsx';
+
 function MainLayout() {
   const { styles, theme, setTheme } = useTheme();
   const { user, token, showLoginModal, setShowLoginModal, showBypassModal, setShowBypassModal } = useAuth();
@@ -46,6 +52,7 @@ function MainLayout() {
   });
 
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
+  const [packagePreviewActive, setPackagePreviewActive] = useState(false);
   const [hoveredListingId, setHoveredListingId] = useState<string | null>(null);
   const [showSavedModal, setShowSavedModal] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
@@ -96,6 +103,7 @@ function MainLayout() {
 
   const handleCloseAllModals = useCallback(() => {
     setSelectedListing(null);
+    setPackagePreviewActive(false);
     setShowSavedModal(false);
     setShowShortcutsModal(false);
     if (showLoginModal) setShowLoginModal(false);
@@ -360,7 +368,10 @@ function MainLayout() {
                     listings={filteredListings}
                     activeListingId={hoveredListingId || selectedListing?.id}
                     savedListingIds={savedListings.map(l => l.id)}
-                    onSelectListing={(item) => setSelectedListing(item)}
+                    onSelectListing={(item) => {
+                      setSelectedListing(item);
+                      if (item.category === 'PACKAGE') setPackagePreviewActive(true);
+                    }}
                     onToggleSave={toggleSaveListing}
                     className="h-full w-full"
                     isCompact={false}
@@ -373,7 +384,10 @@ function MainLayout() {
                       listings={filteredListings}
                       activeListingId={hoveredListingId || selectedListing?.id}
                       savedListingIds={savedListings.map(l => l.id)}
-                      onSelectListing={(item) => setSelectedListing(item)}
+                      onSelectListing={(item) => {
+                        setSelectedListing(item);
+                        if (item.category === 'PACKAGE') setPackagePreviewActive(true);
+                      }}
                       onToggleSave={toggleSaveListing}
                       className="h-full w-full"
                       isCompact={true}
@@ -417,7 +431,10 @@ function MainLayout() {
                             listing={listing}
                             isSaved={savedListings.some(l => l.id === listing.id)}
                             onToggleSave={toggleSaveListing}
-                            onSelect={(item) => setSelectedListing(item)}
+                            onSelect={(item) => {
+                              setSelectedListing(item);
+                              if (item.category === 'PACKAGE') setPackagePreviewActive(true);
+                            }}
                           />
                         </div>
                       ))}
@@ -463,7 +480,10 @@ function MainLayout() {
                           listing={listing}
                           isSaved={savedListings.some(l => l.id === listing.id)}
                           onToggleSave={toggleSaveListing}
-                          onSelect={(item) => setSelectedListing(item)}
+                          onSelect={(item) => {
+                            setSelectedListing(item);
+                            if (item.category === 'PACKAGE') setPackagePreviewActive(true);
+                          }}
                         />
                       ))}
                     </div>
@@ -479,45 +499,37 @@ function MainLayout() {
             onTabChange={(tab) => setAdminTab(tab as 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins')}
           />
         )}
+
+        {currentView === 'dashboard' && (
+          <>
+            <MarketingSections />
+            <Newsletter />
+          </>
+        )}
       </main>
 
-      <footer className={`border-t ${styles.border} ${styles.cardBg} py-8 text-xs ${styles.textMuted} transition-colors duration-300`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className={`p-1.5 rounded-lg ${styles.accent} text-white`}>
-              <Compass className="w-4 h-4" />
-            </div>
-            <div>
-              <span className={`font-bold ${styles.textPrimary}`}>Voyage Global Experience Platform</span>
-              <span className="mx-2">•</span>
-              <span>Direct Pricing & Verified Curations</span>
-            </div>
-          </div>
+      <Footer />
 
-          <div className="flex flex-wrap items-center gap-4 text-[11px]">
-            <span className="flex items-center gap-1 text-emerald-500 font-medium">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Multi-Factor Security & Audit Guard</span>
-            </span>
-            <span>•</span>
-            <span>Theme: <strong className="capitalize">{theme}</strong></span>
-            <span>•</span>
-            <button
-              onClick={() => setCurrentView(currentView === 'dashboard' ? 'admin' : 'dashboard')}
-              className="text-sky-500 hover:underline font-semibold"
-            >
-              {currentView === 'dashboard' ? 'Admin Gateway' : 'Return to Explorer'}
-            </button>
-          </div>
-        </div>
-      </footer>
-
-      <DetailModal
-        listing={selectedListing}
-        onClose={() => setSelectedListing(null)}
-        isSaved={selectedListing ? savedListings.some(l => l.id === selectedListing.id) : false}
-        onToggleSave={toggleSaveListing}
-      />
+      {selectedListing?.category === 'PACKAGE' && packagePreviewActive ? (
+        <PackagePreviewModal
+          listing={selectedListing}
+          onClose={() => {
+            setSelectedListing(null);
+            setPackagePreviewActive(false);
+          }}
+          onBook={() => setPackagePreviewActive(false)}
+        />
+      ) : (
+        <DetailModal
+          listing={selectedListing}
+          onClose={() => {
+            setSelectedListing(null);
+            setPackagePreviewActive(false);
+          }}
+          isSaved={selectedListing ? savedListings.some(l => l.id === selectedListing.id) : false}
+          onToggleSave={toggleSaveListing}
+        />
+      )}
 
       <SavedTripsModal
         isOpen={showSavedModal}
@@ -536,6 +548,7 @@ function MainLayout() {
 
       <LoginModal />
       <ShortcutsHelpModal isOpen={showShortcutsModal} onClose={() => setShowShortcutsModal(false)} />
+      <FloatingContact />
     </div>
   );
 }

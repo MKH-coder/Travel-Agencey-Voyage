@@ -784,6 +784,8 @@ Proceeding with sandbox delivery...`);
       hotelPerks,
       diningSpecialties,
       coordinates,
+      listingIds,
+      duration,
       status: requestedStatus
     } = req.body;
 
@@ -825,6 +827,8 @@ Proceeding with sandbox delivery...`);
       amenities: amenities || [],
       hotelPerks: hotelPerks || [],
       diningSpecialties: diningSpecialties || [],
+      listingIds: Array.isArray(listingIds) ? listingIds : undefined,
+      duration: duration || undefined,
       timestamps: {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

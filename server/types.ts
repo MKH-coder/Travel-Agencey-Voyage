@@ -56,7 +56,7 @@ export interface FeedPost {
   createdAt: string;
 }
 
-export type ListingCategory = 'PLACE' | 'HOTEL' | 'FOOD';
+export type ListingCategory = 'PLACE' | 'HOTEL' | 'FOOD' | 'PACKAGE';
 export type ListingStatus = 'DRAFT' | 'PENDING_APPROVAL' | 'PUBLISHED' | 'REJECTED';
 
 export interface Listing {
@@ -83,6 +83,8 @@ export interface Listing {
   amenities?: string[];
   diningSpecialties?: string[];
   hotelPerks?: string[];
+  listingIds?: string[]; // IDs of listings included in a package
+  duration?: string; // e.g., "5 Days / 4 Nights"
   pinned?: boolean;
   pinnedAt?: string;
   timestamps: {
