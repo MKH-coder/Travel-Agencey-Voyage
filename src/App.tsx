@@ -266,12 +266,52 @@ function MainLayout() {
         return false;
       }
       if (filters.search) {
-        const query = filters.search.toLowerCase();
-        const matchesTitle = item.title.toLowerCase().includes(query);
-        const matchesLocation = item.location.toLowerCase().includes(query);
-        const matchesCountry = item.country.toLowerCase().includes(query);
-        const matchesTags = item.tags?.some(t => t.toLowerCase().includes(query));
-        if (!matchesTitle && !matchesLocation && !matchesCountry && !matchesTags) {
+        const rawQuery = filters.search.trim().toLowerCase();
+        const normQuery = rawQuery.replace(/[^a-z0-9]/g, '');
+        const fuzzyQuery = rawQuery.replace(/nn/g, 'n').replace(/mm/g, 'm').replace(/ll/g, 'l');
+
+        const testMatch = (text?: string): boolean => {
+          if (!text) return false;
+          const lower = text.toLowerCase();
+          if (lower.includes(rawQuery)) return true;
+          const norm = lower.replace(/[^a-z0-9]/g, '');
+          if (norm.includes(normQuery)) return true;
+          const fuzzy = lower.replace(/nn/g, 'n').replace(/mm/g, 'm').replace(/ll/g, 'l');
+          return fuzzy.includes(fuzzyQuery);
+        };
+
+        const matchesTitle = testMatch(item.title);
+        const matchesLocation = testMatch(item.location);
+        const matchesCountry = testMatch(item.country);
+        const matchesDescription = testMatch(item.description);
+        const matchesDuration = testMatch(item.duration);
+        const matchesTags = item.tags?.some(t => testMatch(t));
+        const matchesAmenities = item.amenities?.some(a => testMatch(a));
+
+        // Search within bundle / tour package referenced sub-listings
+        const matchesSubListings = item.listingIds?.some(id => {
+          const sub = listings.find(l => l.id === id);
+          if (!sub) return false;
+          return (
+            testMatch(sub.title) ||
+            testMatch(sub.location) ||
+            testMatch(sub.country) ||
+            testMatch(sub.description) ||
+            sub.tags?.some(t => testMatch(t)) ||
+            sub.amenities?.some(a => testMatch(a))
+          );
+        });
+
+        if (
+          !matchesTitle &&
+          !matchesLocation &&
+          !matchesCountry &&
+          !matchesDescription &&
+          !matchesDuration &&
+          !matchesTags &&
+          !matchesAmenities &&
+          !matchesSubListings
+        ) {
           return false;
         }
       }

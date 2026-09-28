@@ -168,11 +168,29 @@ export const PackageCreatorModal: React.FC<PackageCreatorModalProps> = ({
     }
   };
 
-  const filteredListings = availableListings.filter(l => 
-    l.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    l.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    l.country.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredListings = availableListings.filter(l => {
+    if (!searchQuery.trim()) return true;
+    const raw = searchQuery.trim().toLowerCase();
+    const norm = raw.replace(/[^a-z0-9]/g, '');
+    const fuzzy = raw.replace(/nn/g, 'n').replace(/mm/g, 'm').replace(/ll/g, 'l');
+
+    const testMatch = (text?: string): boolean => {
+      if (!text) return false;
+      const lower = text.toLowerCase();
+      if (lower.includes(raw)) return true;
+      if (lower.replace(/[^a-z0-9]/g, '').includes(norm)) return true;
+      return lower.replace(/nn/g, 'n').replace(/mm/g, 'm').replace(/ll/g, 'l').includes(fuzzy);
+    };
+
+    return (
+      testMatch(l.title) ||
+      testMatch(l.location) ||
+      testMatch(l.country) ||
+      testMatch(l.description) ||
+      l.tags?.some(t => testMatch(t)) ||
+      l.amenities?.some(a => testMatch(a))
+    );
+  });
 
   const selectedListings = availableListings.filter(l => selectedListingIds.includes(l.id));
   const autoCalculatedPrice = selectedListings.reduce((sum, l) => sum + l.price, 0);

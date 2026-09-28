@@ -50,7 +50,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   }, [filters.search]);
 
   const quickSearchTags = [
-    'Mannanthala, Trivandrum',
     'Santorini',
     'Amalfi Coast',
     'Kyoto Kaiseki',
@@ -58,7 +57,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     'Bali Ubud',
     'Tokyo Sushi',
     'Lake Como',
-    'Banff Canoe'
+    'Banff Canoe',
+    'Paris'
   ];
 
   const categories: { id: 'ALL' | ListingCategory; label: string; icon: React.ReactNode }[] = [

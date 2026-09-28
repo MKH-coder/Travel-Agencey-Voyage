@@ -55,9 +55,9 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
 
   // Step 1: Trip Essentials
   const [tripTitle, setTripTitle] = useState('My Curated Signature Escape');
-  const [destination, setDestination] = useState(initialDestination || 'Mannanthala, Trivandrum');
-  const [country, setCountry] = useState('India');
-  const [travelStyle, setTravelStyle] = useState<CustomTripRequest['travelStyle']>('LUXURY_WELLNESS');
+  const [destination, setDestination] = useState(initialDestination || 'Santorini Island');
+  const [country, setCountry] = useState('Greece');
+  const [travelStyle, setTravelStyle] = useState<CustomTripRequest['travelStyle']>('ROMANTIC_HONEYMOON');
   const [budgetTier, setBudgetTier] = useState<CustomTripRequest['budgetTier']>('ELITE');
   const [startDate, setStartDate] = useState(() => {
     const d = new Date();
@@ -267,8 +267,26 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
   const filteredCatalog = availableListings.filter(l => {
     if (catalogFilter !== 'ALL' && l.category !== catalogFilter) return false;
     if (!catalogSearch.trim()) return true;
-    const q = catalogSearch.toLowerCase();
-    return l.title.toLowerCase().includes(q) || l.location.toLowerCase().includes(q) || l.country.toLowerCase().includes(q);
+    const raw = catalogSearch.trim().toLowerCase();
+    const norm = raw.replace(/[^a-z0-9]/g, '');
+    const fuzzy = raw.replace(/nn/g, 'n').replace(/mm/g, 'm').replace(/ll/g, 'l');
+
+    const testMatch = (text?: string): boolean => {
+      if (!text) return false;
+      const lower = text.toLowerCase();
+      if (lower.includes(raw)) return true;
+      if (lower.replace(/[^a-z0-9]/g, '').includes(norm)) return true;
+      return lower.replace(/nn/g, 'n').replace(/mm/g, 'm').replace(/ll/g, 'l').includes(fuzzy);
+    };
+
+    return (
+      testMatch(l.title) ||
+      testMatch(l.location) ||
+      testMatch(l.country) ||
+      testMatch(l.description) ||
+      l.tags?.some(t => testMatch(t)) ||
+      l.amenities?.some(a => testMatch(a))
+    );
   });
 
   return (

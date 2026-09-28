@@ -20,10 +20,8 @@ import {
   Palette,
   Snowflake,
   Calendar,
-  Command,
   Menu,
   X,
-  Layers,
   ArrowRight,
   Globe
 } from 'lucide-react';
@@ -60,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({
   setSearchQuery,
 }) => {
   const { theme, setTheme, styles } = useTheme();
-  const { user, logout, setShowLoginModal, setShowBypassModal, sessionRemainingSec } = useAuth();
+  const { user, logout, setShowLoginModal, setShowBypassModal } = useAuth();
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -129,10 +127,10 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className={`sticky top-0 z-40 w-full max-w-full overflow-visible ${styles.headerBg} border-b ${styles.border} transition-colors duration-300`}>
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4 w-full min-w-0">
+    <header className={`sticky top-0 z-40 w-full ${styles.headerBg} border-b ${styles.border} transition-colors duration-300 select-none`}>
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4 w-full">
         
-        {/* Left Cluster: Brand & Logo */}
+        {/* Left: Brand Logo & Navigation */}
         <div className="flex items-center gap-2 sm:gap-4 shrink-0 min-w-0">
           <button
             id="brand-logo-btn"
@@ -151,14 +149,14 @@ export const Header: React.FC<HeaderProps> = ({
                   Global
                 </span>
               </div>
-              <p className={`text-[9px] ${styles.textMuted} -mt-0.5 hidden xs:block truncate max-w-[140px] sm:max-w-none`}>
+              <p className={`text-[9px] ${styles.textMuted} -mt-0.5 hidden xs:block truncate max-w-[150px] sm:max-w-none`}>
                 Mannanthala, Trivandrum & Worldwide
               </p>
             </div>
           </button>
 
-          {/* Desktop Navigation links (Only on large screens to prevent right-side overflow) */}
-          <nav className="hidden xl:flex items-center gap-1 pl-4 border-l border-slate-200/40 dark:border-slate-800">
+          {/* Desktop Navigation links (Only shown on extra-large screens to guarantee no clipping) */}
+          <nav className="hidden 2xl:flex items-center gap-1 pl-4 border-l border-slate-200/40 dark:border-slate-800">
             <button
               id="nav-explore-btn"
               onClick={() => setCurrentView('dashboard')}
@@ -221,64 +219,29 @@ export const Header: React.FC<HeaderProps> = ({
           </nav>
         </div>
 
-        {/* Global Search Bar (Only on large screens) */}
-        {currentView === 'dashboard' && (
-          <div className="hidden 2xl:flex flex-1 max-w-sm mx-2">
-            <div className="relative w-full">
-              <Search className={`w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 ${styles.textMuted}`} />
-              <input
-                id="header-search-input"
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search Mannanthala, Kyoto, stays..."
-                className={`w-full pl-9 pr-12 py-1.5 text-xs rounded-xl outline-none transition-all ${styles.inputBg}`}
-              />
-              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center">
-                {searchQuery ? (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className={`text-[10px] px-1.5 py-0.5 rounded ${styles.textMuted} hover:${styles.textPrimary}`}
-                  >
-                    Clear
-                  </button>
-                ) : (
-                  <kbd className="px-1.5 py-0.2 text-[9px] font-mono font-bold rounded bg-slate-200/80 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300/60 dark:border-slate-700 pointer-events-none">
-                    /
-                  </kbd>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Right Action Cluster: Always compact, perfectly fitted & guaranteed Sign In visibility */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 ml-auto">
 
-        {/* Right Action Cluster (Guaranteed to always fit and never push Sign In out of screen) */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-
-          {/* Real-Time Clock (Only on extra wide screens) */}
-          <div className="hidden 2xl:block">
-            <ClockComponent />
-          </div>
-
-          {/* Quick Custom Trip Button for Mobile/Tablet */}
+          {/* Quick Custom Trip Button (Visible on tablets/laptops) */}
           {onOpenCustomTripBuilder && (
             <button
               onClick={onOpenCustomTripBuilder}
-              className="xl:hidden p-2 sm:px-2.5 sm:py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-300 hover:bg-amber-500 hover:text-white transition-all flex items-center gap-1 text-xs font-bold shrink-0"
+              className="hidden sm:flex 2xl:hidden px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500 text-amber-700 dark:text-amber-300 hover:text-white transition-all items-center gap-1.5 text-xs font-bold shrink-0 cursor-pointer shadow-xs"
               title="Plan Custom Trip & Package"
             >
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span className="hidden sm:inline">Custom Trip</span>
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 group-hover:text-white" />
+              <span>Custom Trip</span>
             </button>
           )}
 
-          {/* Theme Selector Dropdown */}
+          {/* Theme Selector (Compact Icon Only) */}
           <div className="relative shrink-0">
             <button
               id="theme-toggle-btn"
               onClick={() => setShowThemeMenu(!showThemeMenu)}
-              className={`p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center gap-1 text-xs font-medium shrink-0 cursor-pointer`}
+              className={`p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center justify-center shrink-0 cursor-pointer`}
               title="Switch Visual Theme"
+              aria-label="Switch Theme"
             >
               {theme === 'cyan-light' && <Sun className="w-4 h-4 text-cyan-500" />}
               {theme === 'dark-slate' && <Moon className="w-4 h-4 text-sky-400" />}
@@ -289,10 +252,6 @@ export const Header: React.FC<HeaderProps> = ({
               {theme === 'emerald-black' && <Leaf className="w-4 h-4 text-emerald-400" />}
               {theme === 'rose-gold' && <Heart className="w-4 h-4 text-rose-300" />}
               {theme === 'nordic-frost' && <Snowflake className="w-4 h-4 text-sky-400" />}
-              <span className="hidden lg:inline capitalize text-[11px]">
-                {theme.replace('-light', '').replace('-black', '').replace('-warm', '').replace('-glass', '')}
-              </span>
-              <ChevronDown className="w-3 h-3 opacity-60 hidden sm:inline" />
             </button>
 
             {showThemeMenu && (
@@ -332,29 +291,25 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             id="saved-trips-btn"
             onClick={onOpenSavedTrips}
-            className={`relative p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center gap-1 shrink-0 cursor-pointer`}
-            title="Saved Trips & Reservations (B)"
+            className={`relative p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center justify-center shrink-0 cursor-pointer`}
+            title="Saved Trips & Reservations"
+            aria-label="Saved Trips"
           >
             <Heart className={`w-4 h-4 ${savedTripsCount > 0 ? 'text-rose-500 fill-rose-500' : ''}`} />
             {savedTripsCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-4 h-4 px-1 rounded-full text-[10px] font-bold bg-rose-500 text-white flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 min-w-4 h-4 px-1 rounded-full text-[10px] font-bold bg-rose-500 text-white flex items-center justify-center shadow-xs">
                 {savedTripsCount}
               </span>
             )}
           </button>
 
-          {/* Supabase Sync Indicator */}
-          <div className="hidden sm:block shrink-0">
-            <SupabaseSyncIndicator onOpenSupabaseConsole={onOpenSupabaseConsole} />
-          </div>
-
-          {/* User Profile / Prominent Sign In Button (ALWAYS VISIBLE & ACCESSIBLE) */}
+          {/* User Profile OR Sign In Button (ALWAYS PROMINENT & VISIBLE) */}
           {user ? (
             <div className="relative shrink-0">
               <button
                 id="user-profile-btn"
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className={`flex items-center gap-1.5 sm:gap-2 p-1 sm:pl-2 sm:pr-2.5 rounded-xl border ${styles.border} ${styles.cardBg} hover:opacity-90 transition-all shrink-0 cursor-pointer`}
+                className={`flex items-center gap-1.5 sm:gap-2 p-1 sm:px-2 rounded-xl border ${styles.border} ${styles.cardBg} hover:opacity-90 transition-all shrink-0 cursor-pointer`}
               >
                 {user.avatar ? (
                   <img
@@ -368,24 +323,9 @@ export const Header: React.FC<HeaderProps> = ({
                     {user.name.charAt(0)}
                   </div>
                 )}
-                <div className="hidden md:block text-left text-xs">
-                  <div className={`font-semibold leading-tight truncate max-w-[90px] lg:max-w-[120px] ${styles.textPrimary}`}>
-                    {user.name}
-                  </div>
-                  <span
-                    className={`text-[9px] font-bold px-1 rounded uppercase tracking-wider ${
-                      user.role === 'TECH_ADMIN'
-                        ? 'bg-amber-500/20 text-amber-500 dark:text-amber-400'
-                        : user.role === 'TECH_SUBADMIN'
-                        ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400'
-                        : user.role === 'ADMIN'
-                        ? 'bg-sky-500/20 text-sky-600 dark:text-sky-400'
-                        : 'text-slate-400'
-                    }`}
-                  >
-                    {user.role === 'TECH_ADMIN' ? 'Super Admin' : user.role === 'TECH_SUBADMIN' ? 'Sub-Admin' : user.role === 'ADMIN' ? 'Admin' : 'Traveler'}
-                  </span>
-                </div>
+                <span className="hidden md:inline text-xs font-semibold max-w-[100px] truncate">
+                  {user.name}
+                </span>
                 <ChevronDown className="w-3.5 h-3.5 opacity-60 ml-0.5 shrink-0" />
               </button>
 
@@ -490,16 +430,6 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           ) : (
             <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                id="emergency-recovery-quick-btn"
-                onClick={() => setShowBypassModal(true)}
-                className="hidden md:flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-medium border border-rose-500/30 text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer shrink-0"
-                title="Super Admin Emergency Recovery"
-              >
-                <KeyRound className="w-3.5 h-3.5" />
-                <span className="hidden lg:inline text-[11px]">Recovery</span>
-              </button>
-
               {/* Prominent Guaranteed Sign In Button */}
               <button
                 id="header-signin-btn"
@@ -512,11 +442,11 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
 
-          {/* Mobile Hamburger Menu Toggle Button */}
+          {/* Hamburger Menu Toggle Button (Visible on all devices under 2xl) */}
           <button
             id="mobile-hamburger-btn"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`xl:hidden p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center justify-center shrink-0 cursor-pointer`}
+            className={`2xl:hidden p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center justify-center shrink-0 cursor-pointer`}
             aria-label="Toggle Navigation Menu"
           >
             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -525,11 +455,11 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Slide-Out Mobile Navigation Drawer */}
+      {/* Slide-Out Navigation Drawer for Mobile & Tablet */}
       {isMobileMenuOpen && (
-        <div className={`xl:hidden border-t ${styles.border} ${styles.cardBg} px-4 py-5 space-y-4 shadow-2xl animate-in slide-in-from-top-3 duration-200`}>
+        <div className={`2xl:hidden border-t ${styles.border} ${styles.cardBg} px-4 py-5 space-y-4 shadow-2xl animate-in slide-in-from-top-3 duration-200 max-w-full overflow-hidden`}>
           
-          {/* Mobile User Card / Quick Sign-In CTA */}
+          {/* User Status / Quick Sign-In CTA */}
           <div className="p-3.5 rounded-2xl bg-gradient-to-r from-sky-500/10 to-amber-500/10 border border-sky-500/20 flex items-center justify-between">
             {user ? (
               <div className="flex items-center gap-3">
@@ -556,7 +486,7 @@ export const Header: React.FC<HeaderProps> = ({
                     setIsMobileMenuOpen(false);
                     setShowLoginModal(true);
                   }}
-                  className="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs shadow-md flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs shadow-md flex items-center gap-1.5 cursor-pointer"
                 >
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Sign In</span>
@@ -572,7 +502,7 @@ export const Header: React.FC<HeaderProps> = ({
                 setCurrentView('dashboard');
                 setIsMobileMenuOpen(false);
               }}
-              className={`p-3 rounded-2xl border text-left text-xs font-bold flex items-center gap-2.5 transition-all ${
+              className={`p-3 rounded-2xl border text-left text-xs font-bold flex items-center gap-2.5 transition-all cursor-pointer ${
                 currentView === 'dashboard' ? 'border-sky-500 bg-sky-500/10 text-sky-600 dark:text-sky-300' : 'border-slate-200 dark:border-slate-800'
               }`}
             >
@@ -586,10 +516,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setIsMobileMenuOpen(false);
                   onOpenCustomTripBuilder();
                 }}
-                className="p-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-left text-xs font-bold flex items-center gap-2.5"
+                className="p-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-left text-xs font-bold flex items-center gap-2.5 cursor-pointer"
               >
                 <Sparkles className="w-4 h-4 text-amber-500" />
-                <span>Custom Trip</span>
+                <span>Custom Trip Studio</span>
               </button>
             )}
 
@@ -598,7 +528,7 @@ export const Header: React.FC<HeaderProps> = ({
                 setIsMobileMenuOpen(false);
                 onOpenSavedTrips();
               }}
-              className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-left text-xs font-bold flex items-center justify-between"
+              className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-left text-xs font-bold flex items-center justify-between cursor-pointer"
             >
               <div className="flex items-center gap-2.5">
                 <Heart className="w-4 h-4 text-rose-500" />
@@ -617,12 +547,36 @@ export const Header: React.FC<HeaderProps> = ({
                   setIsMobileMenuOpen(false);
                   onOpenCustomTripsTracker();
                 }}
-                className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-left text-xs font-bold flex items-center gap-2.5"
+                className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-left text-xs font-bold flex items-center gap-2.5 cursor-pointer"
               >
                 <Clock className="w-4 h-4 text-amber-500" />
                 <span>My Inquiries</span>
               </button>
             )}
+
+            <button
+              onClick={() => {
+                setCurrentView('dashboard');
+                setIsMobileMenuOpen(false);
+                setTimeout(() => document.getElementById('marketing-advantage')?.scrollIntoView({ behavior: 'smooth' }), 100);
+              }}
+              className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-left text-xs font-bold flex items-center gap-2.5 cursor-pointer"
+            >
+              <Globe className="w-4 h-4 text-sky-500" />
+              <span>About Us</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setCurrentView('dashboard');
+                setIsMobileMenuOpen(false);
+                setTimeout(() => document.getElementById('footer-contact')?.scrollIntoView({ behavior: 'smooth' }), 100);
+              }}
+              className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-left text-xs font-bold flex items-center gap-2.5 cursor-pointer"
+            >
+              <Compass className="w-4 h-4 text-emerald-500" />
+              <span>Contact Concierge</span>
+            </button>
 
             {(user?.role === 'ADMIN' || user?.role === 'TECH_SUBADMIN' || user?.role === 'TECH_ADMIN') && (
               <button
@@ -630,7 +584,7 @@ export const Header: React.FC<HeaderProps> = ({
                   setCurrentView('admin');
                   setIsMobileMenuOpen(false);
                 }}
-                className="col-span-2 p-3 rounded-2xl bg-amber-500 text-white font-black text-xs flex items-center justify-between shadow-md shadow-amber-500/20"
+                className="col-span-2 p-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-black text-xs flex items-center justify-between shadow-md shadow-amber-500/20 cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4" />
@@ -641,15 +595,15 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* Quick Theme Switcher in Mobile Drawer */}
+          {/* Quick Theme Switcher in Drawer */}
           <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 space-y-2">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Select Theme</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Visual Theme</div>
             <div className="grid grid-cols-3 gap-1.5">
               {themeOptions.map((opt) => (
                 <button
                   key={opt.id}
                   onClick={() => setTheme(opt.id)}
-                  className={`p-2 rounded-xl text-[10px] font-bold flex items-center gap-1.5 border transition-all ${
+                  className={`p-2 rounded-xl text-[10px] font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
                     theme === opt.id
                       ? 'border-sky-500 bg-sky-500/10 text-sky-600 dark:text-sky-300'
                       : 'border-slate-200/60 dark:border-slate-800 text-slate-500'
@@ -669,7 +623,7 @@ export const Header: React.FC<HeaderProps> = ({
                 setIsMobileMenuOpen(false);
                 setShowBypassModal(true);
               }}
-              className="text-rose-500 font-semibold flex items-center gap-1 hover:underline text-[11px]"
+              className="text-rose-500 font-semibold flex items-center gap-1 hover:underline text-[11px] cursor-pointer"
             >
               <KeyRound className="w-3.5 h-3.5" />
               <span>Admin Recovery</span>
@@ -681,7 +635,7 @@ export const Header: React.FC<HeaderProps> = ({
                   logout();
                   setIsMobileMenuOpen(false);
                 }}
-                className="text-slate-400 hover:text-rose-500 font-semibold flex items-center gap-1 text-[11px]"
+                className="text-slate-400 hover:text-rose-500 font-semibold flex items-center gap-1 text-[11px] cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Sign Out</span>
