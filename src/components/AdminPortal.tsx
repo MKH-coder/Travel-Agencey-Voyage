@@ -46,7 +46,9 @@ import {
   Monitor,
   Radio,
   LogOut,
-  Globe
+  Globe,
+  Package,
+  Layers
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';

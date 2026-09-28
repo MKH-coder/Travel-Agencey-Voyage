@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Upload, Plus, Trash2, Image as ImageIcon, Sparkles, CheckCircle2, AlertTriangle, FileText } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
-import { Listing } from '../types.ts';
+import { Listing, ListingCategory } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 import { SupabaseSyncService } from '../services/supabaseSync.ts';
 import { AuthAudit } from '../services/authAudit.ts';
@@ -36,7 +36,7 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
   const [price, setPrice] = useState(listing?.price || 0);
   const [location, setLocation] = useState(listing?.location || '');
   const [country, setCountry] = useState(listing?.country || '');
-  const [category, setCategory] = useState<'PLACE' | 'HOTEL' | 'FOOD'>(listing?.category || 'PLACE');
+  const [category, setCategory] = useState<ListingCategory>(listing?.category || 'PLACE');
   const [description, setDescription] = useState(listing?.description || '');
   const [images, setImages] = useState<string[]>(listing?.images || []);
   const [newPhotoUrl, setNewPhotoUrl] = useState('');
@@ -307,8 +307,8 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
             <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               Category *
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              {(['PLACE', 'HOTEL', 'FOOD'] as const).map((cat) => (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {(['PLACE', 'HOTEL', 'FOOD', 'PACKAGE'] as const).map((cat) => (
                 <button
                   key={cat}
                   type="button"

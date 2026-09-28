@@ -135,7 +135,7 @@ export const PackageCreatorModal: React.FC<PackageCreatorModalProps> = ({
           message: `"${title.trim()}" bundle is now ${status === 'PUBLISHED' ? 'live' : 'saved as draft'}.`,
           type: 'success',
           isAdminAction: true,
-          adminActionType: initialData ? 'edit' : 'create',
+          adminActionType: initialData ? 'update' : 'create',
         });
         onPackageCreated();
         setTimeout(onClose, 1500);

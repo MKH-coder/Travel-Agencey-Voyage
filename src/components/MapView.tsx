@@ -66,6 +66,13 @@ const CATEGORY_STYLES: Record<
     border: 'border-amber-500',
     icon: 'utensils',
   },
+  PACKAGE: {
+    label: 'Curated Package',
+    bg: 'bg-purple-500',
+    text: 'text-purple-500',
+    border: 'border-purple-500',
+    icon: 'package',
+  },
 };
 
 export const MapView: React.FC<MapViewProps> = ({
@@ -209,7 +216,9 @@ export const MapView: React.FC<MapViewProps> = ({
                 ? '#10b981'
                 : listing.category === 'HOTEL'
                 ? '#0ea5e9'
-                : '#f59e0b'
+                : listing.category === 'FOOD'
+                ? '#f59e0b'
+                : '#8b5cf6'
             };
             border: 2px solid #ffffff;
             box-shadow: 0 3px 8px rgba(0,0,0,0.3);
@@ -221,7 +230,9 @@ export const MapView: React.FC<MapViewProps> = ({
                   ? '<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>'
                   : listing.category === 'HOTEL'
                   ? '<path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/>'
-                  : '<path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M12 2v20"/><path d="M21 15v7"/><path d="M21 15a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v7"/>'
+                  : listing.category === 'FOOD'
+                  ? '<path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M12 2v20"/><path d="M21 15v7"/><path d="M21 15a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v7"/>'
+                  : '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>'
               }
             </svg>
           </div>
@@ -235,7 +246,9 @@ export const MapView: React.FC<MapViewProps> = ({
                 ? '#10b981'
                 : listing.category === 'HOTEL'
                 ? '#0ea5e9'
-                : '#f59e0b'
+                : listing.category === 'FOOD'
+                ? '#f59e0b'
+                : '#8b5cf6'
             };
             margin-top: -1px;
           "></div>
