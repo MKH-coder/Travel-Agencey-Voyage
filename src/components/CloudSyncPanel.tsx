@@ -25,6 +25,7 @@ import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { FirebaseSyncService, FIREBASE_PROJECT_ID, FIRESTORE_DATABASE_ID } from '../services/firebase.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
+import { ZipArchiveService } from '../services/zipExportService.ts';
 
 interface SyncStatusData {
   targetAccount: string;
@@ -700,6 +701,16 @@ CREATE TABLE IF NOT EXISTS listings (
             <li>Click <strong>Export to GitHub</strong> or <strong>Download ZIP</strong>.</li>
             <li>Authenticate with your personal account <span className="font-semibold text-sky-500">mukundkrishna.h2008@gmail.com</span> to automatically sync all custom routes, ticking clocks, and dynamic breadcrumbs.</li>
           </ol>
+
+          <div className="pt-2">
+            <button
+              onClick={() => ZipArchiveService.exportPlatformArchiveZip()}
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+            >
+              <Download className="w-4 h-4" />
+              <span>Download Complete Platform Archive (.ZIP)</span>
+            </button>
+          </div>
         </div>
 
         <div className="text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3">

@@ -95,6 +95,20 @@ export const INITIAL_CUSTOM_POSTS: CustomPost[] = [
     badgeColor: 'emerald',
     createdBy: 'mukundkrishna2008@gmail.com',
     createdAt: '2025-01-12T00:00:00.000Z'
+  },
+  {
+    id: 'post_albania_expedition_lead',
+    title: 'Albania 9-Day Condensed Itinerary (9-19 Oct 2026)',
+    department: 'Mediterranean & Balkan Expeditions',
+    baseRole: 'ADMIN',
+    description: 'Official 9-day master route: TRV -> Muscat -> Milan -> Tirana -> Berat -> Gjirokastër -> Blue Eye -> Sarandë -> Ksamil & Butrint -> Porto Palermo -> Himarë -> Dhërmi -> Llogara -> Vlorë -> Tirana -> Rome -> Doha -> TRV. Features 3-tier package options (Basic ₹1.11L, Mid-Range ₹1.43L, Luxury ₹4.24L).',
+    privileges: [
+      'PUBLISH_DIRECTLY',
+      'EDIT_ALL_CONTENT'
+    ],
+    badgeColor: 'sky',
+    createdBy: 'mukundkrishna2008@gmail.com',
+    createdAt: '2026-09-28T00:00:00.000Z'
   }
 ];
 

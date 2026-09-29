@@ -203,6 +203,39 @@ export const DEFAULT_REVIEWS: Review[] = [
     rating: 5,
     comment: 'The Matterhorn reflection in the infinity spa pool at dusk is something you will never forget. True 5-star ski-in/ski-out experience with unmatched warmth and service.',
     createdAt: '2025-02-28T20:10:00.000Z'
+  },
+  {
+    id: 'rev-albania-luxury-1',
+    listingId: 'pkg-albania-9day-luxury',
+    userId: 'user-traveler-03',
+    userName: 'Alex Rivera',
+    userEmail: 'alex.globetrotter@example.com',
+    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=128&q=80',
+    rating: 5,
+    comment: 'The 9-day Albania trip exceeded every expectation! The private boat cruise around Ksamil 4 islands and the private historian tour of Butrint UNESCO park were highlights of a lifetime. Seamless transfers and breathtaking views on the Llogara Pass.',
+    createdAt: '2026-03-15T10:30:00.000Z'
+  },
+  {
+    id: 'rev-albania-ksamil-1',
+    listingId: 'list-albania-ksamil-hotel-05',
+    userId: 'user-elena-01',
+    userName: 'Elena Rostova',
+    userEmail: 'elena.rostova@voyagereview.org',
+    userAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=128&q=80',
+    rating: 5,
+    comment: 'The azure sea right in front of the balcony is magical. Bora Bora beach is pristine, and the freshly caught grilled sea bass dinner was unforgettable!',
+    createdAt: '2026-04-02T16:15:00.000Z'
+  },
+  {
+    id: 'rev-albania-berat-1',
+    listingId: 'list-albania-berat-02',
+    userId: 'user-marcus-02',
+    userName: 'Marcus Vance',
+    userEmail: 'marcus.v@adventurescape.com',
+    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=128&q=80',
+    rating: 5,
+    comment: 'Walking along the Gorica bridge and looking up at the Mangalem quarter at dusk is a dream. Berat Castle is living history with real families still living within the fortress.',
+    createdAt: '2026-04-10T11:45:00.000Z'
   }
 ];
 

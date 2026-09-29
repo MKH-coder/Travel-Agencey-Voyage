@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Layers, Star, MapPin, CheckCircle2, ArrowRight, DollarSign, Clock, Tag, Sparkles, Phone } from 'lucide-react';
+import { X, Layers, Star, MapPin, CheckCircle2, ArrowRight, DollarSign, Clock, Tag, Sparkles, Phone, Download } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { Listing } from '../types.ts';
 import { AuthAudit } from '../services/authAudit.ts';
+import { ZipArchiveService } from '../services/zipExportService.ts';
 
 interface PackagePreviewModalProps {
   listing: Listing | null;
@@ -213,16 +214,24 @@ export const PackagePreviewModal: React.FC<PackagePreviewModalProps> = ({
 
         {/* Footer Actions */}
         {!isSuccess && (
-          <div className="p-6 border-t border-slate-200/50 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="p-6 border-t border-slate-200/50 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-center gap-3">
              <button 
                onClick={onClose}
-               className={`w-full sm:w-auto px-8 py-3 rounded-2xl text-sm font-bold ${styles.buttonSecondary}`}
+               className={`w-full sm:w-auto px-6 py-3 rounded-2xl text-sm font-bold ${styles.buttonSecondary}`}
              >
-               Continue Browsing
+               Close
+             </button>
+             <button 
+               onClick={() => ZipArchiveService.exportTripPackageZip(listing.title, listing)}
+               className="w-full sm:w-auto px-6 py-3 rounded-2xl text-sm font-bold border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+               title="Export package summary and offline guide as ZIP"
+             >
+               <Download className="w-4 h-4" />
+               <span>Package ZIP</span>
              </button>
              <button 
                onClick={handleBook}
-               className={`w-full sm:w-auto px-12 py-3 rounded-2xl text-sm font-black uppercase tracking-widest bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-xl shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3`}
+               className={`w-full sm:w-auto px-10 py-3 rounded-2xl text-sm font-black uppercase tracking-widest bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-xl shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2`}
              >
                <span>Book Bundle Now</span>
                <ArrowRight className="w-5 h-5" />

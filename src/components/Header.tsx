@@ -23,7 +23,9 @@ import {
   Menu,
   X,
   ArrowRight,
-  Globe
+  Globe,
+  Gamepad2,
+  Download
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -41,6 +43,8 @@ interface HeaderProps {
   onOpenSupabaseConsole?: () => void;
   onOpenCustomTripBuilder?: () => void;
   onOpenCustomTripsTracker?: () => void;
+  onOpenGame?: () => void;
+  onDownloadZip?: () => void;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
 }
@@ -54,6 +58,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSupabaseConsole,
   onOpenCustomTripBuilder,
   onOpenCustomTripsTracker,
+  onOpenGame,
+  onDownloadZip,
   searchQuery,
   setSearchQuery,
 }) => {
@@ -216,11 +222,46 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>{user.role === 'TECH_ADMIN' ? 'Super Admin Portal' : user.role === 'TECH_SUBADMIN' ? 'Sub-Admin' : 'Admin Portal'}</span>
               </button>
             )}
+
+            {onOpenGame && (
+              <button
+                onClick={onOpenGame}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+                title="Play Wanderlust Chronicles Travel RPG"
+              >
+                <Gamepad2 className="w-3.5 h-3.5" />
+                <span>Travel Game</span>
+              </button>
+            )}
           </nav>
         </div>
 
         {/* Right Action Cluster: Always compact, perfectly fitted & guaranteed Sign In visibility */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 ml-auto">
+
+          {/* Quick Travel Game Button for Tablets & Laptops */}
+          {onOpenGame && (
+            <button
+              onClick={onOpenGame}
+              className="p-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all flex items-center justify-center shrink-0 cursor-pointer"
+              title="Play Wanderlust Chronicles Travel RPG"
+              aria-label="Wanderlust Travel Game"
+            >
+              <Gamepad2 className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Quick ZIP Backup Download for Desktop */}
+          {onDownloadZip && (
+            <button
+              onClick={onDownloadZip}
+              className={`p-2 rounded-xl border ${styles.border} ${styles.cardBg} text-emerald-600 dark:text-emerald-400 hover:opacity-90 transition-all hidden md:flex items-center justify-center shrink-0 cursor-pointer`}
+              title="Export Site & Travel Data as ZIP Archive"
+              aria-label="Export ZIP Archive"
+            >
+              <Download className="w-4 h-4" />
+            </button>
+          )}
 
           {/* Quick Custom Trip Button (Visible on tablets/laptops) */}
           {onOpenCustomTripBuilder && (
@@ -403,6 +444,42 @@ export const Header: React.FC<HeaderProps> = ({
                       </span>
                     </button>
 
+                    {onOpenGame && (
+                      <button
+                        onClick={() => {
+                          onOpenGame();
+                          setShowUserMenu(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium cursor-pointer ${styles.textSecondary} hover:${styles.bg}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Gamepad2 className="w-4 h-4 text-indigo-500" />
+                          <span>Play Wanderlust Game</span>
+                        </div>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-600 dark:text-indigo-400">
+                          RPG
+                        </span>
+                      </button>
+                    )}
+
+                    {onDownloadZip && (
+                      <button
+                        onClick={() => {
+                          onDownloadZip();
+                          setShowUserMenu(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium cursor-pointer ${styles.textSecondary} hover:${styles.bg}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Download className="w-4 h-4 text-emerald-500" />
+                          <span>Export Platform Archive</span>
+                        </div>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono">
+                          .ZIP
+                        </span>
+                      </button>
+                    )}
+
                     <button
                       onClick={() => {
                         setShowLoginModal(true);
@@ -577,6 +654,32 @@ export const Header: React.FC<HeaderProps> = ({
               <Compass className="w-4 h-4 text-emerald-500" />
               <span>Contact Concierge</span>
             </button>
+
+            {onOpenGame && (
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  onOpenGame();
+                }}
+                className="p-3 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-left text-xs font-bold flex items-center gap-2.5 cursor-pointer"
+              >
+                <Gamepad2 className="w-4 h-4 text-indigo-500" />
+                <span>Travel RPG Game</span>
+              </button>
+            )}
+
+            {onDownloadZip && (
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  onDownloadZip();
+                }}
+                className="p-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-left text-xs font-bold flex items-center gap-2.5 cursor-pointer"
+              >
+                <Download className="w-4 h-4 text-emerald-500" />
+                <span>Export Site (.ZIP)</span>
+              </button>
+            )}
 
             {(user?.role === 'ADMIN' || user?.role === 'TECH_SUBADMIN' || user?.role === 'TECH_ADMIN') && (
               <button

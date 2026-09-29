@@ -36,6 +36,8 @@ import { CustomTripsTrackerModal } from './components/CustomTripsTrackerModal.ts
 import { Newsletter } from './components/Newsletter.tsx';
 import { Footer } from './components/Footer.tsx';
 import { FloatingContact } from './components/FloatingContact.tsx';
+import { WanderlustGameModal } from './components/WanderlustGameModal.tsx';
+import { ZipArchiveService } from './services/zipExportService.ts';
 
 function MainLayout() {
   const { styles, theme, setTheme } = useTheme();
@@ -64,6 +66,7 @@ function MainLayout() {
   const [hoveredListingId, setHoveredListingId] = useState<string | null>(null);
   const [showSavedModal, setShowSavedModal] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [showGameModal, setShowGameModal] = useState(false);
   const [adminTab, setAdminTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips' | null>(null);
 
   const [filters, setFilters] = useState<FilterState>({
@@ -114,6 +117,7 @@ function MainLayout() {
     setPackagePreviewActive(false);
     setShowSavedModal(false);
     setShowShortcutsModal(false);
+    setShowGameModal(false);
     if (showLoginModal) setShowLoginModal(false);
     if (showBypassModal) setShowBypassModal(false);
   }, [showLoginModal, setShowLoginModal, showBypassModal, setShowBypassModal]);
@@ -396,6 +400,8 @@ function MainLayout() {
           setShowCustomTripBuilderModal(true);
         }}
         onOpenCustomTripsTracker={() => setShowCustomTripsTrackerModal(true)}
+        onOpenGame={() => setShowGameModal(true)}
+        onDownloadZip={() => ZipArchiveService.exportPlatformArchiveZip()}
         searchQuery={filters.search}
         setSearchQuery={(q) => setFilters(prev => ({ ...prev, search: q }))}
       />
@@ -632,7 +638,10 @@ function MainLayout() {
         )}
       </main>
 
-      <Footer />
+      <Footer
+        onOpenGame={() => setShowGameModal(true)}
+        onDownloadZip={() => ZipArchiveService.exportPlatformArchiveZip()}
+      />
 
       {selectedListing?.category === 'PACKAGE' && packagePreviewActive ? (
         <PackagePreviewModal
@@ -716,6 +725,7 @@ function MainLayout() {
 
       <LoginModal />
       <ShortcutsHelpModal isOpen={showShortcutsModal} onClose={() => setShowShortcutsModal(false)} />
+      <WanderlustGameModal isOpen={showGameModal} onClose={() => setShowGameModal(false)} />
       <FloatingContact />
     </div>
   );

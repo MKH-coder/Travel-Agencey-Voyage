@@ -20,7 +20,8 @@ import {
   BellOff,
   Package,
   Layers,
-  Compass
+  Compass,
+  Download
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -28,6 +29,7 @@ import { Listing, Booking, PriceAlert, Review } from '../types.ts';
 import { FirebaseSyncService } from '../services/firebase.ts';
 import { AuthAudit } from '../services/authAudit.ts';
 import { UserReviewsSection } from './UserReviewsSection.tsx';
+import { ZipArchiveService } from '../services/zipExportService.ts';
 
 interface DetailModalProps {
   listing: Listing | null;
@@ -736,6 +738,20 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                         <span>Add to Custom Trip & Package Planner</span>
                       </button>
                     )}
+
+                    {/* Download Offline Destination ZIP Bundle */}
+                    <button
+                      type="button"
+                      onClick={() => ZipArchiveService.exportTripPackageZip(listing.title, {
+                        ...listing,
+                        bookingDetails: { checkInDate, checkOutDate, guests, totalPrice, serviceFee, taxes }
+                      })}
+                      className="w-full py-2 rounded-xl text-xs font-bold border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                      title="Download offline itinerary, guides, and JSON package as ZIP"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download Offline Destination ZIP</span>
+                    </button>
 
                     <div className="text-center text-[10px] text-slate-400">
                       Free cancellation up to 48 hours before check-in. Instant confirmation slip issued.

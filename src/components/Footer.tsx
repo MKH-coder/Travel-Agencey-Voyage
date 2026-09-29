@@ -1,8 +1,13 @@
 import React from 'react';
-import { Compass, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ShieldCheck, Globe, CreditCard, Heart } from 'lucide-react';
+import { Compass, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ShieldCheck, Globe, CreditCard, Heart, Gamepad2, Download } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onOpenGame?: () => void;
+  onDownloadZip?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip }) => {
   const { styles, theme } = useTheme();
 
   return (
@@ -45,6 +50,28 @@ export const Footer: React.FC = () => {
               <li><a href="#" className={`text-sm ${styles.textMuted} hover:text-sky-500 transition-colors`}>Popular Destinations</a></li>
               <li><a href="#" className={`text-sm ${styles.textMuted} hover:text-sky-500 transition-colors`}>Luxury Packages</a></li>
               <li><a href="#" className={`text-sm ${styles.textMuted} hover:text-sky-500 transition-colors`}>Last Minute Deals</a></li>
+              {onOpenGame && (
+                <li>
+                  <button
+                    onClick={onOpenGame}
+                    className={`text-sm font-semibold text-indigo-500 hover:text-indigo-400 flex items-center gap-1.5 transition-colors cursor-pointer`}
+                  >
+                    <Gamepad2 className="w-3.5 h-3.5" />
+                    <span>Wanderlust Chronicles (RPG)</span>
+                  </button>
+                </li>
+              )}
+              {onDownloadZip && (
+                <li>
+                  <button
+                    onClick={onDownloadZip}
+                    className={`text-sm font-semibold text-emerald-500 hover:text-emerald-400 flex items-center gap-1.5 transition-colors cursor-pointer`}
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download Site Archive (.ZIP)</span>
+                  </button>
+                </li>
+              )}
               <li><a href="#" className={`text-sm ${styles.textMuted} hover:text-sky-500 transition-colors`}>Culinary Tours</a></li>
               <li><a href="#" className={`text-sm ${styles.textMuted} hover:text-sky-500 transition-colors`}>Adventure Trips</a></li>
             </ul>
