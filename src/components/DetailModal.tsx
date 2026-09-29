@@ -21,7 +21,8 @@ import {
   Package,
   Layers,
   Compass,
-  Download
+  Download,
+  FileText
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -30,6 +31,7 @@ import { FirebaseSyncService } from '../services/firebase.ts';
 import { AuthAudit } from '../services/authAudit.ts';
 import { UserReviewsSection } from './UserReviewsSection.tsx';
 import { ZipArchiveService } from '../services/zipExportService.ts';
+import { AlbaniaPdfService } from '../services/albaniaPdfService.ts';
 
 interface DetailModalProps {
   listing: Listing | null;
@@ -39,6 +41,7 @@ interface DetailModalProps {
   onBookingSuccess?: (booking: Booking) => void;
   onCreatePackage?: (listing: Listing) => void;
   onCustomTripBuild?: (listing: Listing) => void;
+  onOpenAlbaniaModal?: (tier?: 'basic' | 'midrange' | 'luxury') => void;
 }
 
 export const DetailModal: React.FC<DetailModalProps> = ({
@@ -49,6 +52,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   onBookingSuccess,
   onCreatePackage,
   onCustomTripBuild,
+  onOpenAlbaniaModal,
 }) => {
   const { styles } = useTheme();
   const { user, token, setShowLoginModal } = useAuth();
@@ -736,6 +740,25 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       >
                         <Compass className="w-3.5 h-3.5 text-amber-500" />
                         <span>Add to Custom Trip & Package Planner</span>
+                      </button>
+                    )}
+
+                    {/* View 9-Day Itinerary PDF */}
+                    {(listing.country === 'Albania' || listing.location?.includes('Albania') || listing.tags?.some(t => t.toLowerCase().includes('albania')) || listing.category === 'PACKAGE') && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const tier = listing.id.includes('luxury') ? 'luxury' : listing.id.includes('basic') ? 'basic' : 'midrange';
+                          if (onOpenAlbaniaModal) {
+                            onOpenAlbaniaModal(tier);
+                          } else {
+                            AlbaniaPdfService.generateTierPdf(tier);
+                          }
+                        }}
+                        className="w-full py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border border-sky-500/40 bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500 hover:text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                      >
+                        <FileText className="w-4 h-4 text-sky-500" />
+                        <span>View 9-Day Itinerary (PDF)</span>
                       </button>
                     )}
 

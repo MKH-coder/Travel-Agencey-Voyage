@@ -20,6 +20,7 @@ import { useAuth } from '../context/AuthContext.tsx';
 import { supabase } from '../supabaseClient.js';
 import { AuthAuditViewerModal } from './AuthAuditViewerModal.tsx';
 import { AuthAudit } from '../services/authAudit.ts';
+import { VoyageLogo } from './VoyageLogo.tsx';
 
 // Password strength evaluator helper
 const getPasswordStrength = (pwd: string): { label: string; color: string; textColor: string; width: string } => {
@@ -432,8 +433,9 @@ export const LoginModal: React.FC = () => {
           /* --- VIEW 3: Direct Google OAuth Popup & Password Sign-In --- */
           <div className="space-y-5">
             
-            {/* Title */}
-            <div className="space-y-1">
+            {/* Brand Logo & Title */}
+            <div className="space-y-2">
+              <VoyageLogo size="sm" variant="compact" />
               <h3 className={`text-2xl font-bold tracking-tight ${styles.textPrimary}`}>
                 {authMode === 'recover'
                   ? 'Reset Your Password'

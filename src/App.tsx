@@ -38,6 +38,7 @@ import { Footer } from './components/Footer.tsx';
 import { FloatingContact } from './components/FloatingContact.tsx';
 import { WanderlustGameModal } from './components/WanderlustGameModal.tsx';
 import { ZipArchiveService } from './services/zipExportService.ts';
+import { AlbaniaItineraryModal } from './components/AlbaniaItineraryModal.tsx';
 
 function MainLayout() {
   const { styles, theme, setTheme } = useTheme();
@@ -67,6 +68,8 @@ function MainLayout() {
   const [showSavedModal, setShowSavedModal] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [showGameModal, setShowGameModal] = useState(false);
+  const [showAlbaniaModal, setShowAlbaniaModal] = useState<boolean>(false);
+  const [albaniaDefaultTier, setAlbaniaDefaultTier] = useState<'basic' | 'midrange' | 'luxury'>('midrange');
   const [adminTab, setAdminTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips' | null>(null);
 
   const [filters, setFilters] = useState<FilterState>({
@@ -387,6 +390,11 @@ function MainLayout() {
     setShowPackageCreatorModal(true);
   }, []);
 
+  const handleOpenAlbaniaModal = useCallback((tier: 'basic' | 'midrange' | 'luxury' = 'midrange') => {
+    setAlbaniaDefaultTier(tier);
+    setShowAlbaniaModal(true);
+  }, []);
+
   return (
     <div className={`min-h-screen w-full max-w-full overflow-x-hidden ${styles.bg} ${styles.textPrimary} transition-colors duration-300 flex flex-col font-sans selection:bg-cyan-500/20`}>
       <Header
@@ -402,6 +410,7 @@ function MainLayout() {
         onOpenCustomTripsTracker={() => setShowCustomTripsTrackerModal(true)}
         onOpenGame={() => setShowGameModal(true)}
         onDownloadZip={() => ZipArchiveService.exportPlatformArchiveZip()}
+        onOpenAlbaniaModal={handleOpenAlbaniaModal}
         searchQuery={filters.search}
         setSearchQuery={(q) => setFilters(prev => ({ ...prev, search: q }))}
       />
@@ -425,10 +434,11 @@ function MainLayout() {
               totalCount={filteredListings.length}
               onBrowsePackages={handleBrowsePackages}
               onPlanTrip={handlePlanTrip}
+              onOpenAlbaniaModal={handleOpenAlbaniaModal}
             />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-6">
-              <ExploreFeed />
+              <ExploreFeed onOpenAlbaniaModal={handleOpenAlbaniaModal} />
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/60 dark:border-slate-800 pb-4">
                 <div>
@@ -632,6 +642,7 @@ function MainLayout() {
                   reviewsEl.scrollIntoView({ behavior: 'smooth' });
                 }
               }}
+              onOpenAlbaniaModal={handleOpenAlbaniaModal}
             />
             <Newsletter />
           </>
@@ -641,6 +652,7 @@ function MainLayout() {
       <Footer
         onOpenGame={() => setShowGameModal(true)}
         onDownloadZip={() => ZipArchiveService.exportPlatformArchiveZip()}
+        onOpenAlbaniaModal={handleOpenAlbaniaModal}
       />
 
       {selectedListing?.category === 'PACKAGE' && packagePreviewActive ? (
@@ -653,6 +665,7 @@ function MainLayout() {
           onBook={() => {
             // Success state is presented in modal
           }}
+          onOpenAlbaniaModal={handleOpenAlbaniaModal}
         />
       ) : (
         <DetailModal
@@ -665,6 +678,7 @@ function MainLayout() {
           onToggleSave={toggleSaveListing}
           onCreatePackage={handleCreatePackageFromListing}
           onCustomTripBuild={handleCustomTripFromListing}
+          onOpenAlbaniaModal={handleOpenAlbaniaModal}
         />
       )}
 
@@ -726,6 +740,19 @@ function MainLayout() {
       <LoginModal />
       <ShortcutsHelpModal isOpen={showShortcutsModal} onClose={() => setShowShortcutsModal(false)} />
       <WanderlustGameModal isOpen={showGameModal} onClose={() => setShowGameModal(false)} />
+      <AlbaniaItineraryModal
+        isOpen={showAlbaniaModal}
+        onClose={() => setShowAlbaniaModal(false)}
+        defaultTier={albaniaDefaultTier}
+        onBookTier={(tierId) => {
+          const pkgId = `pkg-albania-9day-${tierId}`;
+          const pkgListing = listings.find(l => l.id === pkgId);
+          if (pkgListing) {
+            setSelectedListing(pkgListing);
+            setPackagePreviewActive(true);
+          }
+        }}
+      />
       <FloatingContact />
     </div>
   );

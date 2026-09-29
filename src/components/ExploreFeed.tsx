@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { FeedPost } from '../types.ts';
-import { Send, Trash2, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { Send, Trash2, ShieldCheck, User as UserIcon, FileText, Download, Layers } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 import { AuthAudit } from '../services/authAudit.ts';
+import { AlbaniaPdfService } from '../services/albaniaPdfService.ts';
 
-export const ExploreFeed: React.FC = () => {
+interface ExploreFeedProps {
+  onOpenAlbaniaModal?: (tier?: 'basic' | 'midrange' | 'luxury') => void;
+}
+
+export const ExploreFeed: React.FC<ExploreFeedProps> = ({ onOpenAlbaniaModal }) => {
   const { user } = useAuth();
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [newPostContent, setNewPostContent] = useState('');
@@ -143,6 +148,37 @@ export const ExploreFeed: React.FC = () => {
               <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
                 {post.content}
               </p>
+
+              {post.content.toLowerCase().includes('albania') && (
+                <div className="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800/80 flex flex-wrap items-center gap-2.5">
+                  {onOpenAlbaniaModal && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenAlbaniaModal('midrange')}
+                      className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                    >
+                      <Layers className="w-3.5 h-3.5" />
+                      <span>View 9-Day Itinerary & Tiers</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => AlbaniaPdfService.generateTierPdf('midrange')}
+                    className="px-3.5 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download Mid-Range PDF</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => AlbaniaPdfService.generateComparisonPdf()}
+                    className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-sky-500" />
+                    <span>3-Tier Comparison PDF</span>
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

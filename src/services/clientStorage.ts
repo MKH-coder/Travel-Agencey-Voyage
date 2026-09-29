@@ -848,12 +848,27 @@ export class ClientStorageManager {
   // --- FEED POSTS MANAGEMENT ---
 
   static getFeedPosts(): FeedPost[] {
+    const defaultPost: FeedPost = {
+      id: 'fp_albania_9day_release_2026',
+      authorId: 'user_voyage_official',
+      authorName: 'Voyage Editorial & Platform Administration',
+      content: '🇦🇱 OFFICIAL PACKAGE LAUNCH: Albania 9-Day Grand Tour (9–19 Oct 2026) • 3 Package Tiers (Basic, Mid-Range, Luxury) & Downloadable PDF Dossiers Now Live!\n\nExplore the complete circuit from India (TRV ⇄ TIA) across Tirana, Berat UNESCO castle, Gjirokastër stone city, Syri i Kaltër (Blue Eye), Ksamil 4-islands boat cruise, Butrint UNESCO park, and the dramatic Albanian Riviera coast (Jalë, Dhërmi, Llogara Pass, Vlorë).\n\n• Basic Package: ₹1,11,018–₹1,26,518/person (4 Pax: ₹4,44,072–₹5,06,072)\n• Mid-Range Package: ₹1,43,390–₹1,67,390/person (4 Pax: ₹5,73,560–₹6,69,560)\n• Luxury Package: ₹4,24,343–₹4,73,343/person (4 Pax: ₹16,97,372–₹18,93,372)\n\nPrintable 11-page PDF itineraries, day-by-day timetable schedules, and side-by-side comparison matrices are available for immediate download on the platform. Concierge booking line: +91 9567465134.',
+      createdAt: '2026-09-29T10:00:00.000Z'
+    };
+
     try {
       const data = localStorage.getItem(FEED_POSTS_STORAGE_KEY);
-      if (!data) return [];
-      return JSON.parse(data);
+      if (!data) {
+        localStorage.setItem(FEED_POSTS_STORAGE_KEY, JSON.stringify([defaultPost]));
+        return [defaultPost];
+      }
+      const parsed: FeedPost[] = JSON.parse(data);
+      if (!parsed.some(p => p.id === defaultPost.id)) {
+        parsed.unshift(defaultPost);
+      }
+      return parsed;
     } catch {
-      return [];
+      return [defaultPost];
     }
   }
 

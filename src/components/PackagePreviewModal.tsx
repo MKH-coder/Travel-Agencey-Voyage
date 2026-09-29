@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { X, Layers, Star, MapPin, CheckCircle2, ArrowRight, DollarSign, Clock, Tag, Sparkles, Phone, Download } from 'lucide-react';
+import { X, Layers, Star, MapPin, CheckCircle2, ArrowRight, DollarSign, Clock, Tag, Sparkles, Phone, Download, FileText } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { Listing } from '../types.ts';
 import { AuthAudit } from '../services/authAudit.ts';
 import { ZipArchiveService } from '../services/zipExportService.ts';
+import { AlbaniaPdfService } from '../services/albaniaPdfService.ts';
 
 interface PackagePreviewModalProps {
   listing: Listing | null;
   onClose: () => void;
   onBook: (listing: Listing) => void;
+  onOpenAlbaniaModal?: (tier?: 'basic' | 'midrange' | 'luxury') => void;
 }
 
 export const PackagePreviewModal: React.FC<PackagePreviewModalProps> = ({
   listing,
   onClose,
   onBook,
+  onOpenAlbaniaModal,
 }) => {
   const { styles } = useTheme();
   const [includedListings, setIncludedListings] = useState<Listing[]>([]);
@@ -228,6 +231,22 @@ export const PackagePreviewModal: React.FC<PackagePreviewModalProps> = ({
              >
                <Download className="w-4 h-4" />
                <span>Package ZIP</span>
+             </button>
+             <button 
+               type="button"
+               onClick={() => {
+                 const tier = listing.id.includes('luxury') ? 'luxury' : listing.id.includes('basic') ? 'basic' : 'midrange';
+                 if (onOpenAlbaniaModal) {
+                   onOpenAlbaniaModal(tier);
+                 } else {
+                   AlbaniaPdfService.generateTierPdf(tier);
+                 }
+               }}
+               className="w-full sm:w-auto px-6 py-3 rounded-2xl text-sm font-bold border border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+               title="View full 9-day itinerary and download official PDF dossier"
+             >
+               <FileText className="w-4 h-4" />
+               <span>View 9-Day PDF Itinerary</span>
              </button>
              <button 
                onClick={handleBook}

@@ -33,6 +33,7 @@ import { ThemeMode } from '../types.ts';
 import { UserProfileModal } from './UserProfileModal.tsx';
 import { Clock as ClockComponent } from './Clock.tsx';
 import { SupabaseSyncIndicator } from './SupabaseSyncIndicator.tsx';
+import { VoyageLogo } from './VoyageLogo.tsx';
 
 interface HeaderProps {
   currentView: 'dashboard' | 'admin';
@@ -45,6 +46,7 @@ interface HeaderProps {
   onOpenCustomTripsTracker?: () => void;
   onOpenGame?: () => void;
   onDownloadZip?: () => void;
+  onOpenAlbaniaModal?: (tier?: 'basic' | 'midrange' | 'luxury') => void;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
 }
@@ -60,6 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenCustomTripsTracker,
   onOpenGame,
   onDownloadZip,
+  onOpenAlbaniaModal,
   searchQuery,
   setSearchQuery,
 }) => {
@@ -141,24 +144,10 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             id="brand-logo-btn"
             onClick={() => setCurrentView('dashboard')}
-            className="flex items-center gap-2 focus:outline-none group text-left shrink-0 cursor-pointer"
+            className="flex items-center gap-2 focus:outline-none group text-left shrink-0 cursor-pointer transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            title="Voyage Tours and Travels - More Destinations. Greater Stories."
           >
-            <div className={`p-2 rounded-xl ${styles.accent} text-white shadow-sm flex items-center justify-center transition-transform group-hover:scale-105`}>
-              <Compass className="w-5 h-5 animate-spin-slow" />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className={`text-lg font-black tracking-tight ${styles.textPrimary}`}>
-                  Voyage
-                </span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded font-bold tracking-wide uppercase bg-sky-500/15 text-sky-500 dark:text-sky-400 border border-sky-500/20">
-                  Global
-                </span>
-              </div>
-              <p className={`text-[9px] ${styles.textMuted} -mt-0.5 hidden xs:block truncate max-w-[150px] sm:max-w-none`}>
-                Mannanthala, Trivandrum & Worldwide
-              </p>
-            </div>
+            <VoyageLogo size="sm" variant="compact" />
           </button>
 
           {/* Desktop Navigation links (Only shown on extra-large screens to guarantee no clipping) */}
@@ -220,6 +209,17 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <Shield className="w-3.5 h-3.5" />
                 <span>{user.role === 'TECH_ADMIN' ? 'Super Admin Portal' : user.role === 'TECH_SUBADMIN' ? 'Sub-Admin' : 'Admin Portal'}</span>
+              </button>
+            )}
+
+            {onOpenAlbaniaModal && (
+              <button
+                onClick={() => onOpenAlbaniaModal('midrange')}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/10 hover:bg-amber-500 text-amber-700 dark:text-amber-300 hover:text-white border border-amber-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+                title="View Albania 9-Day Packages & Download Itinerary PDF"
+              >
+                <span>🇦🇱</span>
+                <span>Albania 9-Day (PDF)</span>
               </button>
             )}
 
@@ -654,6 +654,25 @@ export const Header: React.FC<HeaderProps> = ({
               <Compass className="w-4 h-4 text-emerald-500" />
               <span>Contact Concierge</span>
             </button>
+
+            {onOpenAlbaniaModal && (
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  onOpenAlbaniaModal('midrange');
+                }}
+                className="col-span-2 p-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-left text-xs font-bold flex items-center justify-between cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="text-base">🇦🇱</span>
+                  <div>
+                    <div className="font-bold">Albania 9-Day Packages (PDF)</div>
+                    <div className="text-[10px] text-slate-400 font-normal">Basic, Mid-Range & Luxury Dossiers</div>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-amber-500" />
+              </button>
+            )}
 
             {onOpenGame && (
               <button

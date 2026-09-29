@@ -1,13 +1,16 @@
 import React from 'react';
-import { Compass, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ShieldCheck, Globe, CreditCard, Heart, Gamepad2, Download } from 'lucide-react';
+import { Compass, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ShieldCheck, Globe, CreditCard, Heart, Gamepad2, Download, FileText } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
+import { AlbaniaPdfService } from '../services/albaniaPdfService.ts';
+import { VoyageLogo } from './VoyageLogo.tsx';
 
 interface FooterProps {
   onOpenGame?: () => void;
   onDownloadZip?: () => void;
+  onOpenAlbaniaModal?: (tier?: 'basic' | 'midrange' | 'luxury') => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip, onOpenAlbaniaModal }) => {
   const { styles, theme } = useTheme();
 
   return (
@@ -16,16 +19,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip }) => 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand Column */}
           <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl ${styles.accent} text-white shadow-lg shadow-sky-500/20`}>
-                <Compass className="w-6 h-6" />
-              </div>
-              <span className={`text-2xl font-black tracking-tight ${styles.textPrimary}`}>
-                Voyage<span className="text-sky-500">.</span>
-              </span>
-            </div>
+            <VoyageLogo size="md" variant="compact" />
             <p className={`text-sm leading-relaxed ${styles.textMuted}`}>
-              Crafting extraordinary journeys for the modern explorer. From hidden gems to luxury retreats, we curate experiences that transcend the ordinary.
+              Crafting extraordinary journeys for the modern explorer. More Destinations. Greater Stories. From bespoke European getaways to full-circuit expedition itineraries.
             </p>
             <div className="flex items-center gap-4">
               <a href="#" className={`p-2 rounded-lg bg-slate-100 dark:bg-slate-800 ${styles.textMuted} hover:text-sky-500 transition-colors`}>
@@ -58,6 +54,17 @@ export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip }) => 
                   >
                     <Gamepad2 className="w-3.5 h-3.5" />
                     <span>Wanderlust Chronicles (RPG)</span>
+                  </button>
+                </li>
+              )}
+              {onOpenAlbaniaModal && (
+                <li>
+                  <button
+                    onClick={() => onOpenAlbaniaModal('midrange')}
+                    className={`text-sm font-semibold text-amber-500 hover:text-amber-400 flex items-center gap-1.5 transition-colors cursor-pointer`}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Albania 9-Day Itinerary (PDF)</span>
                   </button>
                 </li>
               )}

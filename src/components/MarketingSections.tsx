@@ -1,17 +1,20 @@
 import React from 'react';
-import { ShieldCheck, Zap, Heart, Award, Star, Quote, ArrowRight, MapPin, Users, Globe } from 'lucide-react';
+import { ShieldCheck, Zap, Heart, Award, Star, Quote, ArrowRight, MapPin, Users, Globe, Layers, Download } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
+import { AlbaniaPdfService } from '../services/albaniaPdfService.ts';
 
 interface MarketingSectionsProps {
   onPlanTrip?: () => void;
   onBrowsePackages?: () => void;
   onReadReviews?: () => void;
+  onOpenAlbaniaModal?: (tier?: 'basic' | 'midrange' | 'luxury') => void;
 }
 
 export const MarketingSections: React.FC<MarketingSectionsProps> = ({
   onPlanTrip,
   onBrowsePackages,
   onReadReviews,
+  onOpenAlbaniaModal,
 }) => {
   const { styles } = useTheme();
 
@@ -112,6 +115,54 @@ export const MarketingSections: React.FC<MarketingSectionsProps> = ({
             <div className="space-y-2">
               <div className="text-4xl sm:text-5xl font-black text-rose-500">99%</div>
               <div className={`text-xs font-bold uppercase tracking-widest ${styles.textMuted}`}>Satisfaction Rate</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Albania 9-Day Expedition Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className={`p-8 sm:p-12 rounded-[3rem] border border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-sky-500/5 to-transparent relative overflow-hidden shadow-sm`}>
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="space-y-4 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 text-xs font-black uppercase tracking-widest">
+                <span>🇦🇱 Featured Expedition • 9–19 Oct 2026</span>
+              </div>
+              <h3 className={`text-3xl sm:text-4xl font-black ${styles.textPrimary} tracking-tight`}>
+                Albania 9-Day Grand Tour: Tirana to Riviera
+              </h3>
+              <p className={`text-sm ${styles.textSecondary} leading-relaxed`}>
+                Experience the complete 9-day circuit from India across Skanderbeg Square, Mount Dajti, Berat UNESCO castle, Gjirokastër stone fortress, Blue Eye natural spring, Ksamil 4 islands boat tour, Butrint UNESCO park, and the dramatic Albanian Riviera coast (Jalë, Dhërmi, Llogara Pass, Vlorë). Available in 3 verified tiers with official downloadable PDF itineraries.
+              </p>
+              <div className="flex flex-wrap gap-2 text-xs font-semibold">
+                <span className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                  Basic: ₹1.11L–₹1.26L
+                </span>
+                <span className="px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/20">
+                  Mid-Range: ₹1.43L–₹1.67L (Recommended)
+                </span>
+                <span className="px-3 py-1.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold border border-purple-500/20">
+                  Luxury VIP: ₹4.24L–₹4.73L
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => onOpenAlbaniaModal?.('midrange')}
+                className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Layers className="w-4 h-4" />
+                <span>Explore 9-Day Itinerary</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => AlbaniaPdfService.generateTierPdf('midrange')}
+                className="px-6 py-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download PDF (11 Pages)</span>
+              </button>
             </div>
           </div>
         </div>

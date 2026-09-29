@@ -23,6 +23,7 @@ interface HeroSectionProps {
   totalCount: number;
   onBrowsePackages?: () => void;
   onPlanTrip?: () => void;
+  onOpenAlbaniaModal?: (tier?: 'basic' | 'midrange' | 'luxury') => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
@@ -31,6 +32,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   totalCount,
   onBrowsePackages,
   onPlanTrip,
+  onOpenAlbaniaModal,
 }) => {
   const { theme, styles } = useTheme();
   const [localSearch, setLocalSearch] = useState(filters.search);
@@ -50,6 +52,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   }, [filters.search]);
 
   const quickSearchTags = [
+    'Albania 9-Day',
     'Santorini',
     'Amalfi Coast',
     'Kyoto Kaiseki',
@@ -147,6 +150,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <Compass className="w-4 h-4 text-sky-500" />
               <span>Plan Custom Trip</span>
             </button>
+
+            {onOpenAlbaniaModal && (
+              <button
+                id="hero-albania-pdf-btn"
+                type="button"
+                onClick={() => onOpenAlbaniaModal('midrange')}
+                className="px-6 py-3 rounded-2xl bg-amber-500/10 hover:bg-amber-500 text-amber-700 dark:text-amber-300 hover:text-white border border-amber-500/30 font-bold text-sm shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <span>🇦🇱</span>
+                <span>Albania 9-Day (PDF)</span>
+              </button>
+            )}
           </div>
         </div>
 
