@@ -15,12 +15,15 @@ import {
   Flag,
   ShieldAlert,
   X,
-  AlertTriangle
+  AlertTriangle,
+  ArrowUpDown
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { Listing, Review } from '../types.ts';
 import { FirebaseSyncService } from '../services/firebase.ts';
+
+export type ReviewSortOption = 'recent' | 'highest' | 'lowest';
 
 interface UserReviewsSectionProps {
   listing: Listing;
@@ -35,6 +38,7 @@ export const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
   const { user, setShowLoginModal } = useAuth();
 
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [sortBy, setSortBy] = useState<ReviewSortOption>('recent');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -104,6 +108,33 @@ export const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
       distribution: dist
     };
   }, [reviews, listing.rating, listing.reviewCount]);
+
+  // Sorted reviews based on user-selected criteria
+  const sortedReviews = useMemo(() => {
+    const list = [...reviews];
+    if (sortBy === 'highest') {
+      return list.sort((a, b) => {
+        if (b.rating !== a.rating) return b.rating - a.rating;
+        const timeB = new Date(b.createdAt || 0).getTime();
+        const timeA = new Date(a.createdAt || 0).getTime();
+        return timeB - timeA;
+      });
+    }
+    if (sortBy === 'lowest') {
+      return list.sort((a, b) => {
+        if (a.rating !== b.rating) return a.rating - b.rating;
+        const timeB = new Date(b.createdAt || 0).getTime();
+        const timeA = new Date(a.createdAt || 0).getTime();
+        return timeB - timeA;
+      });
+    }
+    // 'recent' (default)
+    return list.sort((a, b) => {
+      const timeB = new Date(b.createdAt || 0).getTime();
+      const timeA = new Date(a.createdAt || 0).getTime();
+      return timeB - timeA;
+    });
+  }, [reviews, sortBy]);
 
   const ratingLabels: Record<number, string> = {
     1: '1 - Disappointing',
@@ -516,14 +547,35 @@ export const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
 
       {/* Scrollable List of Reviews */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1">
           <h4 className={`text-xs font-bold uppercase tracking-wider text-slate-400`}>
-            Recent Guest Impressions ({reviews.length})
+            Guest Impressions ({sortedReviews.length})
           </h4>
           {reviews.length > 0 && (
-            <span className="text-[11px] text-slate-400">
-              Sorted by most recent
-            </span>
+            <div className="flex items-center gap-2">
+              <label htmlFor="reviews-sort-dropdown" className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
+                <ArrowUpDown className="w-3.5 h-3.5 text-sky-500" />
+                <span>Sort by:</span>
+              </label>
+              <div className="relative">
+                <select
+                  id="reviews-sort-dropdown"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as ReviewSortOption)}
+                  className={`text-xs font-semibold py-1.5 pl-3 pr-7 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} focus:outline-none focus:ring-2 focus:ring-sky-500/40 cursor-pointer shadow-xs transition-colors appearance-none`}
+                  aria-label="Sort reviews by"
+                >
+                  <option value="recent">Most Recent</option>
+                  <option value="highest">Highest Rated</option>
+                  <option value="lowest">Lowest Rated</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
@@ -548,7 +600,7 @@ export const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
             className="max-h-[380px] overflow-y-auto pr-1.5 space-y-3 divide-y divide-slate-100 dark:divide-slate-800/60 scrollbar-thin"
           >
             <AnimatePresence initial={false}>
-              {reviews.map((rev) => {
+              {sortedReviews.map((rev) => {
                 const canDelete =
                   user &&
                   (user.uid === rev.userId ||
