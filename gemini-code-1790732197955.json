@@ -1,0 +1,456 @@
+[
+  {
+    "id": "albania-9day-basic",
+    "title": "Albania 9-Day Essential Tour",
+    "subtitle": "Value-oriented exploration across historic cities and coastal Riviera",
+    "category": "Basic",
+    "pricePerPerson": 111018,
+    "totalPriceForFour": 444072,
+    "currency": "INR",
+    "flightFare": 67518,
+    "landPackagePrice": "₹43,500 - ₹59,000",
+    "hotelLevel": "Basic private-room hotels (Value-oriented)",
+    "foodLevel": "Value-oriented meal allowance",
+    "transport": "Practical shared & private driver allowance",
+    "image": "https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&q=80&w=1000",
+    "route": [
+      "Tirana",
+      "Berat",
+      "Gjirokastër",
+      "Blue Eye",
+      "Sarandë",
+      "Ksamil",
+      "Butrint",
+      "Porto Palermo",
+      "Himarë",
+      "Jalë",
+      "Dhërmi",
+      "Llogara",
+      "Vlorë",
+      "Tirana"
+    ],
+    "highlights": [
+      "Skanderbeg Square & Bunk'Art 2",
+      "Mount Dajti via Dajti Ekspres cable car",
+      "Berat Castle & historic Mangalem / Gorica quarters",
+      "Gjirokastër Castle & Old Bazaar",
+      "Blue Eye natural spring",
+      "Ksamil boat & islands excursion + Butrint Archaeological Site",
+      "Jalë Beach & Albanian Riviera coastal drive",
+      "Llogara Pass scenic descent & Vlorë waterfront"
+    ],
+    "itinerary": [
+      {
+        "day": 0,
+        "date": "09 October 2026",
+        "title": "Arrival Night in Tirana",
+        "details": [
+          "23:45 - Arrive at Tirana International Airport (TIA)",
+          "00:25 - Transfer to Tirana hotel",
+          "01:00 - Hotel check-in and overnight rest"
+        ]
+      },
+      {
+        "day": 1,
+        "date": "10 October 2026",
+        "title": "Tirana City Sightseeing",
+        "details": [
+          "Skanderbeg Square & Clock Tower",
+          "Bunk'Art 2 exploration (~900 ALL)",
+          "Murat Toptani Street, Tirana Castle & New Bazaar",
+          "Pyramid of Tirana & Rinia Park",
+          "Grand Park & Artificial Lake",
+          "Evening in Blloku district"
+        ]
+      },
+      {
+        "day": 2,
+        "date": "11 October 2026",
+        "title": "Mount Dajti to Berat",
+        "details": [
+          "Dajti Ekspres cable car ride (~1,000 ALL return)",
+          "Mountain leisure & scenic view at Mount Dajti",
+          "Drive south to Berat (~2 hrs)",
+          "Check-in and evening walk through Mangalem Quarter"
+        ]
+      },
+      {
+        "day": 3,
+        "date": "12 October 2026",
+        "title": "Berat Exploration",
+        "details": [
+          "Berat Castle / Kala (~300 ALL) & Onufri Museum (~300 ALL)",
+          "Osum River walk & Gorica Bridge",
+          "Gorica Quarter exploration & Old Town viewpoints"
+        ]
+      },
+      {
+        "day": 4,
+        "date": "13 October 2026",
+        "title": "Berat to Gjirokastër",
+        "details": [
+          "Transfer to Gjirokastër (~2 hrs)",
+          "Gjirokastër Castle (~400 ALL)",
+          "Historic Old Town & Qafa e Pazarit (Old Bazaar)",
+          "Skënduli House (~200 ALL) & Zekate House (~300 ALL)"
+        ]
+      },
+      {
+        "day": 5,
+        "date": "14 October 2026",
+        "title": "Gjirokastër to Blue Eye & Sarandë",
+        "details": [
+          "Visit Syri i Kaltër (Blue Eye spring) (~50 ALL)",
+          "Transfer to Sarandë (~1 hr)",
+          "Sarandë Promenade, beach leisure, and sunset views"
+        ]
+      },
+      {
+        "day": 6,
+        "date": "15 October 2026",
+        "title": "Ksamil Boat & Islands to Butrint",
+        "details": [
+          "Ksamil boat & islands excursion",
+          "Beach time at Ksamil / Bora Bora",
+          "Butrint Archaeological Site (~4,000 ALL)",
+          "Evening return to Sarandë Promenade"
+        ]
+      },
+      {
+        "day": 7,
+        "date": "16 October 2026",
+        "title": "Porto Palermo, Himarë & Jalë Beach",
+        "details": [
+          "Porto Palermo & Ali Pasha Castle (~500-1,000 ALL)",
+          "Himarë / Spile waterfront",
+          "Main beach session at Jalë Beach",
+          "Scenic return drive to Sarandë"
+        ]
+      },
+      {
+        "day": 8,
+        "date": "17 October 2026",
+        "title": "Coastal Riviera to Tirana via Llogara & Vlorë",
+        "details": [
+          "Dhërmi Old Village & Drymades coastal stop",
+          "Llogara Pass scenic viewpoint stop",
+          "Vlorë waterfront leisure & dinner",
+          "Northbound drive to Tirana for check-in"
+        ]
+      },
+      {
+        "day": 9,
+        "date": "18 October 2026",
+        "title": "Return Flight to India",
+        "details": [
+          "03:30 - Pre-booked transfer to TIA Airport",
+          "06:00 - Flight departure via FCO & DOH",
+          "02:15 (+1) - Arrival at Thiruvananthapuram (TRV)"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "albania-9day-midrange",
+    "title": "Albania 9-Day Classic Mid-Range Package",
+    "subtitle": "Boutique stays, complete private transfers, and curated experiences",
+    "category": "Mid-Range",
+    "pricePerPerson": 143390,
+    "totalPriceForFour": 573560,
+    "currency": "INR",
+    "flightFare": 74890,
+    "landPackagePrice": "₹68,500 - ₹92,500",
+    "hotelLevel": "Comfortable mid-range / boutique hotels",
+    "foodLevel": "Comfortable restaurant dining allowance",
+    "transport": "Private vehicle + driver planning allowance",
+    "image": "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&q=80&w=1000",
+    "route": [
+      "Tirana",
+      "Berat",
+      "Gjirokastër",
+      "Blue Eye",
+      "Sarandë",
+      "Ksamil",
+      "Butrint",
+      "Porto Palermo",
+      "Himarë",
+      "Jalë",
+      "Dhërmi",
+      "Llogara",
+      "Vlorë",
+      "Tirana"
+    ],
+    "highlights": [
+      "Skanderbeg Square & Bunk'Art 2",
+      "Mount Dajti via Dajti Ekspres cable car",
+      "Berat Castle & historic Mangalem / Gorica quarters",
+      "Gjirokastër Castle & Old Bazaar",
+      "Blue Eye natural spring",
+      "Ksamil boat & islands excursion + Butrint Archaeological Site",
+      "Jalë Beach & Albanian Riviera coastal drive",
+      "Llogara Pass scenic descent & Vlorë waterfront"
+    ],
+    "itinerary": [
+      {
+        "day": 0,
+        "date": "09 October 2026",
+        "title": "Arrival Night in Tirana",
+        "details": [
+          "23:45 - Arrive at Tirana International Airport (TIA)",
+          "00:25 - Transfer to Tirana hotel",
+          "01:00 - Hotel check-in and overnight rest"
+        ]
+      },
+      {
+        "day": 1,
+        "date": "10 October 2026",
+        "title": "Tirana City Sightseeing",
+        "details": [
+          "Skanderbeg Square & Clock Tower",
+          "Bunk'Art 2 exploration (~900 ALL)",
+          "Murat Toptani Street, Tirana Castle & New Bazaar",
+          "Pyramid of Tirana & Rinia Park",
+          "Grand Park & Artificial Lake",
+          "Evening in Blloku district"
+        ]
+      },
+      {
+        "day": 2,
+        "date": "11 October 2026",
+        "title": "Mount Dajti to Berat",
+        "details": [
+          "Dajti Ekspres cable car ride (~1,000 ALL return)",
+          "Mountain leisure & scenic view at Mount Dajti",
+          "Drive south to Berat (~2 hrs)",
+          "Check-in and evening walk through Mangalem Quarter"
+        ]
+      },
+      {
+        "day": 3,
+        "date": "12 October 2026",
+        "title": "Berat Exploration",
+        "details": [
+          "Berat Castle / Kala (~300 ALL) & Onufri Museum (~300 ALL)",
+          "Osum River walk & Gorica Bridge",
+          "Gorica Quarter exploration & Old Town viewpoints"
+        ]
+      },
+      {
+        "day": 4,
+        "date": "13 October 2026",
+        "title": "Berat to Gjirokastër",
+        "details": [
+          "Transfer to Gjirokastër (~2 hrs)",
+          "Gjirokastër Castle (~400 ALL)",
+          "Historic Old Town & Qafa e Pazarit (Old Bazaar)",
+          "Skënduli House (~200 ALL) & Zekate House (~300 ALL)"
+        ]
+      },
+      {
+        "day": 5,
+        "date": "14 October 2026",
+        "title": "Gjirokastër to Blue Eye & Sarandë",
+        "details": [
+          "Visit Syri i Kaltër (Blue Eye spring) (~50 ALL)",
+          "Transfer to Sarandë (~1 hr)",
+          "Sarandë Promenade, beach leisure, and sunset views"
+        ]
+      },
+      {
+        "day": 6,
+        "date": "15 October 2026",
+        "title": "Ksamil Boat & Islands to Butrint",
+        "details": [
+          "Ksamil boat & islands excursion",
+          "Beach time at Ksamil / Bora Bora",
+          "Butrint Archaeological Site (~4,000 ALL)",
+          "Evening return to Sarandë Promenade"
+        ]
+      },
+      {
+        "day": 7,
+        "date": "16 October 2026",
+        "title": "Porto Palermo, Himarë & Jalë Beach",
+        "details": [
+          "Porto Palermo & Ali Pasha Castle (~500-1,000 ALL)",
+          "Himarë / Spile waterfront",
+          "Main beach session at Jalë Beach",
+          "Scenic return drive to Sarandë"
+        ]
+      },
+      {
+        "day": 8,
+        "date": "17 October 2026",
+        "title": "Coastal Riviera to Tirana via Llogara & Vlorë",
+        "details": [
+          "Dhërmi Old Village & Drymades coastal stop",
+          "Llogara Pass scenic viewpoint stop",
+          "Vlorë waterfront leisure & dinner",
+          "Northbound drive to Tirana for check-in"
+        ]
+      },
+      {
+        "day": 9,
+        "date": "18 October 2026",
+        "title": "Return Flight to India",
+        "details": [
+          "03:30 - Pre-booked transfer to TIA Airport",
+          "06:00 - Flight departure via FCO & DOH",
+          "02:15 (+1) - Arrival at Thiruvananthapuram (TRV)"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "albania-9day-luxury",
+    "title": "Albania 9-Day Luxury Escape",
+    "subtitle": "5-star luxury accommodations, fine dining, and full-service private travel",
+    "category": "Luxury",
+    "pricePerPerson": 385951,
+    "totalPriceForFour": 1543804,
+    "currency": "INR",
+    "flightFare": 256951,
+    "landPackagePrice": "₹1,29,000 - ₹1,78,000",
+    "hotelLevel": "Luxury / upscale 5-star hotels",
+    "foodLevel": "Upscale dining allowance",
+    "transport": "Private vehicle + higher-comfort luxury driver allowance",
+    "image": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=80&w=1000",
+    "route": [
+      "Tirana",
+      "Berat",
+      "Gjirokastër",
+      "Blue Eye",
+      "Sarandë",
+      "Ksamil",
+      "Butrint",
+      "Porto Palermo",
+      "Himarë",
+      "Jalë",
+      "Dhërmi",
+      "Llogara",
+      "Vlorë",
+      "Tirana"
+    ],
+    "highlights": [
+      "Skanderbeg Square & Bunk'Art 2",
+      "Mount Dajti via Dajti Ekspres cable car",
+      "Berat Castle & historic Mangalem / Gorica quarters",
+      "Gjirokastër Castle & Old Bazaar",
+      "Blue Eye natural spring",
+      "Ksamil boat & islands excursion + Butrint Archaeological Site",
+      "Jalë Beach & Albanian Riviera coastal drive",
+      "Llogara Pass scenic descent & Vlorë waterfront"
+    ],
+    "itinerary": [
+      {
+        "day": 0,
+        "date": "09 October 2026",
+        "title": "Arrival Night in Tirana",
+        "details": [
+          "18:30 - Arrive at Tirana International Airport (TIA)",
+          "19:30 - Private transfer to Tirana hotel",
+          "20:00 - Hotel check-in & light dinner"
+        ]
+      },
+      {
+        "day": 1,
+        "date": "10 October 2026",
+        "title": "Tirana City Sightseeing",
+        "details": [
+          "Skanderbeg Square & Clock Tower",
+          "Bunk'Art 2 exploration (~900 ALL)",
+          "Murat Toptani Street, Tirana Castle & New Bazaar",
+          "Pyramid of Tirana & Rinia Park",
+          "Grand Park & Artificial Lake",
+          "Evening in Blloku district"
+        ]
+      },
+      {
+        "day": 2,
+        "date": "11 October 2026",
+        "title": "Mount Dajti to Berat",
+        "details": [
+          "Dajti Ekspres cable car ride (~1,000 ALL return)",
+          "Mountain leisure & scenic view at Mount Dajti",
+          "Drive south to Berat (~2 hrs)",
+          "Check-in and evening walk through Mangalem Quarter"
+        ]
+      },
+      {
+        "day": 3,
+        "date": "12 October 2026",
+        "title": "Berat Exploration",
+        "details": [
+          "Berat Castle / Kala (~300 ALL) & Onufri Museum (~300 ALL)",
+          "Osum River walk & Gorica Bridge",
+          "Gorica Quarter exploration & Old Town viewpoints"
+        ]
+      },
+      {
+        "day": 4,
+        "date": "13 October 2026",
+        "title": "Berat to Gjirokastër",
+        "details": [
+          "Transfer to Gjirokastër (~2 hrs)",
+          "Gjirokastër Castle (~400 ALL)",
+          "Historic Old Town & Qafa e Pazarit (Old Bazaar)",
+          "Skënduli House (~200 ALL) & Zekate House (~300 ALL)"
+        ]
+      },
+      {
+        "day": 5,
+        "date": "14 October 2026",
+        "title": "Gjirokastër to Blue Eye & Sarandë",
+        "details": [
+          "Visit Syri i Kaltër (Blue Eye spring) (~50 ALL)",
+          "Transfer to Sarandë (~1 hr)",
+          "Sarandë Promenade, beach leisure, and sunset views"
+        ]
+      },
+      {
+        "day": 6,
+        "date": "15 October 2026",
+        "title": "Ksamil Boat & Islands to Butrint",
+        "details": [
+          "Ksamil boat & islands excursion",
+          "Beach time at Ksamil / Bora Bora",
+          "Butrint Archaeological Site (~4,000 ALL)",
+          "Evening return to Sarandë Promenade"
+        ]
+      },
+      {
+        "day": 7,
+        "date": "16 October 2026",
+        "title": "Porto Palermo, Himarë & Jalë Beach",
+        "details": [
+          "Porto Palermo & Ali Pasha Castle (~500-1,000 ALL)",
+          "Himarë / Spile waterfront",
+          "Main beach session at Jalë Beach",
+          "Scenic return drive to Sarandë"
+        ]
+      },
+      {
+        "day": 8,
+        "date": "17 October 2026",
+        "title": "Coastal Riviera to Tirana via Llogara & Vlorë",
+        "details": [
+          "Dhërmi Old Village & Drymades coastal stop",
+          "Llogara Pass scenic viewpoint stop",
+          "Vlorë waterfront leisure & dinner",
+          "Northbound drive to Tirana for check-in"
+        ]
+      },
+      {
+        "day": 9,
+        "date": "18 October 2026",
+        "title": "Return Flight to India",
+        "details": [
+          "15:30 - Hotel check-out & luggage collection",
+          "16:00 - Private transfer to TIA Airport",
+          "20:10 - Flight departure via IST & BAH",
+          "21:25 (+1) - Arrival at Thiruvananthapuram (TRV)"
+        ]
+      }
+    ]
+  }
+]
