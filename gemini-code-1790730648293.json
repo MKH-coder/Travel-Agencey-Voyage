@@ -1,0 +1,236 @@
+{
+  "tripBlueprint": {
+    "popularCurations": [
+      {
+        "title": "Mannanthala, Trivandrum",
+        "location": "India"
+      },
+      {
+        "title": "Gion & Arashiyama",
+        "location": "Japan",
+        "selected": true
+      },
+      {
+        "title": "Oia, Santorini Island",
+        "location": "Greece"
+      },
+      {
+        "title": "Ravello, Amalfi Coast",
+        "location": "Italy"
+      },
+      {
+        "title": "Ginza & Shibuya",
+        "location": "Japan"
+      },
+      {
+        "title": "Saint-Germain-des-Prés",
+        "location": "France"
+      },
+      {
+        "title": "Lucerne & Zermatt",
+        "location": "Switzerland"
+      }
+    ],
+    "customTripTitle": "Kyoto Zen & Michelin Kaiseki Odyssey",
+    "destinationCityRegion": "Gion & Arashiyama",
+    "departureDate": "2026-10-14",
+    "tripDuration": {
+      "days": 4,
+      "nights": 3,
+      "selectedOption": "4D"
+    },
+    "partySize": {
+      "adults": 2,
+      "kids": 0
+    },
+    "travelVibeAndFocus": [
+      {
+        "category": "Ayurveda & Wellness",
+        "selected": false
+      },
+      {
+        "category": "Heritage & Temples",
+        "selected": true
+      },
+      {
+        "category": "Gastronomy & Sadhya",
+        "selected": false
+      },
+      {
+        "category": "Romantic Escapes",
+        "selected": false
+      }
+    ],
+    "serviceAndLuxuryTier": {
+      "selectedTier": "Elite Royal VIP",
+      "options": [
+        {
+          "tier": "Smart Boutique",
+          "description": "4-Star Curated"
+        },
+        {
+          "tier": "Premium Gold",
+          "description": "5-Star Luxury"
+        },
+        {
+          "tier": "Elite Royal VIP",
+          "description": "Presidential Concierge"
+        }
+      ]
+    }
+  },
+  "itineraryAndExperiences": {
+    "experiencesAttachedCount": 0,
+    "scheduleBlueprint": [
+      {
+        "day": 1,
+        "title": "Arrival & VIP Welcome Reception",
+        "description": "Chauffeured arrival in Santorini Island, private check-in, and welcome refreshments."
+      },
+      {
+        "day": 2,
+        "title": "Day 2: Signature Local Exploration",
+        "description": "Curated excursions and dining experiences in Santorini Island."
+      },
+      {
+        "day": 3,
+        "title": "Day 3: Signature Local Exploration",
+        "description": "Curated excursions and dining experiences in Santorini Island."
+      }
+    ],
+    "verifiedCatalog": {
+      "totalItems": 1,
+      "searchQuery": "Mannanthala, Kyoto, hotels...",
+      "activeFilter": "ALL",
+      "items": [
+        {
+          "title": "mukund",
+          "location": "ddd, ddd",
+          "pricePerNightUSD": 250
+        }
+      ]
+    }
+  },
+  "inclusionsAndWishlist": {
+    "vipConciergePerksAndAmenities": [
+      {
+        "name": "5-Star Boutique Stays with Breakfast",
+        "selected": true
+      },
+      {
+        "name": "VIP Airport Meet & Greet Chauffeur Transfer",
+        "selected": true
+      },
+      {
+        "name": "24/7 Dedicated Concierge Support & Table Reservations",
+        "selected": true
+      },
+      {
+        "name": "Verified Local Guided Excursions",
+        "selected": true
+      },
+      {
+        "name": "Ayurvedic Wellness & Spa Rejuvenation Pass",
+        "selected": false
+      },
+      {
+        "name": "Private Speedboat / Luxury Yacht Excursion",
+        "selected": false
+      },
+      {
+        "name": "Comprehensive Travel & Medical Insurance",
+        "selected": false
+      },
+      {
+        "name": "Michelin-Starred Priority Reservations",
+        "selected": false
+      },
+      {
+        "name": "SIM Card / High-Speed Portable Wi-Fi Device",
+        "selected": false
+      }
+    ],
+    "culinaryAndDietaryPreferences": [
+      {
+        "name": "Authentic Local Cuisine",
+        "selected": true
+      },
+      {
+        "name": "Kerala Sadhya & Plantain Leaf Banquet",
+        "selected": false
+      },
+      {
+        "name": "Strictly Vegetarian",
+        "selected": false
+      },
+      {
+        "name": "Vegan & Organic",
+        "selected": false
+      },
+      {
+        "name": "Halal Certified",
+        "selected": false
+      },
+      {
+        "name": "Gluten-Free & Celiac Safe",
+        "selected": false
+      },
+      {
+        "name": "Seafood Specialist",
+        "selected": false
+      }
+    ],
+    "specialNotes": ""
+  },
+  "reviewAndPackageQuote": {
+    "tripSummary": {
+      "title": "Kyoto Zen & Michelin Kaiseki Odyssey",
+      "duration": "4 Days / 3 Nights",
+      "location": "Gion & Arashiyama, Japan",
+      "guests": "2 Adults",
+      "departureDate": "2026-10-14"
+    },
+    "vipInclusions": [
+      "5-Star Boutique Stays with Breakfast",
+      "VIP Airport Meet & Greet Chauffeur Transfer",
+      "24/7 Dedicated Concierge Support & Table Reservations",
+      "Verified Local Guided Excursions"
+    ],
+    "priceBreakdownUSD": {
+      "individualItemsTotal": 960,
+      "packageBundleSavingsPercentage": 10,
+      "packageBundleSavingsAmount": -96,
+      "conciergePlanningFee": 0,
+      "estimatedPackageTotal": 864,
+      "taxesAndVIPConciergeIncluded": true
+    }
+  },
+  "hotelReservationModal": {
+    "location": "ddd, ddd",
+    "stayDates": {
+      "checkIn": "07-10-2026",
+      "checkOut": "10-10-2026"
+    },
+    "guests": 2,
+    "pricingUSD": {
+      "nightlyRate": 250,
+      "nights": 3,
+      "baseSubtotal": 750,
+      "platformConciergeAndServiceFee": 60,
+      "cityAndTourismTaxes": 38,
+      "totalDue": 848
+    },
+    "liveDirectPricingComparison": {
+      "voyagePlatformRateUSD": 848,
+      "expediaPublicSearchUSD": 1035,
+      "expediaDifferenceUSD": 187,
+      "bookingComStandardUSD": 975,
+      "bookingComDifferenceUSD": 127
+    },
+    "includedAmenities": [
+      "Guided Walking Tour",
+      "Audio Headsets",
+      "Panoramic Overlook"
+    ]
+  }
+}
