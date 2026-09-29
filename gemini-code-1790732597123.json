@@ -1,0 +1,284 @@
+{
+  "destinations": [
+    {
+      "id": "albania-9-day-trip",
+      "title": "Albania 9-Day Complete Exploration",
+      "subtitle": "Tirana, Berat, Gjirokastër, Blue Eye, Sarandë, Ksamil, Butrint & Riviera",
+      "country": "Albania",
+      "duration": "9 Days / 8 Nights",
+      "startingPoint": "Tirana (TIA)",
+      "endingPoint": "Tirana (TIA)",
+      "flightDetails": {
+        "origin": "Thiruvananthapuram (TRV), India",
+        "destination": "Tirana (TIA), Albania",
+        "outbound": {
+          "basicAndMidRange": "Oman Air (WY212 / WY143) + Wizz Air Malta (W45028) via Muscat & Milan",
+          "luxury": "Gulf Air (GF61 / GF41) + Aegean Airlines (A3972) via Bahrain & Athens"
+        },
+        "return": {
+          "basicAndMidRange": "Wizz Air Malta (W45011) + Qatar Airways (QR116 / QR506) via Rome & Doha",
+          "luxury": "Turkish Airlines (TK1078) + Gulf Air (GF46 / GF62) via Istanbul & Bahrain"
+        }
+      },
+      "packages": [
+        {
+          "packageType": "Basic",
+          "pricePerPersonINR": "₹1,11,018 - ₹1,26,518",
+          "totalCost4PeopleINR": "₹4,44,072 - ₹5,06,072",
+          "airfareINR": "₹67,518/person (Economy)",
+          "landPackageINR": "₹43,500 - ₹59,000/person",
+          "accommodationLevel": "Basic private-room hotels; value-oriented",
+          "foodAllowance": "Value-oriented meal allowance",
+          "transportType": "Practical / Shared + Private-driver planning allowance"
+        },
+        {
+          "packageType": "Mid-Range",
+          "pricePerPersonINR": "₹1,43,390 - ₹1,67,390",
+          "totalCost4PeopleINR": "₹5,73,560 - ₹6,69,560",
+          "airfareINR": "₹74,890/person (Economy)",
+          "landPackageINR": "₹68,500 - ₹92,500/person",
+          "accommodationLevel": "Comfortable mid-range / boutique hotels",
+          "foodAllowance": "Comfortable restaurant allowance",
+          "transportType": "Private vehicle + driver planning allowance"
+        },
+        {
+          "packageType": "Luxury",
+          "pricePerPersonINR": "₹3,85,951 - ₹4,34,951",
+          "totalCost4PeopleINR": "₹15,43,804 - ₹17,39,804",
+          "airfareINR": "₹2,56,951/person (Premium / Selected Flight Quote)",
+          "landPackageINR": "₹1,29,000 - ₹1,78,000/person",
+          "accommodationLevel": "Luxury / upscale hotels",
+          "foodAllowance": "Upscale dining allowance",
+          "transportType": "Private vehicle + higher-comfort allowance"
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 0,
+          "date": "2026-10-09",
+          "title": "Arrival Night in Tirana",
+          "activities": [
+            { "time": "23:45", "description": "Arrive at Tirana International Airport (TIA)." },
+            { "time": "23:45-00:25", "description": "Immigration, baggage collection, and exit the terminal." },
+            { "time": "00:25-01:00", "description": "Transfer to the Tirana hotel." },
+            { "time": "01:00-01:30", "description": "Hotel check-in and settle into the room." },
+            { "time": "01:30 onward", "description": "Rest overnight." }
+          ]
+        },
+        {
+          "day": 1,
+          "date": "2026-10-10",
+          "title": "Tirana City Sightseeing",
+          "activities": [
+            { "time": "09:00-10:00", "place": "Skanderbeg Square", "costNotes": "Free (Clock Tower may have small fee)" },
+            { "time": "10:00-11:30", "place": "Bunk'Art 2", "costNotes": "≈900 ALL / ≈₹1,070" },
+            { "time": "11:30-12:30", "place": "Murat Toptani Street + Tirana Castle", "costNotes": "Free" },
+            { "time": "12:30-14:00", "place": "New Bazaar + Lunch", "costNotes": "Food extra" },
+            { "time": "14:00-14:45", "place": "Pyramid of Tirana", "costNotes": "Free" },
+            { "time": "14:45-16:00", "place": "Rinia Park + Central Boulevard + Postbllok", "costNotes": "Free" },
+            { "time": "16:00-17:30", "place": "Grand Park + Artificial Lake", "costNotes": "Free" },
+            { "time": "17:30-20:30+", "place": "Blloku District", "costNotes": "Dinner/cafés/shopping extra" }
+          ],
+          "estimatedDaySpendINR": {
+            "basic": "₹4,000 - ₹5,500",
+            "midRange": "₹7,000 - ₹9,000",
+            "luxury": "₹15,000 - ₹20,000"
+          }
+        },
+        {
+          "day": 2,
+          "date": "2026-10-11",
+          "title": "Mount Dajti to Berat",
+          "activities": [
+            { "time": "07:30-08:15", "place": "Breakfast + Tirana hotel check-out", "costNotes": "Hotel breakfast" },
+            { "time": "08:15-09:00", "place": "Tirana to Dajti Ekspres lower station", "costNotes": "Private vehicle / transport" },
+            { "time": "09:00-09:30", "place": "Dajti Ekspres Cable Car", "costNotes": "≈1,000 ALL return / ≈₹1,190" },
+            { "time": "09:30-11:30", "place": "Mount Dajti Nature Stop", "costNotes": "Views, walking, leisure" },
+            { "time": "11:30-12:00", "place": "Cable car down / return to vehicle", "costNotes": "Transport" },
+            { "time": "12:00-13:00", "place": "Lunch", "costNotes": "Food extra" },
+            { "time": "13:00-15:00", "place": "Mount Dajti area to Berat", "costNotes": "Private vehicle / transport" },
+            { "time": "15:00-15:30", "place": "Berat hotel check-in + luggage", "costNotes": "Hotel check-in" },
+            { "time": "15:30-17:00", "place": "Mangalem Quarter", "costNotes": "Free" },
+            { "time": "17:00 onward", "place": "Riverside / Relaxed Evening in Berat", "costNotes": "Food & drinks extra" }
+          ],
+          "estimatedDaySpendINR": {
+            "basic": "₹4,800 - ₹7,000",
+            "midRange": "₹5,500 - ₹7,500",
+            "luxury": "₹12,000 - ₹18,000"
+          }
+        },
+        {
+          "day": 3,
+          "date": "2026-10-12",
+          "title": "Berat Historic Exploration",
+          "activities": [
+            { "time": "08:00-09:00", "place": "Breakfast at Berat hotel", "costNotes": "Hotel breakfast" },
+            { "time": "09:00-10:00", "place": "Mangalem Quarter Stroll", "costNotes": "Free" },
+            { "time": "10:00-12:00", "place": "Berat Castle / Kala", "costNotes": "≈300 ALL / ≈₹360" },
+            { "time": "10:30-11:15", "place": "Onufri Museum (Inside Castle)", "costNotes": "≈300 ALL / ≈₹360" },
+            { "time": "12:00-12:30", "place": "Walk down to Osum River", "costNotes": "Free" },
+            { "time": "12:30-13:15", "place": "Lunch by the riverside", "costNotes": "Food extra" },
+            { "time": "13:15-14:00", "place": "Gorica Bridge + Photos", "costNotes": "Free" },
+            { "time": "14:00-15:00", "place": "Gorica Quarter", "costNotes": "Free" },
+            { "time": "15:00-16:30", "place": "Coffee & Free Time", "costNotes": "≈200-400 ALL" },
+            { "time": "16:30-18:00", "place": "Berat Old Town & Local Shops", "costNotes": "Free / shopping extra" },
+            { "time": "18:00 onward", "place": "Dinner in Berat", "costNotes": "Food extra" }
+          ],
+          "estimatedDaySpendINR": {
+            "basic": "₹4,000 - ₹5,500",
+            "midRange": "₹5,500 - ₹7,500",
+            "luxury": "₹12,000 - ₹18,000"
+          }
+        },
+        {
+          "day": 4,
+          "date": "2026-10-13",
+          "title": "Berat to Gjirokastër",
+          "activities": [
+            { "time": "08:00-10:00", "place": "Berat to Gjirokastër", "costNotes": "Transport (~2 hrs)" },
+            { "time": "10:00-11:00", "place": "Hotel check-in + Lunch", "costNotes": "Food extra" },
+            { "time": "11:00-13:00", "place": "Gjirokastër Castle", "costNotes": "400 ALL / ≈₹475" },
+            { "time": "13:00-14:00", "place": "Historic Old Town", "costNotes": "Free" },
+            { "time": "14:00-15:15", "place": "Old Bazaar / Qafa e Pazarit", "costNotes": "Free" },
+            { "time": "15:15-16:00", "place": "Skënduli House", "costNotes": "200 ALL / ≈₹237" },
+            { "time": "16:00-16:45", "place": "Zekate House", "costNotes": "300 ALL / ≈₹356" },
+            { "time": "16:45 onward", "place": "Dinner & Old Town Evening", "costNotes": "Food extra" }
+          ],
+          "estimatedDaySpendINR": {
+            "basic": "₹5,000 - ₹6,500",
+            "midRange": "₹7,500 - ₹9,500",
+            "luxury": "₹14,000 - ₹19,000"
+          }
+        },
+        {
+          "day": 5,
+          "date": "2026-10-14",
+          "title": "Gjirokastër to Blue Eye to Sarandë",
+          "activities": [
+            { "time": "08:00-09:00", "place": "Breakfast + Check-out", "costNotes": "Hotel" },
+            { "time": "09:00-10:00", "place": "Gjirokastër to Blue Eye", "costNotes": "Transport (~1 hr)" },
+            { "time": "10:00-12:00", "place": "Blue Eye (Syri i Kaltër) Exploration", "costNotes": "50 ALL / ≈₹60" },
+            { "time": "12:00-13:00", "place": "Lunch / Depart to Sarandë", "costNotes": "Food extra" },
+            { "time": "13:00-14:00", "place": "Blue Eye to Sarandë", "costNotes": "Transport (~1 hr)" },
+            { "time": "14:00-15:00", "place": "Sarandë hotel check-in", "costNotes": "Hotel" },
+            { "time": "15:00-16:30", "place": "Sarandë Promenade / Waterfront", "costNotes": "Free" },
+            { "time": "16:30-18:00", "place": "Sarandë Beach Leisure", "costNotes": "Free" },
+            { "time": "18:00 onward", "place": "Sunset & Waterfront Dinner", "costNotes": "Dinner extra" }
+          ],
+          "estimatedDaySpendINR": {
+            "basic": "₹4,000 - ₹5,500",
+            "midRange": "₹6,500 - ₹8,500",
+            "luxury": "₹12,000 - ₹15,000"
+          }
+        },
+        {
+          "day": 6,
+          "date": "2026-10-15",
+          "title": "Ksamil Boat & Islands to Butrint",
+          "activities": [
+            { "time": "07:30-08:30", "place": "Breakfast", "costNotes": "Hotel" },
+            { "time": "08:30-09:00", "place": "Sarandë to Ksamil", "costNotes": "Transport (20-30 min)" },
+            { "time": "09:30-11:30", "place": "Ksamil Boat Tour & Islands Excursion", "costNotes": "Boat tour included" },
+            { "time": "11:30-12:30", "place": "Ksamil Beach / Bora Bora Beach", "costNotes": "Beach access / optional sunbeds" },
+            { "time": "12:30-13:30", "place": "Lunch in Ksamil", "costNotes": "Food extra" },
+            { "time": "13:30-14:00", "place": "Ksamil to Butrint", "costNotes": "Transport (20-30 min)" },
+            { "time": "14:00-16:30", "place": "Butrint Archaeological Site", "costNotes": "≈4,000 ALL / ≈₹4,760" },
+            { "time": "16:30-17:00", "place": "Butrint back to Sarandë", "costNotes": "Transport" },
+            { "time": "18:30-20:00", "place": "Sarandë Promenade + Sunset", "costNotes": "Free" },
+            { "time": "20:00 onward", "place": "Dinner in Sarandë", "costNotes": "Food extra" }
+          ],
+          "estimatedDaySpendINR": {
+            "basic": "₹5,165 - ₹7,000",
+            "midRange": "₹7,500 - ₹10,000",
+            "luxury": "₹16,000 - ₹20,000"
+          }
+        },
+        {
+          "day": 7,
+          "date": "2026-10-16",
+          "title": "Porto Palermo, Himarë & Jalë Beach",
+          "activities": [
+            { "time": "07:30-08:30", "place": "Breakfast at Sarandë hotel", "costNotes": "Hotel" },
+            { "time": "08:30-09:45", "place": "Sarandë to Porto Palermo", "costNotes": "Private vehicle" },
+            { "time": "09:45-10:45", "place": "Porto Palermo + Ali Pasha Castle", "costNotes": "≈500-1,000 ALL / ₹595-₹1,190" },
+            { "time": "10:45-11:15", "place": "Porto Palermo Bay Viewpoints", "costNotes": "Free" },
+            { "time": "11:15-11:45", "place": "Porto Palermo to Himarë", "costNotes": "Transport" },
+            { "time": "11:45-12:45", "place": "Himarë / Spile Waterfront", "costNotes": "Free" },
+            { "time": "12:45-13:45", "place": "Lunch in Himarë", "costNotes": "≈₹1,190 - ₹2,975" },
+            { "time": "13:45-14:15", "place": "Himarë to Jalë Beach", "costNotes": "Transport" },
+            { "time": "14:15-17:00", "place": "Jalë Beach Session", "costNotes": "Main beach relaxation" },
+            { "time": "17:00-19:00", "place": "Jalë back to Sarandë", "costNotes": "Scenic return drive" },
+            { "time": "20:00-21:30", "place": "Sarandë Promenade Evening", "costNotes": "Free" },
+            { "time": "21:30 onward", "place": "Dinner", "costNotes": "≈₹1,785 - ₹3,570" }
+          ],
+          "estimatedDaySpendINR": {
+            "basic": "₹4,880 - ₹6,500",
+            "midRange": "₹6,500 - ₹9,000",
+            "luxury": "₹14,000 - ₹18,000"
+          }
+        },
+        {
+          "day": 8,
+          "date": "2026-10-17",
+          "title": "Albanian Riviera Transfer: Sarandë to Dhërmi, Llogara, Vlorë & Tirana",
+          "activities": [
+            { "time": "07:00-07:45", "place": "Breakfast at Sarandë hotel", "costNotes": "Hotel" },
+            { "time": "08:00-09:45", "place": "Sarandë to Himarë Drive", "costNotes": "Coastal route" },
+            { "time": "09:45-10:30", "place": "Himarë / Spile Waterfront Stop", "costNotes": "Free" },
+            { "time": "10:30-11:00", "place": "Himarë to Dhërmi", "costNotes": "Transport" },
+            { "time": "11:00-12:30", "place": "Dhërmi Old Village + Viewpoints", "costNotes": "Free" },
+            { "time": "12:30-13:30", "place": "Lunch in Dhërmi", "costNotes": "≈₹1,190 - ₹2,975" },
+            { "time": "13:30-14:30", "place": "Dhërmi / Drymades Coastal Stop", "costNotes": "Free / optional sunbed" },
+            { "time": "14:30-15:15", "place": "Llogara Pass Scenic Section", "costNotes": "Viewpoint & photo stop" },
+            { "time": "15:15-16:45", "place": "Llogara to Vlorë", "costNotes": "Scenic mountain descent" },
+            { "time": "16:45-18:15", "place": "Vlorë Waterfront", "costNotes": "Free" },
+            { "time": "18:15-18:45", "place": "Early Dinner / Coffee in Vlorë", "costNotes": "≈₹1,785 - ₹3,570" },
+            { "time": "18:45-21:15", "place": "Vlorë to Tirana", "costNotes": "Private vehicle (~2.5 hrs)" },
+            { "time": "21:15 onward", "place": "Tirana hotel check-in & rest", "costNotes": "Hotel" }
+          ],
+          "estimatedDaySpendINR": {
+            "basic": "₹7,550 - ₹10,000",
+            "midRange": "₹10,500 - ₹15,000",
+            "luxury": "₹22,000 - ₹30,000"
+          }
+        },
+        {
+          "day": 9,
+          "date": "2026-10-18",
+          "title": "Tirana to India / Departure Flight",
+          "activities": [
+            { "time": "03:15 / 15:30", "place": "Hotel check-out in Tirana", "costNotes": "Early dawn for Basic/Mid-Range; Afternoon for Luxury" },
+            { "time": "03:30 / 16:00", "place": "Transfer to Tirana International Airport (TIA)", "costNotes": "Pre-booked transfer (~30 min)" },
+            { "time": "06:00 / 20:10", "place": "Flight Departure from TIA", "costNotes": "Connecting via Rome/Doha (Basic/Mid-Range) or Istanbul/Bahrain (Luxury)" },
+            { "time": "02:15 (+1) / 21:25 (+1)", "place": "Arrive at Thiruvananthapuram (TRV), India", "costNotes": "Trip Complete" }
+          ],
+          "estimatedDaySpendINR": {
+            "basic": "₹2,380 - ₹6,545",
+            "midRange": "₹3,500 - ₹5,000",
+            "luxury": "₹7,000 - ₹10,000"
+          }
+        }
+      ],
+      "highlights": [
+        { "name": "Skanderbeg Square & Bunk'Art 2", "city": "Tirana" },
+        { "name": "Mount Dajti Cable Car (Dajti Ekspres)", "city": "Tirana" },
+        { "name": "Mangalem Quarter & Berat Castle", "city": "Berat" },
+        { "name": "Gjirokastër Castle & Old Bazaar", "city": "Gjirokastër" },
+        { "name": "Blue Eye Spring (Syri i Kaltër)", "city": "Delvinë / Sarandë" },
+        { "name": "Ksamil Islands & Boat Tour", "city": "Ksamil" },
+        { "name": "Butrint National Archaeological Park", "city": "Butrint" },
+        { "name": "Ali Pasha Castle & Porto Palermo Bay", "city": "Porto Palermo" },
+        { "name": "Jalë Beach & Dhërmi Village", "city": "Albanian Riviera" },
+        { "name": "Llogara Pass & Vlorë Waterfront", "city": "Llogara / Vlorë" }
+      ],
+      "photos": [
+        { "url": "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272", "caption": "Tirana Skanderbeg Square", "place": "Tirana" },
+        { "url": "https://images.unsplash.com/photo-1596422846543-75c6fc197f07", "caption": "Berat Ottoman Architecture & White Houses", "place": "Berat" },
+        { "url": "https://images.unsplash.com/photo-1527631746610-bca00a040d60", "caption": "Gjirokastër Stone City & Castle View", "place": "Gjirokastër" },
+        { "url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e", "caption": "Turquoise Waters of Ksamil Beach", "place": "Ksamil" },
+        { "url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb", "caption": "Blue Eye Natural Spring", "place": "Blue Eye" },
+        { "url": "https://images.unsplash.com/photo-1519046904884-53103b34b206", "caption": "Albanian Riviera Coastal Road", "place": "Dhërmi" }
+      ]
+    }
+  ]
+}
