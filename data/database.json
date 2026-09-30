@@ -1,182 +1,197 @@
 {
   "users": [
     {
-      "role": "USER",
-      "lastLoginBrowser": "Chrome 153",
       "createdAt": "2026-09-17T01:35:53.344Z",
+      "lastLoginScreen": "384x832",
       "uid": "token_1e4a016d-c195-4e35-bc0b-f039abecaf49",
-      "email": "user_token_1e@traveler.io",
       "name": "Traveler",
       "lastLoginDevice": "Mobile (Android)",
-      "lastLoginScreen": "384x832",
-      "mfaEnabled": true,
       "lastLoginAt": "2026-09-17T01:35:53.346Z",
+      "email": "user_token_1e@traveler.io",
       "lastLoginIp": "2405:201:f01a:588a:be14:c575:dd90:cf4b",
       "lastLoginTimezone": "Asia/Calcutta",
-      "lastLoginOs": "Android"
-    },
-    {
-      "uid": "token_bypass_1789530264886",
-      "name": "Traveler",
-      "role": "USER",
-      "mfaEnabled": false,
-      "createdAt": "2026-09-16T06:25:33.835Z",
-      "email": "user_token_by@traveler.io"
-    },
-    {
-      "name": "Traveler",
-      "createdAt": "2026-09-16T06:50:25.693Z",
-      "lastLoginDevice": "Mobile (Android)",
       "lastLoginBrowser": "Chrome 153",
-      "lastLoginScreen": "384x832",
-      "email": "user_token_by@traveler.io",
-      "mfaEnabled": false,
       "role": "USER",
-      "lastLoginAt": "2026-09-16T08:25:22.051Z",
-      "lastLoginIp": "2405:201:f01a:588a:76c0:532a:fb03:4d7",
-      "uid": "token_bypass_1789541425703",
-      "lastLoginTimezone": "Asia/Calcutta",
-      "lastLoginOs": "Android"
+      "lastLoginOs": "Android",
+      "mfaEnabled": true
     },
     {
-      "name": "Traveler",
-      "createdAt": "2026-09-16T12:16:10.341Z",
+      "createdAt": "2026-09-16T06:25:33.835Z",
+      "role": "USER",
+      "uid": "token_bypass_1789530264886",
       "email": "user_token_by@traveler.io",
-      "lastLoginAt": "2026-09-16T12:16:10.342Z",
-      "lastLoginIp": "49.37.233.109",
+      "mfaEnabled": false,
+      "name": "Traveler"
+    },
+    {
       "lastLoginTimezone": "Asia/Calcutta",
-      "lastLoginOs": "Windows",
+      "lastLoginOs": "Android",
+      "name": "Traveler",
+      "lastLoginScreen": "384x832",
+      "lastLoginBrowser": "Chrome 153",
+      "lastLoginDevice": "Mobile (Android)",
+      "uid": "token_bypass_1789541425703",
+      "lastLoginIp": "2405:201:f01a:588a:76c0:532a:fb03:4d7",
+      "mfaEnabled": false,
+      "email": "user_token_by@traveler.io",
+      "lastLoginAt": "2026-09-16T08:25:22.051Z",
+      "role": "USER",
+      "createdAt": "2026-09-16T06:50:25.693Z"
+    },
+    {
+      "lastLoginIp": "49.37.233.109",
+      "name": "Traveler",
+      "lastLoginScreen": "1920x1080",
+      "lastLoginTimezone": "Asia/Calcutta",
+      "lastLoginDevice": "Desktop (Windows)",
       "uid": "token_bypass_1789560960511",
       "mfaEnabled": false,
-      "lastLoginDevice": "Desktop (Windows)",
+      "lastLoginAt": "2026-09-16T12:16:10.342Z",
+      "email": "user_token_by@traveler.io",
       "role": "USER",
-      "lastLoginScreen": "1920x1080",
-      "lastLoginBrowser": "Chrome 152"
+      "lastLoginBrowser": "Chrome 152",
+      "lastLoginOs": "Windows",
+      "createdAt": "2026-09-16T12:16:10.341Z"
     },
     {
-      "lastLoginIp": "49.37.233.120",
+      "lastLoginBrowser": "Chrome 153",
+      "role": "USER",
+      "createdAt": "2026-09-16T16:57:55.895Z",
+      "lastLoginScreen": "1920x1080",
+      "lastLoginDevice": "Desktop (Windows)",
       "lastLoginAt": "2026-09-16T16:57:55.896Z",
-      "lastLoginOs": "Windows",
+      "lastLoginIp": "49.37.233.120",
+      "email": "user_token_by@traveler.io",
+      "name": "Traveler",
+      "uid": "token_bypass_1789577866096",
+      "lastLoginTimezone": "Asia/Calcutta",
+      "mfaEnabled": false,
+      "lastLoginOs": "Windows"
+    },
+    {
       "name": "Traveler",
       "mfaEnabled": false,
-      "uid": "token_bypass_1789577866096",
       "email": "user_token_by@traveler.io",
-      "lastLoginScreen": "1920x1080",
-      "createdAt": "2026-09-16T16:57:55.895Z",
-      "lastLoginDevice": "Desktop (Windows)",
-      "lastLoginTimezone": "Asia/Calcutta",
-      "lastLoginBrowser": "Chrome 153",
+      "createdAt": "2026-09-21T14:27:43.200Z",
+      "uid": "token_bypass_1790000863229",
       "role": "USER"
     },
     {
-      "role": "USER",
-      "uid": "token_bypass_1790000863229",
-      "email": "user_token_by@traveler.io",
-      "mfaEnabled": false,
+      "lastLoginBrowser": "Chrome 154",
       "name": "Traveler",
-      "createdAt": "2026-09-21T14:27:43.200Z"
+      "lastLoginOs": "Windows",
+      "email": "user_token_by@traveler.io",
+      "createdAt": "2026-09-30T01:48:15.243Z",
+      "lastLoginDevice": "Desktop (Windows)",
+      "lastLoginScreen": "1680x1050",
+      "role": "USER",
+      "lastLoginTimezone": "Asia/Calcutta",
+      "lastLoginAt": "2026-09-30T01:48:15.245Z",
+      "mfaEnabled": false,
+      "lastLoginIp": "2405:201:f01a:5049:6c08:4c64:b9b:7709",
+      "uid": "token_bypass_1790758160519"
     },
     {
+      "createdAt": "2026-09-14T15:51:21.942Z",
       "uid": "user_1789401081942",
-      "lastLoginOs": "Windows",
-      "lastLoginTimezone": "Asia/Calcutta",
-      "lastLoginScreen": "1920x1080",
       "lastLoginIp": "49.37.233.109",
+      "name": "mukundkrishna.h2008",
+      "lastLoginTimezone": "Asia/Calcutta",
       "lastLoginAt": "2026-09-16T12:13:52.503Z",
       "lastLoginDevice": "Desktop (Windows)",
-      "createdAt": "2026-09-14T15:51:21.942Z",
-      "name": "mukundkrishna.h2008",
-      "role": "TECH_SUBADMIN",
+      "lastLoginScreen": "1920x1080",
+      "lastLoginOs": "Windows",
       "lastLoginBrowser": "Chrome 152",
       "email": "mukundkrishna.h2008@gmail.com",
-      "mfaEnabled": false
-    },
-    {
-      "name": "Nihan Manoj Abhraham",
       "mfaEnabled": false,
-      "email": "nihanabraham007@gmail.com",
-      "recoveryEmail": "mukundkrishna.h2008@gmail.com",
-      "role": "ADMIN",
-      "customTitle": "Manager",
-      "phoneNumber": "9858687459",
-      "createdAt": "2026-09-16T05:54:34.905Z",
-      "uid": "user_1789538074905_7toi",
-      "department": "Technical"
+      "role": "TECH_SUBADMIN"
     },
     {
-      "createdAt": "2025-01-10T00:00:00.000Z",
-      "email": "sarah.content@travelplatform.io",
+      "email": "nihanabraham007@gmail.com",
+      "customTitle": "Manager",
+      "uid": "user_1789538074905_7toi",
+      "mfaEnabled": false,
+      "recoveryEmail": "mukundkrishna.h2008@gmail.com",
+      "name": "Nihan Manoj Abhraham",
+      "phoneNumber": "9858687459",
+      "department": "Technical",
+      "role": "ADMIN",
+      "createdAt": "2026-09-16T05:54:34.905Z"
+    },
+    {
       "role": "USER",
+      "phoneNumber": "+1 555-019-2834",
+      "name": "Sarah Jenkins (Standard Admin)",
+      "mfaEnabled": false,
+      "customTitle": "Head of Destination Curation",
       "uid": "user_admin_02",
       "recoveryEmail": "sarah.backup@gmail.com",
-      "department": "Content & Editorial",
-      "name": "Sarah Jenkins (Standard Admin)",
-      "customTitle": "Head of Destination Curation",
-      "phoneNumber": "+1 555-019-2834",
-      "mfaEnabled": false,
-      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80"
+      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80",
+      "createdAt": "2025-01-10T00:00:00.000Z",
+      "email": "sarah.content@travelplatform.io",
+      "department": "Content & Editorial"
     },
     {
+      "mfaEnabled": true,
+      "recoveryEmail": "8c15mukundkrishna.h@gmail.com",
       "email": "mukundkrishna2008@gmail.com",
-      "createdAt": "2025-01-01T00:00:00.000Z",
-      "role": "TECH_ADMIN",
-      "recoveryEmail": "8c15mukundkrishna.h@gmail.com",
-      "uid": "user_tech_admin_01",
-      "department": "Executive Engineering",
-      "name": "Mukund Krishna (Technical Super Admin)",
-      "customTitle": "Chief Technology Architect & Super Admin",
       "phoneNumber": "+91 9567465134",
-      "mfaEnabled": true,
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80"
-    },
-    {
-      "email": "mukundkrishna.h2008@gmail.com",
-      "createdAt": "2026-09-16T03:29:39.446Z",
-      "role": "TECH_ADMIN",
-      "recoveryEmail": "8c15mukundkrishna.h@gmail.com",
-      "uid": "user_tech_admin_02",
       "department": "Executive Engineering",
-      "name": "Mukund Krishna (Technical Super Admin)",
       "customTitle": "Chief Technology Architect & Super Admin",
-      "phoneNumber": "+91 9567465137",
-      "mfaEnabled": true,
-      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80"
+      "role": "TECH_ADMIN",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+      "name": "Mukund Krishna (Technical Super Admin)",
+      "uid": "user_tech_admin_01",
+      "createdAt": "2025-01-01T00:00:00.000Z"
     },
     {
-      "mfaEnabled": false,
-      "phoneNumber": "+91 9567465135",
-      "uid": "user_tech_subadmin_01",
-      "email": "mukundkrishna.h@gmail.com",
-      "createdAt": "2025-01-05T00:00:00.000Z",
-      "role": "TECH_SUBADMIN",
-      "customTitle": "Senior Infrastructure Engineer",
-      "department": "Core Infrastructure",
+      "recoveryEmail": "8c15mukundkrishna.h@gmail.com",
+      "customTitle": "Chief Technology Architect & Super Admin",
+      "role": "TECH_ADMIN",
       "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80",
-      "name": "Mukund Krishna (Technical Sub-Admin)"
+      "name": "Mukund Krishna (Technical Super Admin)",
+      "createdAt": "2026-09-16T03:29:39.446Z",
+      "mfaEnabled": true,
+      "phoneNumber": "+91 9567465137",
+      "department": "Executive Engineering",
+      "email": "mukundkrishna.h2008@gmail.com",
+      "uid": "user_tech_admin_02"
     },
     {
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80",
+      "customTitle": "Senior Infrastructure Engineer",
+      "mfaEnabled": false,
+      "email": "mukundkrishna.h@gmail.com",
+      "role": "TECH_SUBADMIN",
+      "phoneNumber": "+91 9567465135",
+      "name": "Mukund Krishna (Technical Sub-Admin)",
+      "department": "Core Infrastructure",
+      "createdAt": "2025-01-05T00:00:00.000Z",
+      "uid": "user_tech_subadmin_01"
+    },
+    {
+      "role": "TECH_SUBADMIN",
+      "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=256&q=80",
+      "department": "Information Security",
+      "mfaEnabled": false,
+      "name": "Mukund Krishna Backup (Technical Sub-Admin)",
+      "email": "8c15mukundkrishna.h@gmail.com",
+      "phoneNumber": "+91 9567465136",
       "uid": "user_tech_subadmin_02",
       "customTitle": "Security Systems Specialist",
-      "email": "8c15mukundkrishna.h@gmail.com",
-      "mfaEnabled": false,
-      "role": "TECH_SUBADMIN",
-      "department": "Information Security",
-      "phoneNumber": "+91 9567465136",
-      "createdAt": "2025-01-08T00:00:00.000Z",
-      "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=256&q=80",
-      "name": "Mukund Krishna Backup (Technical Sub-Admin)"
+      "createdAt": "2025-01-08T00:00:00.000Z"
     },
     {
-      "customTitle": "Featured Community Explorer",
       "role": "USER",
-      "name": "Alex Rivera (Verified Traveler)",
-      "uid": "user_traveler_03",
-      "mfaEnabled": false,
-      "department": "Global Community",
-      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
-      "email": "alex.globetrotter@example.com",
       "createdAt": "2025-01-15T00:00:00.000Z",
-      "phoneNumber": "+1 555-482-1920"
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
+      "name": "Alex Rivera (Verified Traveler)",
+      "phoneNumber": "+1 555-482-1920",
+      "uid": "user_traveler_03",
+      "department": "Global Community",
+      "customTitle": "Featured Community Explorer",
+      "mfaEnabled": false,
+      "email": "alex.globetrotter@example.com"
     },
     {
       "uid": "user_voyage_official",
@@ -189,138 +204,442 @@
       "mfaEnabled": true,
       "recoveryEmail": "voyage@gmail.com",
       "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
-      "createdAt": "2026-06-01T17:39:10.159Z"
+      "createdAt": "2026-06-02T02:11:01.303Z"
     }
   ],
   "listings": [
     {
-      "country": "Japan",
-      "status": "PUBLISHED",
-      "createdByName": "Mukund Krishna",
+      "id": "pkg-albania-9day-midrange-01",
+      "title": "Albania 9-Day Grand Tour: Tirana to the Ionian Riviera (Mid-Range)",
+      "category": "PACKAGE",
+      "price": 1970,
+      "rating": 4.99,
+      "reviewCount": 74,
+      "location": "Tirana, Berat, Gjirokastër, Ksamil & Riviera",
+      "country": "Albania",
       "coordinates": {
-        "lat": 35.0037,
-        "lng": 135.7772
+        "lat": 41.3275,
+        "lng": 19.8187
       },
-      "description": "Authentic 10-course Kaiseki dinner in a beautifully restored tea house in the heart of historic Gion.",
-      "location": "Gion District, Kyoto",
-      "amenities": [
-        "Tea Ceremony",
-        "Private Room"
+      "description": "The definitive 9-day grand loop through Albania (9–19 Oct 2026). Selected flight included (TRV → MCT → MXP → TIA and TIA → FCO → DOH → TRV, ₹74,890/person). Comfortable boutique hotels, dedicated private vehicle + driver planning allowance, Dajti Ekspres cable car over Tirana, Berat UNESCO castle & Onufri museum, Gjirokastër stone city (Skënduli & Zekate houses), the turquoise Blue Eye spring (Syri i Kaltër), Ksamil 4-islands boat cruise, Butrint UNESCO archaeological site, Porto Palermo & Ali Pasha Castle, Jalë Beach, Dhërmi Old Village, and the breathtaking Llogara Pass descent to Vlorë. Land package: ₹68,500–₹92,500/person (4 Pax: ₹5,73,560–₹6,69,560).",
+      "images": [
+        "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
       ],
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "category": "FOOD",
-      "rating": 4.92,
+      "status": "PUBLISHED",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Editorial Director",
+      "tags": [
+        "9-Day Grand Tour",
+        "Boutique Hotels",
+        "Private Driver",
+        "Flights Included",
+        "UNESCO World Heritage",
+        "Riviera Boat Cruise"
+      ],
+      "amenities": [
+        "International Airfare Included (TRV ⇄ TIA)",
+        "Dedicated Private Vehicle & Chauffeur",
+        "Comfortable Mid-Range & Boutique Hotels",
+        "Dajti Ekspres Cable Car Pass",
+        "Ksamil 4-Islands Boat Excursion",
+        "Butrint & Berat UNESCO Admissions",
+        "Syri i Kaltër (Blue Eye) Pass",
+        "24/7 Dedicated Concierge Support"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:11:01.303Z",
+        "updatedAt": "2026-09-30T02:11:01.303Z"
+      }
+    },
+    {
+      "id": "pkg-albania-9day-luxury-02",
+      "title": "Albania 9-Day Luxury VIP Odyssey: 5-Star Stays & Private Yacht",
+      "category": "PACKAGE",
+      "price": 4950,
+      "rating": 5,
+      "reviewCount": 38,
+      "location": "Tirana, Berat, Sarandë, Ksamil & Riviera",
+      "country": "Albania",
+      "coordinates": {
+        "lat": 39.8756,
+        "lng": 20.0053
+      },
+      "description": "Ultra-luxury 9-day Albanian expedition. Selected premium airfare quote (₹2,56,951/person via Gulf Air & Aegean/Turkish Airlines). 5-star seaside suites in Sarandë, boutique Ottoman palaces in Berat, chartered private speedboat cruise around Ksamil 4 islands, luxury high-comfort vehicle with private master driver, VIP historians at Butrint & Berat castles, and generous upscale fine-dining allowance (₹15,000–₹30,000/day). Final estimate: ₹3,85,951–₹4,34,951/person (4 Pax: ₹15,43,804–₹17,39,804).",
+      "images": [
+        "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Luxury Concierge",
+      "tags": [
+        "5-Star Luxury",
+        "Private Yacht",
+        "VIP Concierge",
+        "Selected Premium Flights",
+        "Fine Dining Allowance",
+        "Presidential Level"
+      ],
+      "amenities": [
+        "Selected Premium International Flights (₹2,56,951 Included)",
+        "5-Star Upscale Luxury Stays & Suites",
+        "Private Chartered Ksamil Speedboat",
+        "Luxury High-Comfort Chauffeur Vehicle",
+        "Private Heritage Historian Guides",
+        "Upscale Fine Dining Daily Allowance",
+        "Priority Fast-Track Airport Service",
+        "24/7 VIP Concierge"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:11:01.303Z",
+        "updatedAt": "2026-09-30T02:11:01.303Z"
+      }
+    },
+    {
+      "id": "pkg-albania-9day-basic-03",
+      "title": "Albania 9-Day Value Discovery: Complete Heritage & Coastal Circuit",
+      "category": "PACKAGE",
+      "price": 1450,
+      "rating": 4.93,
+      "reviewCount": 56,
+      "location": "Tirana, Berat, Gjirokastër, Sarandë & Vlorë",
+      "country": "Albania",
+      "coordinates": {
+        "lat": 41.3275,
+        "lng": 19.8187
+      },
+      "description": "Exceptional value full 9-day circuit covering all highlights of Albania. International airfare included (₹67,518/person, TRV ⇄ TIA via Oman Air & Wizz Air). Value-oriented private-room accommodations, practical shared & private transfer allowance, all entry admissions (Skanderbeg, Bunk'Art 2, Berat Castle, Gjirokastër Fortress, Blue Eye, Butrint UNESCO, and Porto Palermo). Final estimate: ₹1,11,018–₹1,26,518/person (4 Pax: ₹4,44,072–₹5,06,072).",
+      "images": [
+        "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Value Operations",
+      "tags": [
+        "Best Value",
+        "Full Circuit",
+        "Economy Flights Included",
+        "Private Room Stays",
+        "Complete Sightseeing"
+      ],
+      "amenities": [
+        "Economy International Airfare (TRV ⇄ TIA)",
+        "Curated Private-Room Value Stays",
+        "Practical Transport Allowance",
+        "All Monument & Castle Admissions",
+        "Full 9-Day Route Itinerary",
+        "Trip Support & Guides"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:11:01.303Z",
+        "updatedAt": "2026-09-30T02:11:01.303Z"
+      }
+    },
+    {
+      "id": "list-albania-ksamil-butrint-04",
+      "title": "Ksamil Archipelago, Bora Bora Beach & Butrint Ancient Ruins",
+      "category": "PLACE",
+      "price": 120,
+      "rating": 4.98,
+      "reviewCount": 89,
+      "location": "Ksamil & Butrint, Sarandë",
+      "country": "Albania",
+      "coordinates": {
+        "lat": 39.7667,
+        "lng": 20.005
+      },
+      "description": "Known as the Ionian Pearl, Ksamil boasts crystal turquoise lagoons, four uninhabited islands reachable by boat, the iconic overwater hand sculpture, and the adjoining UNESCO World Heritage ruins of Butrint featuring Greek amphitheaters and Venetian towers.",
+      "images": [
+        "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Editorial",
+      "tags": [
+        "Ksamil Islands",
+        "Ionian Sea",
+        "Butrint UNESCO",
+        "Boat Tour",
+        "Beach Paradise"
+      ],
+      "amenities": [
+        "Island Boat Excursions",
+        "Archaeological Museum Pass",
+        "Beach Loungers & Sunbeds",
+        "Snorkeling Waters"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:11:01.303Z",
+        "updatedAt": "2026-09-30T02:11:01.303Z"
+      }
+    },
+    {
+      "id": "list-albania-berat-castle-05",
+      "title": "Berat UNESCO Fortress & The City of a Thousand Windows",
+      "category": "PLACE",
+      "price": 150,
+      "rating": 4.97,
+      "reviewCount": 76,
+      "location": "Berat",
+      "country": "Albania",
+      "coordinates": {
+        "lat": 40.7058,
+        "lng": 19.9522
+      },
+      "description": "A magical living medieval fortress overlooking the Osum River. Walk the cobblestone alleys of Mangalem and Gorica quarters, visit the Onufri Iconographic Museum, cross the historic 18th-century Gorica Bridge, and sample traditional Albanian cuisine.",
+      "images": [
+        "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Editorial",
+      "tags": [
+        "UNESCO World Heritage",
+        "Living Fortress",
+        "Ottoman Architecture",
+        "Gorica Bridge",
+        "Scenic Viewpoints"
+      ],
+      "amenities": [
+        "Castle Grounds Guided Tour",
+        "Onufri Museum Admission",
+        "Gorica Riverside Walk",
+        "Historic Photography Points"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:11:01.303Z",
+        "updatedAt": "2026-09-30T02:11:01.303Z"
+      }
+    },
+    {
+      "id": "list-albania-blue-eye-gjirokaster-06",
+      "title": "Syri i Kaltër Natural Spring & Gjirokastër Stone City",
+      "category": "PLACE",
+      "price": 160,
+      "rating": 4.99,
+      "reviewCount": 94,
+      "location": "Gjirokastër & Blue Eye",
+      "country": "Albania",
+      "coordinates": {
+        "lat": 39.9236,
+        "lng": 20.1925
+      },
+      "description": "Syri i Kaltër is a breathtaking natural spring with mesmerizing sapphire depths surrounded by lush greenery. The journey continues to Gjirokastër, the stone fortress city featuring the grand castle, Qafa e Pazarit cobblestone bazaar, Skënduli House, and Zekate House.",
+      "images": [
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Editorial",
+      "tags": [
+        "Blue Eye Spring",
+        "Gjirokastër Castle",
+        "Old Stone Bazaar",
+        "Zekate House",
+        "Hydrothermal Spring"
+      ],
+      "amenities": [
+        "Blue Eye Nature Reserve Pass",
+        "Gjirokastër Castle Admission",
+        "Traditional House Entry",
+        "Bazaar Artisan Experience"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:11:01.303Z",
+        "updatedAt": "2026-09-30T02:11:01.303Z"
+      }
+    },
+    {
+      "id": "list-albania-riviera-dhermi-07",
+      "title": "Porto Palermo Ali Pasha Castle, Jalë Beach & Llogara Pass Panorama",
+      "category": "PLACE",
+      "price": 210,
+      "rating": 4.99,
+      "reviewCount": 110,
+      "location": "Albanian Riviera, Himarë & Dhërmi",
+      "country": "Albania",
+      "coordinates": {
+        "lat": 40.1444,
+        "lng": 19.6425
+      },
+      "description": "Winding coastal highway along the pristine Albanian Riviera. Discover the triangular Venetian-Ottoman fortress of Ali Pasha at Porto Palermo, the pristine azure waters of Jalë Beach, the stone alleys of Dhërmi Old Village, and the jaw-dropping panoramic switchbacks of Llogara Pass.",
+      "images": [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Editorial",
+      "tags": [
+        "Albanian Riviera",
+        "Ali Pasha Castle",
+        "Jalë Beach",
+        "Llogara Pass",
+        "Coastal Panorama"
+      ],
+      "amenities": [
+        "Porto Palermo Castle Access",
+        "Scenic Riviera Chauffeur Route",
+        "Beach Access & Loungers",
+        "Llogara Viewpoint Stop"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:11:01.303Z",
+        "updatedAt": "2026-09-30T02:11:01.303Z"
+      }
+    },
+    {
+      "id": "list-albania-tirana-dajti-08",
+      "title": "Mount Dajti Cable Car & Tirana Historic Landmark Circuit",
+      "category": "PLACE",
+      "price": 140,
+      "rating": 4.95,
+      "reviewCount": 82,
+      "location": "Tirana",
+      "country": "Albania",
+      "coordinates": {
+        "lat": 41.3275,
+        "lng": 19.8187
+      },
+      "description": "Explore the vibrant Albanian capital. Ride the Dajti Ekspres cable car up Mount Dajti for sweeping views over the city, explore Skanderbeg Square and the Clock Tower, tour the underground communist bunker museum of Bunk'Art 2, walk the historic Tirana Castle pedestrian zone, and relax in trendy Blloku.",
+      "images": [
+        "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "PUBLISHED",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Editorial",
+      "tags": [
+        "Mount Dajti",
+        "Cable Car Pass",
+        "BunkArt 2",
+        "Skanderbeg Square",
+        "Capital Highlights"
+      ],
+      "amenities": [
+        "Dajti Ekspres Return Ticket",
+        "Bunk'Art 2 Entry",
+        "Tirana Castle Walkway Access",
+        "Guided City Center Map"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:11:01.303Z",
+        "updatedAt": "2026-09-30T02:11:01.303Z"
+      }
+    },
+    {
       "tags": [
         "Gourmet",
         "Traditional",
         "Michelin Star"
       ],
-      "timestamps": {
-        "updatedAt": "2026-09-28T06:59:52.862Z",
-        "createdAt": "2026-09-28T06:59:52.862Z"
+      "id": "list-dining-kyoto-03",
+      "rating": 4.92,
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "title": "Gion Karyo Kaiseki Experience",
+      "amenities": [
+        "Tea Ceremony",
+        "Private Room"
+      ],
+      "country": "Japan",
+      "category": "FOOD",
+      "createdByName": "Mukund Krishna",
+      "location": "Gion District, Kyoto",
+      "reviewCount": 35,
+      "status": "PUBLISHED",
+      "coordinates": {
+        "lng": 135.7772,
+        "lat": 35.0037
       },
       "images": [
         "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80"
       ],
-      "id": "list-dining-kyoto-03",
-      "reviewCount": 35,
       "price": 250,
-      "title": "Gion Karyo Kaiseki Experience"
-    },
-    {
-      "reviewCount": 28,
-      "tags": [
-        "Luxury",
-        "Historic",
-        "Infinity Pool"
-      ],
-      "title": "Belmond Hotel Caruso Cliffside Stay",
       "timestamps": {
         "updatedAt": "2026-09-28T06:59:52.862Z",
         "createdAt": "2026-09-28T06:59:52.862Z"
       },
+      "description": "Authentic 10-course Kaiseki dinner in a beautifully restored tea house in the heart of historic Gion."
+    },
+    {
+      "description": "A former 11th-century palace set on cliffs beside the Amalfi Coast, Belmond Hotel Caruso seems to drift between the sea and sky.",
+      "country": "Italy",
+      "status": "PUBLISHED",
+      "images": [
+        "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "category": "HOTEL",
+      "createdByName": "Mukund Krishna",
       "price": 850,
-      "id": "list-hotel-amalfi-02",
-      "createdBy": "mukundkrishna2008@gmail.com",
+      "coordinates": {
+        "lat": 40.6481,
+        "lng": 14.6111
+      },
+      "location": "Ravello, Amalfi Coast",
+      "reviewCount": 28,
+      "rating": 4.98,
       "amenities": [
         "Spa",
         "Infinity Pool",
         "Fine Dining"
       ],
-      "status": "PUBLISHED",
-      "location": "Ravello, Amalfi Coast",
-      "country": "Italy",
-      "description": "A former 11th-century palace set on cliffs beside the Amalfi Coast, Belmond Hotel Caruso seems to drift between the sea and sky.",
-      "createdByName": "Mukund Krishna",
-      "images": [
-        "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80"
+      "title": "Belmond Hotel Caruso Cliffside Stay",
+      "tags": [
+        "Luxury",
+        "Historic",
+        "Infinity Pool"
       ],
-      "category": "HOTEL",
-      "coordinates": {
-        "lng": 14.6111,
-        "lat": 40.6481
-      },
-      "rating": 4.98
-    },
-    {
-      "createdByName": "Mukund Krishna",
-      "status": "PUBLISHED",
-      "description": "Accessible only by a private boat, this luxury riverside retreat offers the ultimate Zen experience in a secluded Arashiyama forest.",
-      "category": "HOTEL",
-      "coordinates": {
-        "lat": 35.0116,
-        "lng": 135.6775
-      },
       "createdBy": "mukundkrishna2008@gmail.com",
-      "amenities": [
-        "Boat Transfer",
-        "Zen Garden",
-        "Japanese Spa"
-      ],
-      "country": "Japan",
-      "location": "Arashiyama, Kyoto",
-      "reviewCount": 19,
       "timestamps": {
         "updatedAt": "2026-09-28T06:59:52.862Z",
         "createdAt": "2026-09-28T06:59:52.862Z"
       },
-      "price": 650,
-      "rating": 4.97,
-      "title": "Hoshinoya Kyoto Riverside Retreat",
+      "id": "list-hotel-amalfi-02"
+    },
+    {
       "tags": [
         "Zen",
         "Riverside",
         "Exclusive"
       ],
+      "price": 650,
+      "id": "list-hotel-kyoto-04",
+      "country": "Japan",
+      "location": "Arashiyama, Kyoto",
+      "rating": 4.97,
+      "category": "HOTEL",
       "images": [
         "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80"
       ],
-      "id": "list-hotel-kyoto-04"
-    },
-    {
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "description": "Accessible only by a private boat, this luxury riverside retreat offers the ultimate Zen experience in a secluded Arashiyama forest.",
       "createdByName": "Mukund Krishna",
       "status": "PUBLISHED",
-      "description": "Celebrated destination in Mannanthala for authentic Travancore culinary heritage. Experience the 24-dish Kerala Sadhya served on fresh plantain leaves, paired with freshly tapped tender coconut and warm cardamom payasam.",
-      "category": "FOOD",
-      "coordinates": {
-        "lat": 8.5575,
-        "lng": 76.946
-      },
+      "reviewCount": 19,
+      "title": "Hoshinoya Kyoto Riverside Retreat",
       "amenities": [
-        "Plantain Leaf Banquet",
-        "Master Chef Spice Tour",
-        "Ayurvedic Herbal Brews"
+        "Boat Transfer",
+        "Zen Garden",
+        "Japanese Spa"
       ],
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "reviewCount": 47,
-      "location": "Mannanthala, Trivandrum",
-      "country": "India",
-      "timestamps": {
-        "updatedAt": "2026-09-28T06:59:52.862Z",
-        "createdAt": "2026-09-28T06:59:52.862Z"
+      "coordinates": {
+        "lng": 135.6775,
+        "lat": 35.0116
       },
-      "price": 95,
-      "rating": 4.94,
+      "timestamps": {
+        "createdAt": "2026-09-28T06:59:52.862Z",
+        "updatedAt": "2026-09-28T06:59:52.862Z"
+      }
+    },
+    {
+      "description": "Celebrated destination in Mannanthala for authentic Travancore culinary heritage. Experience the 24-dish Kerala Sadhya served on fresh plantain leaves, paired with freshly tapped tender coconut and warm cardamom payasam.",
+      "images": [
+        "https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=1200&q=80"
+      ],
       "tags": [
         "Kerala Sadhya",
         "Authentic Spices",
@@ -328,140 +647,158 @@
         "Travancore Cuisine"
       ],
       "title": "Travancore Spice Kitchen & Banana Leaf Sadhya",
-      "images": [
-        "https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "id": "list-mannanthala-food-03"
+      "coordinates": {
+        "lng": 76.946,
+        "lat": 8.5575
+      },
+      "country": "India",
+      "timestamps": {
+        "createdAt": "2026-09-28T06:59:52.862Z",
+        "updatedAt": "2026-09-28T06:59:52.862Z"
+      },
+      "status": "PUBLISHED",
+      "location": "Mannanthala, Trivandrum",
+      "createdByName": "Mukund Krishna",
+      "id": "list-mannanthala-food-03",
+      "reviewCount": 47,
+      "category": "FOOD",
+      "price": 95,
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "rating": 4.94,
+      "amenities": [
+        "Plantain Leaf Banquet",
+        "Master Chef Spice Tour",
+        "Ayurvedic Herbal Brews"
+      ]
     },
     {
-      "reviewCount": 29,
+      "category": "HOTEL",
+      "price": 340,
+      "location": "Mannanthala, Trivandrum",
+      "timestamps": {
+        "updatedAt": "2026-09-28T06:59:52.862Z",
+        "createdAt": "2026-09-28T06:59:52.862Z"
+      },
+      "rating": 4.98,
+      "country": "India",
+      "status": "PUBLISHED",
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "createdByName": "Mukund Krishna",
+      "description": "An authentic luxury sanctuary surrounded by swaying coconut palms in Mannanthala, Trivandrum. Features traditional Kerala architecture, certified Ayurvedic rejuvenation therapies, private plunge pools, and open-air yoga shalas.",
       "tags": [
         "Ayurveda Sanctuary",
         "Kerala Luxury",
         "Eco Retreat",
         "Trivandrum"
       ],
-      "createdByName": "Mukund Krishna",
-      "status": "PUBLISHED",
+      "id": "list-mannanthala-hotel-02",
       "amenities": [
         "Ayurvedic Spa",
         "Yoga Shala",
         "Infinity Palm Pool",
         "Farm-to-Table Kerala Dining"
       ],
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "title": "The Greenfields Ayurvedic Estate & Villa Resort",
-      "price": 340,
-      "timestamps": {
-        "updatedAt": "2026-09-28T06:59:52.862Z",
-        "createdAt": "2026-09-28T06:59:52.862Z"
-      },
-      "category": "HOTEL",
-      "id": "list-mannanthala-hotel-02",
+      "reviewCount": 29,
       "images": [
         "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80"
       ],
-      "description": "An authentic luxury sanctuary surrounded by swaying coconut palms in Mannanthala, Trivandrum. Features traditional Kerala architecture, certified Ayurvedic rejuvenation therapies, private plunge pools, and open-air yoga shalas.",
-      "location": "Mannanthala, Trivandrum",
-      "rating": 4.98,
+      "title": "The Greenfields Ayurvedic Estate & Villa Resort",
       "coordinates": {
-        "lng": 76.9482,
-        "lat": 8.5601
-      },
-      "country": "India"
+        "lat": 8.5601,
+        "lng": 76.9482
+      }
     },
     {
       "country": "India",
-      "status": "PUBLISHED",
-      "reviewCount": 38,
+      "rating": 4.96,
+      "price": 180,
+      "location": "Mannanthala, Trivandrum",
+      "category": "PLACE",
+      "images": [
+        "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80"
+      ],
       "tags": [
         "Kerala Heritage",
         "Scenic Greens",
         "Travancore Culture",
         "Trivandrum"
       ],
-      "createdBy": "mukundkrishna2008@gmail.com",
+      "coordinates": {
+        "lng": 76.9458,
+        "lat": 8.5583
+      },
+      "title": "Mannanthala Heritage Corridor & Hilltop Viewpoint",
+      "id": "list-mannanthala-place-01",
       "amenities": [
         "Guided Cultural Walk",
         "Hilltop Viewpoint",
         "Photography Vantage"
       ],
-      "location": "Mannanthala, Trivandrum",
-      "price": 180,
-      "title": "Mannanthala Heritage Corridor & Hilltop Viewpoint",
-      "rating": 4.96,
-      "category": "PLACE",
+      "reviewCount": 38,
       "description": "Nestled in the lush greenery of Thiruvananthapuram, Mannanthala offers peaceful heritage paths, traditional Travancore temples, panoramic valley viewpoints, and serene tropical gardens.",
-      "id": "list-mannanthala-place-01",
-      "images": [
-        "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "coordinates": {
-        "lng": 76.9458,
-        "lat": 8.5583
-      },
       "createdByName": "Mukund Krishna",
+      "status": "PUBLISHED",
+      "createdBy": "mukundkrishna2008@gmail.com",
       "timestamps": {
         "updatedAt": "2026-09-28T06:59:52.862Z",
         "createdAt": "2026-09-28T06:59:52.862Z"
       }
     },
     {
-      "createdByName": "Mukund Krishna",
+      "id": "list-santorini-01",
+      "country": "Greece",
+      "price": 450,
+      "reviewCount": 42,
       "images": [
         "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80"
       ],
-      "id": "list-santorini-01",
-      "timestamps": {
-        "updatedAt": "2026-09-28T06:59:52.862Z",
-        "createdAt": "2026-09-28T06:59:52.862Z"
-      },
-      "reviewCount": 42,
-      "location": "Oia, Santorini Island",
-      "rating": 4.95,
-      "country": "Greece",
       "coordinates": {
-        "lat": 36.4618,
-        "lng": 25.3753
+        "lng": 25.3753,
+        "lat": 36.4618
       },
+      "location": "Oia, Santorini Island",
+      "status": "PUBLISHED",
+      "category": "PLACE",
+      "description": "Breathtaking views of the Aegean Sea and the famous blue-domed churches. Experience the world-renowned Oia sunset from the best vantage point.",
       "tags": [
         "Scenic",
         "Romantic",
         "Sunset"
       ],
-      "price": 450,
-      "category": "PLACE",
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "createdByName": "Mukund Krishna",
+      "timestamps": {
+        "updatedAt": "2026-09-28T06:59:52.862Z",
+        "createdAt": "2026-09-28T06:59:52.862Z"
+      },
       "title": "Santorini Caldera Cliffside & Oia Sunset Panorama",
       "amenities": [
         "Panoramic View",
         "Photo Spots"
       ],
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "status": "PUBLISHED",
-      "description": "Breathtaking views of the Aegean Sea and the famous blue-domed churches. Experience the world-renowned Oia sunset from the best vantage point."
+      "rating": 4.95
     },
     {
-      "price": 320,
-      "title": "Bürgenstock Resort Alpine Spa Experience",
-      "coordinates": {
-        "lat": 47.0012,
-        "lng": 8.3812
-      },
       "description": "Enjoy the legendary infinity pool 500 meters above Lake Lucerne. A sanctuary of peace with panoramic views of the Swiss Alps.",
-      "location": "Lucerne",
+      "price": 320,
+      "createdByName": "Mukund Krishna",
+      "id": "list-swiss-alps-05",
+      "reviewCount": 54,
       "timestamps": {
         "updatedAt": "2026-09-28T06:59:52.862Z",
         "createdAt": "2026-09-28T06:59:52.862Z"
       },
-      "status": "PUBLISHED",
+      "coordinates": {
+        "lng": 8.3812,
+        "lat": 47.0012
+      },
       "tags": [
         "Spa",
         "Alps",
         "Infinity Pool"
       ],
-      "createdByName": "Mukund Krishna",
-      "category": "PLACE",
-      "createdBy": "mukundkrishna2008@gmail.com",
+      "rating": 4.99,
+      "country": "Switzerland",
       "amenities": [
         "Thermal Baths",
         "Panorama Terrace"
@@ -469,138 +806,127 @@
       "images": [
         "https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&w=1200&q=80"
       ],
-      "country": "Switzerland",
-      "id": "list-swiss-alps-05",
-      "reviewCount": 54,
-      "rating": 4.99
+      "location": "Lucerne",
+      "status": "PUBLISHED",
+      "category": "PLACE",
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "title": "Bürgenstock Resort Alpine Spa Experience"
     },
     {
+      "duration": "2 Days / 1 Night",
       "category": "PACKAGE",
-      "timestamps": {
-        "updatedAt": "2026-09-28T06:59:52.862Z",
-        "createdAt": "2026-09-28T06:59:52.862Z"
-      },
-      "amenities": [
-        "Spa Access",
-        "Cable Car Pass",
-        "Mountain Guide"
-      ],
-      "createdBy": "mukundkrishna2008@gmail.com",
       "status": "PUBLISHED",
-      "description": "Rejuvenate your soul with an exclusive Alpine Spa bundle. Includes full day access to Bürgenstock Resort Spa and a guided panoramic mountain tour.",
+      "location": "Lucerne",
+      "listingIds": [
+        "list-swiss-alps-05"
+      ],
+      "country": "Switzerland",
+      "timestamps": {
+        "createdAt": "2026-09-28T06:59:52.862Z",
+        "updatedAt": "2026-09-28T06:59:52.862Z"
+      },
       "createdByName": "Mukund Krishna",
+      "images": [
+        "https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1517022812141-23620dba5c23?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "title": "Alpine Wellness & Spa Escape",
+      "id": "pkg-alpine-wellness-01",
+      "reviewCount": 5,
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "price": 550,
+      "rating": 5,
       "tags": [
         "Wellness Bundle",
         "Alps Escape",
         "Premium"
       ],
-      "price": 550,
-      "duration": "2 Days / 1 Night",
-      "title": "Alpine Wellness & Spa Escape",
-      "country": "Switzerland",
-      "rating": 5,
-      "listingIds": [
-        "list-swiss-alps-05"
-      ],
-      "id": "pkg-alpine-wellness-01",
-      "location": "Lucerne",
-      "images": [
-        "https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1517022812141-23620dba5c23?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "reviewCount": 5
+      "description": "Rejuvenate your soul with an exclusive Alpine Spa bundle. Includes full day access to Bürgenstock Resort Spa and a guided panoramic mountain tour.",
+      "amenities": [
+        "Spa Access",
+        "Cable Car Pass",
+        "Mountain Guide"
+      ]
     },
     {
-      "description": "Immerse yourself in Kyoto heritage with a riverside stay at Hoshinoya and a Michelin-grade Kaiseki dinner at Gion Karyo.",
-      "id": "pkg-kyoto-zen-01",
+      "price": 780,
       "location": "Arashiyama & Gion",
-      "timestamps": {
-        "updatedAt": "2026-09-28T06:59:52.862Z",
-        "createdAt": "2026-09-28T06:59:52.862Z"
-      },
-      "createdByName": "Mukund Krishna",
-      "status": "PUBLISHED",
-      "duration": "3 Days / 2 Nights",
-      "country": "Japan",
-      "listingIds": [
-        "list-hotel-kyoto-04",
-        "list-dining-kyoto-03"
-      ],
-      "images": [
-        "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "amenities": [
-        "Cultural Concierge",
-        "Private Boat Transfer",
-        "Priority Dining Reservation"
-      ],
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "reviewCount": 8,
-      "title": "Kyoto Zen & Gastronomy Package",
       "tags": [
         "Zen Bundle",
         "Kyoto Heritage",
         "Best Value"
       ],
-      "rating": 4.99,
-      "price": 780,
-      "category": "PACKAGE"
-    },
-    {
-      "price": 1200,
-      "title": "Mediterranean Luxury Gastronomy Bundle",
-      "location": "Ravello & Oia",
-      "createdByName": "Mukund Krishna",
+      "id": "pkg-kyoto-zen-01",
       "images": [
-        "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80"
+        "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80"
       ],
-      "reviewCount": 12,
+      "duration": "3 Days / 2 Nights",
+      "category": "PACKAGE",
+      "listingIds": [
+        "list-hotel-kyoto-04",
+        "list-dining-kyoto-03"
+      ],
       "timestamps": {
         "updatedAt": "2026-09-28T06:59:52.862Z",
         "createdAt": "2026-09-28T06:59:52.862Z"
       },
+      "status": "PUBLISHED",
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "reviewCount": 8,
+      "title": "Kyoto Zen & Gastronomy Package",
+      "createdByName": "Mukund Krishna",
+      "amenities": [
+        "Cultural Concierge",
+        "Private Boat Transfer",
+        "Priority Dining Reservation"
+      ],
+      "country": "Japan",
+      "rating": 4.99,
+      "description": "Immerse yourself in Kyoto heritage with a riverside stay at Hoshinoya and a Michelin-grade Kaiseki dinner at Gion Karyo."
+    },
+    {
+      "listingIds": [
+        "list-hotel-amalfi-02",
+        "list-santorini-01"
+      ],
       "tags": [
         "Luxury Bundle",
         "Multi-Country",
         "Best Value"
       ],
-      "country": "Italy & Greece",
-      "rating": 5,
-      "description": "The ultimate Mediterranean luxury experience combining a cliffside stay in Ravello with a sunset tour in Santorini. Save 10% by bundling.",
-      "listingIds": [
-        "list-hotel-amalfi-02",
-        "list-santorini-01"
-      ],
-      "id": "pkg-luxury-europe-01",
-      "category": "PACKAGE",
-      "createdBy": "mukundkrishna2008@gmail.com",
       "amenities": [
         "Concierge Service",
         "Private Transfers",
         "Welcome Gift"
       ],
-      "status": "PUBLISHED"
-    },
-    {
-      "price": 580,
-      "title": "God's Own Country: Mannanthala & Trivandrum Heritage Package",
-      "location": "Mannanthala, Trivandrum",
-      "createdByName": "Mukund Krishna",
-      "reviewCount": 16,
-      "images": [
-        "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=1200&q=80"
-      ],
+      "title": "Mediterranean Luxury Gastronomy Bundle",
+      "id": "pkg-luxury-europe-01",
+      "rating": 5,
+      "createdBy": "mukundkrishna2008@gmail.com",
       "timestamps": {
         "updatedAt": "2026-09-28T06:59:52.862Z",
         "createdAt": "2026-09-28T06:59:52.862Z"
       },
-      "duration": "4 Days / 3 Nights",
-      "rating": 5,
-      "country": "India",
+      "description": "The ultimate Mediterranean luxury experience combining a cliffside stay in Ravello with a sunset tour in Santorini. Save 10% by bundling.",
+      "price": 1200,
+      "images": [
+        "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "location": "Ravello & Oia",
+      "category": "PACKAGE",
+      "status": "PUBLISHED",
+      "country": "Italy & Greece",
+      "createdByName": "Mukund Krishna",
+      "reviewCount": 12
+    },
+    {
+      "listingIds": [
+        "list-mannanthala-place-01",
+        "list-mannanthala-hotel-02",
+        "list-mannanthala-food-03"
+      ],
       "tags": [
         "Kerala Heritage",
         "Tour Package",
@@ -608,696 +934,307 @@
         "Trivandrum",
         "Best Value"
       ],
-      "listingIds": [
-        "list-mannanthala-place-01",
-        "list-mannanthala-hotel-02",
-        "list-mannanthala-food-03"
-      ],
-      "description": "An all-inclusive Kerala journey featuring a 3-night stay at The Greenfields Ayurvedic Estate in Mannanthala, guided Travancore heritage tours, private Ayurvedic massage sessions, and an authentic 24-course Kerala Sadhya feast.",
-      "id": "pkg-mannanthala-trivandrum-01",
       "amenities": [
         "Ayurvedic Treatment Voucher",
         "Airport Chauffeur Transfer",
         "Banana Leaf Feast Included",
         "Private Guide"
       ],
+      "title": "God's Own Country: Mannanthala & Trivandrum Heritage Package",
+      "id": "pkg-mannanthala-trivandrum-01",
+      "rating": 5,
       "createdBy": "mukundkrishna2008@gmail.com",
+      "timestamps": {
+        "createdAt": "2026-09-28T06:59:52.862Z",
+        "updatedAt": "2026-09-28T06:59:52.862Z"
+      },
+      "price": 580,
+      "description": "An all-inclusive Kerala journey featuring a 3-night stay at The Greenfields Ayurvedic Estate in Mannanthala, guided Travancore heritage tours, private Ayurvedic massage sessions, and an authentic 24-course Kerala Sadhya feast.",
+      "location": "Mannanthala, Trivandrum",
+      "images": [
+        "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "duration": "4 Days / 3 Nights",
       "category": "PACKAGE",
+      "country": "India",
       "status": "PUBLISHED",
+      "createdByName": "Mukund Krishna",
+      "reviewCount": 16,
       "coordinates": {
         "lat": 8.5583,
         "lng": 76.9458
-      }
-    },
-    {
-      "id": "list-albania-tirana-01",
-      "title": "Tirana Historic Center, Skanderbeg Square & Dajti Mountain",
-      "category": "PLACE",
-      "price": 65,
-      "rating": 4.93,
-      "reviewCount": 42,
-      "location": "Tirana",
-      "country": "Albania",
-      "coordinates": {
-        "lat": 41.3275,
-        "lng": 19.8187
-      },
-      "description": "Vibrant Albanian capital featuring Skanderbeg Square, Et'hem Bey Mosque, Clock Tower, Bunk'Art 2 museum, Murat Toptani Street, Tirana Castle, New Bazaar, and panoramic views from Mount Dajti cable car.",
-      "images": [
-        "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "status": "PUBLISHED",
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "createdByName": "Mukund Krishna",
-      "tags": [
-        "Albania Capital",
-        "Skanderbeg Square",
-        "BunkArt 2",
-        "Mount Dajti",
-        "Historic Tirana"
-      ],
-      "amenities": [
-        "Dajti Cable Car Ticket",
-        "BunkArt 2 Audio Guide",
-        "Skanderbeg Walking Tour",
-        "Castle Courtyard Access"
-      ],
-      "timestamps": {
-        "createdAt": "2026-09-29T17:47:43.626Z",
-        "updatedAt": "2026-09-29T17:47:43.626Z"
-      }
-    },
-    {
-      "id": "list-albania-berat-02",
-      "title": "Berat UNESCO 'City of a Thousand Windows' & Kala Fortress",
-      "category": "PLACE",
-      "price": 85,
-      "rating": 4.97,
-      "reviewCount": 56,
-      "location": "Berat",
-      "country": "Albania",
-      "coordinates": {
-        "lat": 40.7058,
-        "lng": 19.9522
-      },
-      "description": "UNESCO World Heritage gem on the Osum River. Explore the ancient Mangalem Quarter, the hilltop Berat Castle (Kala), Onufri Iconographic Museum, historic Gorica Bridge, and scenic riverside promenade.",
-      "images": [
-        "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "status": "PUBLISHED",
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "createdByName": "Mukund Krishna",
-      "tags": [
-        "UNESCO Heritage",
-        "Berat Castle",
-        "City of Thousand Windows",
-        "Osum River",
-        "Gorica Bridge"
-      ],
-      "amenities": [
-        "Onufri Museum Entry",
-        "Berat Kala Guided Walk",
-        "Gorica Historic Photography Pass"
-      ],
-      "timestamps": {
-        "createdAt": "2026-09-29T17:47:43.626Z",
-        "updatedAt": "2026-09-29T17:47:43.626Z"
-      }
-    },
-    {
-      "id": "list-albania-gjirokaster-03",
-      "title": "Gjirokastër Stone Fortress, Old Bazaar & Ottoman Mansions",
-      "category": "PLACE",
-      "price": 75,
-      "rating": 4.95,
-      "reviewCount": 39,
-      "location": "Gjirokastër",
-      "country": "Albania",
-      "coordinates": {
-        "lat": 40.0758,
-        "lng": 20.1389
-      },
-      "description": "Dramatic hillside UNESCO stone town featuring the massive Gjirokastër Castle, the cobblestone Old Bazaar (Qafa e Pazarit), and preserved 18th-century Ottoman fortified mansions including Skënduli House and Zekate House.",
-      "images": [
-        "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "status": "PUBLISHED",
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "createdByName": "Mukund Krishna",
-      "tags": [
-        "Stone City",
-        "UNESCO Gjirokaster",
-        "Ottoman Mansions",
-        "Old Bazaar",
-        "Skenduli House"
-      ],
-      "amenities": [
-        "Gjirokastër Castle Pass",
-        "Skënduli Heritage Tour",
-        "Old Bazaar Artisan Guide"
-      ],
-      "timestamps": {
-        "createdAt": "2026-09-29T17:47:43.626Z",
-        "updatedAt": "2026-09-29T17:47:43.626Z"
-      }
-    },
-    {
-      "id": "list-albania-blueeye-04",
-      "title": "Syri i Kaltër (The Blue Eye) Natural Spring Sanctuary",
-      "category": "PLACE",
-      "price": 95,
-      "rating": 4.98,
-      "reviewCount": 68,
-      "location": "Sarandë & Blue Eye",
-      "country": "Albania",
-      "coordinates": {
-        "lat": 39.9242,
-        "lng": 20.1919
-      },
-      "description": "A mesmerizing hypnotic natural phenomenon with crystal-clear turquoise spring water bubbling up from unknown depths beneath emerald oak trees, followed by sunset strolls along the lively Sarandë Promenade.",
-      "images": [
-        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "status": "PUBLISHED",
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "createdByName": "Mukund Krishna",
-      "tags": [
-        "Blue Eye",
-        "Syri i Kalter",
-        "Sarande Waterfront",
-        "Natural Wonder",
-        "Ionian Coast"
-      ],
-      "amenities": [
-        "Nature Park Reserve Ticket",
-        "Sarandë Promenade Sunset Pass",
-        "Scenic Lookout Access"
-      ],
-      "timestamps": {
-        "createdAt": "2026-09-29T17:47:43.626Z",
-        "updatedAt": "2026-09-29T17:47:43.626Z"
-      }
-    },
-    {
-      "id": "list-albania-ksamil-hotel-05",
-      "title": "Ksamil Riviera Azure Clifftop Suites & 4 Islands Lagoon",
-      "category": "HOTEL",
-      "price": 260,
-      "rating": 4.99,
-      "reviewCount": 51,
-      "location": "Ksamil",
-      "country": "Albania",
-      "coordinates": {
-        "lat": 39.7719,
-        "lng": 20.0036
-      },
-      "description": "Premier boutique waterfront retreat directly overlooking Bora Bora Beach and Beach 7 in Ksamil. Features private island boat transfers, panoramic sea-view balconies, private infinity pool, and fresh Mediterranean breakfast.",
-      "images": [
-        "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "status": "PUBLISHED",
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "createdByName": "Mukund Krishna",
-      "tags": [
-        "Ksamil Stays",
-        "Bora Bora Beach",
-        "Ionian Luxury",
-        "Island Boat Transfer",
-        "Seaside Villa"
-      ],
-      "amenities": [
-        "Private Beach Loungers",
-        "Ksamil Island Boat Transfer",
-        "Seaview Infinity Pool",
-        "Daily Champagne Breakfast"
-      ],
-      "timestamps": {
-        "createdAt": "2026-09-29T17:47:43.626Z",
-        "updatedAt": "2026-09-29T17:47:43.626Z"
-      }
-    },
-    {
-      "id": "list-albania-butrint-06",
-      "title": "Butrint UNESCO National Archaeological Park & Sanctuary",
-      "category": "PLACE",
-      "price": 80,
-      "rating": 4.96,
-      "reviewCount": 34,
-      "location": "Butrint",
-      "country": "Albania",
-      "coordinates": {
-        "lat": 39.7439,
-        "lng": 20.0211
-      },
-      "description": "Ancient Greek, Roman, Byzantine, and Venetian ruins nestled on a tranquil peninsula surrounded by Lake Butrint and the Vivari Channel. Features a preserved amphitheater, Roman baptistery, basilica, and Venetian castle.",
-      "images": [
-        "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "status": "PUBLISHED",
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "createdByName": "Mukund Krishna",
-      "tags": [
-        "UNESCO Butrint",
-        "Archaeological Park",
-        "Greek Theater",
-        "Venetian Castle",
-        "Ionian Heritage"
-      ],
-      "amenities": [
-        "UNESCO Archaeological Pass",
-        "Guided Historic Trail",
-        "Vivari Channel Viewpoint"
-      ],
-      "timestamps": {
-        "createdAt": "2026-09-29T17:47:43.626Z",
-        "updatedAt": "2026-09-29T17:47:43.626Z"
-      }
-    },
-    {
-      "id": "list-albania-dhermi-dining-07",
-      "title": "Drymades Coast Clifftop Dining & Porto Palermo Grills",
-      "category": "FOOD",
-      "price": 110,
-      "rating": 4.94,
-      "reviewCount": 29,
-      "location": "Dhërmi & Porto Palermo",
-      "country": "Albania",
-      "coordinates": {
-        "lat": 40.1539,
-        "lng": 19.6428
-      },
-      "description": "Exquisite seaside dining on the Albanian Riviera coast. Enjoy freshly grilled sea bass, wild octopus, Byrek, sheep cheeses from Llogara Pass, and local Shesh i Zi wines with cliffside views over the Ionian Sea.",
-      "images": [
-        "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "status": "PUBLISHED",
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "createdByName": "Mukund Krishna",
-      "tags": [
-        "Albanian Riviera Dining",
-        "Drymades Coast",
-        "Fresh Seafood",
-        "Porto Palermo",
-        "Llogara Wine"
-      ],
-      "amenities": [
-        "Panoramic Cliff Table",
-        "Sommelier Wine Pairing",
-        "Catch of the Day Selection"
-      ],
-      "timestamps": {
-        "createdAt": "2026-09-29T17:47:43.626Z",
-        "updatedAt": "2026-09-29T17:47:43.626Z"
-      }
-    },
-    {
-      "id": "pkg-albania-9day-basic",
-      "title": "Albania 9-Day Grand Explorer: Tirana to Riviera (Basic Package)",
-      "category": "PACKAGE",
-      "price": 1350,
-      "rating": 4.95,
-      "reviewCount": 28,
-      "location": "Tirana • Berat • Gjirokastër • Sarandë • Ksamil • Riviera",
-      "country": "Albania",
-      "description": "The complete 9-day condensed Albania circuit (9 Oct – 19 Oct 2026) starting from India (TRV) via Muscat & Milan to Tirana, Berat UNESCO castle, Gjirokastër stone fortress, Blue Eye spring, Ksamil islands, and the dramatic Albanian Riviera coast. Price: ₹1,11,018–₹1,26,518/person (₹4,44,072–₹5,06,072 for 4 people).",
-      "images": [
-        "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "status": "PUBLISHED",
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "createdByName": "Mukund Krishna",
-      "listingIds": [
-        "list-albania-tirana-01",
-        "list-albania-berat-02",
-        "list-albania-gjirokaster-03",
-        "list-albania-blueeye-04",
-        "list-albania-butrint-06"
-      ],
-      "tags": [
-        "Albania 9-Day",
-        "Basic Package",
-        "Best Value",
-        "₹1.11L - ₹1.26L",
-        "Economy Airfare",
-        "UNESCO Trail"
-      ],
-      "amenities": [
-        "Economy Flight Allocation (₹67,518)",
-        "Private-Room Hotels (₹43,500)",
-        "Practical Driver Allowance",
-        "All Core Sightseeing Admissions"
-      ],
-      "duration": "9 Days / 8 Nights (9-19 Oct 2026)",
-      "timestamps": {
-        "createdAt": "2026-09-29T17:47:43.626Z",
-        "updatedAt": "2026-09-29T17:47:43.626Z"
-      }
-    },
-    {
-      "id": "pkg-albania-9day-midrange",
-      "title": "Albania 9-Day Boutique Stays & Private Driver (Mid-Range Package)",
-      "category": "PACKAGE",
-      "price": 1750,
-      "rating": 4.98,
-      "reviewCount": 35,
-      "location": "Tirana • Berat • Gjirokastër • Sarandë • Ksamil • Dhërmi",
-      "country": "Albania",
-      "description": "Upgraded comfort on the complete 9-day Albania route with hand-picked boutique hotels, dedicated private air-conditioned vehicle with English-speaking driver, comfortable restaurant allowance, Dajti cable car pass, and guided historic admissions. Price: ₹1,43,390–₹1,67,390/person (₹5,73,560–₹6,69,560 for 4 people).",
-      "images": [
-        "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "status": "PUBLISHED",
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "createdByName": "Mukund Krishna",
-      "listingIds": [
-        "list-albania-tirana-01",
-        "list-albania-berat-02",
-        "list-albania-gjirokaster-03",
-        "list-albania-blueeye-04",
-        "list-albania-ksamil-hotel-05",
-        "list-albania-butrint-06",
-        "list-albania-dhermi-dining-07"
-      ],
-      "tags": [
-        "Albania 9-Day",
-        "Mid-Range Package",
-        "Boutique Hotels",
-        "₹1.43L - ₹1.67L",
-        "Private Vehicle + Driver",
-        "Popular"
-      ],
-      "amenities": [
-        "Economy Flight (₹74,890)",
-        "Boutique Hotels (₹68,500)",
-        "Dedicated Private Vehicle & Driver",
-        "Comfortable Restaurant Allowance",
-        "Dajti Cable Car Included"
-      ],
-      "duration": "9 Days / 8 Nights (9-19 Oct 2026)",
-      "timestamps": {
-        "createdAt": "2026-09-29T17:47:43.626Z",
-        "updatedAt": "2026-09-29T17:47:43.626Z"
-      }
-    },
-    {
-      "id": "pkg-albania-9day-luxury",
-      "title": "Albania 9-Day Luxury Riviera & UNESCO VIP Odyssey (Luxury Package)",
-      "category": "PACKAGE",
-      "price": 5200,
-      "rating": 5,
-      "reviewCount": 22,
-      "location": "Tirana • Berat • Gjirokastër • Blue Eye • Sarandë • Ksamil • Porto Palermo • Dhërmi",
-      "country": "Albania",
-      "description": "The ultra-premium Albania Grand Tour featuring 5-star luxury and seaside boutique suites, premium cabin flight allowance, high-comfort private luxury vehicle, private chartered boat to Ksamil 4 islands, VIP private historians at Butrint & Berat Castle, and upscale gastronomy allowances. Price: ₹4,24,343–₹4,73,343/person (₹16,97,372–₹18,93,372 for 4 people).",
-      "images": [
-        "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80"
-      ],
-      "status": "PUBLISHED",
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "createdByName": "Mukund Krishna",
-      "listingIds": [
-        "list-albania-tirana-01",
-        "list-albania-berat-02",
-        "list-albania-gjirokaster-03",
-        "list-albania-blueeye-04",
-        "list-albania-ksamil-hotel-05",
-        "list-albania-butrint-06",
-        "list-albania-dhermi-dining-07"
-      ],
-      "tags": [
-        "Albania 9-Day",
-        "Luxury VIP Package",
-        "5-Star Seaside Suites",
-        "₹4.24L - ₹4.73L",
-        "Premium Economy / Business Flight",
-        "Private Ksamil Boat Cruise"
-      ],
-      "amenities": [
-        "Premium Economy Airfare (₹2,95,343)",
-        "Luxury Upscale Hotels (₹1,29,000)",
-        "Private Luxury Chauffeur",
-        "Private Chartered Ksamil Islands Cruise",
-        "VIP Historian Guides",
-        "Upscale Dining & Wine Allowance",
-        "24/7 Concierge Support"
-      ],
-      "duration": "9 Days / 8 Nights (9-19 Oct 2026)",
-      "timestamps": {
-        "createdAt": "2026-09-29T17:47:43.626Z",
-        "updatedAt": "2026-09-29T17:47:43.626Z"
       }
     }
   ],
   "audit_logs": [
     {
+      "targetType": "CONCIERGE_MESSAGE",
+      "targetId": "user_traveler_03",
+      "action": "ADMIN_CONCIERGE_REPLY",
+      "ipAddress": "127.0.0.1",
+      "id": "audit-1790572678828-n8exq",
+      "performedBy": "mukundkrishna.h2008@gmail.com",
+      "timestamp": "2026-09-28T05:17:58.828Z",
       "details": {
         "role": "ADMIN",
         "snippet": "Hello Alex! Mukund from Voyage Concierge here. The Ksamil Is",
         "recipient": "alex.globetrotter@example.com"
-      },
-      "targetType": "CONCIERGE_MESSAGE",
-      "action": "ADMIN_CONCIERGE_REPLY",
-      "performedBy": "mukundkrishna.h2008@gmail.com",
-      "targetId": "user_traveler_03",
-      "timestamp": "2026-09-28T05:17:58.828Z",
-      "ipAddress": "127.0.0.1",
-      "id": "audit-1790572678828-n8exq"
+      }
     },
     {
-      "targetId": "user_traveler_03",
-      "action": "CLIENT_CONCIERGE_INQUIRY",
-      "details": {
-        "recipient": "user_traveler_03",
-        "role": "CLIENT",
-        "snippet": "Hello Voyage Concierge, I have an inquiry about booking the "
-      },
-      "ipAddress": "127.0.0.1",
       "timestamp": "2026-09-28T05:17:53.317Z",
+      "details": {
+        "role": "CLIENT",
+        "snippet": "Hello Voyage Concierge, I have an inquiry about booking the ",
+        "recipient": "user_traveler_03"
+      },
+      "targetId": "user_traveler_03",
+      "ipAddress": "127.0.0.1",
+      "action": "CLIENT_CONCIERGE_INQUIRY",
       "targetType": "CONCIERGE_MESSAGE",
       "performedBy": "alex.globetrotter@example.com",
       "id": "audit-1790572673317-e4r8p"
     },
     {
-      "targetId": "list_1790001133492_7uel",
-      "targetType": "LISTING",
       "action": "CREATE_AND_PUBLISH_LISTING",
-      "id": "audit-1790001133434-45z0t",
+      "ipAddress": "49.37.235.14",
       "details": {
-        "title": "Ginza Hachiman Edomae Sushi",
-        "adminEmail": "mukundkrishna.h2008@gmail.com",
+        "adminId": "user_tech_admin_02",
         "adminRole": "USER",
         "timestamp": "2026-09-21T14:32:13.496Z",
-        "status": "PUBLISHED",
-        "adminId": "user_tech_admin_02"
+        "adminEmail": "mukundkrishna.h2008@gmail.com",
+        "title": "Ginza Hachiman Edomae Sushi",
+        "status": "PUBLISHED"
       },
-      "performedBy": "token_bypass_1790000863229",
-      "timestamp": "2026-09-21T14:32:13.434Z",
+      "id": "audit-1790001133434-45z0t",
       "performedByEmail": "user_token_by@traveler.io",
-      "ipAddress": "49.37.235.14"
+      "timestamp": "2026-09-21T14:32:13.434Z",
+      "targetId": "list_1790001133492_7uel",
+      "targetType": "LISTING",
+      "performedBy": "token_bypass_1790000863229"
     },
     {
-      "targetId": "1e4a016d-c195-4e35-bc0b-f039abecaf49",
+      "details": {
+        "adminId": "1e4a016d-c195-4e35-bc0b-f039abecaf49",
+        "adminEmail": "mukundkrishna.h2008@gmail.com",
+        "adminRole": "USER",
+        "mfaEnabled": true,
+        "timestamp": "2026-09-17T01:36:08.525Z"
+      },
+      "timestamp": "2026-09-17T01:36:08.446Z",
       "targetType": "USER_SECURITY",
+      "performedBy": "token_1e4a016d-c195-4e35-bc0b-f039abecaf49",
+      "performedByEmail": "user_token_1e@traveler.io",
       "action": "ENABLE_2FA",
       "id": "audit-1789608968446-uq3dq",
-      "details": {
-        "mfaEnabled": true,
-        "adminId": "1e4a016d-c195-4e35-bc0b-f039abecaf49",
-        "timestamp": "2026-09-17T01:36:08.525Z",
-        "adminRole": "USER",
-        "adminEmail": "mukundkrishna.h2008@gmail.com"
-      },
-      "performedBy": "token_1e4a016d-c195-4e35-bc0b-f039abecaf49",
-      "timestamp": "2026-09-17T01:36:08.446Z",
-      "performedByEmail": "user_token_1e@traveler.io",
+      "targetId": "1e4a016d-c195-4e35-bc0b-f039abecaf49",
       "ipAddress": "2405:201:f01a:588a:87f7:c13e:238e:298e"
     },
     {
-      "targetId": "user_1789401081942",
-      "performedBy": "mukundkrishna.h2008@gmail.com",
-      "id": "audit-1789560832382-9wiu2",
-      "ipAddress": "49.37.233.109",
-      "timestamp": "2026-09-16T12:13:52.382Z",
       "targetType": "AUTH",
-      "action": "USER_PASSWORD_LOGIN_SUCCESS"
+      "timestamp": "2026-09-16T12:13:52.382Z",
+      "performedBy": "mukundkrishna.h2008@gmail.com",
+      "action": "USER_PASSWORD_LOGIN_SUCCESS",
+      "targetId": "user_1789401081942",
+      "ipAddress": "49.37.233.109",
+      "id": "audit-1789560832382-9wiu2"
     },
     {
+      "ipAddress": "127.0.0.1",
+      "targetType": "USER",
+      "performedByEmail": "mukundkrishna.h2008@gmail.com",
+      "performedBy": "user_tech_admin_02",
+      "action": "ADD_NEW_USER_AND_POST",
       "details": {
-        "email": "nihanabraham007@gmail.com",
-        "customTitle": "Manager",
         "adminEmail": "mukundkrishna.h2008@gmail.com",
-        "adminId": "user_tech_admin_02",
+        "customTitle": "Manager",
+        "timestamp": "2026-09-16T05:54:34.907Z",
         "role": "ADMIN",
-        "timestamp": "2026-09-16T05:54:34.907Z"
+        "adminId": "user_tech_admin_02",
+        "email": "nihanabraham007@gmail.com"
       },
       "timestamp": "2026-09-16T05:54:34.908Z",
-      "targetId": "user_1789538074905_7toi",
-      "performedByEmail": "mukundkrishna.h2008@gmail.com",
-      "action": "ADD_NEW_USER_AND_POST",
-      "performedBy": "user_tech_admin_02",
       "id": "log-1789538074908-r0i2m",
-      "targetType": "USER",
-      "ipAddress": "127.0.0.1"
+      "targetId": "user_1789538074905_7toi"
     },
     {
       "details": {
+        "email": "sarah.content@travelplatform.io",
         "customTitle": "Head of Destination Curation",
         "newRole": "USER",
-        "department": "Content & Editorial",
-        "email": "sarah.content@travelplatform.io"
+        "department": "Content & Editorial"
       },
-      "id": "log-1789536439137-x34gu",
-      "performedBy": "Technical Super Admin",
-      "targetId": "user_admin_02",
+      "timestamp": "2026-09-16T05:27:19.137Z",
       "targetType": "USER",
-      "action": "UPDATE_USER_ROLE_AND_POST",
+      "performedBy": "Technical Super Admin",
       "ipAddress": "127.0.0.1",
-      "timestamp": "2026-09-16T05:27:19.137Z"
+      "targetId": "user_admin_02",
+      "action": "UPDATE_USER_ROLE_AND_POST",
+      "id": "log-1789536439137-x34gu"
     },
     {
+      "targetId": "post_travel_critic",
+      "performedBy": "mukundkrishna.h2008@gmail.com",
+      "timestamp": "2026-09-16T05:27:05.993Z",
+      "targetType": "CUSTOM_POST",
       "details": {
+        "department": "Hospitality Review",
+        "baseRole": "USER",
+        "title": "Lead Travel & Culinary Critic",
         "privileges": [
           "PUBLISH_DIRECTLY"
-        ],
-        "title": "Lead Travel & Culinary Critic",
-        "department": "Hospitality Review",
-        "baseRole": "USER"
+        ]
       },
-      "targetType": "CUSTOM_POST",
-      "targetId": "post_travel_critic",
       "ipAddress": "127.0.0.1",
-      "timestamp": "2026-09-16T05:27:05.993Z",
-      "action": "SAVE_CUSTOM_POST_TEMPLATE",
       "id": "log-1789536425993-tbogo",
-      "performedBy": "mukundkrishna.h2008@gmail.com"
+      "action": "SAVE_CUSTOM_POST_TEMPLATE"
     },
     {
-      "ipAddress": "127.0.0.1",
       "timestamp": "2026-09-16T05:26:55.974Z",
+      "id": "log-1789536415974-w2r8d",
+      "targetType": "CUSTOM_POST",
+      "action": "SAVE_CUSTOM_POST_TEMPLATE",
+      "targetId": "post_1789536415589_cvyw",
+      "performedBy": "mukundkrishna.h2008@gmail.com",
+      "ipAddress": "127.0.0.1",
       "details": {
-        "department": "Content & Editorial",
         "title": "Lead Destination & Hotel Curator",
+        "department": "Content & Editorial",
         "privileges": [
           "PUBLISH_DIRECTLY",
           "EDIT_ALL_CONTENT"
         ],
         "baseRole": "USER"
-      },
-      "id": "log-1789536415974-w2r8d",
-      "performedBy": "mukundkrishna.h2008@gmail.com",
-      "targetType": "CUSTOM_POST",
-      "targetId": "post_1789536415589_cvyw",
-      "action": "SAVE_CUSTOM_POST_TEMPLATE"
-    },
-    {
-      "details": {
-        "adminId": "mukundkrishna.h2008@gmail.com",
-        "timestamp": "2026-09-16T04:59:03.419Z",
-        "origin": "https://travel-agencey-voyage.vercel.app",
-        "adminEmail": "mukundkrishna.h2008@gmail.com",
-        "errorCode": "auth/unauthorized-domain",
-        "action": "OAUTH_POPUP",
-        "hostname": "travel-agencey-voyage.vercel.app",
-        "category": "UNAUTHORIZED_DOMAIN"
-      },
-      "ipAddress": "127.0.0.1",
-      "targetId": "mukundkrishna.h2008@gmail.com",
-      "performedBy": "mukundkrishna.h2008@gmail.com",
-      "performedByEmail": "mukundkrishna.h2008@gmail.com",
-      "timestamp": "2026-09-16T04:59:03.419Z",
-      "action": "AUTH_FAILURE_UNAUTHORIZED_DOMAIN",
-      "targetType": "AUTHENTICATION_EVENT",
-      "id": "log-1789534743419-ebn5x"
-    },
-    {
-      "details": {
-        "category": "UNAUTHORIZED_DOMAIN",
-        "hostname": "travel-agencey-voyage.vercel.app",
-        "action": "OAUTH_POPUP",
-        "errorCode": "auth/unauthorized-domain",
-        "adminId": "GUEST",
-        "origin": "https://travel-agencey-voyage.vercel.app",
-        "timestamp": "2026-09-16T04:58:38.271Z"
-      },
-      "ipAddress": "127.0.0.1",
-      "timestamp": "2026-09-16T04:58:38.272Z",
-      "targetId": "OAUTH_CLIENT",
-      "performedBy": "GUEST",
-      "targetType": "AUTHENTICATION_EVENT",
-      "id": "log-1789534718272-m1ryj",
-      "action": "AUTH_FAILURE_UNAUTHORIZED_DOMAIN"
-    },
-    {
-      "action": "AUTH_FAILURE_UNAUTHORIZED_DOMAIN",
-      "targetId": "OAUTH_CLIENT",
-      "id": "log-1789528960390-wsqry",
-      "targetType": "AUTHENTICATION_EVENT",
-      "timestamp": "2026-09-16T03:22:40.390Z",
-      "ipAddress": "127.0.0.1",
-      "performedBy": "GUEST",
-      "details": {
-        "action": "OAUTH_POPUP",
-        "timestamp": "2026-09-16T03:22:40.388Z",
-        "hostname": "travel-agencey-voyage.vercel.app",
-        "origin": "https://travel-agencey-voyage.vercel.app",
-        "adminId": "GUEST",
-        "errorCode": "auth/unauthorized-domain",
-        "category": "UNAUTHORIZED_DOMAIN"
       }
     },
     {
-      "performedBy": "mukundkrishna2008@gmail.com",
-      "action": "TECH_ADMIN_LOGIN_SUCCESS",
+      "id": "log-1789534743419-ebn5x",
+      "timestamp": "2026-09-16T04:59:03.419Z",
+      "performedBy": "mukundkrishna.h2008@gmail.com",
+      "performedByEmail": "mukundkrishna.h2008@gmail.com",
+      "targetType": "AUTHENTICATION_EVENT",
+      "details": {
+        "adminId": "mukundkrishna.h2008@gmail.com",
+        "errorCode": "auth/unauthorized-domain",
+        "hostname": "travel-agencey-voyage.vercel.app",
+        "adminEmail": "mukundkrishna.h2008@gmail.com",
+        "category": "UNAUTHORIZED_DOMAIN",
+        "timestamp": "2026-09-16T04:59:03.419Z",
+        "action": "OAUTH_POPUP",
+        "origin": "https://travel-agencey-voyage.vercel.app"
+      },
       "ipAddress": "127.0.0.1",
-      "timestamp": "2026-09-16T01:22:27.264Z",
-      "targetType": "AUTH",
+      "action": "AUTH_FAILURE_UNAUTHORIZED_DOMAIN",
+      "targetId": "mukundkrishna.h2008@gmail.com"
+    },
+    {
+      "targetId": "OAUTH_CLIENT",
+      "details": {
+        "action": "OAUTH_POPUP",
+        "errorCode": "auth/unauthorized-domain",
+        "origin": "https://travel-agencey-voyage.vercel.app",
+        "category": "UNAUTHORIZED_DOMAIN",
+        "hostname": "travel-agencey-voyage.vercel.app",
+        "timestamp": "2026-09-16T04:58:38.271Z",
+        "adminId": "GUEST"
+      },
+      "timestamp": "2026-09-16T04:58:38.272Z",
+      "targetType": "AUTHENTICATION_EVENT",
+      "performedBy": "GUEST",
+      "id": "log-1789534718272-m1ryj",
+      "ipAddress": "127.0.0.1",
+      "action": "AUTH_FAILURE_UNAUTHORIZED_DOMAIN"
+    },
+    {
+      "id": "log-1789528960390-wsqry",
+      "details": {
+        "adminId": "GUEST",
+        "errorCode": "auth/unauthorized-domain",
+        "hostname": "travel-agencey-voyage.vercel.app",
+        "timestamp": "2026-09-16T03:22:40.388Z",
+        "category": "UNAUTHORIZED_DOMAIN",
+        "origin": "https://travel-agencey-voyage.vercel.app",
+        "action": "OAUTH_POPUP"
+      },
+      "targetId": "OAUTH_CLIENT",
+      "targetType": "AUTHENTICATION_EVENT",
+      "timestamp": "2026-09-16T03:22:40.390Z",
+      "performedBy": "GUEST",
+      "action": "AUTH_FAILURE_UNAUTHORIZED_DOMAIN",
+      "ipAddress": "127.0.0.1"
+    },
+    {
+      "targetId": "AUTH_SESSION",
+      "ipAddress": "127.0.0.1",
+      "action": "TECH_ADMIN_LOGIN_SUCCESS",
       "details": {
         "role": "TECH_ADMIN",
         "method": "GOOGLE_OAUTH_VERIFIED"
       },
-      "targetId": "AUTH_SESSION",
-      "id": "log-init-02"
+      "performedBy": "mukundkrishna2008@gmail.com",
+      "timestamp": "2026-09-16T01:22:27.264Z",
+      "id": "log-init-02",
+      "targetType": "AUTH"
     },
     {
+      "action": "SYSTEM_BOOTSTRAP",
+      "ipAddress": "127.0.0.1",
+      "id": "log-init-01",
+      "performedBy": "System Engine",
+      "targetType": "SYSTEM",
+      "timestamp": "2026-09-15T03:22:27.264Z",
+      "targetId": "TRAVEL_PLATFORM_CORE",
       "details": {
         "environment": "Production & Static Hybrid",
         "version": "2.4.0"
-      },
-      "ipAddress": "127.0.0.1",
-      "timestamp": "2026-09-15T03:22:27.264Z",
-      "id": "log-init-01",
-      "targetType": "SYSTEM",
-      "action": "SYSTEM_BOOTSTRAP",
-      "performedBy": "System Engine",
-      "targetId": "TRAVEL_PLATFORM_CORE"
+      }
     }
   ],
   "bookings": [],
   "saved_trips": [],
   "custom_posts": [
     {
-      "title": "Lead Destination & Hotel Curator",
-      "createdBy": "mukundkrishna.h2008@gmail.com",
-      "department": "Content & Editorial",
-      "badgeColor": "sky",
       "syncedAt": {
         "type": "firestore/timestamp/1.0",
         "seconds": 1789536415,
         "nanoseconds": 975000000
       },
-      "description": "Responsible for curating luxury destinations and editing curated hotel collections.",
+      "baseRole": "USER",
+      "badgeColor": "sky",
       "privileges": [
         "PUBLISH_DIRECTLY",
         "EDIT_ALL_CONTENT"
       ],
-      "id": "post_1789536415589_cvyw",
-      "baseRole": "USER",
-      "createdAt": "2026-09-16T05:26:55.589Z"
+      "title": "Lead Destination & Hotel Curator",
+      "description": "Responsible for curating luxury destinations and editing curated hotel collections.",
+      "createdAt": "2026-09-16T05:26:55.589Z",
+      "department": "Content & Editorial",
+      "createdBy": "mukundkrishna.h2008@gmail.com",
+      "id": "post_1789536415589_cvyw"
     },
     {
-      "privileges": [
-        "PUBLISH_DIRECTLY",
-        "EDIT_ALL_CONTENT"
-      ],
       "id": "post_curation_lead",
-      "createdAt": "2025-01-10T00:00:00.000Z",
       "baseRole": "ADMIN",
-      "badgeColor": "sky",
-      "createdBy": "mukundkrishna2008@gmail.com",
       "description": "Direct publishing of luxury travel guides, dining recommendations, and destination reviews.",
       "title": "Head of Destination & Hotel Curation",
-      "department": "Content & Editorial"
+      "department": "Content & Editorial",
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "privileges": [
+        "PUBLISH_DIRECTLY",
+        "EDIT_ALL_CONTENT"
+      ],
+      "badgeColor": "sky",
+      "createdAt": "2025-01-10T00:00:00.000Z"
     },
     {
+      "id": "post_infra_specialist",
+      "department": "Information Security",
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "title": "Senior Infrastructure & Security Specialist",
+      "baseRole": "TECH_SUBADMIN",
+      "description": "Infrastructure health monitoring, security audit log analysis, and listing queue review.",
       "privileges": [
         "APPROVE_QUEUE",
         "REJECT_QUEUE",
@@ -1305,23 +1242,18 @@
         "EDIT_ALL_CONTENT",
         "FIREBASE_CONSOLE_SYNC"
       ],
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "title": "Senior Infrastructure & Security Specialist",
-      "id": "post_infra_specialist",
-      "description": "Infrastructure health monitoring, security audit log analysis, and listing queue review.",
       "badgeColor": "purple",
-      "createdAt": "2025-01-05T00:00:00.000Z",
-      "department": "Information Security",
-      "baseRole": "TECH_SUBADMIN"
+      "createdAt": "2025-01-05T00:00:00.000Z"
     },
     {
-      "title": "Lead Platform Director & Super Admin",
-      "department": "Platform Operations",
-      "badgeColor": "amber",
-      "id": "post_platform_director",
-      "createdBy": "mukundkrishna2008@gmail.com",
       "description": "Strategic oversight across platform operations, content verification, and cloud synchronization.",
       "createdAt": "2025-01-01T00:00:00.000Z",
+      "department": "Platform Operations",
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "title": "Lead Platform Director & Super Admin",
+      "baseRole": "TECH_ADMIN",
+      "badgeColor": "amber",
+      "id": "post_platform_director",
       "privileges": [
         "PUBLISH_DIRECTLY",
         "APPROVE_QUEUE",
@@ -1332,18 +1264,17 @@
         "DELETE_LISTINGS",
         "EDIT_ALL_CONTENT",
         "FIREBASE_CONSOLE_SYNC"
-      ],
-      "baseRole": "TECH_ADMIN"
+      ]
     },
     {
-      "department": "Executive Engineering",
       "baseRole": "TECH_ADMIN",
       "title": "Chief Technology Architect & Super Admin",
-      "createdBy": "mukundkrishna2008@gmail.com",
-      "badgeColor": "amber",
+      "id": "post_tech_architect",
+      "department": "Executive Engineering",
       "description": "Full root authority, system security architecture, user administration, and Firebase cloud management.",
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "id": "post_tech_architect",
+      "badgeColor": "amber",
+      "createdBy": "mukundkrishna2008@gmail.com",
       "privileges": [
         "PUBLISH_DIRECTLY",
         "APPROVE_QUEUE",
@@ -1359,36 +1290,29 @@
     },
     {
       "id": "post_travel_critic",
-      "createdAt": "2025-01-12T00:00:00.000Z",
-      "badgeColor": "emerald",
+      "title": "Lead Travel & Culinary Critic",
+      "department": "Hospitality Review",
+      "baseRole": "USER",
       "syncedAt": {
         "type": "firestore/timestamp/1.0",
         "seconds": 1789536425,
         "nanoseconds": 994000000
       },
+      "createdBy": "mukundkrishna.h2008@gmail.com",
+      "badgeColor": "emerald",
       "description": "Authoring in-depth hotel and dining appraisals with verified badge attachments.",
-      "department": "Hospitality Review",
+      "createdAt": "2025-01-12T00:00:00.000Z",
       "privileges": [
         "PUBLISH_DIRECTLY"
-      ],
-      "createdBy": "mukundkrishna.h2008@gmail.com",
-      "baseRole": "USER",
-      "title": "Lead Travel & Culinary Critic"
+      ]
     }
   ],
   "feed_posts": [
     {
-      "id": "fp_albania_9day_release_2026",
-      "authorId": "user_voyage_official",
-      "authorName": "Voyage Editorial & Platform Administration",
-      "content": "🇦🇱 OFFICIAL PACKAGE LAUNCH: Albania 9-Day Grand Tour (9–19 Oct 2026) • 3 Package Tiers (Basic, Mid-Range, Luxury) & Downloadable PDF Dossiers Now Live!\n\nExplore the complete circuit from India (TRV ⇄ TIA) across Tirana, Berat UNESCO castle, Gjirokastër stone city, Syri i Kaltër (Blue Eye), Ksamil 4-islands boat cruise, Butrint UNESCO park, and the dramatic Albanian Riviera coast (Jalë, Dhërmi, Llogara Pass, Vlorë).\n\n• Basic Package: ₹1,11,018–₹1,26,518/person (4 Pax: ₹4,44,072–₹5,06,072)\n• Mid-Range Package: ₹1,43,390–₹1,67,390/person (4 Pax: ₹5,73,560–₹6,69,560)\n• Luxury Package: ₹4,24,343–₹4,73,343/person (4 Pax: ₹16,97,372–₹18,93,372)\n\nPrintable 11-page PDF itineraries, day-by-day timetable schedules, and side-by-side comparison matrices are available for immediate download on the platform. Concierge booking line: +91 9567465134.",
-      "createdAt": "2026-09-29T17:48:09.576Z"
-    },
-    {
       "createdAt": "2026-09-21T15:11:57.570Z",
+      "authorName": "Mukund Krishna (Technical Super Admin)",
       "authorId": "user_tech_admin_02",
       "content": "hi",
-      "authorName": "Mukund Krishna (Technical Super Admin)",
       "id": "fp_1790003517570_tygo"
     }
   ],

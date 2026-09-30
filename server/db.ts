@@ -3,7 +3,7 @@ import path from 'path';
 import { createRequire } from 'module';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { initializeFirestore, collection, doc, setDoc, deleteDoc, getDocs, onSnapshot } from 'firebase/firestore';
-import { User, Listing, AuditLog, Booking, SavedTrip, CustomPost, FeedPost, CustomTripRequest } from './types.ts';
+import { User, Listing, AuditLog, Booking, SavedTrip, CustomPost, FeedPost, CustomTripRequest, Review } from './types.ts';
 
 const configPath = path.join(process.cwd(), 'firebase-applet-config.json');
 const firebaseConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
@@ -211,586 +211,235 @@ const INITIAL_USERS: User[] = [
 
 const INITIAL_LISTINGS: Listing[] = [
   {
-    id: 'list-santorini-01',
-    title: 'Santorini Caldera Cliffside & Oia Sunset Panorama',
-    category: 'PLACE',
-    price: 450,
-    rating: 4.95,
-    reviewCount: 42,
-    location: 'Oia, Santorini Island',
-    country: 'Greece',
-    coordinates: { lat: 36.4618, lng: 25.3753 },
-    description: 'Breathtaking views of the Aegean Sea and the famous blue-domed churches. Experience the world-renowned Oia sunset from the best vantage point.',
-    images: ['https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80'],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['Scenic', 'Romantic', 'Sunset'],
-    amenities: ['Panoramic View', 'Photo Spots'],
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'list-hotel-amalfi-02',
-    title: 'Belmond Hotel Caruso Cliffside Stay',
-    category: 'HOTEL',
-    price: 850,
-    rating: 4.98,
-    reviewCount: 28,
-    location: 'Ravello, Amalfi Coast',
-    country: 'Italy',
-    coordinates: { lat: 40.6481, lng: 14.6111 },
-    description: 'A former 11th-century palace set on cliffs beside the Amalfi Coast, Belmond Hotel Caruso seems to drift between the sea and sky.',
-    images: ['https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80'],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['Luxury', 'Historic', 'Infinity Pool'],
-    amenities: ['Spa', 'Infinity Pool', 'Fine Dining'],
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'list-dining-kyoto-03',
-    title: 'Gion Karyo Kaiseki Experience',
-    category: 'FOOD',
-    price: 250,
-    rating: 4.92,
-    reviewCount: 35,
-    location: 'Gion District, Kyoto',
-    country: 'Japan',
-    coordinates: { lat: 35.0037, lng: 135.7772 },
-    description: 'Authentic 10-course Kaiseki dinner in a beautifully restored tea house in the heart of historic Gion.',
-    images: ['https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80'],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['Gourmet', 'Traditional', 'Michelin Star'],
-    amenities: ['Tea Ceremony', 'Private Room'],
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'list-hotel-kyoto-04',
-    title: 'Hoshinoya Kyoto Riverside Retreat',
-    category: 'HOTEL',
-    price: 650,
-    rating: 4.97,
-    reviewCount: 19,
-    location: 'Arashiyama, Kyoto',
-    country: 'Japan',
-    coordinates: { lat: 35.0116, lng: 135.6775 },
-    description: 'Accessible only by a private boat, this luxury riverside retreat offers the ultimate Zen experience in a secluded Arashiyama forest.',
-    images: ['https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80'],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['Zen', 'Riverside', 'Exclusive'],
-    amenities: ['Boat Transfer', 'Zen Garden', 'Japanese Spa'],
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'list-swiss-alps-05',
-    title: 'Bürgenstock Resort Alpine Spa Experience',
-    category: 'PLACE',
-    price: 320,
+    id: 'pkg-albania-9day-midrange-01',
+    title: 'Albania 9-Day Grand Tour: Tirana to the Ionian Riviera (Mid-Range)',
+    category: 'PACKAGE',
+    price: 1970,
     rating: 4.99,
-    reviewCount: 54,
-    location: 'Lucerne',
-    country: 'Switzerland',
-    coordinates: { lat: 47.0012, lng: 8.3812 },
-    description: 'Enjoy the legendary infinity pool 500 meters above Lake Lucerne. A sanctuary of peace with panoramic views of the Swiss Alps.',
-    images: ['https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&w=1200&q=80'],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['Spa', 'Alps', 'Infinity Pool'],
-    amenities: ['Thermal Baths', 'Panorama Terrace'],
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'pkg-kyoto-zen-01',
-    title: 'Kyoto Zen & Gastronomy Package',
-    category: 'PACKAGE',
-    price: 780,
-    rating: 4.99,
-    reviewCount: 8,
-    location: 'Arashiyama & Gion',
-    country: 'Japan',
-    description: 'Immerse yourself in Kyoto heritage with a riverside stay at Hoshinoya and a Michelin-grade Kaiseki dinner at Gion Karyo.',
-    images: [
-      'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    listingIds: ['list-hotel-kyoto-04', 'list-dining-kyoto-03'],
-    tags: ['Zen Bundle', 'Kyoto Heritage', 'Best Value'],
-    amenities: ['Cultural Concierge', 'Private Boat Transfer', 'Priority Dining Reservation'],
-    duration: '3 Days / 2 Nights',
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'pkg-alpine-wellness-01',
-    title: 'Alpine Wellness & Spa Escape',
-    category: 'PACKAGE',
-    price: 550,
-    rating: 5.0,
-    reviewCount: 5,
-    location: 'Lucerne',
-    country: 'Switzerland',
-    description: 'Rejuvenate your soul with an exclusive Alpine Spa bundle. Includes full day access to Bürgenstock Resort Spa and a guided panoramic mountain tour.',
-    images: [
-      'https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1517022812141-23620dba5c23?auto=format&fit=crop&w=1200&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    listingIds: ['list-swiss-alps-05'], // Can bundle with more later
-    tags: ['Wellness Bundle', 'Alps Escape', 'Premium'],
-    amenities: ['Spa Access', 'Cable Car Pass', 'Mountain Guide'],
-    duration: '2 Days / 1 Night',
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'pkg-luxury-europe-01',
-    title: 'Mediterranean Luxury Gastronomy Bundle',
-    category: 'PACKAGE',
-    price: 1200,
-    rating: 5.0,
-    reviewCount: 12,
-    location: 'Ravello & Oia',
-    country: 'Italy & Greece',
-    description: 'The ultimate Mediterranean luxury experience combining a cliffside stay in Ravello with a sunset tour in Santorini. Save 10% by bundling.',
-    images: [
-      'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    listingIds: ['list-hotel-amalfi-02', 'list-santorini-01'],
-    tags: ['Luxury Bundle', 'Multi-Country', 'Best Value'],
-    amenities: ['Concierge Service', 'Private Transfers', 'Welcome Gift'],
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'list-mannanthala-place-01',
-    title: 'Mannanthala Heritage Corridor & Hilltop Viewpoint',
-    category: 'PLACE',
-    price: 180,
-    rating: 4.96,
-    reviewCount: 38,
-    location: 'Mannanthala, Trivandrum',
-    country: 'India',
-    coordinates: { lat: 8.5583, lng: 76.9458 },
-    description: 'Nestled in the lush greenery of Thiruvananthapuram, Mannanthala offers peaceful heritage paths, traditional Travancore temples, panoramic valley viewpoints, and serene tropical gardens.',
-    images: ['https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80'],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['Kerala Heritage', 'Scenic Greens', 'Travancore Culture', 'Trivandrum'],
-    amenities: ['Guided Cultural Walk', 'Hilltop Viewpoint', 'Photography Vantage'],
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'list-mannanthala-hotel-02',
-    title: 'The Greenfields Ayurvedic Estate & Villa Resort',
-    category: 'HOTEL',
-    price: 340,
-    rating: 4.98,
-    reviewCount: 29,
-    location: 'Mannanthala, Trivandrum',
-    country: 'India',
-    coordinates: { lat: 8.5601, lng: 76.9482 },
-    description: 'An authentic luxury sanctuary surrounded by swaying coconut palms in Mannanthala, Trivandrum. Features traditional Kerala architecture, certified Ayurvedic rejuvenation therapies, private plunge pools, and open-air yoga shalas.',
-    images: ['https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80'],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['Ayurveda Sanctuary', 'Kerala Luxury', 'Eco Retreat', 'Trivandrum'],
-    amenities: ['Ayurvedic Spa', 'Yoga Shala', 'Infinity Palm Pool', 'Farm-to-Table Kerala Dining'],
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'list-mannanthala-food-03',
-    title: 'Travancore Spice Kitchen & Banana Leaf Sadhya',
-    category: 'FOOD',
-    price: 95,
-    rating: 4.94,
-    reviewCount: 47,
-    location: 'Mannanthala, Trivandrum',
-    country: 'India',
-    coordinates: { lat: 8.5575, lng: 76.9460 },
-    description: 'Celebrated destination in Mannanthala for authentic Travancore culinary heritage. Experience the 24-dish Kerala Sadhya served on fresh plantain leaves, paired with freshly tapped tender coconut and warm cardamom payasam.',
-    images: ['https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=1200&q=80'],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['Kerala Sadhya', 'Authentic Spices', 'Banana Leaf Dining', 'Travancore Cuisine'],
-    amenities: ['Plantain Leaf Banquet', 'Master Chef Spice Tour', 'Ayurvedic Herbal Brews'],
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'list-albania-tirana-01',
-    title: 'Tirana Historic Center, Skanderbeg Square & Dajti Mountain',
-    category: 'PLACE',
-    price: 65,
-    rating: 4.93,
-    reviewCount: 42,
-    location: 'Tirana',
+    reviewCount: 74,
+    location: 'Tirana, Berat, Gjirokastër, Ksamil & Riviera',
     country: 'Albania',
     coordinates: { lat: 41.3275, lng: 19.8187 },
-    description: "Vibrant Albanian capital featuring Skanderbeg Square, Et'hem Bey Mosque, Clock Tower, Bunk'Art 2 museum, Murat Toptani Street, Tirana Castle, New Bazaar, and panoramic views from Mount Dajti cable car.",
+    description: 'The definitive 9-day grand loop through Albania (9–19 Oct 2026). Selected flight included (TRV → MCT → MXP → TIA and TIA → FCO → DOH → TRV, ₹74,890/person). Comfortable boutique hotels, dedicated private vehicle + driver planning allowance, Dajti Ekspres cable car over Tirana, Berat UNESCO castle & Onufri museum, Gjirokastër stone city (Skënduli & Zekate houses), the turquoise Blue Eye spring (Syri i Kaltër), Ksamil 4-islands boat cruise, Butrint UNESCO archaeological site, Porto Palermo & Ali Pasha Castle, Jalë Beach, Dhërmi Old Village, and the breathtaking Llogara Pass descent to Vlorë. Land package: ₹68,500–₹92,500/person (4 Pax: ₹5,73,560–₹6,69,560).',
     images: [
       'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?auto=format&fit=crop&w=1200&q=80'
+      'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80'
     ],
     status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['Albania Capital', 'Skanderbeg Square', 'BunkArt 2', 'Mount Dajti', 'Historic Tirana'],
-    amenities: ['Dajti Cable Car Ticket', 'BunkArt 2 Audio Guide', 'Skanderbeg Walking Tour', 'Castle Courtyard Access'],
+    createdBy: 'voyage@gmail.com',
+    createdByName: 'Voyage Editorial Director',
+    tags: ['9-Day Grand Tour', 'Boutique Hotels', 'Private Driver', 'Flights Included', 'UNESCO World Heritage', 'Riviera Boat Cruise'],
+    amenities: [
+      'International Airfare Included (TRV ⇄ TIA)',
+      'Dedicated Private Vehicle & Chauffeur',
+      'Comfortable Mid-Range & Boutique Hotels',
+      'Dajti Ekspres Cable Car Pass',
+      'Ksamil 4-Islands Boat Excursion',
+      'Butrint & Berat UNESCO Admissions',
+      'Syri i Kaltër (Blue Eye) Pass',
+      '24/7 Dedicated Concierge Support'
+    ],
     timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
   },
   {
-    id: 'list-albania-berat-02',
-    title: "Berat UNESCO 'City of a Thousand Windows' & Kala Fortress",
-    category: 'PLACE',
-    price: 85,
-    rating: 4.97,
-    reviewCount: 56,
-    location: 'Berat',
+    id: 'pkg-albania-9day-luxury-02',
+    title: 'Albania 9-Day Luxury VIP Odyssey: 5-Star Stays & Private Yacht',
+    category: 'PACKAGE',
+    price: 4950,
+    rating: 5.0,
+    reviewCount: 38,
+    location: 'Tirana, Berat, Sarandë, Ksamil & Riviera',
     country: 'Albania',
-    coordinates: { lat: 40.7058, lng: 19.9522 },
-    description: 'UNESCO World Heritage gem on the Osum River. Explore the ancient Mangalem Quarter, the hilltop Berat Castle (Kala), Onufri Iconographic Museum, historic Gorica Bridge, and scenic riverside promenade.',
+    coordinates: { lat: 39.8756, lng: 20.0053 },
+    description: 'Ultra-luxury 9-day Albanian expedition. Selected premium airfare quote (₹2,56,951/person via Gulf Air & Aegean/Turkish Airlines). 5-star seaside suites in Sarandë, boutique Ottoman palaces in Berat, chartered private speedboat cruise around Ksamil 4 islands, luxury high-comfort vehicle with private master driver, VIP historians at Butrint & Berat castles, and generous upscale fine-dining allowance (₹15,000–₹30,000/day). Final estimate: ₹3,85,951–₹4,34,951/person (4 Pax: ₹15,43,804–₹17,39,804).',
     images: [
-      'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80'
     ],
     status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['UNESCO Heritage', 'Berat Castle', 'City of Thousand Windows', 'Osum River', 'Gorica Bridge'],
-    amenities: ['Onufri Museum Entry', 'Berat Kala Guided Walk', 'Gorica Historic Photography Pass'],
+    createdBy: 'voyage@gmail.com',
+    createdByName: 'Voyage Luxury Concierge',
+    tags: ['5-Star Luxury', 'Private Yacht', 'VIP Concierge', 'Selected Premium Flights', 'Fine Dining Allowance', 'Presidential Level'],
+    amenities: [
+      'Selected Premium International Flights (₹2,56,951 Included)',
+      '5-Star Upscale Luxury Stays & Suites',
+      'Private Chartered Ksamil Speedboat',
+      'Luxury High-Comfort Chauffeur Vehicle',
+      'Private Heritage Historian Guides',
+      'Upscale Fine Dining Daily Allowance',
+      'Priority Fast-Track Airport Service',
+      '24/7 VIP Concierge'
+    ],
     timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
   },
   {
-    id: 'list-albania-gjirokaster-03',
-    title: 'Gjirokastër Stone Fortress, Old Bazaar & Ottoman Mansions',
-    category: 'PLACE',
-    price: 75,
-    rating: 4.95,
-    reviewCount: 39,
-    location: 'Gjirokastër',
+    id: 'pkg-albania-9day-basic-03',
+    title: 'Albania 9-Day Value Discovery: Complete Heritage & Coastal Circuit',
+    category: 'PACKAGE',
+    price: 1450,
+    rating: 4.93,
+    reviewCount: 56,
+    location: 'Tirana, Berat, Gjirokastër, Sarandë & Vlorë',
     country: 'Albania',
-    coordinates: { lat: 40.0758, lng: 20.1389 },
-    description: 'Dramatic hillside UNESCO stone town featuring the massive Gjirokastër Castle, the cobblestone Old Bazaar (Qafa e Pazarit), and preserved 18th-century Ottoman fortified mansions including Skënduli House and Zekate House.',
+    coordinates: { lat: 41.3275, lng: 19.8187 },
+    description: 'Exceptional value full 9-day circuit covering all highlights of Albania. International airfare included (₹67,518/person, TRV ⇄ TIA via Oman Air & Wizz Air). Value-oriented private-room accommodations, practical shared & private transfer allowance, all entry admissions (Skanderbeg, Bunk\'Art 2, Berat Castle, Gjirokastër Fortress, Blue Eye, Butrint UNESCO, and Porto Palermo). Final estimate: ₹1,11,018–₹1,26,518/person (4 Pax: ₹4,44,072–₹5,06,072).',
     images: [
-      'https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?auto=format&fit=crop&w=1200&q=80'
+      'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80'
     ],
     status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['Stone City', 'UNESCO Gjirokaster', 'Ottoman Mansions', 'Old Bazaar', 'Skenduli House'],
-    amenities: ['Gjirokastër Castle Pass', 'Skënduli Heritage Tour', 'Old Bazaar Artisan Guide'],
+    createdBy: 'voyage@gmail.com',
+    createdByName: 'Voyage Value Operations',
+    tags: ['Best Value', 'Full Circuit', 'Economy Flights Included', 'Private Room Stays', 'Complete Sightseeing'],
+    amenities: [
+      'Economy International Airfare (TRV ⇄ TIA)',
+      'Curated Private-Room Value Stays',
+      'Practical Transport Allowance',
+      'All Monument & Castle Admissions',
+      'Full 9-Day Route Itinerary',
+      'Trip Support & Guides'
+    ],
     timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
   },
   {
-    id: 'list-albania-blueeye-04',
-    title: 'Syri i Kaltër (The Blue Eye) Natural Spring Sanctuary',
+    id: 'list-albania-ksamil-butrint-04',
+    title: 'Ksamil Archipelago, Bora Bora Beach & Butrint Ancient Ruins',
     category: 'PLACE',
-    price: 95,
+    price: 120,
     rating: 4.98,
-    reviewCount: 68,
-    location: 'Sarandë & Blue Eye',
+    reviewCount: 89,
+    location: 'Ksamil & Butrint, Sarandë',
     country: 'Albania',
-    coordinates: { lat: 39.9242, lng: 20.1919 },
-    description: 'A mesmerizing hypnotic natural phenomenon with crystal-clear turquoise spring water bubbling up from unknown depths beneath emerald oak trees, followed by sunset strolls along the lively Sarandë Promenade.',
-    images: [
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80'
-    ],
+    coordinates: { lat: 39.7667, lng: 20.0050 },
+    description: 'Known as the Ionian Pearl, Ksamil boasts crystal turquoise lagoons, four uninhabited islands reachable by boat, the iconic overwater hand sculpture, and the adjoining UNESCO World Heritage ruins of Butrint featuring Greek amphitheaters and Venetian towers.',
+    images: ['https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80'],
     status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['Blue Eye', 'Syri i Kalter', 'Sarande Waterfront', 'Natural Wonder', 'Ionian Coast'],
-    amenities: ['Nature Park Reserve Ticket', 'Sarandë Promenade Sunset Pass', 'Scenic Lookout Access'],
+    createdBy: 'voyage@gmail.com',
+    createdByName: 'Voyage Editorial',
+    tags: ['Ksamil Islands', 'Ionian Sea', 'Butrint UNESCO', 'Boat Tour', 'Beach Paradise'],
+    amenities: ['Island Boat Excursions', 'Archaeological Museum Pass', 'Beach Loungers & Sunbeds', 'Snorkeling Waters'],
     timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
   },
   {
-    id: 'list-albania-ksamil-hotel-05',
-    title: 'Ksamil Riviera Azure Clifftop Suites & 4 Islands Lagoon',
-    category: 'HOTEL',
-    price: 260,
+    id: 'list-albania-berat-castle-05',
+    title: 'Berat UNESCO Fortress & The City of a Thousand Windows',
+    category: 'PLACE',
+    price: 150,
+    rating: 4.97,
+    reviewCount: 76,
+    location: 'Berat',
+    country: 'Albania',
+    coordinates: { lat: 40.7058, lng: 19.9522 },
+    description: 'A magical living medieval fortress overlooking the Osum River. Walk the cobblestone alleys of Mangalem and Gorica quarters, visit the Onufri Iconographic Museum, cross the historic 18th-century Gorica Bridge, and sample traditional Albanian cuisine.',
+    images: ['https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80'],
+    status: 'PUBLISHED',
+    createdBy: 'voyage@gmail.com',
+    createdByName: 'Voyage Editorial',
+    tags: ['UNESCO World Heritage', 'Living Fortress', 'Ottoman Architecture', 'Gorica Bridge', 'Scenic Viewpoints'],
+    amenities: ['Castle Grounds Guided Tour', 'Onufri Museum Admission', 'Gorica Riverside Walk', 'Historic Photography Points'],
+    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  },
+  {
+    id: 'list-albania-blue-eye-gjirokaster-06',
+    title: 'Syri i Kaltër Natural Spring & Gjirokastër Stone City',
+    category: 'PLACE',
+    price: 160,
     rating: 4.99,
-    reviewCount: 51,
-    location: 'Ksamil',
+    reviewCount: 94,
+    location: 'Gjirokastër & Blue Eye',
     country: 'Albania',
-    coordinates: { lat: 39.7719, lng: 20.0036 },
-    description: 'Premier boutique waterfront retreat directly overlooking Bora Bora Beach and Beach 7 in Ksamil. Features private island boat transfers, panoramic sea-view balconies, private infinity pool, and fresh Mediterranean breakfast.',
-    images: [
-      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80'
-    ],
+    coordinates: { lat: 39.9236, lng: 20.1925 },
+    description: 'Syri i Kaltër is a breathtaking natural spring with mesmerizing sapphire depths surrounded by lush greenery. The journey continues to Gjirokastër, the stone fortress city featuring the grand castle, Qafa e Pazarit cobblestone bazaar, Skënduli House, and Zekate House.',
+    images: ['https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80'],
     status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['Ksamil Stays', 'Bora Bora Beach', 'Ionian Luxury', 'Island Boat Transfer', 'Seaside Villa'],
-    amenities: ['Private Beach Loungers', 'Ksamil Island Boat Transfer', 'Seaview Infinity Pool', 'Daily Champagne Breakfast'],
+    createdBy: 'voyage@gmail.com',
+    createdByName: 'Voyage Editorial',
+    tags: ['Blue Eye Spring', 'Gjirokastër Castle', 'Old Stone Bazaar', 'Zekate House', 'Hydrothermal Spring'],
+    amenities: ['Blue Eye Nature Reserve Pass', 'Gjirokastër Castle Admission', 'Traditional House Entry', 'Bazaar Artisan Experience'],
     timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
   },
   {
-    id: 'list-albania-butrint-06',
-    title: 'Butrint UNESCO National Archaeological Park & Sanctuary',
+    id: 'list-albania-riviera-dhermi-07',
+    title: 'Porto Palermo Ali Pasha Castle, Jalë Beach & Llogara Pass Panorama',
     category: 'PLACE',
-    price: 80,
-    rating: 4.96,
-    reviewCount: 34,
-    location: 'Butrint',
+    price: 210,
+    rating: 4.99,
+    reviewCount: 110,
+    location: 'Albanian Riviera, Himarë & Dhërmi',
     country: 'Albania',
-    coordinates: { lat: 39.7439, lng: 20.0211 },
-    description: 'Ancient Greek, Roman, Byzantine, and Venetian ruins nestled on a tranquil peninsula surrounded by Lake Butrint and the Vivari Channel. Features a preserved amphitheater, Roman baptistery, basilica, and Venetian castle.',
-    images: [
-      'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80'
-    ],
+    coordinates: { lat: 40.1444, lng: 19.6425 },
+    description: 'Winding coastal highway along the pristine Albanian Riviera. Discover the triangular Venetian-Ottoman fortress of Ali Pasha at Porto Palermo, the pristine azure waters of Jalë Beach, the stone alleys of Dhërmi Old Village, and the jaw-dropping panoramic switchbacks of Llogara Pass.',
+    images: ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80'],
     status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['UNESCO Butrint', 'Archaeological Park', 'Greek Theater', 'Venetian Castle', 'Ionian Heritage'],
-    amenities: ['UNESCO Archaeological Pass', 'Guided Historic Trail', 'Vivari Channel Viewpoint'],
+    createdBy: 'voyage@gmail.com',
+    createdByName: 'Voyage Editorial',
+    tags: ['Albanian Riviera', 'Ali Pasha Castle', 'Jalë Beach', 'Llogara Pass', 'Coastal Panorama'],
+    amenities: ['Porto Palermo Castle Access', 'Scenic Riviera Chauffeur Route', 'Beach Access & Loungers', 'Llogara Viewpoint Stop'],
     timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
   },
   {
-    id: 'list-albania-dhermi-dining-07',
-    title: 'Drymades Coast Clifftop Dining & Porto Palermo Grills',
-    category: 'FOOD',
-    price: 110,
-    rating: 4.94,
-    reviewCount: 29,
-    location: 'Dhërmi & Porto Palermo',
-    country: 'Albania',
-    coordinates: { lat: 40.1539, lng: 19.6428 },
-    description: 'Exquisite seaside dining on the Albanian Riviera coast. Enjoy freshly grilled sea bass, wild octopus, Byrek, sheep cheeses from Llogara Pass, and local Shesh i Zi wines with cliffside views over the Ionian Sea.',
-    images: [
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    tags: ['Albanian Riviera Dining', 'Drymades Coast', 'Fresh Seafood', 'Porto Palermo', 'Llogara Wine'],
-    amenities: ['Panoramic Cliff Table', 'Sommelier Wine Pairing', 'Catch of the Day Selection'],
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'pkg-albania-9day-basic',
-    title: 'Albania 9-Day Grand Explorer: Tirana to Riviera (Basic Package)',
-    category: 'PACKAGE',
-    price: 1350,
+    id: 'list-albania-tirana-dajti-08',
+    title: 'Mount Dajti Cable Car & Tirana Historic Landmark Circuit',
+    category: 'PLACE',
+    price: 140,
     rating: 4.95,
-    reviewCount: 28,
-    location: 'Tirana • Berat • Gjirokastër • Sarandë • Ksamil • Riviera',
+    reviewCount: 82,
+    location: 'Tirana',
     country: 'Albania',
-    description: 'The complete 9-day condensed Albania circuit (9 Oct – 19 Oct 2026) starting from India (TRV) via Muscat & Milan to Tirana, Berat UNESCO castle, Gjirokastër stone fortress, Blue Eye spring, Ksamil islands, and the dramatic Albanian Riviera coast. Price: ₹1,11,018–₹1,26,518/person (₹4,44,072–₹5,06,072 for 4 people).',
-    images: [
-      'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80'
-    ],
+    coordinates: { lat: 41.3275, lng: 19.8187 },
+    description: 'Explore the vibrant Albanian capital. Ride the Dajti Ekspres cable car up Mount Dajti for sweeping views over the city, explore Skanderbeg Square and the Clock Tower, tour the underground communist bunker museum of Bunk\'Art 2, walk the historic Tirana Castle pedestrian zone, and relax in trendy Blloku.',
+    images: ['https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80'],
     status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    listingIds: ['list-albania-tirana-01', 'list-albania-berat-02', 'list-albania-gjirokaster-03', 'list-albania-blueeye-04', 'list-albania-butrint-06'],
-    tags: ['Albania 9-Day', 'Basic Package', 'Best Value', '₹1.11L - ₹1.26L', 'Economy Airfare', 'UNESCO Trail'],
-    amenities: ['Economy Flight Allocation (₹67,518)', 'Private-Room Hotels (₹43,500)', 'Practical Driver Allowance', 'All Core Sightseeing Admissions'],
-    duration: '9 Days / 8 Nights (9-19 Oct 2026)',
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'pkg-albania-9day-midrange',
-    title: 'Albania 9-Day Boutique Stays & Private Driver (Mid-Range Package)',
-    category: 'PACKAGE',
-    price: 1750,
-    rating: 4.98,
-    reviewCount: 35,
-    location: 'Tirana • Berat • Gjirokastër • Sarandë • Ksamil • Dhërmi',
-    country: 'Albania',
-    description: 'Upgraded comfort on the complete 9-day Albania route with hand-picked boutique hotels, dedicated private air-conditioned vehicle with English-speaking driver, comfortable restaurant allowance, Dajti cable car pass, and guided historic admissions. Price: ₹1,43,390–₹1,67,390/person (₹5,73,560–₹6,69,560 for 4 people).',
-    images: [
-      'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?auto=format&fit=crop&w=1200&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    listingIds: ['list-albania-tirana-01', 'list-albania-berat-02', 'list-albania-gjirokaster-03', 'list-albania-blueeye-04', 'list-albania-ksamil-hotel-05', 'list-albania-butrint-06', 'list-albania-dhermi-dining-07'],
-    tags: ['Albania 9-Day', 'Mid-Range Package', 'Boutique Hotels', '₹1.43L - ₹1.67L', 'Private Vehicle + Driver', 'Popular'],
-    amenities: ['Economy Flight (₹74,890)', 'Boutique Hotels (₹68,500)', 'Dedicated Private Vehicle & Driver', 'Comfortable Restaurant Allowance', 'Dajti Cable Car Included'],
-    duration: '9 Days / 8 Nights (9-19 Oct 2026)',
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'pkg-albania-9day-luxury',
-    title: 'Albania 9-Day Luxury Riviera & UNESCO VIP Odyssey (Luxury Package)',
-    category: 'PACKAGE',
-    price: 5200,
-    rating: 5.0,
-    reviewCount: 22,
-    location: 'Tirana • Berat • Gjirokastër • Blue Eye • Sarandë • Ksamil • Porto Palermo • Dhërmi',
-    country: 'Albania',
-    description: 'The ultra-premium Albania Grand Tour featuring 5-star luxury and seaside boutique suites, premium cabin flight allowance, high-comfort private luxury vehicle, private chartered boat to Ksamil 4 islands, VIP private historians at Butrint & Berat Castle, and upscale gastronomy allowances. Price: ₹4,24,343–₹4,73,343/person (₹16,97,372–₹18,93,372 for 4 people).',
-    images: [
-      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    listingIds: ['list-albania-tirana-01', 'list-albania-berat-02', 'list-albania-gjirokaster-03', 'list-albania-blueeye-04', 'list-albania-ksamil-hotel-05', 'list-albania-butrint-06', 'list-albania-dhermi-dining-07'],
-    tags: ['Albania 9-Day', 'Luxury VIP Package', '5-Star Seaside Suites', '₹4.24L - ₹4.73L', 'Premium Economy / Business Flight', 'Private Ksamil Boat Cruise'],
-    amenities: ['Premium Economy Airfare (₹2,95,343)', 'Luxury Upscale Hotels (₹1,29,000)', 'Private Luxury Chauffeur', 'Private Chartered Ksamil Islands Cruise', 'VIP Historian Guides', 'Upscale Dining & Wine Allowance', '24/7 Concierge Support'],
-    duration: '9 Days / 8 Nights (9-19 Oct 2026)',
-    timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  },
-  {
-    id: 'pkg-mannanthala-trivandrum-01',
-    title: "God's Own Country: Mannanthala & Trivandrum Heritage Package",
-    category: 'PACKAGE',
-    price: 580,
-    rating: 5.0,
-    reviewCount: 16,
-    location: 'Mannanthala, Trivandrum',
-    country: 'India',
-    description: 'An all-inclusive Kerala journey featuring a 3-night stay at The Greenfields Ayurvedic Estate in Mannanthala, guided Travancore heritage tours, private Ayurvedic massage sessions, and an authentic 24-course Kerala Sadhya feast.',
-    images: [
-      'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=1200&q=80'
-    ],
-    status: 'PUBLISHED',
-    createdBy: 'mukundkrishna2008@gmail.com',
-    createdByName: 'Mukund Krishna',
-    listingIds: ['list-mannanthala-place-01', 'list-mannanthala-hotel-02', 'list-mannanthala-food-03'],
-    tags: ['Kerala Heritage', 'Tour Package', 'Ayurveda & Wellness', 'Trivandrum', 'Best Value'],
-    amenities: ['Ayurvedic Treatment Voucher', 'Airport Chauffeur Transfer', 'Banana Leaf Feast Included', 'Private Guide'],
-    duration: '4 Days / 3 Nights',
+    createdBy: 'voyage@gmail.com',
+    createdByName: 'Voyage Editorial',
+    tags: ['Mount Dajti', 'Cable Car Pass', 'BunkArt 2', 'Skanderbeg Square', 'Capital Highlights'],
+    amenities: ['Dajti Ekspres Return Ticket', 'Bunk\'Art 2 Entry', 'Tirana Castle Walkway Access', 'Guided City Center Map'],
     timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
   }
 ];
 
 const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
-    id: 'audit-init-01',
-    action: 'SYSTEM_INITIALIZED',
+    id: 'log-seed-01',
+    action: 'TECH_ADMIN_LOGIN_SUCCESS',
     performedBy: 'mukundkrishna2008@gmail.com',
-    targetId: 'TRAVEL_PLATFORM_CORE',
-    targetType: 'SYSTEM',
-    ipAddress: '127.0.0.1',
-    timestamp: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-    details: { event: 'Provisioned Technical Admin, Multi-Theme Engine, and Luxury Bundling Service' }
-  },
-  {
-    id: 'audit-init-02',
-    action: 'SUBMIT_PENDING_LISTING',
-    performedBy: 'sarah.content@travelplatform.io',
-    targetId: 'list-pending-banff-06',
-    targetType: 'LISTING',
-    ipAddress: '192.168.1.45',
-    timestamp: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
-    details: { status: 'PENDING_APPROVAL', title: 'Banff Moraine Lake Glacial Canoe' }
+    performedByEmail: 'mukundkrishna2008@gmail.com',
+    targetId: 'SECURITY_AUTH',
+    targetType: 'SYSTEM_AUTH',
+    ipAddress: '127.0.0.1 (Authorized)',
+    timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    details: { authMethod: 'DIRECT_SECURE_AUTH', role: 'TECH_ADMIN' }
   }
 ];
 
-const INITIAL_CUSTOM_TRIPS: CustomTripRequest[] = [
+const INITIAL_CUSTOM_TRIPS: any[] = [];
+
+const INITIAL_REVIEWS: Review[] = [
   {
-    id: 'ctrip-mannanthala-01',
-    userId: 'user_tech_admin_01',
-    userEmail: 'mukundkrishna2008@gmail.com',
-    userName: 'Mukund Krishna',
-    tripTitle: 'Kerala Ayurvedic Healing & Heritage Trail: Mannanthala Escape',
-    destination: 'Mannanthala, Trivandrum',
-    country: 'India',
-    travelStyle: 'LUXURY_WELLNESS',
-    budgetTier: 'ELITE',
-    startDate: '2026-10-15',
-    endDate: '2026-10-19',
-    durationDays: 4,
-    adults: 2,
-    children: 0,
-    selectedListingIds: ['list-mannanthala-place-01', 'list-mannanthala-hotel-02', 'list-mannanthala-food-03'],
-    selectedListings: [
-      {
-        id: 'list-mannanthala-hotel-02',
-        title: 'The Greenfields Ayurvedic Estate & Villa Resort',
-        category: 'HOTEL',
-        price: 340,
-        location: 'Mannanthala, Trivandrum',
-        image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80'
-      },
-      {
-        id: 'list-mannanthala-place-01',
-        title: 'Mannanthala Heritage Corridor & Hilltop Viewpoint',
-        category: 'PLACE',
-        price: 180,
-        location: 'Mannanthala, Trivandrum',
-        image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80'
-      },
-      {
-        id: 'list-mannanthala-food-03',
-        title: 'Travancore Spice Kitchen & Banana Leaf Sadhya',
-        category: 'FOOD',
-        price: 95,
-        location: 'Mannanthala, Trivandrum',
-        image: 'https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=1200&q=80'
-      }
-    ],
-    itinerary: [
-      {
-        day: 1,
-        title: 'Arrival in Trivandrum & Ayurvedic Consultation',
-        description: 'VIP pickup from Trivandrum International Airport, chauffeured transfer to The Greenfields Ayurvedic Estate in Mannanthala. Evening welcome herbal tea and private Vaidya pulse diagnosis.',
-        hotelId: 'list-mannanthala-hotel-02',
-        hotelTitle: 'The Greenfields Ayurvedic Estate',
-        customNotes: 'Sunset yoga by the palm grove pool'
-      },
-      {
-        day: 2,
-        title: 'Mannanthala Heritage Trail & Organic Temple Walk',
-        description: 'Morning walking exploration of Mannanthala historic temples and green valley viewpoints. Afternoon Abhyanga full-body therapeutic oil massage.',
-        placeIds: ['list-mannanthala-place-01'],
-        customNotes: 'Photography session at hilltop viewpoint'
-      },
-      {
-        day: 3,
-        title: 'Grand Travancore Sadhya & Spice Masterclass',
-        description: 'Exclusive 24-course Banana Leaf Sadhya banquet at Travancore Spice Kitchen, paired with fresh tender coconut water and cardamom payasam.',
-        diningIds: ['list-mannanthala-food-03'],
-        customNotes: 'Spice market visit with Master Chef'
-      },
-      {
-        day: 4,
-        title: 'Morning Yoga Shala & Farewell Departure',
-        description: 'Sunrise meditation session, breakfast featuring steamed idlis and fresh coconut chutney, followed by airport transfer.',
-        customNotes: 'Complimentary Ayurvedic wellness kit packed for flight'
-      }
-    ],
-    inclusions: [
-      '3 Nights in Private Pool Heritage Villa',
-      'Daily Rejuvenating Ayurvedic Therapy & Yoga',
-      'Grand 24-Dish Kerala Sadhya Banquet',
-      'Dedicated Chauffeur Airport Transfers (Mercedes E-Class)',
-      '24/7 Personal Travel Concierge'
-    ],
-    specialRequests: 'Please arrange private morning yoga master sessions and strictly authentic vegetarian Sadhya.',
-    dietaryPreferences: ['Vegetarian', 'Authentic Kerala Cuisine', 'Herbal Brews'],
-    estimatedTotal: 615,
-    bundleDiscount: 15,
-    finalPrice: 522,
-    status: 'QUOTED',
-    conciergeNotes: 'Approved with complimentary luxury airport Mercedes transfer and complimentary 60-min herbal steam bath.',
-    quotedPrice: 520,
-    createdAt: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 12 * 3600 * 1000).toISOString()
+    id: 'rev-albania-luxury-1',
+    listingId: 'pkg-albania-9day-luxury-02',
+    userId: 'user-traveler-03',
+    userName: 'Alex Rivera',
+    userEmail: 'alex.globetrotter@example.com',
+    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=128&q=80',
+    rating: 5,
+    comment: 'The 9-day Albania trip exceeded every expectation! The private boat cruise around Ksamil 4 islands and the private historian tour of Butrint UNESCO park were highlights of a lifetime. Seamless transfers and breathtaking views on the Llogara Pass.',
+    createdAt: '2026-03-15T10:30:00.000Z'
+  },
+  {
+    id: 'rev-albania-ksamil-1',
+    listingId: 'list-albania-ksamil-butrint-04',
+    userId: 'user-elena-01',
+    userName: 'Elena Rostova',
+    userEmail: 'elena.rostova@voyagereview.org',
+    userAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=128&q=80',
+    rating: 5,
+    comment: 'The azure sea right in front of the balcony is magical. Bora Bora beach is pristine, and the freshly caught grilled sea bass dinner was unforgettable!',
+    createdAt: '2026-04-02T16:15:00.000Z'
   }
 ];
 
@@ -849,14 +498,35 @@ class Database {
     try {
       console.log('Initializing background real-time Firestore synchronization with local cache...');
 
-      // Seed Initial Platform Listings if Firestore is empty or missing
+      // Purge removed mock items & Seed Initial Platform Listings
+      const removedMockIds = new Set([
+        'list-santorini-01',
+        'list-mannanthala-place-01',
+        'list-swiss-alps-05',
+        'pkg-alpine-wellness-01',
+        'pkg-kyoto-zen-01',
+        'pkg-luxury-europe-01',
+        'pkg-mannanthala-trivandrum-01',
+        'list-dining-kyoto-03',
+        'list-hotel-amalfi-02',
+        'list-hotel-kyoto-04',
+        'list-mannanthala-food-03',
+        'list-mannanthala-hotel-02',
+        'list-swiss-alps-04',
+        'list-hotel-bali-05',
+        'list-tokyo-sushi-08',
+        'list-hotel-como-09'
+      ]);
+
       try {
         const listingsSnap = await getDocs(collection(firestoreDb, 'listings'));
-        if (listingsSnap.empty) {
-          console.log('[Firestore Init] Seeding initial curated platform listings...');
-          for (const item of INITIAL_LISTINGS) {
-            await this.safeFirestoreWrite('listings', item.id, item);
+        for (const docSnap of listingsSnap.docs) {
+          if (removedMockIds.has(docSnap.id)) {
+            await this.safeFirestoreDelete('listings', docSnap.id);
           }
+        }
+        for (const item of INITIAL_LISTINGS) {
+          await this.safeFirestoreWrite('listings', item.id, item);
         }
       } catch (err) {
         console.warn('Failed to verify or seed initial platform listings in Firestore:', err);
@@ -867,7 +537,12 @@ class Database {
         onSnapshot(collection(firestoreDb, 'listings'), (snapshot) => {
           const firestoreListings: Listing[] = [];
           snapshot.forEach(d => {
-            firestoreListings.push(d.data() as Listing);
+            const item = d.data() as Listing;
+            if (removedMockIds.has(item.id) || removedMockIds.has(d.id)) {
+              this.safeFirestoreDelete('listings', d.id);
+            } else {
+              firestoreListings.push(item);
+            }
           });
 
           const mappedListings = firestoreListings.map((item: Listing) => {
@@ -1109,6 +784,12 @@ class Database {
 
   // Listings
   getListings(): Listing[] {
+    const existingIds = new Set(this.data.listings.map(l => l.id));
+    const missing = INITIAL_LISTINGS.filter(d => !existingIds.has(d.id));
+    if (missing.length > 0) {
+      this.data.listings.unshift(...missing);
+      this.writeToDisk(this.data);
+    }
     return this.data.listings;
   }
 

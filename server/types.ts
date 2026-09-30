@@ -182,6 +182,18 @@ export interface Booking {
   createdAt: string;
 }
 
+export interface Review {
+  id: string;
+  listingId: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userAvatar?: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
 export interface AdminSession {
   token: string;
   uid: string;
