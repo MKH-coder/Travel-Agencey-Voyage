@@ -1,0 +1,52 @@
+{
+  "catalog_item": {
+    "id": "pkg-voyage-001",
+    "sku": "PKG-VOYAGE-MAIN",
+    "name": "Travel Agency Voyage - Complete Travel Booking Platform",
+    "category": "Travel Software & Digital Package Deals",
+    "status": "active",
+    "price": 1499.00,
+    "currency": "USD",
+    "metadata": {
+      "github_repo": "Travel-Agencey-Voyage-main",
+      "environment_config": ".env.example",
+      "ci_cd_workflows": [
+        ".github/workflows/codeql.yml",
+        ".github/workflows/deploy.yml"
+      ],
+      "firebase_integration": {
+        "applet_config": "firebase-applet-config.json",
+        "blueprint": "firebase-blueprint.json",
+        "firestore_rules": "firestore.rules"
+      },
+      "ai_integrations": [
+        "gemini-code-1790730648293.json",
+        "gemini-code-1790732197955.json",
+        "gemini-code-1790732597123.json"
+      ],
+      "database": "data/database.json"
+    }
+  },
+  "post": {
+    "post_id": "post-voyage-001",
+    "title": "Explore the Travel Agency Voyage Master Package",
+    "slug": "travel-agency-voyage-master-package",
+    "author": "Voyage Travel Agency Team",
+    "published_at": "2026-09-30T07:10:00Z",
+    "summary": "Discover the complete Travel Agency Voyage application suite—featuring automated CI/CD deployments, Firebase backend integration, Gemini AI capabilities, and interactive web games.",
+    "content": "The Travel Agency Voyage platform is a full-featured web solution designed for modern travel management and online booking experiences. Packed with automated deployment pipelines via GitHub Actions (CodeQL & Deploy), robust security rules, and seamless Firebase configuration, this package offers a complete digital agency setup.\n\n### Key Features:\n- **Database & Data Store:** Pre-configured JSON data (`data/database.json`) for destination and booking management.\n- **Firebase Integration:** Secure Firestore security rules, Firebase Blueprint configurations, and Applet setup.\n- **AI Integration:** Integrated Gemini AI configuration models for smart recommendations and itinerary generation.\n- **CI/CD Ready:** Automated code analysis via CodeQL and effortless deployment workflows.\n- **Interactive Features:** Built-in web features, interactive components, and standard static asset hosting.",
+    "pricing": {
+      "list_price": 1499.00,
+      "discounted_price": 1199.00,
+      "currency": "USD",
+      "tax_inclusive": false
+    },
+    "tags": [
+      "Travel Agency",
+      "Voyage Platform",
+      "Firebase",
+      "Gemini AI",
+      "Web Development"
+    ]
+  }
+}
