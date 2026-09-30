@@ -354,21 +354,6 @@ export class ClientStorageManager {
   // Listings
   static getListings(): Listing[] {
     try {
-      const removedMockIds = new Set([
-        'list-santorini-01',
-        'list-mannanthala-place-01',
-        'list-swiss-alps-05',
-        'pkg-alpine-wellness-01',
-        'pkg-kyoto-zen-01',
-        'pkg-luxury-europe-01',
-        'pkg-mannanthala-trivandrum-01',
-        'list-dining-kyoto-03',
-        'list-hotel-amalfi-02',
-        'list-hotel-kyoto-04',
-        'list-mannanthala-food-03',
-        'list-mannanthala-hotel-02'
-      ]);
-
       const data = localStorage.getItem(LISTINGS_STORAGE_KEY);
       if (data === null) {
         localStorage.setItem(LISTINGS_STORAGE_KEY, JSON.stringify(DEFAULT_LISTINGS));
@@ -376,7 +361,7 @@ export class ClientStorageManager {
       }
       let parsed = JSON.parse(data);
       if (Array.isArray(parsed)) {
-        parsed = parsed.filter((l: Listing) => !removedMockIds.has(l.id));
+        parsed = parsed.filter((l: Listing) => l.country === 'Albania' || (l.id && l.id.includes('albania')));
         const existingIds = new Set(parsed.map((l: Listing) => l.id));
         const missing = DEFAULT_LISTINGS.filter(d => !existingIds.has(d.id));
         if (missing.length > 0) {
