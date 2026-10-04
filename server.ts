@@ -2161,6 +2161,55 @@ Proceeding with sandbox delivery...`);
     }
   });
 
+  // --- AI Trip Assistant API ---
+  app.post('/api/ai-trip-assist', async (req, res) => {
+    try {
+      const { destination, country, travelStyle, durationDays, interests } = req.body;
+
+      const prompt = `You are an elite luxury travel curator and expert destination planner. Create a personalized ${durationDays || 4}-day luxury travel itinerary for ${destination || 'Santorini'}, ${country || 'International'}.
+      Traveler Style: ${travelStyle || 'ROMANTIC_HONEYMOON'}
+      Interests / Special requests: ${interests || 'Local heritage, fine dining, scenic viewpoints'}
+
+      Return ONLY a valid JSON object with the following structure:
+      {
+        "itineraryDays": [
+          {
+            "day": 1,
+            "title": "Engaging title for day 1",
+            "description": "Rich paragraph describing morning, afternoon, and evening activities.",
+            "customNotes": "Tip or insider highlight"
+          }
+        ],
+        "suggestedInclusions": ["Inclusion 1", "Inclusion 2", "Inclusion 3"],
+        "aiTip": "A warm concluding insider tip from Gemini AI."
+      }
+      Ensure there are exactly ${durationDays || 4} days in "itineraryDays".`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.8-flash',
+        contents: prompt,
+      });
+
+      const text = response.text || '';
+      const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleanJson);
+
+      res.json(parsed);
+    } catch (err) {
+      console.error('AI Trip Assistant error:', err);
+      res.json({
+        itineraryDays: Array.from({ length: req.body.durationDays || 4 }, (_, i) => ({
+          day: i + 1,
+          title: i === 0 ? 'Arrival & Welcome Reception' : `Day ${i + 1}: Immersive Exploration`,
+          description: `Enjoy curated highlights and scenic experiences in ${req.body.destination || 'your destination'}.`,
+          customNotes: 'AI Recommendation: Book early for premium dining.'
+        })),
+        suggestedInclusions: ['VIP Chauffeur Transfer', 'Boutique Accommodations', 'Private Guided Tour'],
+        aiTip: 'Enjoy your custom crafted journey with world-class hospitality.'
+      });
+    }
+  });
+
   // --- Vite & SPA Static Fallback ---
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({

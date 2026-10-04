@@ -90,6 +90,46 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdTrip, setCreatedTrip] = useState<CustomTripRequest | null>(null);
 
+  // AI Trip Assistant state
+  const [aiInterests, setAiInterests] = useState('Fine dining, local heritage, scenic viewpoints, relaxation');
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [aiAssistantTip, setAiAssistantTip] = useState<string | null>(null);
+
+  const handleGenerateAiItinerary = async () => {
+    setIsGeneratingAi(true);
+    setAiAssistantTip(null);
+    try {
+      const res = await fetch('/api/ai-trip-assist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          destination,
+          country,
+          travelStyle,
+          durationDays,
+          interests: aiInterests
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.itineraryDays && Array.isArray(data.itineraryDays)) {
+          setItineraryDays(data.itineraryDays);
+        }
+        if (data.suggestedInclusions && Array.isArray(data.suggestedInclusions)) {
+          setSelectedInclusions(data.suggestedInclusions);
+        }
+        if (data.aiTip) {
+          setAiAssistantTip(data.aiTip);
+        }
+        setStep(2);
+      }
+    } catch (err) {
+      console.error('Failed to generate AI itinerary:', err);
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  };
+
   // Popular Destination Presets
   const destinationPresets = [
     { name: 'Mannanthala, Trivandrum', country: 'India', vibe: 'LUXURY_WELLNESS', title: 'Kerala Ayurvedic Healing & Heritage Trail' },
@@ -377,6 +417,57 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
           {/* STEP 1: Trip Essentials & Presets */}
           {step === 1 && (
             <div className="space-y-6 animate-in fade-in duration-300">
+              
+              {/* Gemini AI Trip Assistant Box */}
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-sky-500/10 via-indigo-500/15 to-purple-500/10 border border-sky-500/30 space-y-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white flex items-center justify-center shadow-md">
+                      <Sparkles className="w-4 h-4 animate-pulse" />
+                    </div>
+                    <div>
+                      <h4 className={`text-sm font-black ${styles.textPrimary}`}>Gemini AI Trip Assistant</h4>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">Instantly generate a tailored day-by-day luxury itinerary based on your destination and interests.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">
+                    Traveler Interests & Custom Focus
+                  </label>
+                  <input
+                    type="text"
+                    value={aiInterests}
+                    onChange={(e) => setAiInterests(e.target.value)}
+                    placeholder="e.g. Culinary tasting, temple photography, Ayurveda spa, coastal cruises"
+                    className={`w-full px-3.5 py-2 rounded-xl border text-xs font-medium outline-none ${styles.inputBg}`}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400">Generates custom schedule & luxury inclusions instantly</span>
+                  <button
+                    type="button"
+                    onClick={handleGenerateAiItinerary}
+                    disabled={isGeneratingAi}
+                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white text-xs font-black shadow-md shadow-sky-500/25 hover:opacity-95 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isGeneratingAi ? (
+                      <>
+                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Curating with Gemini...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Generate AI Itinerary</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
               {/* Destination Presets */}
               <div>
                 <div className="flex items-center justify-between mb-2.5">
@@ -584,6 +675,17 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
           {/* STEP 2: Selected Listings & Day-by-Day Itinerary */}
           {step === 2 && (
             <div className="space-y-6 animate-in fade-in duration-300">
+              {aiAssistantTip && (
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-sky-500/15 to-indigo-500/15 border border-sky-500/30 flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                    <Sparkles className="w-4 h-4 animate-pulse" />
+                  </div>
+                  <div>
+                    <h4 className={`text-xs font-black ${styles.textPrimary} uppercase tracking-wider`}>Gemini AI Itinerary Curator Note</h4>
+                    <p className={`text-xs ${styles.textSecondary} mt-0.5 leading-relaxed`}>{aiAssistantTip}</p>
+                  </div>
+                </div>
+              )}
               <div className="flex flex-col lg:flex-row gap-6">
                 
                 {/* Left Side: Dynamic Day-by-Day Itinerary */}
