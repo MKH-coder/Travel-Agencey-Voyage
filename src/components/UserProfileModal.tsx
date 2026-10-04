@@ -24,6 +24,7 @@ import { getClientSessionInfo } from '../utils/clientInfo.ts';
 import { TravelerAchievements } from './TravelerAchievements.tsx';
 import { TravelerMilestones, TRAVELER_TIERS } from './TravelerMilestones.tsx';
 import { Booking } from '../types.ts';
+import { AuthAudit } from '../services/authAudit.ts';
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -56,6 +57,24 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
         .catch(() => {});
     }
   }, [isOpen, token]);
+
+  useEffect(() => {
+    if (bookings.length > 0) {
+      const urgent = bookings.filter(b => {
+        const checkIn = new Date(b.checkInDate || Date.now());
+        const days = Math.ceil((checkIn.getTime() - new Date().getTime()) / (1000 * 3600 * 24));
+        return days >= 0 && days <= 7;
+      });
+      if (urgent.length > 0) {
+        AuthAudit.showToast({
+          title: '✈️ Upcoming Trip Alert!',
+          message: `You have ${urgent.length} trip(s) arriving in less than 7 days! Check your profile reminders.`,
+          type: 'success',
+          duration: 5000
+        });
+      }
+    }
+  }, [bookings]);
 
   if (!isOpen || !user) return null;
 
@@ -240,6 +259,101 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
                   <div className="font-bold text-slate-800 dark:text-slate-100 truncate">
                     {user.customTitle || 'Standard Traveler'}
                   </div>
+                </div>
+              </div>
+
+              {/* Trip Reminders Section */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-600/10 border border-amber-500/30 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-xl bg-amber-500 text-slate-950 shadow-sm">
+                      <Clock className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className={`text-xs font-black ${styles.textPrimary} uppercase tracking-wider`}>Upcoming Trip Reminders</h4>
+                      <p className={`text-[11px] ${styles.textMuted}`}>Automated alerts for bookings arriving in less than 7 days.</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if ('Notification' in window) {
+                        Notification.requestPermission().then(permission => {
+                          if (permission === 'granted') {
+                            new Notification('Voyage Trip Reminder', {
+                              body: 'You have upcoming trip reservations arriving within 7 days. Pack your bags!',
+                              icon: '/vite.svg'
+                            });
+                            AuthAudit.showToast({
+                              title: '🔔 Notifications Enabled',
+                              message: 'Browser push notifications & trip alerts active!',
+                              type: 'success',
+                              duration: 3500
+                            });
+                          } else {
+                            AuthAudit.showToast({
+                              title: 'Browser Notifications',
+                              message: 'Notification permission was denied in browser settings.',
+                              type: 'error',
+                              duration: 3500
+                            });
+                          }
+                        });
+                      }
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black text-xs hover:bg-amber-400 transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
+                  >
+                    <span>Test Notification</span>
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {bookings.length === 0 ? (
+                    <div className="text-center py-3 text-xs text-slate-400">
+                      No active bookings found. Explore destinations and book your next escape!
+                    </div>
+                  ) : (
+                    bookings.map(b => {
+                      const checkIn = new Date(b.checkInDate || Date.now());
+                      const daysUntil = Math.ceil((checkIn.getTime() - new Date().getTime()) / (1000 * 3600 * 24));
+                      const isUrgent = daysUntil >= 0 && daysUntil <= 7;
+
+                      return (
+                        <div
+                          key={b.id}
+                          className={`p-3 rounded-xl border flex items-center justify-between gap-3 text-xs ${
+                            isUrgent
+                              ? 'bg-amber-500/15 border-amber-500/40 text-amber-900 dark:text-amber-200'
+                              : 'bg-slate-50 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                          }`}
+                        >
+                          <div className="space-y-0.5 truncate">
+                            <div className="font-bold truncate">{b.listingTitle || 'Voyage Tour Reservation'}</div>
+                            <div className="text-[10px] text-slate-400">Check-in: {b.checkInDate} • Guests: {b.guests}</div>
+                          </div>
+                          <div className="shrink-0">
+                            {daysUntil < 0 ? (
+                              <span className="px-2.5 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 text-[10px] font-bold">
+                                Completed
+                              </span>
+                            ) : daysUntil === 0 ? (
+                              <span className="px-2.5 py-1 rounded-full bg-rose-500 text-white text-[10px] font-black uppercase animate-pulse">
+                                Arriving Today! ✈️
+                              </span>
+                            ) : daysUntil <= 7 ? (
+                              <span className="px-2.5 py-1 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black uppercase shadow-xs">
+                                ⏳ In {daysUntil} {daysUntil === 1 ? 'day' : 'days'}!
+                              </span>
+                            ) : (
+                              <span className="px-2.5 py-1 rounded-full bg-sky-500/20 text-sky-600 dark:text-sky-400 text-[10px] font-bold">
+                                In {daysUntil} days
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
 
