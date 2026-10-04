@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
+import { useCurrency } from '../context/CurrencyContext.tsx';
 import { Listing, CustomTripRequest, CustomTripDayItinerary } from '../types.ts';
 import { customTripService } from '../services/customTripService.ts';
 
@@ -50,6 +51,7 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
 }) => {
   const { styles } = useTheme();
   const { user, token, setShowLoginModal } = useAuth();
+  const { formatPrice } = useCurrency();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
 
@@ -689,7 +691,7 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
                           <div className="flex-1 min-w-0">
                             <div className="text-xs font-bold truncate">{item.title}</div>
                             <div className="text-[10px] text-slate-500 truncate">{item.location}, {item.country}</div>
-                            <div className="text-[10px] font-bold text-amber-500">${item.price} / {item.category === 'HOTEL' ? 'night' : 'guest'}</div>
+                            <div className="text-[10px] font-bold text-amber-500">{formatPrice(item.price)} / {item.category === 'HOTEL' ? 'night' : 'guest'}</div>
                           </div>
                           <button
                             type="button"
@@ -864,21 +866,21 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
                     <div className="space-y-2.5 text-xs">
                       <div className="flex items-center justify-between text-slate-500">
                         <span>Individual Items Total:</span>
-                        <span className="font-semibold">${pricingSummary.baseEstimate}</span>
+                        <span className="font-semibold">{formatPrice(pricingSummary.baseEstimate)}</span>
                       </div>
                       <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 font-bold">
                         <span>Package Bundle Savings ({pricingSummary.bundleDiscountPercent}%):</span>
-                        <span>-${pricingSummary.discountAmount}</span>
+                        <span>-{formatPrice(pricingSummary.discountAmount)}</span>
                       </div>
                       <div className="flex items-center justify-between text-slate-500">
                         <span>Concierge Planning Fee:</span>
-                        <span className="text-emerald-600 font-bold">FREE ($0)</span>
+                        <span className="text-emerald-600 font-bold">FREE ({formatPrice(0)})</span>
                       </div>
 
                       <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
                         <div>
                           <div className="text-[10px] text-slate-400 uppercase font-bold">Estimated Package Total</div>
-                          <div className="text-2xl font-black text-amber-500">${pricingSummary.finalPrice}</div>
+                          <div className="text-2xl font-black text-amber-500">{formatPrice(pricingSummary.finalPrice)}</div>
                         </div>
                         <div className="text-right text-[10px] text-slate-400">
                           <div>All Taxes & VIP</div>

@@ -14,6 +14,7 @@ import {
   Package
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
+import { useCurrency } from '../context/CurrencyContext.tsx';
 import { FilterState, ListingCategory } from '../types.ts';
 import { useDebounce } from '../hooks/useDebounce.ts';
 
@@ -35,6 +36,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onOpenAlbaniaModal,
 }) => {
   const { theme, styles } = useTheme();
+  const { formatPrice } = useCurrency();
   const [localSearch, setLocalSearch] = useState(filters.search);
   const debouncedSearch = useDebounce(localSearch, 250);
 
@@ -283,9 +285,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   className={`py-1.5 px-2.5 text-xs rounded-xl font-medium outline-none cursor-pointer ${styles.inputBg}`}
                 >
                   <option value="ALL">Any Budget</option>
-                  <option value="UNDER_200">Under $200</option>
-                  <option value="200_400">$200 - $400</option>
-                  <option value="ABOVE_400">$400+</option>
+                  <option value="UNDER_200">Under {formatPrice(200)}</option>
+                  <option value="200_400">{formatPrice(200)} - {formatPrice(400)}</option>
+                  <option value="ABOVE_400">{formatPrice(400)}+</option>
                 </select>
               </div>
 

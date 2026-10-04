@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Package, Plus, Trash2, Edit3, Layers, ArrowRight, ExternalLink, Calendar, DollarSign, Clock } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
+import { useCurrency } from '../context/CurrencyContext.tsx';
 import { Listing } from '../types.ts';
 
 interface PackageBuilderTabProps {
@@ -19,6 +20,7 @@ export const PackageBuilderTab: React.FC<PackageBuilderTabProps> = ({
   onViewDetails
 }) => {
   const { styles } = useTheme();
+  const { formatPrice } = useCurrency();
   const packages = listings.filter(l => l.category === 'PACKAGE');
 
   return (
@@ -85,7 +87,7 @@ export const PackageBuilderTab: React.FC<PackageBuilderTabProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Bundle Price</span>
-                      <span className="text-2xl font-black text-amber-500">${pkg.price}</span>
+                      <span className="text-2xl font-black text-amber-500">{formatPrice(pkg.price)}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <button

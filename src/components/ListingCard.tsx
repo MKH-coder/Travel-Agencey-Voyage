@@ -51,6 +51,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 }) => {
   const { styles } = useTheme();
   const { user } = useAuth();
+  const { formatPrice } = useCurrency();
   const isAdmin = user && ['ADMIN', 'TECH_ADMIN', 'TECH_SUBADMIN'].includes(user.role);
 
   const [weatherData, setWeatherData] = useState<LocationWeather | null>(null);
@@ -172,7 +173,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              const shareText = `Check out ${listing.title} in ${listing.location} for $${listing.price}!`;
+              const shareText = `Check out ${listing.title} in ${listing.location} for ${formatPrice(listing.price)}!`;
               if (navigator.clipboard) {
                 navigator.clipboard.writeText(shareText);
                 AuthAudit.showToast({
@@ -222,7 +223,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           <span className={`text-xs ${listing.category === 'PACKAGE' ? 'text-white/90' : 'text-slate-500'} font-normal`}>
             {listing.category === 'PACKAGE' ? 'Package ' : 'from '}
           </span>
-          <span className="text-sm font-extrabold">${listing.price}</span>
+          <span className="text-sm font-extrabold">{formatPrice(listing.price)}</span>
           <span className={`text-[10px] ${listing.category === 'PACKAGE' ? 'text-white/80' : 'text-slate-500'} font-normal`}> 
             {listing.category === 'PACKAGE' ? ' total' : ` / ${listing.category === 'HOTEL' ? 'night' : 'guest'}`}
           </span>

@@ -1,5 +1,5 @@
 import { supabase } from '../supabaseClient.js';
-import { Listing, User, CustomPost, Review, Booking } from '../types.ts';
+import { Listing, Review, Booking, PriceAlert } from '../types.ts';
 
 export class SupabaseService {
   /**
@@ -62,6 +62,83 @@ export class SupabaseService {
   }
 
   /**
+   * Delete a listing from Supabase
+   */
+  static async deleteListing(listingId: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('listings')
+        .delete()
+        .eq('id', listingId);
+
+      if (error) {
+        console.warn('Supabase deleteListing error:', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('Supabase deleteListing exception:', err);
+      return false;
+    }
+  }
+
+  /**
+   * Fetch bookings from Supabase
+   */
+  static async getBookings(userId?: string): Promise<Booking[]> {
+    try {
+      let query = supabase.from('bookings').select('*').order('created_at', { ascending: false });
+      if (userId) {
+        query = query.eq('user_id', userId);
+      }
+      const { data, error } = await query;
+      if (error) {
+        console.warn('Supabase getBookings error:', error);
+        return [];
+      }
+      return (data || []) as unknown as Booking[];
+    } catch (err) {
+      console.warn('Supabase getBookings exception:', err);
+      return [];
+    }
+  }
+
+  /**
+   * Save or upsert a booking in Supabase
+   */
+  static async saveBooking(booking: Booking): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .upsert({
+          id: booking.id,
+          user_id: booking.userId,
+          user_email: booking.userEmail,
+          listing_id: booking.listingId,
+          listing_title: booking.listingTitle,
+          listing_image: booking.listingImage,
+          check_in_date: booking.checkInDate,
+          check_out_date: booking.checkOutDate,
+          guests: booking.guests,
+          total_price: Number(booking.totalPrice),
+          status: booking.status,
+          promo_code: booking.promoCode,
+          discount_amount: booking.discountAmount || 0,
+          created_at: booking.createdAt || new Date().toISOString()
+        });
+
+      if (error) {
+        console.warn('Supabase saveBooking error:', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('Supabase saveBooking exception:', err);
+      return false;
+    }
+  }
+
+  /**
    * Fetch reviews for a specific listing
    */
   static async getReviews(listingId: string): Promise<Review[]> {
@@ -114,12 +191,62 @@ export class SupabaseService {
   }
 
   /**
+   * Fetch price alerts for user
+   */
+  static async getPriceAlerts(userId: string): Promise<PriceAlert[]> {
+    try {
+      const { data, error } = await supabase
+        .from('price_alerts')
+        .select('*')
+        .eq('user_id', userId);
+
+      if (error) {
+        console.warn('Supabase getPriceAlerts error:', error);
+        return [];
+      }
+      return (data || []) as unknown as PriceAlert[];
+    } catch (err) {
+      console.warn('Supabase getPriceAlerts exception:', err);
+      return [];
+    }
+  }
+
+  /**
+   * Save or upsert price alert
+   */
+  static async savePriceAlert(alert: PriceAlert): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('price_alerts')
+        .upsert({
+          id: alert.id,
+          user_id: alert.userId,
+          user_email: alert.userEmail,
+          listing_id: alert.listingId,
+          listing_title: alert.listingTitle,
+          target_price: Number(alert.targetPrice),
+          active: alert.active,
+          created_at: alert.createdAt || new Date().toISOString()
+        });
+
+      if (error) {
+        console.warn('Supabase savePriceAlert error:', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('Supabase savePriceAlert exception:', err);
+      return false;
+    }
+  }
+
+  /**
    * Health ping to check database status
    */
   static async ping(): Promise<{ connected: boolean; latencyMs: number }> {
     const start = Date.now();
     try {
-      const { data, error } = await supabase.from('listings').select('id').limit(1);
+      const { error } = await supabase.from('listings').select('id').limit(1);
       const latencyMs = Date.now() - start;
       return {
         connected: !error,

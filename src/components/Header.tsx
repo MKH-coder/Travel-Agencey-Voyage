@@ -220,6 +220,17 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>{user.role === 'TECH_ADMIN' ? t('nav.superAdminPortal', 'Super Admin Portal') : user.role === 'TECH_SUBADMIN' ? t('nav.subAdminPortal', 'Sub-Admin') : t('nav.adminPortal', 'Admin Portal')}</span>
               </button>
             )}
+
+            {onOpenGame && (
+              <button
+                onClick={onOpenGame}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+                title="Play Voyage Globetrotter Flight & Geo Game"
+              >
+                <Gamepad2 className="w-3.5 h-3.5" />
+                <span>{t('nav.travelGame', 'Travel Game')}</span>
+              </button>
+            )}
           </nav>
         </div>
 

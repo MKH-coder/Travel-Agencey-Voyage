@@ -20,6 +20,7 @@ import {
   Info
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
+import { useCurrency } from '../context/CurrencyContext.tsx';
 import {
   ALBANIA_PACKAGE_TIERS,
   ALBANIA_DAYS_ITINERARY,
@@ -45,6 +46,7 @@ export const AlbaniaItineraryModal: React.FC<AlbaniaItineraryModalProps> = ({
   defaultTier = 'midrange'
 }) => {
   const { styles } = useTheme();
+  const { formatPrice, currency } = useCurrency();
   const [selectedTier, setSelectedTier] = useState<'basic' | 'midrange' | 'luxury'>(defaultTier);
   const [activeTab, setActiveTab] = useState<'itinerary' | 'comparison' | 'flights' | 'pdf'>('itinerary');
   const [expandedDay, setExpandedDay] = useState<number | null>(1);
@@ -53,6 +55,21 @@ export const AlbaniaItineraryModal: React.FC<AlbaniaItineraryModalProps> = ({
   if (!isOpen) return null;
 
   const currentTierInfo = ALBANIA_PACKAGE_TIERS[selectedTier];
+
+  // Base USD ranges for package tiers
+  const TIER_USD_PRICES: Record<'basic' | 'midrange' | 'luxury', { min: number; max: number; fourPaxMin: number; fourPaxMax: number }> = {
+    basic: { min: 1334, max: 1520, fourPaxMin: 5336, fourPaxMax: 6080 },
+    midrange: { min: 1723, max: 2011, fourPaxMin: 6892, fourPaxMax: 8044 },
+    luxury: { min: 5100, max: 5690, fourPaxMin: 20400, fourPaxMax: 22760 },
+  };
+
+  const getTierConvertedPrice = (tierKey: 'basic' | 'midrange' | 'luxury') => {
+    if (currency === 'INR') {
+      return ALBANIA_PACKAGE_TIERS[tierKey].estimatePerPerson;
+    }
+    const { min, max } = TIER_USD_PRICES[tierKey];
+    return `${formatPrice(min)} – ${formatPrice(max)}`;
+  };
 
   const handleDownload = (tierId: 'basic' | 'midrange' | 'luxury') => {
     setDownloadingTier(tierId);
@@ -177,7 +194,7 @@ export const AlbaniaItineraryModal: React.FC<AlbaniaItineraryModalProps> = ({
           <div className="flex items-center gap-2 text-xs">
             <span className="text-slate-400 font-medium">Estimate:</span>
             <span className="font-mono font-bold text-amber-500 text-sm">
-              {currentTierInfo.estimatePerPerson}
+              {getTierConvertedPrice(selectedTier)}
             </span>
             <span className="text-[11px] text-slate-400">/ person</span>
           </div>
@@ -391,7 +408,7 @@ export const AlbaniaItineraryModal: React.FC<AlbaniaItineraryModalProps> = ({
                       </div>
                       <div>
                         <div className="text-2xl font-black text-amber-500">
-                          {t.estimatePerPerson}
+                          {getTierConvertedPrice(tierKey)}
                         </div>
                         <div className="text-[11px] text-slate-400">per person</div>
                       </div>

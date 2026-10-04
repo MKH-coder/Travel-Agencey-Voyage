@@ -18,6 +18,7 @@ import { jsPDF } from 'jspdf';
 import { Listing } from '../types.ts';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
+import { useCurrency } from '../context/CurrencyContext.tsx';
 
 interface SavedTripsModalProps {
   isOpen: boolean;
@@ -40,6 +41,7 @@ export const SavedTripsModal: React.FC<SavedTripsModalProps> = ({
 }) => {
   const { styles } = useTheme();
   const { user, setShowLoginModal } = useAuth();
+  const { formatPrice } = useCurrency();
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownloadItinerary = async () => {
@@ -383,7 +385,7 @@ export const SavedTripsModal: React.FC<SavedTripsModalProps> = ({
                     <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200/60 dark:border-slate-800">
                       <div className="text-left sm:text-right">
                         <div className="text-base font-extrabold text-cyan-600 dark:text-cyan-400">
-                          ${listing.price}
+                          {formatPrice(listing.price)}
                         </div>
                         <div className="text-[10px] text-slate-400">
                           {isHotel ? '/night' : isFood ? '/person' : '/tour'}
@@ -438,7 +440,7 @@ export const SavedTripsModal: React.FC<SavedTripsModalProps> = ({
             <div className="text-xs text-slate-500 dark:text-slate-400">
               Total estimated base price:{' '}
               <span className="font-extrabold text-slate-900 dark:text-white">
-                ${savedListings.reduce((sum, item) => sum + item.price, 0).toLocaleString()}
+                {formatPrice(savedListings.reduce((sum, item) => sum + item.price, 0))}
               </span>
             </div>
 

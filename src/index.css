@@ -85,3 +85,30 @@ select {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
 }
+
+/* Popular Route Trails Animated SVG Lines in MapView */
+@keyframes popularRouteFlow {
+  0% {
+    stroke-dashoffset: 48;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.popular-route-glow {
+  stroke: #f59e0b;
+  stroke-opacity: 0.35;
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.8));
+}
+
+.popular-route-core {
+  stroke: #fbbf24;
+  stroke-dasharray: 10, 10;
+  animation: popularRouteFlow 1.4s linear infinite;
+}
+
+.popular-route-cluster-pulse {
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+

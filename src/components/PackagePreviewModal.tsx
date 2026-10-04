@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Layers, Star, MapPin, CheckCircle2, ArrowRight, DollarSign, Clock, Tag, Sparkles, Phone, Download, FileText } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
+import { useCurrency } from '../context/CurrencyContext.tsx';
 import { Listing } from '../types.ts';
 import { AuthAudit } from '../services/authAudit.ts';
 import { ZipArchiveService } from '../services/zipExportService.ts';
@@ -22,6 +23,7 @@ export const PackagePreviewModal: React.FC<PackagePreviewModalProps> = ({
 }) => {
   const { styles } = useTheme();
   const { user } = useAuth();
+  const { formatPrice } = useCurrency();
   const [includedListings, setIncludedListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -177,7 +179,7 @@ export const PackagePreviewModal: React.FC<PackagePreviewModalProps> = ({
                                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                                    <span className="text-[11px] font-bold text-slate-500">{item.rating.toFixed(1)}</span>
                                  </div>
-                                 <span className="text-xs font-bold text-slate-400 line-through">${item.price}</span>
+                                 <span className="text-xs font-bold text-slate-400 line-through">{formatPrice(item.price)}</span>
                               </div>
                            </div>
                         </div>
@@ -191,14 +193,14 @@ export const PackagePreviewModal: React.FC<PackagePreviewModalProps> = ({
                      <div className="flex-1 text-center md:text-left">
                         <div className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-[0.2em] mb-1">Exclusive Bundle Pricing</div>
                         <p className={`text-sm ${styles.textSecondary}`}>
-                           By booking these components together, you save <strong className="text-emerald-500">${discountAmount}</strong> compared to individual platform rates.
+                           By booking these components together, you save <strong className="text-emerald-500">{formatPrice(discountAmount)}</strong> compared to individual platform rates.
                         </p>
                      </div>
                      
                      <div className="flex items-center gap-6">
                         <div className="text-right">
                            <div className="text-xs text-slate-400 font-medium mb-0.5">Individual Sum</div>
-                           <div className="text-lg font-bold text-slate-500 line-through">${totalOriginalPrice}</div>
+                           <div className="text-lg font-bold text-slate-500 line-through">{formatPrice(totalOriginalPrice)}</div>
                         </div>
                         <div className="w-px h-12 bg-slate-200 dark:bg-slate-800" />
                         <div className="text-center">
@@ -207,7 +209,7 @@ export const PackagePreviewModal: React.FC<PackagePreviewModalProps> = ({
                               {discountPercent}% SAVINGS
                            </div>
                            <div className="text-4xl font-black text-amber-500 tracking-tighter">
-                              ${listing.price}
+                              {formatPrice(listing.price)}
                            </div>
                         </div>
                      </div>

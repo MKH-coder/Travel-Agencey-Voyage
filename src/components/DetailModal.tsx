@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
+import { useCurrency } from '../context/CurrencyContext.tsx';
 import { Listing, Booking, PriceAlert, Review } from '../types.ts';
 import { FirebaseSyncService } from '../services/firebase.ts';
 import { AuthAudit } from '../services/authAudit.ts';
@@ -57,6 +58,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 }) => {
   const { styles } = useTheme();
   const { user, token, setShowLoginModal } = useAuth();
+  const { formatPrice } = useCurrency();
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [checkInDate, setCheckInDate] = useState(() => {
@@ -304,7 +306,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
-                const shareText = `Check out ${listing.title} in ${listing.location} for $${listing.price}!\n${listing.description}`;
+                const shareText = `Check out ${listing.title} in ${listing.location} for ${formatPrice(listing.price)}!\n${listing.description}`;
                 if (navigator.clipboard) {
                   navigator.clipboard.writeText(shareText);
                   AuthAudit.showToast({
@@ -376,7 +378,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 {listing.category === 'PACKAGE' ? 'Total Bundle Price' : 'Platform Direct Rate'}
               </span>
               <div className={`text-2xl sm:text-3xl font-black ${listing.category === 'PACKAGE' ? 'text-amber-500' : 'text-sky-500'}`}>
-                ${listing.price}
+                {formatPrice(listing.price)}
                 <span className="text-xs text-slate-400 font-normal"> {listing.category === 'HOTEL' ? '/ night' : listing.category === 'PACKAGE' ? '' : '/ experience'}</span>
               </div>
             </div>
@@ -572,7 +574,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-extrabold text-sky-600 dark:text-sky-400">${totalPrice}</div>
+                      <div className="text-sm font-extrabold text-sky-600 dark:text-sky-400">{formatPrice(totalPrice)}</div>
                       <div className="text-[10px] text-emerald-500 font-bold">Best Guaranteed</div>
                     </div>
                   </div>
@@ -586,8 +588,8 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs font-semibold text-slate-500 line-through">${competitor1Price}</div>
-                      <div className="text-[10px] text-rose-500 font-medium">+${memberSavings} more</div>
+                      <div className="text-xs font-semibold text-slate-500 line-through">{formatPrice(competitor1Price)}</div>
+                      <div className="text-[10px] text-rose-500 font-medium">+{formatPrice(memberSavings)} more</div>
                     </div>
                   </div>
 
@@ -600,8 +602,8 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs font-semibold text-slate-500 line-through">${competitor2Price}</div>
-                      <div className="text-[10px] text-rose-500 font-medium">+${competitor2Price - totalPrice} more</div>
+                      <div className="text-xs font-semibold text-slate-500 line-through">{formatPrice(competitor2Price)}</div>
+                      <div className="text-[10px] text-rose-500 font-medium">+{formatPrice(competitor2Price - totalPrice)} more</div>
                     </div>
                   </div>
                 </div>
@@ -647,12 +649,12 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-400">Total Paid:</span>
-                        <span className="font-bold text-sky-500">${bookingConfirmed.totalPrice}</span>
+                        <span className="font-bold text-sky-500">{formatPrice(bookingConfirmed.totalPrice)}</span>
                       </div>
                       {bookingConfirmed.discountAmount ? (
                         <div className="flex justify-between text-emerald-500 font-medium">
                           <span>Voucher Savings ({bookingConfirmed.promoCode || 'Promo'}):</span>
-                          <span>-${bookingConfirmed.discountAmount}</span>
+                          <span>-{formatPrice(bookingConfirmed.discountAmount)}</span>
                         </div>
                       ) : null}
                     </div>
@@ -784,16 +786,16 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                     {/* Price breakdown */}
                     <div className="pt-2 border-t border-slate-200/50 dark:border-slate-800 text-xs space-y-1.5">
                       <div className="flex justify-between text-slate-500">
-                        <span>${listing.price} × {daysCount} {listing.category === 'HOTEL' ? 'nights' : 'guest(s)'}</span>
-                        <span>${subtotal}</span>
+                        <span>{formatPrice(listing.price)} × {daysCount} {listing.category === 'HOTEL' ? 'nights' : 'guest(s)'}</span>
+                        <span>{formatPrice(subtotal)}</span>
                       </div>
                       <div className="flex justify-between text-slate-500">
                         <span>Platform Concierge & Service Fee</span>
-                        <span>${serviceFee}</span>
+                        <span>{formatPrice(serviceFee)}</span>
                       </div>
                       <div className="flex justify-between text-slate-500">
                         <span>City & Tourism Taxes</span>
-                        <span>${taxes}</span>
+                        <span>{formatPrice(taxes)}</span>
                       </div>
 
                       {appliedPromo && discountAmount > 0 && (
@@ -802,7 +804,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                             <Sparkles className="w-3.5 h-3.5" />
                             <span>Voucher Discount ({appliedPromo.code} -{appliedPromo.discountPercent}%)</span>
                           </span>
-                          <span>-${discountAmount}</span>
+                          <span>-{formatPrice(discountAmount)}</span>
                         </div>
                       )}
 
@@ -811,10 +813,10 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                         <div className="text-right">
                           {appliedPromo && discountAmount > 0 && (
                             <span className="text-xs text-slate-400 line-through mr-2 font-normal">
-                              ${rawTotal}
+                              {formatPrice(rawTotal)}
                             </span>
                           )}
-                          <span className="text-sky-500">${totalPrice}</span>
+                          <span className="text-sky-500">{formatPrice(totalPrice)}</span>
                         </div>
                       </div>
                     </div>

@@ -22,6 +22,7 @@ import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { getClientSessionInfo } from '../utils/clientInfo.ts';
 import { TravelerAchievements } from './TravelerAchievements.tsx';
+import { TravelerMilestones } from './TravelerMilestones.tsx';
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -34,7 +35,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
   const { user, toggle2FA, updateProfilePicture, isNetworkOnline } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [activeTab, setActiveTab] = useState<'PROFILE' | 'ACHIEVEMENTS'>('PROFILE');
+  const [activeTab, setActiveTab] = useState<'PROFILE' | 'MILESTONES' | 'BADGES'>('PROFILE');
   const [isToggling, setIsToggling] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -131,35 +132,49 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-slate-200/60 dark:border-slate-800 pb-2 shrink-0">
+        <div className="flex items-center gap-2 border-b border-slate-200/60 dark:border-slate-800 pb-2 shrink-0 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab('PROFILE')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
               activeTab === 'PROFILE'
                 ? 'bg-sky-500 text-white shadow-md shadow-sky-500/20'
                 : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-sky-500'
             }`}
           >
-            <ShieldCheck className="w-4 h-4" />
+            <ShieldCheck className="w-3.5 h-3.5" />
             <span>Profile & Security</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('ACHIEVEMENTS')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-              activeTab === 'ACHIEVEMENTS'
+            onClick={() => setActiveTab('MILESTONES')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
+              activeTab === 'MILESTONES'
                 ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black shadow-md shadow-amber-500/20'
                 : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-amber-500'
             }`}
           >
-            <Award className="w-4 h-4 text-amber-400" />
-            <span>🏆 Traveler Achievements & Badges</span>
+            <Crown className="w-3.5 h-3.5 text-amber-500" />
+            <span>🌟 Traveler Tiers & Milestones</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('BADGES')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
+              activeTab === 'BADGES'
+                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black shadow-md shadow-indigo-500/20'
+                : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-indigo-400'
+            }`}
+          >
+            <Award className="w-3.5 h-3.5 text-indigo-400" />
+            <span>🏆 Digital Badges</span>
           </button>
         </div>
 
         {/* Tab Content (Scrollable) */}
         <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-          {activeTab === 'ACHIEVEMENTS' ? (
+          {activeTab === 'MILESTONES' ? (
+            <TravelerMilestones />
+          ) : activeTab === 'BADGES' ? (
             <TravelerAchievements 
               onOpenGame={() => {
                 onClose();
