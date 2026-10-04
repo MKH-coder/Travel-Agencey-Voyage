@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   MapPin,
   Star,
@@ -12,12 +12,23 @@ import {
   Share2,
   Package,
   Clock,
-  Plus
+  Plus,
+  Sun,
+  CloudSun,
+  Cloud,
+  CloudRain,
+  CloudLightning,
+  Snowflake,
+  Thermometer,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
+import { useCurrency } from '../context/CurrencyContext.tsx';
 import { Listing } from '../types.ts';
 import { AuthAudit } from '../services/authAudit.ts';
+import { fetch3DayWeather, LocationWeather } from '../services/weatherService.ts';
 
 interface ListingCardProps {
   listing: Listing;
@@ -41,6 +52,49 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const { styles } = useTheme();
   const { user } = useAuth();
   const isAdmin = user && ['ADMIN', 'TECH_ADMIN', 'TECH_SUBADMIN'].includes(user.role);
+
+  const [weatherData, setWeatherData] = useState<LocationWeather | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [showFullWeather, setShowFullWeather] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (listing.location) {
+      setWeatherLoading(true);
+      fetch3DayWeather(`${listing.location}, ${listing.country || ''}`)
+        .then((res) => {
+          if (isMounted) {
+            setWeatherData(res);
+            setWeatherLoading(false);
+          }
+        })
+        .catch(() => {
+          if (isMounted) setWeatherLoading(false);
+        });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [listing.location, listing.country]);
+
+  const getWeatherIcon = (iconType: string) => {
+    switch (iconType) {
+      case 'sun':
+        return <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />;
+      case 'cloud-sun':
+        return <CloudSun className="w-3.5 h-3.5 text-sky-400 shrink-0" />;
+      case 'cloud':
+        return <Cloud className="w-3.5 h-3.5 text-slate-400 shrink-0" />;
+      case 'rain':
+        return <CloudRain className="w-3.5 h-3.5 text-blue-400 shrink-0" />;
+      case 'thunder':
+        return <CloudLightning className="w-3.5 h-3.5 text-amber-400 shrink-0" />;
+      case 'snow':
+        return <Snowflake className="w-3.5 h-3.5 text-sky-300 shrink-0" />;
+      default:
+        return <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />;
+    }
+  };
 
   const getCategoryIcon = () => {
     switch (listing.category) {
@@ -204,6 +258,56 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           <p className={`text-xs ${styles.textMuted} line-clamp-2 mb-3 leading-relaxed`}>
             {listing.description}
           </p>
+
+          {/* 3-Day Weather Forecast Widget */}
+          <div className="mb-3 p-2 rounded-xl bg-slate-500/5 border border-slate-200/50 dark:border-slate-800/80">
+            <div className="flex items-center justify-between mb-1.5 px-0.5">
+              <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <Sun className="w-3 h-3 text-amber-500" />
+                <span>3-Day Weather</span>
+              </div>
+              {weatherData && (
+                <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400">
+                  {weatherData.currentTempC}°C ({weatherData.currentCondition})
+                </span>
+              )}
+            </div>
+
+            {weatherLoading ? (
+              <div className="grid grid-cols-3 gap-1 animate-pulse py-1">
+                <div className="h-10 bg-slate-200/60 dark:bg-slate-800 rounded-lg"></div>
+                <div className="h-10 bg-slate-200/60 dark:bg-slate-800 rounded-lg"></div>
+                <div className="h-10 bg-slate-200/60 dark:bg-slate-800 rounded-lg"></div>
+              </div>
+            ) : weatherData && weatherData.forecast ? (
+              <div className="grid grid-cols-3 gap-1.5">
+                {weatherData.forecast.map((day, idx) => (
+                  <div
+                    key={idx}
+                    className="flex flex-col items-center justify-center p-1.5 rounded-lg bg-white/70 dark:bg-slate-900/70 border border-slate-200/40 dark:border-slate-800 text-center transition-all hover:border-sky-500/40 shadow-2xs"
+                    title={`${day.dayName}: ${day.condition}, High ${day.tempMaxC}°C (${day.tempMaxF}°F), Low ${day.tempMinC}°C (${day.tempMinF}°F)`}
+                  >
+                    <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tighter">
+                      {day.dayName}
+                    </span>
+                    <div className="my-0.5 flex items-center justify-center">
+                      {getWeatherIcon(day.icon)}
+                    </div>
+                    <span className="text-[10px] font-extrabold text-slate-800 dark:text-slate-200 leading-none">
+                      {day.tempMaxC}°C
+                    </span>
+                    <span className="text-[8px] text-slate-400 font-medium mt-0.5">
+                      {day.tempMinC}°
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-[10px] text-slate-400 text-center py-1">
+                Weather loading...
+              </div>
+            )}
+          </div>
 
           {/* Tags */}
           {listing.tags && listing.tags.length > 0 && (

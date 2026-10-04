@@ -25,10 +25,14 @@ import {
   ArrowRight,
   Globe,
   Gamepad2,
-  Download
+  Download,
+  Check,
+  Coins
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
+import { useLanguage } from '../context/LanguageContext.tsx';
+import { useCurrency } from '../context/CurrencyContext.tsx';
 import { ThemeMode } from '../types.ts';
 import { UserProfileModal } from './UserProfileModal.tsx';
 import { Clock as ClockComponent } from './Clock.tsx';
@@ -68,7 +72,11 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { theme, setTheme, styles } = useTheme();
   const { user, logout, setShowLoginModal, setShowBypassModal } = useAuth();
+  const { language, setLanguage, t, languageOptions, currentLanguageOption } = useLanguage();
+  const { currency, setCurrency, currentCurrency, availableCurrencies } = useCurrency();
   const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
+  const [showCurrencyMenu, setShowCurrencyMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -162,7 +170,7 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
             >
               <Compass className="w-3.5 h-3.5" />
-              <span>Explore</span>
+              <span>{t('nav.explore', 'Explore')}</span>
             </button>
 
             {onOpenCustomTripBuilder && (
@@ -173,7 +181,7 @@ export const Header: React.FC<HeaderProps> = ({
                 title="Design Custom Trip & Package"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-500 group-hover:text-white" />
-                <span>Custom Trip Studio</span>
+                <span>{t('nav.customTrip', 'Custom Trip Studio')}</span>
               </button>
             )}
 
@@ -184,7 +192,7 @@ export const Header: React.FC<HeaderProps> = ({
               }}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${styles.textSecondary} hover:${styles.cardBg}`}
             >
-              About
+              {t('nav.about', 'About')}
             </button>
 
             <button
@@ -194,7 +202,7 @@ export const Header: React.FC<HeaderProps> = ({
               }}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${styles.textSecondary} hover:${styles.cardBg}`}
             >
-              Contact
+              {t('nav.contact', 'Contact')}
             </button>
 
             {(user?.role === 'ADMIN' || user?.role === 'TECH_SUBADMIN' || user?.role === 'TECH_ADMIN') && (
@@ -208,7 +216,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 <Shield className="w-3.5 h-3.5" />
-                <span>{user.role === 'TECH_ADMIN' ? 'Super Admin Portal' : user.role === 'TECH_SUBADMIN' ? 'Sub-Admin' : 'Admin Portal'}</span>
+                <span>{user.role === 'TECH_ADMIN' ? t('nav.superAdminPortal', 'Super Admin Portal') : user.role === 'TECH_SUBADMIN' ? t('nav.subAdminPortal', 'Sub-Admin') : t('nav.adminPortal', 'Admin Portal')}</span>
               </button>
             )}
 
@@ -219,7 +227,7 @@ export const Header: React.FC<HeaderProps> = ({
                 title="View Albania 9-Day Packages & Download Itinerary PDF"
               >
                 <span>🇦🇱</span>
-                <span>Albania 9-Day (PDF)</span>
+                <span>{t('nav.albaniaPdf', 'Albania 9-Day (PDF)')}</span>
               </button>
             )}
 
@@ -230,7 +238,7 @@ export const Header: React.FC<HeaderProps> = ({
                 title="Play Wanderlust Chronicles Travel RPG"
               >
                 <Gamepad2 className="w-3.5 h-3.5" />
-                <span>Travel Game</span>
+                <span>{t('nav.travelGame', 'Travel Game')}</span>
               </button>
             )}
           </nav>
@@ -274,6 +282,119 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Custom Trip</span>
             </button>
           )}
+
+          {/* Language Selector Dropdown */}
+          <div className="relative shrink-0">
+            <button
+              id="language-selector-btn"
+              onClick={() => {
+                setShowLangMenu(!showLangMenu);
+                setShowThemeMenu(false);
+              }}
+              className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all shrink-0 cursor-pointer text-xs font-bold shadow-xs`}
+              title={t('header.selectLanguage', 'Select Language')}
+              aria-label="Select Language"
+            >
+              <Globe className="w-3.5 h-3.5 text-sky-500" />
+              <span className="text-sm leading-none">{currentLanguageOption.flag}</span>
+              <span className="hidden sm:inline uppercase text-[11px] font-extrabold tracking-wider">{currentLanguageOption.code}</span>
+              <ChevronDown className="w-3 h-3 opacity-60 ml-0.5" />
+            </button>
+
+            {showLangMenu && (
+              <div
+                className={`absolute right-0 mt-2 w-52 rounded-2xl shadow-2xl border ${styles.border} ${styles.cardBg} p-1.5 z-50 animate-in fade-in zoom-in-95`}
+              >
+                <div className="px-3 py-2 border-b border-slate-200/50 dark:border-slate-800 text-[10px] font-bold tracking-wider uppercase text-slate-400 flex items-center justify-between">
+                  <span>{t('header.language', 'Language')}</span>
+                  <Globe className="w-3 h-3 text-sky-500" />
+                </div>
+                <div className="space-y-0.5 py-1">
+                  {languageOptions.map((opt) => (
+                    <button
+                      key={opt.code}
+                      onClick={() => {
+                        setLanguage(opt.code);
+                        setShowLangMenu(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                        language === opt.code
+                          ? `${styles.accent} text-white font-bold shadow-xs`
+                          : `${styles.textSecondary} hover:${styles.bg}`
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-base">{opt.flag}</span>
+                        <div className="text-left">
+                          <div className="font-semibold text-xs leading-none">{opt.nativeName}</div>
+                          <div className={`text-[10px] mt-0.5 ${language === opt.code ? 'text-white/80' : 'text-slate-400'}`}>{opt.name}</div>
+                        </div>
+                      </div>
+                      {language === opt.code && <Check className="w-3.5 h-3.5" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Currency Selector Dropdown */}
+          <div className="relative shrink-0">
+            <button
+              id="currency-selector-btn"
+              onClick={() => {
+                setShowCurrencyMenu(!showCurrencyMenu);
+                setShowLangMenu(false);
+                setShowThemeMenu(false);
+              }}
+              className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all shrink-0 cursor-pointer text-xs font-bold shadow-xs`}
+              title="Change Display Currency"
+              aria-label="Change Currency"
+            >
+              <Coins className="w-3.5 h-3.5 text-amber-500" />
+              <span className="text-sm font-extrabold">{currentCurrency.symbol}</span>
+              <span className="hidden sm:inline uppercase text-[11px] font-extrabold tracking-wider">{currentCurrency.code}</span>
+              <ChevronDown className="w-3 h-3 opacity-60 ml-0.5" />
+            </button>
+
+            {showCurrencyMenu && (
+              <div
+                className={`absolute right-0 mt-2 w-52 rounded-2xl shadow-2xl border ${styles.border} ${styles.cardBg} p-1.5 z-50 animate-in fade-in zoom-in-95`}
+              >
+                <div className="px-3 py-2 border-b border-slate-200/50 dark:border-slate-800 text-[10px] font-bold tracking-wider uppercase text-slate-400 flex items-center justify-between">
+                  <span>Display Currency</span>
+                  <Coins className="w-3 h-3 text-amber-500" />
+                </div>
+                <div className="space-y-0.5 py-1">
+                  {availableCurrencies.map((c) => (
+                    <button
+                      key={c.code}
+                      onClick={() => {
+                        setCurrency(c.code);
+                        setShowCurrencyMenu(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                        currency === c.code
+                          ? `${styles.accent} text-white font-bold shadow-xs`
+                          : `${styles.textSecondary} hover:${styles.bg}`
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-base">{c.flag}</span>
+                        <div className="text-left">
+                          <div className="font-bold text-xs leading-none">
+                            {c.code} ({c.symbol})
+                          </div>
+                          <div className={`text-[10px] mt-0.5 ${currency === c.code ? 'text-white/80' : 'text-slate-400'}`}>{c.name}</div>
+                        </div>
+                      </div>
+                      {currency === c.code && <Check className="w-3.5 h-3.5" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Theme Selector (Compact Icon Only) */}
           <div className="relative shrink-0">
@@ -715,6 +836,54 @@ export const Header: React.FC<HeaderProps> = ({
                 <ArrowRight className="w-4 h-4" />
               </button>
             )}
+          </div>
+
+          {/* Quick Currency Switcher in Drawer */}
+          <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 space-y-2">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+              <span>Display Currency</span>
+              <Coins className="w-3 h-3 text-amber-500" />
+            </div>
+            <div className="grid grid-cols-5 gap-1">
+              {availableCurrencies.map((c) => (
+                <button
+                  key={c.code}
+                  onClick={() => setCurrency(c.code)}
+                  className={`p-2 rounded-xl text-[10px] font-bold flex flex-col items-center justify-center border transition-all cursor-pointer ${
+                    currency === c.code
+                      ? 'border-amber-500 bg-amber-500 text-white shadow-xs'
+                      : 'border-slate-200/60 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <span className="text-xs">{c.flag}</span>
+                  <span className="font-mono mt-0.5">{c.code}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Language Switcher in Drawer */}
+          <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 space-y-2">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+              <span>{t('header.language', 'Interface Language')}</span>
+              <Globe className="w-3 h-3 text-sky-500" />
+            </div>
+            <div className="grid grid-cols-3 gap-1.5">
+              {languageOptions.map((opt) => (
+                <button
+                  key={opt.code}
+                  onClick={() => setLanguage(opt.code)}
+                  className={`p-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 border transition-all cursor-pointer ${
+                    language === opt.code
+                      ? 'border-sky-500 bg-sky-500 text-white shadow-xs'
+                      : 'border-slate-200/60 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <span className="text-sm">{opt.flag}</span>
+                  <span>{opt.nativeName.split(' ')[0]}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Quick Theme Switcher in Drawer */}

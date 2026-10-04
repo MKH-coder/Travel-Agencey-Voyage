@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ThemeProvider, useTheme } from './context/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
+import { LanguageProvider } from './context/LanguageContext.tsx';
+import { CurrencyProvider } from './context/CurrencyContext.tsx';
 import { Header } from './components/Header.tsx';
 import { HeroSection } from './components/HeroSection.tsx';
 import { ListingCard } from './components/ListingCard.tsx';
@@ -761,10 +763,14 @@ function MainLayout() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <MainLayout />
-        <ToastContainer />
-      </AuthProvider>
+      <LanguageProvider>
+        <CurrencyProvider>
+          <AuthProvider>
+            <MainLayout />
+            <ToastContainer />
+          </AuthProvider>
+        </CurrencyProvider>
+      </LanguageProvider>
     </ThemeProvider>
   );
 }
