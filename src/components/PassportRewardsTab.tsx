@@ -17,17 +17,20 @@ import {
 import { ALL_PASSPORT_STAMPS, REWARD_PROMOS, PassportStamp, PromoCouponReward } from '../data/interactiveGameData.ts';
 import { AuthAudit } from '../services/authAudit.ts';
 import { PromoService } from '../services/promoService.ts';
+import { WeeklyTravelChallenges } from './WeeklyTravelChallenges.tsx';
 
 interface PassportRewardsTabProps {
   unlockedStamps: string[];
   totalScore: number;
   onUsePromo?: (code: string) => void;
+  onAddXp?: (amount: number) => void;
 }
 
 export const PassportRewardsTab: React.FC<PassportRewardsTabProps> = ({
   unlockedStamps,
   totalScore,
   onUsePromo,
+  onAddXp,
 }) => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [activeCode, setActiveCode] = useState<string | null>(() => {
@@ -129,6 +132,9 @@ export const PassportRewardsTab: React.FC<PassportRewardsTabProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Weekly Travel Challenges Widget */}
+      <WeeklyTravelChallenges onAddXp={onAddXp || (() => {})} />
 
       {/* Digital Passport Visa Stamps Grid */}
       <div>
