@@ -178,7 +178,7 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
         </div>
 
         {/* Tab Content Body */}
-        <div className="flex-1 overflow-hidden relative">
+        <div className="flex-1 overflow-hidden relative flex flex-col">
           {activeTab === 'flight' && (
             <SkyExpeditionGame
               onUnlockStamp={handleUnlockStamp}

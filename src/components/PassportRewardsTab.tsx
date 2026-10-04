@@ -76,9 +76,9 @@ export const PassportRewardsTab: React.FC<PassportRewardsTabProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-950 text-white select-none overflow-y-auto p-4 sm:p-6 space-y-6">
+    <div className="flex flex-col h-full min-h-full bg-slate-950 text-white select-none overflow-y-auto p-4 sm:p-6 space-y-6">
       {/* Traveler Aviator Credential Card */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950/70 to-slate-900 border border-indigo-500/30 p-5 sm:p-6 shadow-2xl">
+      <div className="shrink-0 relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950/70 to-slate-900 border border-indigo-500/30 p-5 sm:p-6 shadow-2xl">
         <div className="absolute top-0 right-0 p-8 pointer-events-none opacity-10">
           <Plane className="w-48 h-48 text-indigo-400 rotate-45" />
         </div>
@@ -134,10 +134,12 @@ export const PassportRewardsTab: React.FC<PassportRewardsTabProps> = ({
       </div>
 
       {/* Weekly Travel Challenges Widget */}
-      <WeeklyTravelChallenges onAddXp={onAddXp || (() => {})} />
+      <div className="shrink-0">
+        <WeeklyTravelChallenges onAddXp={onAddXp || (() => {})} />
+      </div>
 
       {/* Digital Passport Visa Stamps Grid */}
-      <div>
+      <div className="shrink-0">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2 text-sm font-black text-slate-200">
             <Luggage className="w-4 h-4 text-sky-400" />
@@ -194,7 +196,7 @@ export const PassportRewardsTab: React.FC<PassportRewardsTabProps> = ({
       </div>
 
       {/* Secret Unlockable Travel Promo Vouchers */}
-      <div>
+      <div className="shrink-0">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2 text-sm font-black text-slate-200">
             <Sparkles className="w-4 h-4 text-amber-400" />
