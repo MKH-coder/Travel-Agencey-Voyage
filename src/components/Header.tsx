@@ -904,7 +904,11 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       )}
 
-      <UserProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />
+      <UserProfileModal 
+        isOpen={showProfileModal} 
+        onClose={() => setShowProfileModal(false)} 
+        onOpenGame={onOpenGame}
+      />
     </header>
   );
 };
