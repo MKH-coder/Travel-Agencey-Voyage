@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Layers, Star, MapPin, CheckCircle2, ArrowRight, DollarSign, Clock, Tag, Sparkles, Phone, Download, FileText } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
+import { useAuth } from '../context/AuthContext.tsx';
 import { Listing } from '../types.ts';
 import { AuthAudit } from '../services/authAudit.ts';
 import { ZipArchiveService } from '../services/zipExportService.ts';
@@ -20,6 +21,7 @@ export const PackagePreviewModal: React.FC<PackagePreviewModalProps> = ({
   onOpenAlbaniaModal,
 }) => {
   const { styles } = useTheme();
+  const { user } = useAuth();
   const [includedListings, setIncludedListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -224,14 +226,16 @@ export const PackagePreviewModal: React.FC<PackagePreviewModalProps> = ({
              >
                Close
              </button>
-             <button 
-               onClick={() => ZipArchiveService.exportTripPackageZip(listing.title, listing)}
-               className="w-full sm:w-auto px-6 py-3 rounded-2xl text-sm font-bold border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-               title="Export package summary and offline guide as ZIP"
-             >
-               <Download className="w-4 h-4" />
-               <span>Package ZIP</span>
-             </button>
+             {user && ['ADMIN', 'TECH_ADMIN', 'TECH_SUBADMIN'].includes(user.role) && (
+               <button 
+                 onClick={() => ZipArchiveService.exportTripPackageZip(listing.title, listing)}
+                 className="w-full sm:w-auto px-6 py-3 rounded-2xl text-sm font-bold border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                 title="Export package summary and offline guide as ZIP (Admin Only)"
+               >
+                 <Download className="w-4 h-4" />
+                 <span>Package ZIP (Admin)</span>
+               </button>
+             )}
              <button 
                type="button"
                onClick={() => {

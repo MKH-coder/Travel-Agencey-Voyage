@@ -16,17 +16,23 @@ import {
 } from 'lucide-react';
 import { ALL_PASSPORT_STAMPS, REWARD_PROMOS, PassportStamp, PromoCouponReward } from '../data/interactiveGameData.ts';
 import { AuthAudit } from '../services/authAudit.ts';
+import { PromoService } from '../services/promoService.ts';
 
 interface PassportRewardsTabProps {
   unlockedStamps: string[];
   totalScore: number;
+  onUsePromo?: (code: string) => void;
 }
 
 export const PassportRewardsTab: React.FC<PassportRewardsTabProps> = ({
   unlockedStamps,
   totalScore,
+  onUsePromo,
 }) => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [activeCode, setActiveCode] = useState<string | null>(() => {
+    return PromoService.getActivePromo()?.code || null;
+  });
 
   const getRank = (score: number) => {
     if (score >= 3000) return { title: 'Legendary Sky Admiral', badge: '⭐⭐⭐⭐⭐', color: 'text-amber-400', nextAt: 5000 };
@@ -49,6 +55,20 @@ export const PassportRewardsTab: React.FC<PassportRewardsTabProps> = ({
         duration: 3500,
       });
       setTimeout(() => setCopiedCode(null), 3000);
+    }
+  };
+
+  const handleUseVoucher = (code: string) => {
+    PromoService.setActivePromo(code);
+    setActiveCode(code);
+    AuthAudit.showToast({
+      title: '🎉 Voucher Activated!',
+      message: `Promo code "${code}" has been applied! Discount will appear at checkout.`,
+      type: 'success',
+      duration: 4000,
+    });
+    if (onUsePromo) {
+      onUsePromo(code);
     }
   };
 
@@ -216,29 +236,48 @@ export const PassportRewardsTab: React.FC<PassportRewardsTabProps> = ({
                   </p>
                 </div>
 
-                <button
-                  disabled={!isUnlocked}
-                  onClick={() => handleCopyCode(promo.code)}
-                  className={`w-full py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                    isUnlocked
-                      ? copiedCode === promo.code
-                        ? 'bg-emerald-500 text-white'
-                        : 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 active:scale-95'
-                      : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                  }`}
-                >
-                  {copiedCode === promo.code ? (
+                <div className="space-y-2 mt-2">
+                  {isUnlocked ? (
                     <>
-                      <Check className="w-3.5 h-3.5" />
-                      <span>Copied to Clipboard!</span>
+                      <button
+                        onClick={() => handleUseVoucher(promo.code)}
+                        className={`w-full py-2.5 px-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md ${
+                          activeCode === promo.code
+                            ? 'bg-emerald-500 text-white shadow-emerald-500/20'
+                            : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-amber-500/20 active:scale-95'
+                        }`}
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>{activeCode === promo.code ? 'Active! Click to Book Now' : `Apply & Book (${promo.discount})`}</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleCopyCode(promo.code)}
+                        className="w-full py-1.5 px-2 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-semibold text-[11px] flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-slate-700/60"
+                      >
+                        {copiedCode === promo.code ? (
+                          <>
+                            <Check className="w-3 h-3 text-emerald-400" />
+                            <span className="text-emerald-400">Code Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3" />
+                            <span>Copy Code ({promo.code})</span>
+                          </>
+                        )}
+                      </button>
                     </>
                   ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>{isUnlocked ? 'Copy Promo Code' : 'Reach Score to Unlock'}</span>
-                    </>
+                    <button
+                      disabled
+                      className="w-full py-2.5 px-3 rounded-xl bg-slate-800 text-slate-500 font-bold text-xs flex items-center justify-center gap-2 cursor-not-allowed border border-slate-800"
+                    >
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>{promo.requirement}</span>
+                    </button>
                   )}
-                </button>
+                </div>
               </div>
             );
           })}

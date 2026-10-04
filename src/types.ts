@@ -183,6 +183,8 @@ export interface Booking {
   checkOutDate?: string;
   guests: number;
   totalPrice: number;
+  promoCode?: string;
+  discountAmount?: number;
   status: 'CONFIRMED' | 'CANCELLED';
   createdAt: string;
 }
@@ -282,5 +284,32 @@ export interface ToastMessage {
   };
   isAdminAction?: boolean;
   adminActionType?: 'create' | 'update' | 'delete' | 'status' | 'clear' | 'user_role' | 'user_delete' | 'moderation' | 'error';
+}
+
+export interface SupportMessage {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  senderRole: 'CLIENT' | 'ADMIN';
+  senderId: string;
+  senderName: string;
+  text: string;
+  timestamp: string;
+  readByAdmin: boolean;
+  readByClient: boolean;
+  listingContext?: {
+    id: string;
+    title: string;
+  };
+}
+
+export interface SupportConversationSummary {
+  userId: string;
+  userEmail: string;
+  userName: string;
+  lastMessage: SupportMessage;
+  unreadCount: number;
+  messages: SupportMessage[];
 }
 

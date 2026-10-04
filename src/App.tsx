@@ -45,6 +45,7 @@ import { AlbaniaItineraryModal } from './components/AlbaniaItineraryModal.tsx';
 function MainLayout() {
   const { styles, theme, setTheme } = useTheme();
   const { user, token, showLoginModal, setShowLoginModal, showBypassModal, setShowBypassModal } = useAuth();
+  const isAdmin = Boolean(user && ['ADMIN', 'TECH_ADMIN', 'TECH_SUBADMIN'].includes(user.role));
 
   const [currentView, setCurrentView] = useState<'dashboard' | 'admin'>('dashboard');
   const [feedLayout, setFeedLayout] = useState<'split' | 'grid' | 'map'>('split');
@@ -72,7 +73,7 @@ function MainLayout() {
   const [showGameModal, setShowGameModal] = useState(false);
   const [showAlbaniaModal, setShowAlbaniaModal] = useState<boolean>(false);
   const [albaniaDefaultTier, setAlbaniaDefaultTier] = useState<'basic' | 'midrange' | 'luxury'>('midrange');
-  const [adminTab, setAdminTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips' | null>(null);
+  const [adminTab, setAdminTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips' | 'support' | null>(null);
 
   const [filters, setFilters] = useState<FilterState>({
     category: 'ALL',
@@ -411,7 +412,7 @@ function MainLayout() {
         }}
         onOpenCustomTripsTracker={() => setShowCustomTripsTrackerModal(true)}
         onOpenGame={() => setShowGameModal(true)}
-        onDownloadZip={() => ZipArchiveService.exportPlatformArchiveZip()}
+        onDownloadZip={isAdmin ? () => ZipArchiveService.exportPlatformArchiveZip() : undefined}
         onOpenAlbaniaModal={handleOpenAlbaniaModal}
         searchQuery={filters.search}
         setSearchQuery={(q) => setFilters(prev => ({ ...prev, search: q }))}
@@ -653,7 +654,7 @@ function MainLayout() {
 
       <Footer
         onOpenGame={() => setShowGameModal(true)}
-        onDownloadZip={() => ZipArchiveService.exportPlatformArchiveZip()}
+        onDownloadZip={isAdmin ? () => ZipArchiveService.exportPlatformArchiveZip() : undefined}
         onOpenAlbaniaModal={handleOpenAlbaniaModal}
       />
 
@@ -741,7 +742,15 @@ function MainLayout() {
 
       <LoginModal />
       <ShortcutsHelpModal isOpen={showShortcutsModal} onClose={() => setShowShortcutsModal(false)} />
-      <WanderlustGameModal isOpen={showGameModal} onClose={() => setShowGameModal(false)} />
+      <WanderlustGameModal
+        isOpen={showGameModal}
+        onClose={() => setShowGameModal(false)}
+        onUsePromo={() => {
+          setShowGameModal(false);
+          const el = document.getElementById('listings-container') || document.querySelector('main');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }}
+      />
       <AlbaniaItineraryModal
         isOpen={showAlbaniaModal}
         onClose={() => setShowAlbaniaModal(false)}

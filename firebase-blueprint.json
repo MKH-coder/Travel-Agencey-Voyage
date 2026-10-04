@@ -278,6 +278,59 @@
         }
       },
       "required": ["id", "listingId", "userId", "userName", "rating", "comment", "createdAt"]
+    },
+    "SupportMessage": {
+      "title": "SupportMessage",
+      "description": "Live bidirectional chat messages between signed-in clients and administrator concierge desk",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique support message identifier"
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the client user for 1-on-1 private routing"
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "Email address of the client user"
+        },
+        "userName": {
+          "type": "string",
+          "description": "Display name of the client user"
+        },
+        "senderRole": {
+          "type": "string",
+          "enum": ["CLIENT", "ADMIN"],
+          "description": "Role of the message sender"
+        },
+        "senderId": {
+          "type": "string",
+          "description": "UID of the message author"
+        },
+        "senderName": {
+          "type": "string",
+          "description": "Name of the message sender"
+        },
+        "text": {
+          "type": "string",
+          "description": "Text message content"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO timestamp of message"
+        },
+        "readByAdmin": {
+          "type": "boolean",
+          "description": "Whether message has been seen by admin"
+        },
+        "readByClient": {
+          "type": "boolean",
+          "description": "Whether reply has been seen by client"
+        }
+      },
+      "required": ["id", "userId", "userEmail", "senderRole", "senderId", "text", "timestamp"]
     }
   },
   "firestore": {
@@ -304,6 +357,10 @@
     "/reviews/{reviewId}": {
       "schema": "Review",
       "description": "User guest ratings and reviews for destinations"
+    },
+    "/support_messages/{messageId}": {
+      "schema": "SupportMessage",
+      "description": "1-on-1 live personalized concierge chat messages routed privately between user account and admin portal"
     }
   }
 }

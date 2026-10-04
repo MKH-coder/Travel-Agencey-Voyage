@@ -80,6 +80,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const isAdmin = Boolean(user && ['ADMIN', 'TECH_ADMIN', 'TECH_SUBADMIN'].includes(user.role));
 
   // Close mobile menu on view change
   useEffect(() => {
@@ -219,52 +220,18 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>{user.role === 'TECH_ADMIN' ? t('nav.superAdminPortal', 'Super Admin Portal') : user.role === 'TECH_SUBADMIN' ? t('nav.subAdminPortal', 'Sub-Admin') : t('nav.adminPortal', 'Admin Portal')}</span>
               </button>
             )}
-
-            {onOpenAlbaniaModal && (
-              <button
-                onClick={() => onOpenAlbaniaModal('midrange')}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/10 hover:bg-amber-500 text-amber-700 dark:text-amber-300 hover:text-white border border-amber-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-                title="View Albania 9-Day Packages & Download Itinerary PDF"
-              >
-                <span>🇦🇱</span>
-                <span>{t('nav.albaniaPdf', 'Albania 9-Day (PDF)')}</span>
-              </button>
-            )}
-
-            {onOpenGame && (
-              <button
-                onClick={onOpenGame}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-                title="Play Voyage Globetrotter Flight & Geo Game"
-              >
-                <Gamepad2 className="w-3.5 h-3.5" />
-                <span>{t('nav.travelGame', 'Travel Game')}</span>
-              </button>
-            )}
           </nav>
         </div>
 
         {/* Right Action Cluster: Always compact, perfectly fitted & guaranteed Sign In visibility */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 ml-auto">
 
-          {/* Quick Travel Game Button for Tablets & Laptops */}
-          {onOpenGame && (
-            <button
-              onClick={onOpenGame}
-              className="p-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all flex items-center justify-center shrink-0 cursor-pointer"
-              title="Play Voyage Globetrotter Flight & Geo Game"
-              aria-label="Voyage Globetrotter Game"
-            >
-              <Gamepad2 className="w-4 h-4" />
-            </button>
-          )}
-
-          {/* Quick ZIP Backup Download for Desktop */}
-          {onDownloadZip && (
+          {/* Quick ZIP Backup Download for Desktop - ADMIN ONLY */}
+          {isAdmin && onDownloadZip && (
             <button
               onClick={onDownloadZip}
               className={`p-2 rounded-xl border ${styles.border} ${styles.cardBg} text-emerald-600 dark:text-emerald-400 hover:opacity-90 transition-all hidden md:flex items-center justify-center shrink-0 cursor-pointer`}
-              title="Export Site & Travel Data as ZIP Archive"
+              title="Export Site & Travel Data as ZIP Archive (Admin Only)"
               aria-label="Export ZIP Archive"
             >
               <Download className="w-4 h-4" />
@@ -583,7 +550,7 @@ export const Header: React.FC<HeaderProps> = ({
                       </button>
                     )}
 
-                    {onDownloadZip && (
+                    {isAdmin && onDownloadZip && (
                       <button
                         onClick={() => {
                           onDownloadZip();
@@ -596,7 +563,7 @@ export const Header: React.FC<HeaderProps> = ({
                           <span>Export Platform Archive</span>
                         </div>
                         <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono">
-                          .ZIP
+                          ADMIN .ZIP
                         </span>
                       </button>
                     )}
@@ -808,7 +775,7 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
 
-            {onDownloadZip && (
+            {isAdmin && onDownloadZip && (
               <button
                 onClick={() => {
                   setIsMobileMenuOpen(false);
@@ -817,7 +784,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className="p-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-left text-xs font-bold flex items-center gap-2.5 cursor-pointer"
               >
                 <Download className="w-4 h-4 text-emerald-500" />
-                <span>Export Site (.ZIP)</span>
+                <span>Export Site (.ZIP) [Admin]</span>
               </button>
             )}
 

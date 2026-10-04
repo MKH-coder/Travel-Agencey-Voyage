@@ -93,6 +93,7 @@ import { AuditTrailDashboard } from './AuditTrailDashboard.tsx';
 import { PackageBuilderTab } from './PackageBuilderTab.tsx';
 import { AdminPackageAnalytics } from './AdminPackageAnalytics.tsx';
 import { CustomTripsAdminTab } from './CustomTripsAdminTab.tsx';
+import { AdminLiveSupportTab } from './AdminLiveSupportTab.tsx';
 import { RiskThresholdConfig } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
 import { FirebaseSyncService } from '../services/firebase.ts';
@@ -102,7 +103,7 @@ import { AuthAudit } from '../services/authAudit.ts';
 interface AdminPortalProps {
   onListingUpdated?: () => void;
   onNavigateExplore?: () => void;
-  onTabChange?: (tab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips') => void;
+  onTabChange?: (tab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips' | 'support') => void;
 }
 
 export const AdminPortal: React.FC<AdminPortalProps> = ({
@@ -119,7 +120,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const isAdmin = user?.role === 'ADMIN' || isElevatedAdmin;
 
   // Active sub-tab
-  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips'>('queue');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips' | 'support'>('queue');
 
   useEffect(() => {
     onTabChange?.(activeTab);
@@ -1418,6 +1419,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           <Compass className="w-4 h-4 text-amber-400" />
           <span>Custom Trips & Inquiries</span>
         </button>
+
+        {/* Live Support & Concierge Desk (Admins) */}
+        <button
+          id="tab-admin-support"
+          onClick={() => setActiveTab('support')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'support'
+              ? `${styles.accent} text-white shadow-md`
+              : `${styles.buttonSecondary}`
+          }`}
+        >
+          <MessageSquare className="w-4 h-4 text-sky-400" />
+          <span>Live Support & Concierge</span>
+        </button>
       </div>
 
       {/* --- TAB 1: Verification Queue (Tech Admin & Sub-Admin) --- */}
@@ -2599,6 +2614,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       {/* --- TAB: Custom Trips & Traveler Inquiries --- */}
       {activeTab === 'custom-trips' && (
         <CustomTripsAdminTab onRefreshListings={fetchListings} />
+      )}
+
+      {/* --- TAB: Live Concierge & 1-on-1 Support Desk --- */}
+      {activeTab === 'support' && (
+        <AdminLiveSupportTab />
       )}
 
       {/* --- TAB 4: User Management (Tech Admin only) --- */}

@@ -58,5 +58,10 @@ service cloud.firestore {
     match /reviews/{reviewId} {
       allow read, create, update, delete: if true;
     }
+
+    // Support Live Chat Messages (1-on-1 personalized routing):
+    match /support_messages/{messageId} {
+      allow read, create, update, delete: if true;
+    }
   }
 }

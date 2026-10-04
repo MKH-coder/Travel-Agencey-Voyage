@@ -10,7 +10,7 @@ interface BreadcrumbsProps {
   setSelectedListing: (listing: Listing | null) => void;
   filters: FilterState;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
-  adminTab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips' | null;
+  adminTab: 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins' | 'packages' | 'custom-trips' | 'support' | null;
 }
 
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
@@ -47,6 +47,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
       case 'users': return 'Sub-Admin Matrix';
       case 'logs': return 'Security Audit Trail';
       case 'cloud': return 'Database & Cloud Storage';
+      case 'support': return 'Live Support & Concierge';
       default: return tab.charAt(0).toUpperCase() + tab.slice(1);
     }
   };

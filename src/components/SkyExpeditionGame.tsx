@@ -19,15 +19,27 @@ import {
   Radio,
   Sliders,
   CheckCircle2,
-  X
+  X,
+  Copy
 } from 'lucide-react';
 import { gameAudio } from '../utils/gameAudio.ts';
 import { FLIGHT_LEVELS, FlightLevel } from '../data/interactiveGameData.ts';
+import { PromoService } from '../services/promoService.ts';
+import { AuthAudit } from '../services/authAudit.ts';
 
 interface SkyExpeditionGameProps {
   onUnlockStamp: (stampId: string) => void;
   onUpdateScore: (score: number) => void;
   highScore: number;
+  onUsePromo?: (code: string) => void;
+}
+
+interface SpeedRing {
+  x: number;
+  y: number;
+  radius: number;
+  collected: boolean;
+  pulse: number;
 }
 
 interface Particle {
@@ -87,6 +99,7 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
   onUnlockStamp,
   onUpdateScore,
   highScore,
+  onUsePromo,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -95,6 +108,7 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isVictory, setIsVictory] = useState(false);
+  const [copiedVictoryCode, setCopiedVictoryCode] = useState(false);
   const [showStageModal, setShowStageModal] = useState(false);
   const [score, setScore] = useState(0);
   const [fuel, setFuel] = useState(100);
@@ -126,6 +140,7 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
     propellerAngle: 0,
     collectibles: [] as CollectibleItem[],
     obstacles: [] as ObstacleItem[],
+    speedRings: [] as SpeedRing[],
     particles: [] as Particle[],
     ambientParticles: [] as AmbientParticle[],
     floatingTexts: [] as FloatingText[],
@@ -205,10 +220,12 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
     st.playerAngle = 0;
     st.collectibles = [];
     st.obstacles = [];
+    st.speedRings = [];
     st.particles = [];
     st.floatingTexts = [];
     st.isVictory = false;
     st.isGameOver = false;
+    setCopiedVictoryCode(false);
 
     setScore(0);
     setFuel(100);
@@ -278,7 +295,7 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const spawnTimer = { collectible: 0, obstacle: 0 };
+    const spawnTimer = { collectible: 0, obstacle: 0, speedRing: 0 };
 
     const loop = () => {
       const st = stateRef.current;
@@ -440,6 +457,19 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
               phase: Math.random() * Math.PI,
             });
           }
+        }
+
+        // Spawn Aerodynamic Speed Boost Rings
+        spawnTimer.speedRing++;
+        if (spawnTimer.speedRing > (st.turboTimer > 0 ? 110 : 150)) {
+          spawnTimer.speedRing = 0;
+          st.speedRings.push({
+            x: width + 45,
+            y: 60 + Math.random() * (height - 120),
+            radius: 28,
+            collected: false,
+            pulse: 0,
+          });
         }
 
         // Emit aircraft contrail / engine smoke particles
@@ -727,6 +757,52 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
           }
         }
         drawObstacle(ctx, obs);
+      }
+
+      // Update & Draw Speed Boost Rings
+      for (let i = st.speedRings.length - 1; i >= 0; i--) {
+        const ring = st.speedRings[i];
+        if (isPlaying) {
+          const moveSpeed = st.turboTimer > 0 ? 8 : 4.5;
+          ring.x -= moveSpeed;
+          ring.pulse += 0.08;
+
+          const distToPlayer = Math.hypot(st.playerX - ring.x, st.playerY - ring.y);
+          if (distToPlayer < ring.radius + 14 && !ring.collected) {
+            ring.collected = true;
+            st.speedRings.splice(i, 1);
+            st.turboTimer = 110;
+            setHasTurbo(true);
+            const points = 50 * st.combo;
+            st.score += points;
+            st.fuel = Math.min(100, st.fuel + 15);
+            setScore(st.score);
+            setFuel(Math.round(st.fuel));
+            gameAudio.playBoost();
+            addFloater(st, ring.x, ring.y, `⚡ RING BOOST! +${points}`, '#38bdf8');
+
+            for (let p = 0; p < 14; p++) {
+              st.particles.push({
+                x: ring.x,
+                y: ring.y,
+                vx: (Math.random() - 0.5) * 8,
+                vy: (Math.random() - 0.5) * 8,
+                size: 4 + Math.random() * 3,
+                color: '#38bdf8',
+                alpha: 1,
+                life: 0,
+                maxLife: 25,
+              });
+            }
+            continue;
+          }
+
+          if (ring.x < -60) {
+            st.speedRings.splice(i, 1);
+            continue;
+          }
+        }
+        drawSpeedRing(ctx, ring);
       }
 
       // Update & Draw Contrail Particles
@@ -1181,6 +1257,34 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
     ctx.restore();
   };
 
+  const drawSpeedRing = (ctx: CanvasRenderingContext2D, ring: SpeedRing) => {
+    ctx.save();
+    ctx.translate(ring.x, ring.y);
+
+    const pulseScale = 1 + Math.sin(ring.pulse) * 0.12;
+    ctx.scale(0.42, 1);
+
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+    ctx.lineWidth = 12;
+    ctx.beginPath();
+    ctx.arc(0, 0, ring.radius * pulseScale, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#facc15';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(0, 0, ring.radius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, ring.radius - 4, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.restore();
+  };
+
   const drawAircraft = (
     ctx: CanvasRenderingContext2D,
     x: number,
@@ -1468,18 +1572,98 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
               Spectacular flight! You arrived at {currentLevel.landmarkName} and earned official visa stamps in your passport!
             </p>
 
-            <div className="flex items-center gap-6 bg-slate-900/90 px-6 py-3 rounded-2xl border border-slate-800 mb-5">
+            {/* Flight Performance Rating Stars */}
+            <div className="flex items-center justify-center gap-1.5 mb-2">
+              <span className={`text-xl ${score >= 180 ? 'text-amber-400 drop-shadow-sm' : 'text-slate-600'}`}>⭐</span>
+              <span className={`text-2xl ${score >= 380 ? 'text-amber-400 drop-shadow-sm' : 'text-slate-600'}`}>⭐</span>
+              <span className={`text-xl ${score >= 550 || fuel >= 30 ? 'text-amber-400 drop-shadow-sm' : 'text-slate-600'}`}>⭐</span>
+            </div>
+
+            <div className="flex items-center gap-6 bg-slate-900/90 px-6 py-2.5 rounded-2xl border border-slate-800 mb-3">
               <div>
                 <div className="text-[10px] text-slate-400 uppercase font-bold">Total Flight Score</div>
-                <div className="text-xl font-black text-amber-400 font-mono">{score} pts</div>
+                <div className="text-lg font-black text-amber-400 font-mono">{score} pts</div>
               </div>
-              <div className="w-px h-8 bg-slate-800" />
+              <div className="w-px h-7 bg-slate-800" />
               <div>
                 <div className="text-[10px] text-slate-400 uppercase font-bold">Passport Visa Stamp</div>
-                <div className="text-sm font-black text-emerald-400 flex items-center gap-1 justify-center">
-                  <Award className="w-4 h-4" />
+                <div className="text-xs font-black text-emerald-400 flex items-center gap-1 justify-center">
+                  <Award className="w-3.5 h-3.5" />
                   <span>{currentLevel.country} Stamped!</span>
                 </div>
+              </div>
+            </div>
+
+            {/* Exclusive Level Pass Redeem Offer Card */}
+            <div className="w-full max-w-md bg-gradient-to-r from-amber-950/70 via-slate-900 to-amber-950/70 p-3.5 rounded-2xl border-2 border-amber-500/50 shadow-xl mb-4 text-left relative overflow-hidden">
+              <div className="absolute top-0 right-0 px-2.5 py-0.5 bg-gradient-to-l from-amber-500 to-orange-500 text-slate-950 font-black text-[9px] uppercase rounded-bl-lg tracking-wider flex items-center gap-1">
+                <Sparkles className="w-3 h-3" />
+                <span>Level Pass Reward</span>
+              </div>
+
+              <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
+                <span>🎉 Booking Offer Code Unlocked!</span>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 mb-1">
+                <div>
+                  <div className="font-mono font-black text-base sm:text-lg text-white tracking-wider flex items-center gap-1.5">
+                    <span>{currentLevel.redeemCode}</span>
+                  </div>
+                  <div className="text-[11px] text-slate-300 font-medium">
+                    {currentLevel.redeemOfferName}
+                  </div>
+                </div>
+                <div className="px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 font-black text-base shrink-0">
+                  {currentLevel.redeemDiscount}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 mt-2.5 pt-2 border-t border-slate-800">
+                <button
+                  onClick={() => {
+                    PromoService.setActivePromo(currentLevel.redeemCode);
+                    AuthAudit.showToast({
+                      title: '🎉 Offer Activated!',
+                      message: `Voucher "${currentLevel.redeemCode}" (${currentLevel.redeemDiscount}) applied! Discount active at checkout.`,
+                      type: 'success',
+                      duration: 4000,
+                    });
+                    if (onUsePromo) onUsePromo(currentLevel.redeemCode);
+                  }}
+                  className="py-2 px-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Redeem & Book Now</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (navigator.clipboard) {
+                      navigator.clipboard.writeText(currentLevel.redeemCode);
+                      setCopiedVictoryCode(true);
+                      AuthAudit.showToast({
+                        title: 'Offer Code Copied!',
+                        message: `Voucher code "${currentLevel.redeemCode}" copied to clipboard!`,
+                        type: 'success',
+                      });
+                      setTimeout(() => setCopiedVictoryCode(false), 3000);
+                    }
+                  }}
+                  className="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  {copiedVictoryCode ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-emerald-400">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy Offer Code</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
 

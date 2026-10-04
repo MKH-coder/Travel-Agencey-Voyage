@@ -20,11 +20,12 @@ import { gameAudio } from '../utils/gameAudio.ts';
 interface WanderlustGameModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onUsePromo?: (code: string) => void;
 }
 
 const STORAGE_KEY_PROGRESS = 'voyage_interactive_game_progress_v2';
 
-export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen, onClose }) => {
+export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen, onClose, onUsePromo }) => {
   const { styles } = useTheme();
 
   const [activeTab, setActiveTab] = useState<'flight' | 'detective' | 'passport'>('flight');
@@ -183,6 +184,10 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
               onUnlockStamp={handleUnlockStamp}
               onUpdateScore={handleUpdateScore}
               highScore={highScore}
+              onUsePromo={(code) => {
+                onUsePromo?.(code);
+                onClose();
+              }}
             />
           )}
 
@@ -190,6 +195,10 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
             <GeoDetectiveGame
               onUnlockStamp={handleUnlockStamp}
               onUpdateScore={handleUpdateScore}
+              onUsePromo={(code) => {
+                onUsePromo?.(code);
+                onClose();
+              }}
             />
           )}
 
@@ -197,6 +206,10 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
             <PassportRewardsTab
               unlockedStamps={unlockedStamps}
               totalScore={totalScore}
+              onUsePromo={(code) => {
+                onUsePromo?.(code);
+                onClose();
+              }}
             />
           )}
         </div>

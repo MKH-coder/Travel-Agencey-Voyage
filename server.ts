@@ -1763,7 +1763,7 @@ Proceeding with sandbox delivery...`);
       return res.status(401).json({ error: 'Sign in required to confirm bookings.' });
     }
 
-    const { listingId, checkInDate, checkOutDate, guests, totalPrice } = req.body;
+    const { listingId, checkInDate, checkOutDate, guests, totalPrice, promoCode, discountAmount } = req.body;
     const listing = db.getListingById(listingId);
     if (!listing) {
       return res.status(404).json({ error: 'Listing not found.' });
@@ -1780,6 +1780,8 @@ Proceeding with sandbox delivery...`);
       checkOutDate: checkOutDate || new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString().split('T')[0],
       guests: Number(guests) || 2,
       totalPrice: Number(totalPrice) || listing.price,
+      promoCode: promoCode || undefined,
+      discountAmount: Number(discountAmount) || 0,
       status: 'CONFIRMED',
     });
 
@@ -1789,7 +1791,7 @@ Proceeding with sandbox delivery...`);
       targetId: booking.id,
       targetType: 'BOOKING',
       ipAddress: getClientIp(req),
-      details: { listingTitle: listing.title, guests, totalPrice }
+      details: { listingTitle: listing.title, guests, totalPrice, promoCode, discountAmount }
     });
 
     res.status(201).json(booking);

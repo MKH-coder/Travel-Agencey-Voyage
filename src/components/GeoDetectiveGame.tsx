@@ -11,19 +11,24 @@ import {
   RotateCcw,
   MapPin,
   HelpCircle,
-  Lightbulb
+  Lightbulb,
+  Copy
 } from 'lucide-react';
 import { GEO_TRIVIA_QUESTIONS, GeoTriviaQuestion } from '../data/interactiveGameData.ts';
 import { gameAudio } from '../utils/gameAudio.ts';
+import { PromoService } from '../services/promoService.ts';
+import { AuthAudit } from '../services/authAudit.ts';
 
 interface GeoDetectiveGameProps {
   onUnlockStamp: (stampId: string) => void;
   onUpdateScore: (score: number) => void;
+  onUsePromo?: (code: string) => void;
 }
 
 export const GeoDetectiveGame: React.FC<GeoDetectiveGameProps> = ({
   onUnlockStamp,
   onUpdateScore,
+  onUsePromo,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealedClues, setRevealedClues] = useState<number>(1);
@@ -32,6 +37,7 @@ export const GeoDetectiveGame: React.FC<GeoDetectiveGameProps> = ({
   const [streak, setStreak] = useState(0);
   const [score, setScore] = useState(0);
   const [gameCompleted, setGameCompleted] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   const currentQ: GeoTriviaQuestion = GEO_TRIVIA_QUESTIONS[currentIndex] || GEO_TRIVIA_QUESTIONS[0];
 
@@ -296,7 +302,7 @@ export const GeoDetectiveGame: React.FC<GeoDetectiveGameProps> = ({
             You solved world landmarks across Europe, Asia, the Mediterranean, and the Balkans. Your passport is stamped with legendary honors!
           </p>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl w-full mb-6 grid grid-cols-2 gap-4">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl w-full mb-4 grid grid-cols-2 gap-4">
             <div>
               <div className="text-[10px] text-slate-400 uppercase font-bold">Final Score</div>
               <div className="text-2xl font-black text-amber-400 font-mono">{score} pts</div>
@@ -309,9 +315,78 @@ export const GeoDetectiveGame: React.FC<GeoDetectiveGameProps> = ({
             </div>
           </div>
 
+          {/* Detective Offer Card */}
+          <div className="w-full bg-gradient-to-r from-amber-950/70 via-slate-900 to-amber-950/70 p-4 rounded-2xl border-2 border-amber-500/50 shadow-xl mb-5 text-left relative overflow-hidden">
+            <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Detective Mastery Offer Unlocked!</span>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <div>
+                <div className="font-mono font-black text-lg text-white tracking-wider">
+                  GEODETECTIVE-PERK
+                </div>
+                <div className="text-xs text-slate-300 font-medium">
+                  15% OFF Any Cultural Mystery Experience
+                </div>
+              </div>
+              <div className="px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 font-black text-base shrink-0">
+                15% OFF
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mt-3 pt-2.5 border-t border-slate-800">
+              <button
+                onClick={() => {
+                  PromoService.setActivePromo('GEODETECTIVE-PERK');
+                  AuthAudit.showToast({
+                    title: '🎉 Offer Activated!',
+                    message: 'Detective voucher GEODETECTIVE-PERK (15% OFF) applied! Discount active at checkout.',
+                    type: 'success',
+                    duration: 4000,
+                  });
+                  if (onUsePromo) onUsePromo('GEODETECTIVE-PERK');
+                }}
+                className="py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Redeem & Book Now</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  if (navigator.clipboard) {
+                    navigator.clipboard.writeText('GEODETECTIVE-PERK');
+                    setCopiedCode(true);
+                    AuthAudit.showToast({
+                      title: 'Code Copied!',
+                      message: 'Promo code "GEODETECTIVE-PERK" copied to clipboard!',
+                      type: 'success',
+                    });
+                    setTimeout(() => setCopiedCode(false), 3000);
+                  }
+                }}
+                className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                {copiedCode ? (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-400">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy Offer Code</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
           <button
             onClick={handleRestart}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-extrabold text-xs shadow-lg shadow-sky-500/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Play Cases Again</span>

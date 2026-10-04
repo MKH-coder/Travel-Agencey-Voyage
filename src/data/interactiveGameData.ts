@@ -14,6 +14,9 @@ export interface FlightLevel {
   description: string;
   badgeText?: string;
   ambientEffect: 'sparkles' | 'sea_spray' | 'sakura' | 'stars' | 'sand';
+  redeemCode: string;
+  redeemDiscount: string;
+  redeemOfferName: string;
 }
 
 export const FLIGHT_LEVELS: FlightLevel[] = [
@@ -33,6 +36,9 @@ export const FLIGHT_LEVELS: FlightLevel[] = [
     badgeText: '★ Featured Stage',
     description: 'Soar above pristine turquoise Ionian lagoons, white pebble beaches, and ancient citadel towers.',
     ambientEffect: 'sea_spray',
+    redeemCode: 'ALBANIA-RIVIERA-PASS',
+    redeemDiscount: '15% OFF',
+    redeemOfferName: 'Ksamil & Riviera VIP Pass',
   },
   {
     id: 'lvl_amalfi',
@@ -49,6 +55,9 @@ export const FLIGHT_LEVELS: FlightLevel[] = [
     landmarkSilhouette: 'cliffs',
     description: 'Fly along the dramatic cliffside roads of the Amalfi Coast over sparkling Tyrrhenian waters.',
     ambientEffect: 'sparkles',
+    redeemCode: 'AMALFI-VIP-PILOT',
+    redeemDiscount: '12% OFF',
+    redeemOfferName: 'Amalfi Coastline Luxury Stay',
   },
   {
     id: 'lvl_albania_alps',
@@ -66,6 +75,9 @@ export const FLIGHT_LEVELS: FlightLevel[] = [
     badgeText: 'Balkan Adventure',
     description: 'Navigate alpine passes of the Accursed Mountains and the legendary 2,400-year-old Rozafa Castle.',
     ambientEffect: 'sparkles',
+    redeemCode: 'BALKAN-PEAK-20',
+    redeemDiscount: '20% OFF',
+    redeemOfferName: 'Accursed Mountains Expedition',
   },
   {
     id: 'lvl_tokyo',
@@ -82,6 +94,9 @@ export const FLIGHT_LEVELS: FlightLevel[] = [
     landmarkSilhouette: 'fuji',
     description: 'Cruise past the majestic snow-capped peak of Mount Fuji with drifting Sakura blossoms.',
     ambientEffect: 'sakura',
+    redeemCode: 'TOKYO-SKIES-15',
+    redeemDiscount: '15% OFF',
+    redeemOfferName: 'Mount Fuji & Hakone Getaway',
   },
   {
     id: 'lvl_paris',
@@ -98,6 +113,9 @@ export const FLIGHT_LEVELS: FlightLevel[] = [
     landmarkSilhouette: 'eiffel',
     description: 'Navigate over the City of Light as twilight gives way to glowing evening monuments.',
     ambientEffect: 'stars',
+    redeemCode: 'PARIS-STARLIGHT-10',
+    redeemDiscount: '10% OFF',
+    redeemOfferName: 'Parisian Starlight Stay',
   },
   {
     id: 'lvl_cairo',
@@ -114,6 +132,9 @@ export const FLIGHT_LEVELS: FlightLevel[] = [
     landmarkSilhouette: 'pyramids',
     description: 'Glide over eternal desert dunes and ancient wonders under a scorching golden sunset.',
     ambientEffect: 'sand',
+    redeemCode: 'PHARAOH-DUNE-18',
+    redeemDiscount: '18% OFF',
+    redeemOfferName: 'Giza Pyramids & Nile Luxury Tour',
   },
 ];
 

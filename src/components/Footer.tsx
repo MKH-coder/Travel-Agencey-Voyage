@@ -1,6 +1,7 @@
 import React from 'react';
 import { Compass, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ShieldCheck, Globe, CreditCard, Heart, Gamepad2, Download, FileText } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
+import { useAuth } from '../context/AuthContext.tsx';
 import { AlbaniaPdfService } from '../services/albaniaPdfService.ts';
 import { VoyageLogo } from './VoyageLogo.tsx';
 
@@ -12,6 +13,8 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip, onOpenAlbaniaModal }) => {
   const { styles, theme } = useTheme();
+  const { user } = useAuth();
+  const isAdmin = Boolean(user && ['ADMIN', 'TECH_ADMIN', 'TECH_SUBADMIN'].includes(user.role));
 
   return (
     <footer className={`border-t ${styles.border} ${styles.cardBg} pt-16 pb-8 transition-colors duration-300`}>
@@ -68,14 +71,14 @@ export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip, onOpe
                   </button>
                 </li>
               )}
-              {onDownloadZip && (
+              {isAdmin && onDownloadZip && (
                 <li>
                   <button
                     onClick={onDownloadZip}
                     className={`text-sm font-semibold text-emerald-500 hover:text-emerald-400 flex items-center gap-1.5 transition-colors cursor-pointer`}
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>Download Site Archive (.ZIP)</span>
+                    <span>Download Site Archive (.ZIP) [Admin]</span>
                   </button>
                 </li>
               )}
