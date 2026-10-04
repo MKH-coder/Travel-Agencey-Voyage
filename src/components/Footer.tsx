@@ -53,7 +53,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip, onOpe
                     className={`text-sm font-semibold text-indigo-500 hover:text-indigo-400 flex items-center gap-1.5 transition-colors cursor-pointer`}
                   >
                     <Gamepad2 className="w-3.5 h-3.5" />
-                    <span>Wanderlust Chronicles (RPG)</span>
+                    <span>Voyage Globetrotter (Arcade & Quiz)</span>
                   </button>
                 </li>
               )}

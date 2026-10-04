@@ -235,7 +235,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 onClick={onOpenGame}
                 className="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-                title="Play Wanderlust Chronicles Travel RPG"
+                title="Play Voyage Globetrotter Flight & Geo Game"
               >
                 <Gamepad2 className="w-3.5 h-3.5" />
                 <span>{t('nav.travelGame', 'Travel Game')}</span>
@@ -252,8 +252,8 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={onOpenGame}
               className="p-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all flex items-center justify-center shrink-0 cursor-pointer"
-              title="Play Wanderlust Chronicles Travel RPG"
-              aria-label="Wanderlust Travel Game"
+              title="Play Voyage Globetrotter Flight & Geo Game"
+              aria-label="Voyage Globetrotter Game"
             >
               <Gamepad2 className="w-4 h-4" />
             </button>
@@ -575,10 +575,10 @@ export const Header: React.FC<HeaderProps> = ({
                       >
                         <div className="flex items-center gap-2">
                           <Gamepad2 className="w-4 h-4 text-indigo-500" />
-                          <span>Play Wanderlust Game</span>
+                          <span>Play Voyage Globetrotter</span>
                         </div>
                         <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-600 dark:text-indigo-400">
-                          RPG
+                          Arcade
                         </span>
                       </button>
                     )}
@@ -804,7 +804,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className="p-3 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-left text-xs font-bold flex items-center gap-2.5 cursor-pointer"
               >
                 <Gamepad2 className="w-4 h-4 text-indigo-500" />
-                <span>Travel RPG Game</span>
+                <span>Voyage Globetrotter Game</span>
               </button>
             )}
 
