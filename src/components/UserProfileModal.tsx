@@ -16,7 +16,8 @@ import {
   Clock, 
   Wifi, 
   Award,
-  Crown
+  Crown,
+  BookOpen
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -25,6 +26,7 @@ import { TravelerAchievements } from './TravelerAchievements.tsx';
 import { TravelerMilestones, TRAVELER_TIERS } from './TravelerMilestones.tsx';
 import { Booking } from '../types.ts';
 import { AuthAudit } from '../services/authAudit.ts';
+import { TravelJournalSection } from './TravelJournalSection.tsx';
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -37,7 +39,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
   const { user, token, toggle2FA, updateProfilePicture, isNetworkOnline } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [activeTab, setActiveTab] = useState<'PROFILE' | 'MILESTONES' | 'BADGES'>('PROFILE');
+  const [activeTab, setActiveTab] = useState<'PROFILE' | 'JOURNAL' | 'MILESTONES' | 'BADGES'>('PROFILE');
   const [isToggling, setIsToggling] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -194,6 +196,18 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
           </button>
 
           <button
+            onClick={() => setActiveTab('JOURNAL')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
+              activeTab === 'JOURNAL'
+                ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-black shadow-md shadow-sky-500/20'
+                : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-sky-500'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5 text-sky-400" />
+            <span>📖 Travel Journal</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('MILESTONES')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
               activeTab === 'MILESTONES'
@@ -220,7 +234,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
 
         {/* Tab Content (Scrollable) */}
         <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-          {activeTab === 'MILESTONES' ? (
+          {activeTab === 'JOURNAL' ? (
+            <TravelJournalSection userBookings={bookings} />
+          ) : activeTab === 'MILESTONES' ? (
             <TravelerMilestones />
           ) : activeTab === 'BADGES' ? (
             <TravelerAchievements 

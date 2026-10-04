@@ -30,6 +30,49 @@ import { Listing } from '../types.ts';
 import { AuthAudit } from '../services/authAudit.ts';
 import { fetch3DayWeather, LocationWeather } from '../services/weatherService.ts';
 
+const BookingCountdownTimer: React.FC<{ listingId: string }> = ({ listingId }) => {
+  const getInitialSeconds = (id: string) => {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = (hash << 5) - hash + id.charCodeAt(i);
+      hash |= 0;
+    }
+    const absHash = Math.abs(hash);
+    return (absHash % 18900) + 2700;
+  };
+
+  const [timeLeft, setTimeLeft] = useState<number>(() => getInitialSeconds(listingId));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => (prev > 0 ? prev - 1 : getInitialSeconds(listingId)));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [listingId]);
+
+  const hours = Math.floor(timeLeft / 3600);
+  const minutes = Math.floor((timeLeft % 3600) / 60);
+  const seconds = timeLeft % 60;
+
+  const isExpiringSoon = timeLeft < 7200;
+
+  return (
+    <div
+      className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md shadow-md border transition-all ${
+        isExpiringSoon
+          ? 'bg-gradient-to-r from-rose-600 via-amber-600 to-rose-600 text-white border-rose-400/60 animate-pulse shadow-rose-500/40 ring-1 ring-rose-400/50'
+          : 'bg-black/75 text-amber-300 border-amber-500/30'
+      }`}
+      title="Time-sensitive deal! Book before expiration."
+    >
+      <Clock className={`w-3 h-3 ${isExpiringSoon ? 'animate-spin-slow text-white' : 'text-amber-400'}`} />
+      <span className="font-mono font-bold">
+        {hours > 0 ? `${hours}h ` : ''}{String(minutes).padStart(2, '0')}m {String(seconds).padStart(2, '0')}s
+      </span>
+    </div>
+  );
+};
+
 interface ListingCardProps {
   listing: Listing;
   isSaved: boolean;
@@ -151,6 +194,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         }`}>
           {getCategoryIcon()}
           <span>{getCategoryLabel()}</span>
+        </div>
+
+        {/* Time-Sensitive Deal Countdown Timer */}
+        <div className="absolute top-12 left-3 z-10 pointer-events-none">
+          <BookingCountdownTimer listingId={listing.id} />
         </div>
 
         {/* Action Buttons Container */}

@@ -297,9 +297,9 @@ export const GeoDetectiveGame: React.FC<GeoDetectiveGameProps> = ({
           <div className="text-xs uppercase font-extrabold tracking-wider text-amber-400 mb-1">
             Expedition Debrief Complete
           </div>
-          <h2 className="text-2xl font-black mb-2">Master World Detective!</h2>
+          <h2 className="text-2xl font-black mb-2">Master Albania Detective!</h2>
           <p className="text-sm text-slate-300 mb-6 leading-relaxed">
-            You solved world landmarks across Europe, Asia, the Mediterranean, and the Balkans. Your passport is stamped with legendary honors!
+            You solved Albania's iconic landmarks across the Ionian Riviera, UNESCO Ottoman Citadels, and the Accursed Alps. Your passport is stamped with official Albanian honors!
           </p>
 
           <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl w-full mb-4 grid grid-cols-2 gap-4">

@@ -34,6 +34,7 @@ import { UserReviewsSection } from './UserReviewsSection.tsx';
 import { ZipArchiveService } from '../services/zipExportService.ts';
 import { AlbaniaPdfService } from '../services/albaniaPdfService.ts';
 import { PromoService, PromoVoucher } from '../services/promoService.ts';
+import { VirtualTourModal } from './VirtualTourModal.tsx';
 
 interface DetailModalProps {
   listing: Listing | null;
@@ -72,6 +73,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
     return today.toISOString().split('T')[0];
   });
   const [guests, setGuests] = useState(2);
+  const [isVirtualTourOpen, setIsVirtualTourOpen] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
   const [bookingConfirmed, setBookingConfirmed] = useState<Booking | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
@@ -386,13 +388,24 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 
           {/* Photo Gallery Grid */}
           <div className="space-y-3">
-            <div className="aspect-[16/9] md:aspect-[21/9] w-full rounded-2xl overflow-hidden bg-slate-200 dark:bg-slate-800 relative">
+            <div className="aspect-[16/9] md:aspect-[21/9] w-full rounded-2xl overflow-hidden bg-slate-200 dark:bg-slate-800 relative group">
               <img
                 src={listing.images[activeImageIndex] || listing.images[0]}
                 alt={listing.title}
-                className="w-full h-full object-cover transition-all duration-300"
+                className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
                 referrerPolicy="no-referrer"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-4 right-4 z-20">
+                <button
+                  type="button"
+                  onClick={() => setIsVirtualTourOpen(true)}
+                  className="px-4 py-2.5 rounded-2xl bg-black/80 hover:bg-black backdrop-blur-md border border-white/20 text-white font-black text-xs shadow-xl shadow-black/40 flex items-center gap-2 transition-all hover:scale-105 cursor-pointer"
+                >
+                  <Compass className="w-4 h-4 text-sky-400 animate-spin-slow" />
+                  <span>🌐 Enter 360° Virtual Tour</span>
+                </button>
+              </div>
             </div>
             {listing.images.length > 1 && (
               <div className="flex items-center gap-2 overflow-x-auto pb-1">
@@ -940,6 +953,15 @@ export const DetailModal: React.FC<DetailModalProps> = ({
         </div>
 
       </div>
+
+      <VirtualTourModal
+        isOpen={isVirtualTourOpen}
+        onClose={() => setIsVirtualTourOpen(false)}
+        title={listing.title}
+        location={listing.location}
+        country={listing.country}
+        imageUrl={listing.images[activeImageIndex] || listing.images[0]}
+      />
     </div>
   );
 };

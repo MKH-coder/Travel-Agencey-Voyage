@@ -1560,128 +1560,136 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
 
         {/* Victory Level Checkpoint Overlay */}
         {isVictory && (
-          <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center text-white animate-in fade-in zoom-in-95">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center shadow-xl shadow-amber-500/20 mb-3 animate-pulse text-3xl">
-              {currentLevel.flag}
-            </div>
-            <div className="text-xs uppercase font-extrabold tracking-wider text-amber-400 mb-1">
-              Destination Reached!
-            </div>
-            <h2 className="text-2xl font-black mb-1">Welcome to {currentLevel.destination}!</h2>
-            <p className="text-sm text-slate-300 max-w-md mb-3">
-              Spectacular flight! You arrived at {currentLevel.landmarkName} and earned official visa stamps in your passport!
-            </p>
-
-            {/* Flight Performance Rating Stars */}
-            <div className="flex items-center justify-center gap-1.5 mb-2">
-              <span className={`text-xl ${score >= 180 ? 'text-amber-400 drop-shadow-sm' : 'text-slate-600'}`}>⭐</span>
-              <span className={`text-2xl ${score >= 380 ? 'text-amber-400 drop-shadow-sm' : 'text-slate-600'}`}>⭐</span>
-              <span className={`text-xl ${score >= 550 || fuel >= 30 ? 'text-amber-400 drop-shadow-sm' : 'text-slate-600'}`}>⭐</span>
-            </div>
-
-            <div className="flex items-center gap-6 bg-slate-900/90 px-6 py-2.5 rounded-2xl border border-slate-800 mb-3">
-              <div>
-                <div className="text-[10px] text-slate-400 uppercase font-bold">Total Flight Score</div>
-                <div className="text-lg font-black text-amber-400 font-mono">{score} pts</div>
+          <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md overflow-y-auto p-4 sm:p-6 text-center text-white flex flex-col items-center justify-start sm:justify-center animate-in fade-in zoom-in-95 z-30">
+            <div className="w-full max-w-lg my-auto flex flex-col items-center justify-center space-y-3 py-2">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center shadow-xl shadow-amber-500/20 animate-pulse text-2xl shrink-0">
+                {currentLevel.flag}
               </div>
-              <div className="w-px h-7 bg-slate-800" />
               <div>
-                <div className="text-[10px] text-slate-400 uppercase font-bold">Passport Visa Stamp</div>
-                <div className="text-xs font-black text-emerald-400 flex items-center gap-1 justify-center">
-                  <Award className="w-3.5 h-3.5" />
-                  <span>{currentLevel.country} Stamped!</span>
+                <div className="text-[11px] uppercase font-extrabold tracking-wider text-amber-400">
+                  Destination Reached!
                 </div>
-              </div>
-            </div>
-
-            {/* Exclusive Level Pass Redeem Offer Card */}
-            <div className="w-full max-w-md bg-gradient-to-r from-amber-950/70 via-slate-900 to-amber-950/70 p-3.5 rounded-2xl border-2 border-amber-500/50 shadow-xl mb-4 text-left relative overflow-hidden">
-              <div className="absolute top-0 right-0 px-2.5 py-0.5 bg-gradient-to-l from-amber-500 to-orange-500 text-slate-950 font-black text-[9px] uppercase rounded-bl-lg tracking-wider flex items-center gap-1">
-                <Sparkles className="w-3 h-3" />
-                <span>Level Pass Reward</span>
+                <h2 className="text-xl sm:text-2xl font-black">{currentLevel.destination}</h2>
+                <p className="text-xs text-slate-300 max-w-md mt-0.5">
+                  You arrived at <strong className="text-white">{currentLevel.landmarkName}</strong> and earned official visa stamps!
+                </p>
               </div>
 
-              <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
-                <span>🎉 Booking Offer Code Unlocked!</span>
+              {/* Flight Performance Rating Stars */}
+              <div className="flex items-center justify-center gap-1.5">
+                <span className={`text-lg ${score >= 180 ? 'text-amber-400 drop-shadow-sm' : 'text-slate-600'}`}>⭐</span>
+                <span className={`text-xl ${score >= 380 ? 'text-amber-400 drop-shadow-sm' : 'text-slate-600'}`}>⭐</span>
+                <span className={`text-lg ${score >= 550 || fuel >= 30 ? 'text-amber-400 drop-shadow-sm' : 'text-slate-600'}`}>⭐</span>
               </div>
 
-              <div className="flex items-center justify-between gap-3 mb-1">
+              <div className="flex items-center gap-6 bg-slate-900/90 px-5 py-2 rounded-2xl border border-slate-800">
                 <div>
-                  <div className="font-mono font-black text-base sm:text-lg text-white tracking-wider flex items-center gap-1.5">
-                    <span>{currentLevel.redeemCode}</span>
-                  </div>
-                  <div className="text-[11px] text-slate-300 font-medium">
-                    {currentLevel.redeemOfferName}
-                  </div>
+                  <div className="text-[10px] text-slate-400 uppercase font-bold">Total Flight Score</div>
+                  <div className="text-base font-black text-amber-400 font-mono">{score} pts</div>
                 </div>
-                <div className="px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 font-black text-base shrink-0">
-                  {currentLevel.redeemDiscount}
+                <div className="w-px h-6 bg-slate-800" />
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase font-bold">Passport Stamp</div>
+                  <div className="text-xs font-black text-emerald-400 flex items-center gap-1 justify-center">
+                    <Award className="w-3.5 h-3.5" />
+                    <span>{currentLevel.country} Stamped!</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 mt-2.5 pt-2 border-t border-slate-800">
-                <button
-                  onClick={() => {
-                    PromoService.setActivePromo(currentLevel.redeemCode);
-                    AuthAudit.showToast({
-                      title: '🎉 Offer Activated!',
-                      message: `Voucher "${currentLevel.redeemCode}" (${currentLevel.redeemDiscount}) applied! Discount active at checkout.`,
-                      type: 'success',
-                      duration: 4000,
-                    });
-                    if (onUsePromo) onUsePromo(currentLevel.redeemCode);
-                  }}
-                  className="py-2 px-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Redeem & Book Now</span>
-                </button>
+              {/* Exclusive Level Pass Redeem Offer Card */}
+              <div className="w-full max-w-md bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 p-3.5 rounded-2xl border-2 border-amber-500/60 shadow-2xl text-left relative overflow-hidden">
+                <div className="absolute top-0 right-0 px-2.5 py-0.5 bg-gradient-to-l from-amber-500 to-orange-500 text-slate-950 font-black text-[9px] uppercase rounded-bl-lg tracking-wider flex items-center gap-1 shadow-xs">
+                  <Sparkles className="w-3 h-3" />
+                  <span>Level Pass Reward</span>
+                </div>
 
-                <button
-                  onClick={() => {
-                    if (navigator.clipboard) {
-                      navigator.clipboard.writeText(currentLevel.redeemCode);
-                      setCopiedVictoryCode(true);
+                <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1 pt-1">
+                  <span>🎉 BOOKING OFFER CODE UNLOCKED!</span>
+                </div>
+
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <div>
+                    <div className="font-mono font-black text-base sm:text-lg text-white tracking-wider">
+                      {currentLevel.redeemCode}
+                    </div>
+                    <div className="text-[11px] text-slate-300 font-medium">
+                      {currentLevel.redeemOfferName}
+                    </div>
+                  </div>
+                  <div className="px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-300 font-black text-sm shrink-0">
+                    {currentLevel.redeemDiscount}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      PromoService.setActivePromo(currentLevel.redeemCode);
                       AuthAudit.showToast({
-                        title: 'Offer Code Copied!',
-                        message: `Voucher code "${currentLevel.redeemCode}" copied to clipboard!`,
+                        title: '🎉 Offer Activated!',
+                        message: `Voucher "${currentLevel.redeemCode}" (${currentLevel.redeemDiscount}) applied! Discount active at checkout.`,
                         type: 'success',
+                        duration: 4000,
                       });
-                      setTimeout(() => setCopiedVictoryCode(false), 3000);
-                    }
-                  }}
-                  className="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                      if (onUsePromo) onUsePromo(currentLevel.redeemCode);
+                    }}
+                    className="py-2 px-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Redeem & Book</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (navigator.clipboard) {
+                        navigator.clipboard.writeText(currentLevel.redeemCode);
+                        setCopiedVictoryCode(true);
+                        AuthAudit.showToast({
+                          title: 'Offer Code Copied!',
+                          message: `Voucher code "${currentLevel.redeemCode}" copied to clipboard!`,
+                          type: 'success',
+                        });
+                        setTimeout(() => setCopiedVictoryCode(false), 3000);
+                      }
+                    }}
+                    className="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    {copiedVictoryCode ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-emerald-400">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy Code</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => startGame(levelIndex)}
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all cursor-pointer"
                 >
-                  {copiedVictoryCode ? (
-                    <>
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                      <span className="text-emerald-400">Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>Copy Offer Code</span>
-                    </>
-                  )}
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Replay Stage</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNextLevel}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-extrabold text-xs shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                >
+                  <span>Fly Next Destination</span>
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => startGame(levelIndex)}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 font-bold text-xs hover:bg-slate-700 transition-all cursor-pointer"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Replay Stage</span>
-              </button>
-              <button
-                onClick={handleNextLevel}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold text-xs shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
-              >
-                <span>Fly Next Destination</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
             </div>
           </div>
         )}

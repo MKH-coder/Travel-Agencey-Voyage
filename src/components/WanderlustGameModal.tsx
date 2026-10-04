@@ -31,7 +31,7 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
   const [activeTab, setActiveTab] = useState<'flight' | 'detective' | 'passport'>('flight');
   const [totalScore, setTotalScore] = useState<number>(0);
   const [highScore, setHighScore] = useState<number>(0);
-  const [unlockedStamps, setUnlockedStamps] = useState<string[]>(['stamp_amalfi']);
+  const [unlockedStamps, setUnlockedStamps] = useState<string[]>(['stamp_ksamil']);
   const [isMuted, setIsMuted] = useState(gameAudio.getMuted());
 
   // Load saved progress
