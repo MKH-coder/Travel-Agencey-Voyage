@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   User as UserIcon, 
   Shield, 
@@ -22,7 +22,8 @@ import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { getClientSessionInfo } from '../utils/clientInfo.ts';
 import { TravelerAchievements } from './TravelerAchievements.tsx';
-import { TravelerMilestones } from './TravelerMilestones.tsx';
+import { TravelerMilestones, TRAVELER_TIERS } from './TravelerMilestones.tsx';
+import { Booking } from '../types.ts';
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -32,15 +33,36 @@ interface UserProfileModalProps {
 
 export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose, onOpenGame }) => {
   const { styles } = useTheme();
-  const { user, toggle2FA, updateProfilePicture, isNetworkOnline } = useAuth();
+  const { user, token, toggle2FA, updateProfilePicture, isNetworkOnline } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [activeTab, setActiveTab] = useState<'PROFILE' | 'MILESTONES' | 'BADGES'>('PROFILE');
   const [isToggling, setIsToggling] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+
+  useEffect(() => {
+    if (isOpen && token) {
+      fetch('/api/bookings', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.ok ? res.json() : [])
+        .then((data: Booking[]) => {
+          if (Array.isArray(data)) {
+            setBookings(data);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isOpen, token]);
 
   if (!isOpen || !user) return null;
+
+  const bookingCount = bookings.length;
+  const currentTier = TRAVELER_TIERS.find(t => 
+    bookingCount >= t.minBookings && (t.maxBookings === null || bookingCount <= t.maxBookings)
+  ) || TRAVELER_TIERS[0];
 
   const clientInfo = getClientSessionInfo();
 
@@ -120,7 +142,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
                   {user.role}
                 </span>
               </div>
-              <p className={`text-xs ${styles.textMuted}`}>{user.email}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/15 to-orange-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-wider border border-amber-500/30 shadow-xs">
+                  <span>{currentTier.icon}</span>
+                  <span>{currentTier.name}</span>
+                </span>
+                <span className="text-[10px] text-slate-400 font-medium">({bookingCount} bookings)</span>
+              </div>
+              <p className={`text-xs ${styles.textMuted} mt-0.5`}>{user.email}</p>
             </div>
           </div>
           <button

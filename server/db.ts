@@ -493,6 +493,126 @@ const INITIAL_LISTINGS: Listing[] = [
       "createdAt": "2026-09-30T02:49:04.420Z",
       "updatedAt": "2026-09-30T02:49:04.420Z"
     }
+  },
+  {
+    "id": "pkg-japan-kyoto-01",
+    "title": "Kyoto Zen, Bamboo Groves & Michelin Kaiseki Odyssey",
+    "category": "PACKAGE",
+    "price": 2450,
+    "rating": 4.98,
+    "reviewCount": 112,
+    "location": "Kyoto & Arashiyama",
+    "country": "Japan",
+    "coordinates": { "lat": 35.0116, "lng": 135.7681 },
+    "description": "Immerse in Japanese heritage. Private tea ceremonies in Gion, Arashiyama bamboo forest strolls, Kinkaku-ji Golden Pavilion, and multi-course traditional kaiseki dining.",
+    "images": ["https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80"],
+    "status": "PUBLISHED",
+    "createdBy": "voyage@gmail.com",
+    "createdByName": "Voyage Asia Pacific",
+    "tags": ["Japan", "Kyoto", "Kaiseki", "Zen Temples"],
+    "amenities": ["Private Guide", "Tea Ceremony", "Ryokan Stay"],
+    "duration": "8 Days / 7 Nights",
+    "timestamps": { "createdAt": "2026-09-30T02:49:04.420Z", "updatedAt": "2026-09-30T02:49:04.420Z" }
+  },
+  {
+    "id": "pkg-italy-amalfi-01",
+    "title": "Amalfi Coastline Clifftop & Gastronomy Escape",
+    "category": "PACKAGE",
+    "price": 2100,
+    "rating": 4.96,
+    "reviewCount": 98,
+    "location": "Positano, Ravello & Amalfi",
+    "country": "Italy",
+    "coordinates": { "lat": 40.6281, "lng": 14.4850 },
+    "description": "Breathtaking cliffside views, limoncello tastings in Sorrento, private yacht tour to Capri, and historic villa gardens in Ravello.",
+    "images": ["https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80"],
+    "status": "PUBLISHED",
+    "createdBy": "voyage@gmail.com",
+    "createdByName": "Voyage Mediterranean",
+    "tags": ["Italy", "Amalfi Coast", "Capri", "Luxury Villa"],
+    "amenities": ["Capri Yacht Cruise", "Clifftop Hotel", "Wine Tasting"],
+    "duration": "7 Days / 6 Nights",
+    "timestamps": { "createdAt": "2026-09-30T02:49:04.420Z", "updatedAt": "2026-09-30T02:49:04.420Z" }
+  },
+  {
+    "id": "pkg-switzerland-alps-01",
+    "title": "Swiss Alpine Glacial Panorama & Glacier Express",
+    "category": "PACKAGE",
+    "price": 2800,
+    "rating": 4.99,
+    "reviewCount": 84,
+    "location": "Zermatt, Lucerne & Interlaken",
+    "country": "Switzerland",
+    "coordinates": { "lat": 46.0207, "lng": 7.7491 },
+    "description": "Ride the legendary Glacier Express through the Swiss Alps, view the majestic Matterhorn, and cruise Lake Lucerne.",
+    "images": ["https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=1200&q=80"],
+    "status": "PUBLISHED",
+    "createdBy": "voyage@gmail.com",
+    "createdByName": "Voyage Alpine",
+    "tags": ["Switzerland", "Matterhorn", "Glacier Express", "Alps"],
+    "amenities": ["First Class Train Pass", "Matterhorn Cable Car", "Alpine Chalet"],
+    "duration": "6 Days / 5 Nights",
+    "timestamps": { "createdAt": "2026-09-30T02:49:04.420Z", "updatedAt": "2026-09-30T02:49:04.420Z" }
+  },
+  {
+    "id": "pkg-france-paris-01",
+    "title": "Parisian Haute Romance & Seine Sunset Cruise",
+    "category": "PACKAGE",
+    "price": 1950,
+    "rating": 4.95,
+    "reviewCount": 130,
+    "location": "Paris & Versailles",
+    "country": "France",
+    "coordinates": { "lat": 48.8566, "lng": 2.3522 },
+    "description": "Experience the City of Light with VIP access to the Louvre, private Champagne sunset cruise on the Seine, and palace tour of Versailles.",
+    "images": ["https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80"],
+    "status": "PUBLISHED",
+    "createdBy": "voyage@gmail.com",
+    "createdByName": "Voyage Europe",
+    "tags": ["France", "Paris", "Louvre", "Romance"],
+    "amenities": ["VIP Louvre Access", "Seine Champagne Cruise", "Boutique Hotel"],
+    "duration": "6 Days / 5 Nights",
+    "timestamps": { "createdAt": "2026-09-30T02:49:04.420Z", "updatedAt": "2026-09-30T02:49:04.420Z" }
+  },
+  {
+    "id": "pkg-greece-santorini-01",
+    "title": "Santorini Caldera Sunset & Aegean Sailing Voyage",
+    "category": "PACKAGE",
+    "price": 1850,
+    "rating": 4.97,
+    "reviewCount": 105,
+    "location": "Oia, Fira & Akrotiri",
+    "country": "Greece",
+    "coordinates": { "lat": 36.4618, "lng": 25.3753 },
+    "description": "Whitewashed cliffside villas in Oia, catamaran sailing across the Caldera, volcanic hot springs, and ancient Akrotiri ruins.",
+    "images": ["https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80"],
+    "status": "PUBLISHED",
+    "createdBy": "voyage@gmail.com",
+    "createdByName": "Voyage Islands",
+    "tags": ["Greece", "Santorini", "Caldera", "Aegean"],
+    "amenities": ["Catamaran Cruise", "Caldera Suite", "Wine Tour"],
+    "duration": "5 Days / 4 Nights",
+    "timestamps": { "createdAt": "2026-09-30T02:49:04.420Z", "updatedAt": "2026-09-30T02:49:04.420Z" }
+  },
+  {
+    "id": "pkg-egypt-cairo-01",
+    "title": "Cairo Pyramids, Sphinx & Luxor Nile Luxury Cruise",
+    "category": "PACKAGE",
+    "price": 1650,
+    "rating": 4.92,
+    "reviewCount": 78,
+    "location": "Cairo, Giza & Luxor",
+    "country": "Egypt",
+    "coordinates": { "lat": 30.0444, "lng": 31.2357 },
+    "description": "Marvel at the Giza Pyramids and Sphinx, explore the Grand Egyptian Museum, and sail down the Nile on a 5-star luxury Dahabiya cruise.",
+    "images": ["https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1200&q=80"],
+    "status": "PUBLISHED",
+    "createdBy": "voyage@gmail.com",
+    "createdByName": "Voyage Horizons",
+    "tags": ["Egypt", "Pyramids", "Nile Cruise", "Luxor"],
+    "amenities": ["Private Egyptologist Guide", "Nile Dahabiya Cruise", "Pyramid Entry"],
+    "duration": "7 Days / 6 Nights",
+    "timestamps": { "createdAt": "2026-09-30T02:49:04.420Z", "updatedAt": "2026-09-30T02:49:04.420Z" }
   }
 ];
 
@@ -593,13 +713,6 @@ class Database {
       console.log('Initializing background real-time Firestore synchronization with local cache...');
 
       try {
-        const listingsSnap = await getDocs(collection(firestoreDb, 'listings'));
-        for (const docSnap of listingsSnap.docs) {
-          const item = docSnap.data() as Listing;
-          if (item.country !== 'Albania' && !docSnap.id.includes('albania')) {
-            await this.safeFirestoreDelete('listings', docSnap.id);
-          }
-        }
         for (const item of INITIAL_LISTINGS) {
           await this.safeFirestoreWrite('listings', item.id, item);
         }
@@ -612,11 +725,7 @@ class Database {
           const firestoreListings: Listing[] = [];
           snapshot.forEach(d => {
             const item = d.data() as Listing;
-            if (item.country !== 'Albania' && !d.id.includes('albania')) {
-              this.safeFirestoreDelete('listings', d.id);
-            } else {
-              firestoreListings.push(item);
-            }
+            firestoreListings.push(item);
           });
 
           const mappedListings = firestoreListings.map((item: Listing) => {
@@ -626,7 +735,7 @@ class Database {
             return item;
           });
 
-          this.data.listings = mappedListings;
+          this.data.listings = mappedListings.length > 0 ? mappedListings : INITIAL_LISTINGS;
           this.writeToDisk(this.data);
           console.log('[Firestore Realtime] Synced ' + this.data.listings.length + ' listings.');
         }, (err) => {
@@ -653,7 +762,7 @@ class Database {
         const parsed = JSON.parse(raw);
         return {
           users: parsed.users?.length ? parsed.users : INITIAL_USERS,
-          listings: parsed.listings?.length ? parsed.listings.filter((l: Listing) => l.country === 'Albania' || l.id.includes('albania')) : INITIAL_LISTINGS,
+          listings: parsed.listings?.length ? parsed.listings : INITIAL_LISTINGS,
           audit_logs: parsed.audit_logs?.length ? parsed.audit_logs : INITIAL_AUDIT_LOGS,
           bookings: parsed.bookings || [],
           saved_trips: parsed.saved_trips || [],

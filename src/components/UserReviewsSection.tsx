@@ -58,6 +58,8 @@ export const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
   const [reportDetails, setReportDetails] = useState<string>('');
   const [submittingReport, setSubmittingReport] = useState<boolean>(false);
   const [reportNotification, setReportNotification] = useState<string>('');
+  const [sentimentData, setSentimentData] = useState<{ sentiment: string; score: number; summary: string } | null>(null);
+  const [loadingSentiment, setLoadingSentiment] = useState(false);
 
   // Fetch reviews for this listing
   useEffect(() => {
@@ -81,6 +83,30 @@ export const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
       isMounted = false;
     };
   }, [listing.id]);
+
+  useEffect(() => {
+    if (reviews.length > 0) {
+      setLoadingSentiment(true);
+      const comments = reviews.map(r => r.comment).filter(Boolean);
+      fetch('/api/sentiment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comments })
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data) setSentimentData(data);
+        })
+        .catch(() => {})
+        .finally(() => setLoadingSentiment(false));
+    } else {
+      setSentimentData({
+        sentiment: 'Positive',
+        score: 94,
+        summary: 'Be the first traveler to leave a review and share your sentiment!'
+      });
+    }
+  }, [reviews]);
 
   // Derived rating metrics
   const { avgRating, totalCount, distribution } = useMemo(() => {
@@ -329,6 +355,39 @@ export const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Gemini AI Sentiment Summary Banner */}
+      {sentimentData && (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-sky-500/10 via-indigo-500/10 to-purple-500/10 border border-sky-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md">
+              <Sparkles className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-sky-600 dark:text-sky-400">
+                  Gemini AI Sentiment Summary
+                </span>
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                  sentimentData.sentiment === 'Positive'
+                    ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                    : sentimentData.sentiment === 'Negative'
+                    ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'
+                    : 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30'
+                }`}>
+                  {sentimentData.sentiment} ({sentimentData.score}%)
+                </span>
+              </div>
+              <p className={`text-xs ${styles.textSecondary} mt-1 leading-relaxed`}>
+                "{sentimentData.summary}"
+              </p>
+            </div>
+          </div>
+          {loadingSentiment && (
+            <div className="text-[10px] text-slate-400 animate-pulse shrink-0">Analyzing with Gemini...</div>
+          )}
+        </div>
+      )}
 
       {/* Ratings Distribution Bars */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/60">
