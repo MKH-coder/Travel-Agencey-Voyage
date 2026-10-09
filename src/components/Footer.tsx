@@ -126,17 +126,25 @@ export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip, onOpe
                 <Phone className="w-5 h-5 text-sky-500 shrink-0" />
                 <span className={`text-sm ${styles.textMuted}`}>+91 9567465134</span>
               </li>
-              <li className="flex items-center gap-3">
-                <Instagram className="w-5 h-5 text-pink-500 shrink-0" />
-                <a
-                  href="https://www.instagram.com/voyage_tours._.travels"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`text-sm ${styles.textMuted} hover:text-pink-500 transition-colors font-medium flex items-center gap-1`}
-                  title="Official Instagram: @voyage_tours._.travels"
-                >
-                  <span>@voyage_tours._.travels</span>
-                </a>
+              <li className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center shrink-0 text-pink-500 mt-0.5 shadow-xs">
+                  <Instagram className="w-4 h-4" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Instagram Handle</span>
+                  <a
+                    href="https://www.instagram.com/voyage_tours._.travels"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-bold text-pink-600 dark:text-pink-400 hover:text-pink-500 transition-colors flex items-center gap-1.5 group"
+                    title="Official Instagram: voyage_tours._.travels"
+                  >
+                    <span>voyage_tours._.travels</span>
+                    <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-pink-500/15 text-pink-500 group-hover:bg-pink-500 group-hover:text-white transition-all">
+                      @voyage_tours._.travels
+                    </span>
+                  </a>
+                </div>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-sky-500 shrink-0" />
