@@ -17,7 +17,8 @@ import {
   DollarSign,
   Share2,
   ExternalLink,
-  Info
+  Info,
+  Instagram
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useCurrency } from '../context/CurrencyContext.tsx';
@@ -686,8 +687,19 @@ export const AlbaniaItineraryModal: React.FC<AlbaniaItineraryModalProps> = ({
               <div className={`font-bold ${styles.textPrimary}`}>
                 Direct Concierge Booking Available
               </div>
-              <p className={`text-[11px] ${styles.textMuted}`}>
-                Instant reservation support: +91 9567465134 (mukundkrishna2008@gmail.com)
+              <p className={`text-[11px] ${styles.textMuted} flex flex-wrap items-center gap-x-2 gap-y-0.5`}>
+                <span>Support: +91 9567465134</span>
+                <span>•</span>
+                <a
+                  href="https://www.instagram.com/voyage_tours._.travels"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-pink-500 hover:text-pink-600 font-bold inline-flex items-center gap-1 transition-colors"
+                  title="Official Instagram: @voyage_tours._.travels"
+                >
+                  <Instagram className="w-3 h-3" />
+                  <span>@voyage_tours._.travels</span>
+                </a>
               </p>
             </div>
           </div>

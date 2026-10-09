@@ -33,13 +33,28 @@ export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip, onOpe
               <a href="#" className={`p-2 rounded-lg bg-slate-100 dark:bg-slate-800 ${styles.textMuted} hover:text-sky-500 transition-colors`}>
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className={`p-2 rounded-lg bg-slate-100 dark:bg-slate-800 ${styles.textMuted} hover:text-sky-500 transition-colors`}>
+              <a
+                href="https://www.instagram.com/voyage_tours._.travels"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`p-2 rounded-lg bg-pink-500/10 text-pink-500 hover:bg-pink-500 hover:text-white transition-all shadow-xs`}
+                title="Follow on Instagram: @voyage_tours._.travels"
+              >
                 <Instagram className="w-5 h-5" />
               </a>
               <a href="#" className={`p-2 rounded-lg bg-slate-100 dark:bg-slate-800 ${styles.textMuted} hover:text-sky-500 transition-colors`}>
                 <Youtube className="w-5 h-5" />
               </a>
             </div>
+            <a
+              href="https://www.instagram.com/voyage_tours._.travels"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-500/15 via-purple-500/15 to-orange-500/15 border border-pink-500/30 text-pink-600 dark:text-pink-400 hover:border-pink-500/60 text-xs font-bold transition-all shadow-xs group"
+            >
+              <Instagram className="w-4 h-4 text-pink-500 group-hover:scale-110 transition-transform" />
+              <span>@voyage_tours._.travels</span>
+            </a>
           </div>
 
           {/* Quick Links */}
@@ -110,6 +125,18 @@ export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip, onOpe
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-sky-500 shrink-0" />
                 <span className={`text-sm ${styles.textMuted}`}>+91 9567465134</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Instagram className="w-5 h-5 text-pink-500 shrink-0" />
+                <a
+                  href="https://www.instagram.com/voyage_tours._.travels"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`text-sm ${styles.textMuted} hover:text-pink-500 transition-colors font-medium flex items-center gap-1`}
+                  title="Official Instagram: @voyage_tours._.travels"
+                >
+                  <span>@voyage_tours._.travels</span>
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-sky-500 shrink-0" />

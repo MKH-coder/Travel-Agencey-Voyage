@@ -27,7 +27,8 @@ import {
   Gamepad2,
   Download,
   Check,
-  Coins
+  Coins,
+  Instagram
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -205,6 +206,17 @@ export const Header: React.FC<HeaderProps> = ({
             >
               {t('nav.contact', 'Contact')}
             </button>
+
+            <a
+              href="https://www.instagram.com/voyage_tours._.travels"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-2.5 py-1.5 rounded-xl text-xs font-bold text-pink-600 dark:text-pink-400 hover:text-white hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 transition-all flex items-center gap-1.5 border border-pink-500/30 hover:border-transparent shadow-xs cursor-pointer group"
+              title="Official Instagram: @voyage_tours._.travels"
+            >
+              <Instagram className="w-3.5 h-3.5 text-pink-500 group-hover:text-white transition-colors" />
+              <span>Instagram</span>
+            </a>
 
             {(user?.role === 'ADMIN' || user?.role === 'TECH_SUBADMIN' || user?.role === 'TECH_ADMIN') && (
               <button
@@ -814,6 +826,20 @@ export const Header: React.FC<HeaderProps> = ({
                 <ArrowRight className="w-4 h-4" />
               </button>
             )}
+
+            <a
+              href="https://www.instagram.com/voyage_tours._.travels"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="col-span-2 p-3 rounded-2xl border border-pink-500/30 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-orange-500/10 text-pink-600 dark:text-pink-400 text-left text-xs font-bold flex items-center justify-between shadow-xs"
+            >
+              <div className="flex items-center gap-2.5">
+                <Instagram className="w-4 h-4 text-pink-500" />
+                <span>Follow on Instagram: @voyage_tours._.travels</span>
+              </div>
+              <ArrowRight className="w-4 h-4" />
+            </a>
           </div>
 
           {/* Quick Currency Switcher in Drawer */}

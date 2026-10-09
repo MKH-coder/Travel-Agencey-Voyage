@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Layers, Star, MapPin, CheckCircle2, ArrowRight, DollarSign, Clock, Tag, Sparkles, Phone, Download, FileText } from 'lucide-react';
+import { X, Layers, Star, MapPin, CheckCircle2, ArrowRight, DollarSign, Clock, Tag, Sparkles, Phone, Download, FileText, Instagram } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { useCurrency } from '../context/CurrencyContext.tsx';
@@ -111,6 +111,19 @@ export const PackagePreviewModal: React.FC<PackagePreviewModalProps> = ({
                          <div className={`text-sm font-bold ${styles.textPrimary}`}>Official Support Line</div>
                          <div className="text-lg font-black text-sky-500 tracking-tight">+91 9567465134</div>
                       </div>
+                   </div>
+                   <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                      <a
+                         href="https://www.instagram.com/voyage_tours._.travels"
+                         target="_blank"
+                         rel="noopener noreferrer"
+                         className="flex items-center gap-1.5 text-pink-500 hover:text-pink-600 font-bold"
+                         title="Official Instagram: @voyage_tours._.travels"
+                      >
+                         <Instagram className="w-4 h-4" />
+                         <span>@voyage_tours._.travels</span>
+                      </a>
+                      <span className="text-slate-400 text-[11px]">24/7 Concierge</span>
                    </div>
                 </div>
 
