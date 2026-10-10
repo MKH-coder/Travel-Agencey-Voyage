@@ -24,7 +24,7 @@ import {
   Music
 } from 'lucide-react';
 import { gameAudio, SONG_TRACKS } from '../utils/gameAudio.ts';
-import { FLIGHT_LEVELS, FlightLevel } from '../data/interactiveGameData.ts';
+import { FLIGHT_LEVELS, FlightLevel, GAME_DIFFICULTIES, GameDifficulty } from '../data/interactiveGameData.ts';
 import { PromoService } from '../services/promoService.ts';
 import { AuthAudit } from '../services/authAudit.ts';
 
@@ -124,7 +124,21 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
   const [musicTrackIdx, setMusicTrackIdx] = useState(gameAudio.getMusicTrack());
   const [sonicCharges, setSonicCharges] = useState(3);
 
+  const [selectedDifficulty, setSelectedDifficulty] = useState<GameDifficulty>('easy');
+  const [claimedCoupons, setClaimedCoupons] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem('voyage_flight_claimed_coupons');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
   const currentLevel: FlightLevel = FLIGHT_LEVELS[levelIndex] || FLIGHT_LEVELS[0];
+  const diffConfig = GAME_DIFFICULTIES[selectedDifficulty] || GAME_DIFFICULTIES.easy;
+  const currentReward = currentLevel.difficultyRewards[selectedDifficulty] || currentLevel.difficultyRewards.easy;
+  const couponKey = `${currentLevel.id}_${selectedDifficulty}`;
+  const isCouponClaimed = !!claimedCoupons[couponKey];
 
   // Game loop internal mutable references for high performance (60fps)
   const stateRef = useRef({
@@ -421,12 +435,12 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
         st.propellerAngle += 0.45;
 
         // Progress distance
-        const flightSpeed = st.turboTimer > 0 ? 8 : 4;
+        const flightSpeed = (st.turboTimer > 0 ? 7 : 3.0) * diffConfig.speedMultiplier;
         st.distance += flightSpeed;
         setDistance(Math.floor(st.distance));
 
         // Fuel consumption
-        const fuelConsumption = st.turboTimer > 0 ? 0.06 : 0.025;
+        const fuelConsumption = (st.turboTimer > 0 ? 0.05 : 0.015) * diffConfig.fuelDrainMultiplier;
         st.fuel = Math.max(0, st.fuel - fuelConsumption);
         setFuel(Math.round(st.fuel));
 
@@ -453,7 +467,9 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
         }
 
         // Check Victory
-        if (st.distance >= currentLevel.distanceTarget && !st.isVictory) {
+        const diffMultiplier = selectedDifficulty === 'easy' ? 2.5 : selectedDifficulty === 'hard' ? 4.0 : 6.0;
+        const targetDist = currentLevel.distanceTarget * diffMultiplier;
+        if (st.distance >= targetDist && !st.isVictory) {
           st.isVictory = true;
           setIsVictory(true);
           setIsPlaying(false);
@@ -1557,9 +1573,12 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
 
           {/* Distance progress */}
           <div className="hidden sm:block text-right">
-            <div className="text-[10px] text-slate-400 font-medium">Distance</div>
+            <div className="text-[10px] text-slate-400 font-medium flex items-center justify-end gap-1">
+              <span>Distance</span>
+              <span className="text-[9px] px-1 py-0.2 rounded bg-slate-800 text-amber-400 font-bold uppercase">{selectedDifficulty}</span>
+            </div>
             <div className="font-mono font-bold text-sky-400">
-              {distance} / {currentLevel.distanceTarget}m
+              {distance} / {Math.round(currentLevel.distanceTarget * (selectedDifficulty === 'easy' ? 2.5 : selectedDifficulty === 'hard' ? 4.0 : 6.0))}m
             </div>
           </div>
 
@@ -1646,17 +1665,54 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
 
         {/* Start Overlay */}
         {!isPlaying && !isGameOver && !isVictory && (
-          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center text-white">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-sky-500/20 mb-3 animate-bounce">
-              <span className="text-3xl">{currentLevel.flag}</span>
+          <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center text-white overflow-y-auto">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-sky-500/20 mb-2 animate-bounce shrink-0">
+              <span className="text-2xl">{currentLevel.flag}</span>
             </div>
-            <div className="text-xs font-black uppercase tracking-wider text-amber-400 mb-1">
+            <div className="text-[11px] font-black uppercase tracking-wider text-amber-400 mb-0.5">
               {currentLevel.country} Stage
             </div>
-            <h2 className="text-2xl font-black mb-1">{currentLevel.name}</h2>
-            <p className="text-sm text-slate-300 max-w-md mb-4">
+            <h2 className="text-xl sm:text-2xl font-black mb-1">{currentLevel.name}</h2>
+            <p className="text-xs text-slate-300 max-w-md mb-3">
               {currentLevel.description}
             </p>
+
+            {/* Difficulty Selector */}
+            <div className="mb-3 w-full max-w-md">
+              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-center gap-1">
+                <span>Select Difficulty Mode (3 Levels & Vouchers)</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {(Object.keys(GAME_DIFFICULTIES) as GameDifficulty[]).map((diffKey) => {
+                  const diff = GAME_DIFFICULTIES[diffKey];
+                  const isSelected = selectedDifficulty === diffKey;
+                  const rewardForDiff = currentLevel.difficultyRewards[diffKey];
+                  const claimed = !!claimedCoupons[`${currentLevel.id}_${diffKey}`];
+                  return (
+                    <button
+                      key={diffKey}
+                      onClick={() => setSelectedDifficulty(diffKey)}
+                      className={`p-2 rounded-xl text-left transition-all cursor-pointer border flex flex-col gap-0.5 ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 border-amber-300 shadow-md scale-102 font-black'
+                          : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-600'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-[11px] font-extrabold truncate">{diff.name}</span>
+                        <span className={`text-[9px] px-1 py-0.2 rounded font-mono font-black shrink-0 ${isSelected ? 'bg-slate-950 text-amber-300' : 'bg-slate-800 text-amber-400'}`}>
+                          {rewardForDiff.discount}
+                        </span>
+                      </div>
+                      <div className="text-[9px] opacity-80 flex items-center justify-between">
+                        <span>{diff.scoreMultiplier}x Pts</span>
+                        {claimed && <span className="text-emerald-300 font-bold">✓ Won</span>}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             {currentLevel.country === 'Albania' && (
               <div className="mb-3 px-3.5 py-1.5 rounded-xl bg-red-950/60 border border-red-500/40 text-xs text-red-200 flex items-center gap-2 shadow-xs">
@@ -1667,20 +1723,20 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
             )}
 
             {/* Soundtrack & Controls Hint */}
-            <div className="mb-4 flex flex-wrap items-center justify-center gap-2 text-[11px] text-slate-300">
+            <div className="mb-3 flex flex-wrap items-center justify-center gap-2 text-[11px] text-slate-300">
               <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 flex items-center gap-1.5 text-pink-300">
                 <Music className="w-3 h-3 text-pink-400" />
-                <span>Track: {SONG_TRACKS[musicTrackIdx]?.name} (Press M to switch)</span>
+                <span>Track: {SONG_TRACKS[musicTrackIdx]?.name} (Press M)</span>
               </span>
               <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
-                🎮 Space / Boost: Turbo · B / Blast: Shockwave · Drag: Fly
+                🎮 Space/Boost · B/Blast · Drag/Fly
               </span>
             </div>
 
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setShowStageModal(true)}
-                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition-all cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition-all cursor-pointer"
               >
                 Change Stage
               </button>
@@ -1689,7 +1745,7 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
                 className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-black text-xs shadow-lg shadow-sky-500/30 hover:scale-105 active:scale-95 transition-all cursor-pointer"
               >
                 <Play className="w-4 h-4 fill-white" />
-                <span>Take Off Now</span>
+                <span>Take Off ({selectedDifficulty.toUpperCase()} Mode)</span>
               </button>
             </div>
           </div>
@@ -1704,7 +1760,7 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
               </div>
               <div>
                 <div className="text-[11px] uppercase font-extrabold tracking-wider text-amber-400">
-                  Destination Reached!
+                  Destination Reached! ({selectedDifficulty.toUpperCase()} Mode)
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black">{currentLevel.destination}</h2>
                 <p className="text-xs text-slate-300 max-w-md mt-0.5">
@@ -1738,55 +1794,66 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
               <div className="w-full max-w-md bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 p-3.5 rounded-2xl border-2 border-amber-500/60 shadow-2xl text-left relative overflow-hidden">
                 <div className="absolute top-0 right-0 px-2.5 py-0.5 bg-gradient-to-l from-amber-500 to-orange-500 text-slate-950 font-black text-[9px] uppercase rounded-bl-lg tracking-wider flex items-center gap-1 shadow-xs">
                   <Sparkles className="w-3 h-3" />
-                  <span>Level Pass Reward</span>
+                  <span>{selectedDifficulty.toUpperCase()} Mode Reward</span>
                 </div>
 
                 <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1 pt-1">
-                  <span>🎉 BOOKING OFFER CODE UNLOCKED!</span>
+                  <span>🎉 BOOKING VOUCHER UNLOCKED!</span>
+                  {isCouponClaimed && <span className="text-emerald-400 font-extrabold">(Claimed Once)</span>}
                 </div>
 
                 <div className="flex items-center justify-between gap-3 mb-2">
                   <div>
                     <div className="font-mono font-black text-base sm:text-lg text-white tracking-wider">
-                      {currentLevel.redeemCode}
+                      {currentReward.code}
                     </div>
                     <div className="text-[11px] text-slate-300 font-medium">
-                      {currentLevel.redeemOfferName}
+                      {currentReward.description}
                     </div>
                   </div>
                   <div className="px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-300 font-black text-sm shrink-0">
-                    {currentLevel.redeemDiscount}
+                    {currentReward.discount}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
                   <button
                     type="button"
+                    disabled={isCouponClaimed}
                     onClick={() => {
-                      PromoService.setActivePromo(currentLevel.redeemCode);
+                      const updated = { ...claimedCoupons, [couponKey]: true };
+                      setClaimedCoupons(updated);
+                      try {
+                        localStorage.setItem('voyage_flight_claimed_coupons', JSON.stringify(updated));
+                      } catch {}
+                      PromoService.setActivePromo(currentReward.code);
                       AuthAudit.showToast({
-                        title: '🎉 Offer Activated!',
-                        message: `Voucher "${currentLevel.redeemCode}" (${currentLevel.redeemDiscount}) applied! Discount active at checkout.`,
+                        title: '🎉 Coupon Claimed!',
+                        message: `Voucher "${currentReward.code}" (${currentReward.discount}) applied! Single-play reward claimed.`,
                         type: 'success',
                         duration: 4000,
                       });
-                      if (onUsePromo) onUsePromo(currentLevel.redeemCode);
+                      if (onUsePromo) onUsePromo(currentReward.code);
                     }}
-                    className="py-2 px-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+                    className={`py-2 px-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      isCouponClaimed
+                        ? 'bg-slate-800 text-slate-400 border border-slate-700 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-md shadow-amber-500/20 active:scale-95'
+                    }`}
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Redeem & Book</span>
+                    <span>{isCouponClaimed ? 'Claimed Once' : 'Redeem & Book'}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => {
                       if (navigator.clipboard) {
-                        navigator.clipboard.writeText(currentLevel.redeemCode);
+                        navigator.clipboard.writeText(currentReward.code);
                         setCopiedVictoryCode(true);
                         AuthAudit.showToast({
-                          title: 'Offer Code Copied!',
-                          message: `Voucher code "${currentLevel.redeemCode}" copied to clipboard!`,
+                          title: 'Voucher Code Copied!',
+                          message: `Voucher code "${currentReward.code}" copied to clipboard!`,
                           type: 'success',
                         });
                         setTimeout(() => setCopiedVictoryCode(false), 3000);

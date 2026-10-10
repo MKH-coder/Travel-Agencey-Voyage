@@ -22,7 +22,11 @@ import {
   Layers,
   Compass,
   Download,
-  FileText
+  FileText,
+  PlaneLanding,
+  PlaneTakeoff,
+  Navigation,
+  Flag
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -465,6 +469,106 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 <p className={`text-sm ${styles.textSecondary} leading-relaxed`}>
                   {listing.description}
                 </p>
+              </div>
+
+              {/* Trip Milestones & Itinerary Timeline */}
+              <div className={`p-5 rounded-2xl border ${styles.border} ${styles.cardBg} shadow-sm space-y-4`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-xl bg-sky-500/10 text-sky-500">
+                      <Navigation className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className={`text-sm font-bold ${styles.textPrimary}`}>Trip Milestones & Itinerary Timeline</h4>
+                      <p className={`text-[11px] ${styles.textMuted}`}>Visualizing key stops, arrivals, and departures</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                    Interactive Timeline
+                  </span>
+                </div>
+
+                <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-gradient-to-b before:from-sky-500 before:via-amber-500 before:to-emerald-500">
+                  {/* Milestone 1: Arrival & Tirana */}
+                  <div className="relative group">
+                    <div className="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-sky-500 text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-sky-500/30 ring-4 ring-white dark:ring-slate-900">
+                      <PlaneLanding className="w-3 h-3" />
+                    </div>
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50">
+                      <div className="flex items-center justify-between text-xs font-bold text-sky-600 dark:text-sky-400 mb-1">
+                        <span>Day 1 • Arrival & Tirana Historic Centre</span>
+                        <span className="text-[10px] text-slate-400">09:00 Arrival</span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">
+                        Arrival at Tirana International Airport (TIA), check-in to boutique hotel, explore Skanderbeg Square, Et’hem Bey Mosque, Clock Tower, and Bunk’Art 2.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Milestone 2: Mount Dajti & Berat */}
+                  <div className="relative group">
+                    <div className="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-amber-500/30 ring-4 ring-white dark:ring-slate-900">
+                      <Compass className="w-3 h-3" />
+                    </div>
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50">
+                      <div className="flex items-center justify-between text-xs font-bold text-amber-600 dark:text-amber-400 mb-1">
+                        <span>Day 2 • Mount Dajti Cable Car & Berat Fortress</span>
+                        <span className="text-[10px] text-slate-400">Scenic Drive</span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">
+                        Ride the Dajti Ekspres cable car over Tirana, then journey south to UNESCO-listed Berat (City of a Thousand Windows) and Onufri Museum.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Milestone 3: Gjirokastër & Blue Eye */}
+                  <div className="relative group">
+                    <div className="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-indigo-500 text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-indigo-500/30 ring-4 ring-white dark:ring-slate-900">
+                      <MapPin className="w-3 h-3" />
+                    </div>
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50">
+                      <div className="flex items-center justify-between text-xs font-bold text-indigo-600 dark:text-indigo-400 mb-1">
+                        <span>Day 3 • Syri i Kaltër Blue Eye & Gjirokastër Stone City</span>
+                        <span className="text-[10px] text-slate-400">Karst Spring</span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">
+                        Marvel at the mesmerizing turquoise waters of the Blue Eye spring, followed by an afternoon tour of Gjirokastër stone castle and Skënduli house.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Milestone 4: Ksamil & Butrint */}
+                  <div className="relative group">
+                    <div className="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-emerald-500/30 ring-4 ring-white dark:ring-slate-900">
+                      <Flag className="w-3 h-3" />
+                    </div>
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50">
+                      <div className="flex items-center justify-between text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
+                        <span>Day 4 • Ksamil Islands Cruise & Butrint UNESCO Park</span>
+                        <span className="text-[10px] text-slate-400">Ionian Coast</span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">
+                        Private boat cruise around Ksamil's 4 idyllic turquoise islands, relaxing on Bora Bora white sands, and exploring ancient Greco-Roman ruins at Butrint.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Milestone 5: Departure */}
+                  <div className="relative group">
+                    <div className="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-rose-500/30 ring-4 ring-white dark:ring-slate-900">
+                      <PlaneTakeoff className="w-3 h-3" />
+                    </div>
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50">
+                      <div className="flex items-center justify-between text-xs font-bold text-rose-600 dark:text-rose-400 mb-1">
+                        <span>Day 9 • Riviera Panoramas & Return Flight</span>
+                        <span className="text-[10px] text-slate-400">Departure TIA</span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">
+                        Scenic drive across Llogara Pass, Vlorë bay viewpoints, and comfortable return flight connection back to India.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Package Components */}
