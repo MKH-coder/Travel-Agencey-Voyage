@@ -20,9 +20,10 @@ import {
   Sliders,
   CheckCircle2,
   X,
-  Copy
+  Copy,
+  Music
 } from 'lucide-react';
-import { gameAudio } from '../utils/gameAudio.ts';
+import { gameAudio, SONG_TRACKS } from '../utils/gameAudio.ts';
 import { FLIGHT_LEVELS, FlightLevel } from '../data/interactiveGameData.ts';
 import { PromoService } from '../services/promoService.ts';
 import { AuthAudit } from '../services/authAudit.ts';
@@ -81,6 +82,7 @@ interface ObstacleItem {
   speedX: number;
   speedY: number;
   phase: number;
+  nearMissed?: boolean;
 }
 
 interface AmbientParticle {
@@ -118,6 +120,9 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
   const [hasMagnet, setHasMagnet] = useState(false);
   const [hasTurbo, setHasTurbo] = useState(false);
   const [isMuted, setIsMuted] = useState(gameAudio.getMuted());
+  const [isMusicPlaying, setIsMusicPlaying] = useState(gameAudio.isMusicPlaying());
+  const [musicTrackIdx, setMusicTrackIdx] = useState(gameAudio.getMusicTrack());
+  const [sonicCharges, setSonicCharges] = useState(3);
 
   const currentLevel: FlightLevel = FLIGHT_LEVELS[levelIndex] || FLIGHT_LEVELS[0];
 
@@ -131,6 +136,8 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
     hasShield: false,
     magnetTimer: 0,
     turboTimer: 0,
+    sonicCharges: 3,
+    shockwave: null as { x: number; y: number; radius: number; maxRadius: number; alpha: number } | null,
     playerX: 120,
     playerY: 200,
     targetY: 200,
@@ -197,7 +204,82 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
   const handleToggleMute = () => {
     const muted = gameAudio.toggleMute();
     setIsMuted(muted);
+    setIsMusicPlaying(gameAudio.isMusicPlaying());
   };
+
+  const handleToggleMusic = () => {
+    const next = gameAudio.toggleMusic();
+    setIsMusicPlaying(next);
+  };
+
+  const handleChangeTrack = () => {
+    const nextTrack = (musicTrackIdx + 1) % SONG_TRACKS.length;
+    gameAudio.setMusicTrack(nextTrack);
+    setMusicTrackIdx(nextTrack);
+    if (!gameAudio.isMusicPlaying()) {
+      gameAudio.startMusic(nextTrack);
+      setIsMusicPlaying(true);
+    }
+    AuthAudit.showToast({
+      title: `🎵 ${SONG_TRACKS[nextTrack].name}`,
+      message: `${SONG_TRACKS[nextTrack].genre} (${SONG_TRACKS[nextTrack].bpm} BPM)`,
+      type: 'info',
+      duration: 2500,
+    });
+  };
+
+  // Sonic blast cloud buster trigger
+  const triggerSonicBlast = useCallback(() => {
+    const st = stateRef.current;
+    if (st.sonicCharges <= 0 || !isPlaying || st.isGameOver || st.isVictory) return;
+    st.sonicCharges--;
+    setSonicCharges(st.sonicCharges);
+    gameAudio.playSonicBlast();
+
+    st.shockwave = {
+      x: st.playerX,
+      y: st.playerY,
+      radius: 12,
+      maxRadius: 280,
+      alpha: 1.0,
+    };
+
+    let cleared = 0;
+    st.obstacles = st.obstacles.filter(obs => {
+      const dist = Math.hypot(obs.x - st.playerX, obs.y - st.playerY);
+      if (dist < 260) {
+        cleared++;
+        for (let p = 0; p < 8; p++) {
+          st.particles.push({
+            x: obs.x,
+            y: obs.y,
+            vx: (Math.random() - 0.5) * 6,
+            vy: (Math.random() - 0.5) * 6,
+            size: 3 + Math.random() * 3,
+            color: '#38bdf8',
+            alpha: 1,
+            life: 0,
+            maxLife: 20,
+          });
+        }
+        return false;
+      }
+      return true;
+    });
+
+    const pts = 100 + cleared * 50;
+    st.score += pts;
+    setScore(st.score);
+    onUpdateScore(st.score);
+    st.floatingTexts.push({
+      x: st.playerX,
+      y: st.playerY - 25,
+      text: `⚡ SONIC BLAST! +${pts}`,
+      color: '#38bdf8',
+      alpha: 1,
+      vy: -1.6,
+    });
+  }, [isPlaying, onUpdateScore]);
 
   // Start / restart flight
   const startGame = useCallback((lvlIdx = levelIndex) => {
@@ -212,6 +294,8 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
     st.hasShield = false;
     st.magnetTimer = 0;
     st.turboTimer = 0;
+    st.sonicCharges = 3;
+    st.shockwave = null;
     st.playerX = 120;
     st.playerY = 180;
     st.targetY = 180;
@@ -231,13 +315,18 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
     setFuel(100);
     setDistance(0);
     setCombo(1);
+    setSonicCharges(3);
     setHasShield(false);
     setHasMagnet(false);
     setHasTurbo(false);
     setIsGameOver(false);
     setIsVictory(false);
     setIsPlaying(true);
-  }, [levelIndex]);
+
+    // Start background song
+    gameAudio.startMusic(musicTrackIdx);
+    setIsMusicPlaying(true);
+  }, [levelIndex, musicTrackIdx]);
 
   // Next level
   const handleNextLevel = () => {
@@ -249,7 +338,7 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       stateRef.current.keys[e.code] = true;
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyB'].includes(e.code)) {
         e.preventDefault();
       }
       if (e.code === 'Space' && isPlaying && !stateRef.current.isGameOver && !stateRef.current.isVictory) {
@@ -257,7 +346,14 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
           stateRef.current.turboTimer = 90;
           stateRef.current.fuel = Math.max(0, stateRef.current.fuel - 10);
           gameAudio.playBoost();
+          gameAudio.setTempoBoost(true);
         }
+      }
+      if ((e.code === 'KeyB' || e.code === 'KeyE') && isPlaying) {
+        triggerSonicBlast();
+      }
+      if (e.code === 'KeyM') {
+        handleChangeTrack();
       }
     };
 
@@ -271,7 +367,7 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, [isPlaying]);
+  }, [isPlaying, triggerSonicBlast]);
 
   // Pointer / Touch tracking on canvas
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -341,7 +437,10 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
         }
         if (st.turboTimer > 0) {
           st.turboTimer--;
-          if (st.turboTimer === 0) setHasTurbo(false);
+          if (st.turboTimer === 0) {
+            setHasTurbo(false);
+            gameAudio.setTempoBoost(false);
+          }
         }
 
         // Combo decay
@@ -359,6 +458,8 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
           setIsVictory(true);
           setIsPlaying(false);
           gameAudio.playVictory();
+          gameAudio.stopMusic();
+          setIsMusicPlaying(false);
 
           const stampMap: Record<string, string> = {
             lvl_albania_riviera: 'stamp_ksamil',
@@ -378,6 +479,8 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
           setIsGameOver(true);
           setIsPlaying(false);
           gameAudio.playHit();
+          gameAudio.stopMusic();
+          setIsMusicPlaying(false);
         }
 
         // Spawn Collectibles
@@ -572,14 +675,14 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
         drawCloud(ctx, cloud.x, cloud.y, cloud.scale, cloud.opacity);
       });
 
-      // 6. Draw Ambient Atmospheric Particles (Sea spray in Albania, Sakura in Japan, etc.)
+      // 6. Draw Ambient Atmospheric Particles (Sea spray in Ionian Riviera, Mountain sparkles in Accursed Alps)
       st.ambientParticles.forEach(amb => {
         ctx.save();
         ctx.globalAlpha = amb.opacity;
         ctx.fillStyle = amb.color;
         ctx.translate(amb.x, amb.y);
         ctx.rotate(amb.rotation);
-        if (currentLevel.ambientEffect === 'sakura') {
+        if (currentLevel.ambientEffect === 'sea_spray') {
           // Sakura Petal
           ctx.beginPath();
           ctx.ellipse(0, 0, amb.size * 1.5, amb.size * 0.8, 0, 0, Math.PI * 2);
@@ -1497,6 +1600,29 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
             </div>
           </div>
 
+          {/* Music Song Switcher */}
+          <button
+            onClick={handleChangeTrack}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition-all cursor-pointer group shadow-xs"
+            title={`Current Song: ${SONG_TRACKS[musicTrackIdx]?.name || 'Song'} (${SONG_TRACKS[musicTrackIdx]?.genre}) - Click to Switch Track (Key M)`}
+          >
+            <Music className="w-3.5 h-3.5 text-pink-400 group-hover:rotate-12 transition-transform" />
+            <div className="hidden md:flex flex-col text-left leading-tight">
+              <span className="text-[9px] text-pink-400 font-extrabold uppercase tracking-wide">
+                Track {musicTrackIdx + 1}/{SONG_TRACKS.length}
+              </span>
+              <span className="text-[11px] font-bold text-white max-w-[120px] truncate">
+                {SONG_TRACKS[musicTrackIdx]?.name}
+              </span>
+            </div>
+            {/* Pulsing Visualizer Bars */}
+            <div className="flex items-end gap-0.5 h-3.5 px-0.5">
+              <span className={`w-0.5 bg-pink-400 rounded-full transition-all duration-150 ${isMusicPlaying ? 'animate-pulse h-3' : 'h-1 opacity-40'}`} />
+              <span className={`w-0.5 bg-sky-400 rounded-full transition-all duration-200 ${isMusicPlaying ? 'animate-pulse h-2' : 'h-1 opacity-40'}`} style={{ animationDelay: '100ms' }} />
+              <span className={`w-0.5 bg-amber-400 rounded-full transition-all duration-175 ${isMusicPlaying ? 'animate-pulse h-3.5' : 'h-1 opacity-40'}`} style={{ animationDelay: '200ms' }} />
+            </div>
+          </button>
+
           {/* Audio toggle */}
           <button
             onClick={handleToggleMute}
@@ -1533,12 +1659,23 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
             </p>
 
             {currentLevel.country === 'Albania' && (
-              <div className="mb-4 px-3.5 py-1.5 rounded-xl bg-red-950/60 border border-red-500/40 text-xs text-red-200 flex items-center gap-2 shadow-xs">
+              <div className="mb-3 px-3.5 py-1.5 rounded-xl bg-red-950/60 border border-red-500/40 text-xs text-red-200 flex items-center gap-2 shadow-xs">
                 <span>🇦🇱</span>
                 <span className="font-bold">Special Collectible:</span>
                 <span>Collect the Double-Headed Golden Eagle Crest for +250 XP!</span>
               </div>
             )}
+
+            {/* Soundtrack & Controls Hint */}
+            <div className="mb-4 flex flex-wrap items-center justify-center gap-2 text-[11px] text-slate-300">
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 flex items-center gap-1.5 text-pink-300">
+                <Music className="w-3 h-3 text-pink-400" />
+                <span>Track: {SONG_TRACKS[musicTrackIdx]?.name} (Press M to switch)</span>
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+                🎮 Space / Boost: Turbo · B / Blast: Shockwave · Drag: Fly
+              </span>
+            </div>
 
             <div className="flex items-center gap-3">
               <button
@@ -1865,9 +2002,26 @@ export const SkyExpeditionGame: React.FC<SkyExpeditionGameProps> = ({
               }
             }}
             className="flex items-center gap-1 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-[11px] transition-all active:scale-95 shadow-xs cursor-pointer"
+            title="Turbo Boost (Spacebar)"
           >
             <Zap className="w-3.5 h-3.5 fill-white" />
             <span>Boost</span>
+          </button>
+          <button
+            onClick={triggerSonicBlast}
+            disabled={sonicCharges <= 0}
+            className={`flex items-center gap-1 px-3 py-2 rounded-xl font-bold text-[11px] transition-all active:scale-95 shadow-xs cursor-pointer ${
+              sonicCharges > 0
+                ? 'bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white shadow-pink-500/20 shadow-md'
+                : 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-50'
+            }`}
+            title="Sonic Shockwave Cloud Buster: Clear clouds & hazards into stars (Key B)"
+          >
+            <Sparkles className="w-3.5 h-3.5 fill-current" />
+            <span>Blast</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-slate-900/80 text-[10px] font-black text-amber-300">
+              {sonicCharges}
+            </span>
           </button>
         </div>
       </div>

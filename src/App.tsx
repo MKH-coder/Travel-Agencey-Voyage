@@ -351,27 +351,27 @@ function MainLayout() {
       setPackagePreviewActive(true);
     } else {
       setSelectedListing({
-        id: 'pkg-kyoto-zen-01',
-        title: 'Kyoto Zen & Gastronomy Signature Package',
+        id: 'pkg-albania-9day-basic-03',
+        title: 'Albania 9-Day Value Discovery: Complete Heritage & Coastal Circuit',
         category: 'PACKAGE',
-        price: 780,
-        rating: 4.99,
-        reviewCount: 14,
-        location: 'Arashiyama & Gion',
-        country: 'Japan',
-        description: 'Immerse yourself in Kyoto heritage with a luxury riverside stay at Hoshinoya, an authentic Michelin-grade Kaiseki dinner at Gion Karyo, private tea master ceremony, and chauffeured transfers.',
+        price: 1330,
+        rating: 4.98,
+        reviewCount: 48,
+        location: 'Tirana, Berat, Gjirokastër, Ksamil & Riviera',
+        country: 'Albania',
+        description: 'Immerse yourself in Albania heritage with stays across Tirana, Berat UNESCO citadel, Gjirokastër stone mansions, Ksamil 4 islands cruise, Butrint ancient ruins, and the breathtaking Ionian coastal road descent from Llogara Pass to Vlorë.',
         images: [
-          'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80',
-          'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80',
-          'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1200&q=80'
+          'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Berat_UNESCO_2016_Albania.jpg/1280px-Berat_UNESCO_2016_Albania.jpg',
+          'https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg',
+          'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Gjirokaster_2016-2017.jpg/1280px-Gjirokaster_2016-2017.jpg'
         ],
         status: 'PUBLISHED',
         createdBy: 'mukundkrishna2008@gmail.com',
         createdByName: 'Mukund Krishna',
-        listingIds: ['list-hotel-kyoto-04', 'list-dining-kyoto-03'],
-        tags: ['Zen Bundle', 'Kyoto Heritage', 'Best Value', 'Tour Package', 'VIP Concierge'],
+        listingIds: ['list-ksamil-isles-01', 'list-berat-mangal-02'],
+        tags: ['Albania 9-Day', 'Riviera Circuit', 'Best Value', 'Tour Package', 'VIP Concierge'],
         amenities: ['Cultural Concierge', 'Private Boat Transfer', 'Priority Dining Reservation', 'Guided Historic Walk'],
-        duration: '4 Days / 3 Nights',
+        duration: '9 Days / 8 Nights',
         timestamps: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
       });
       setPackagePreviewActive(true);

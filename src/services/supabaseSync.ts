@@ -308,7 +308,7 @@ export class SupabaseSyncService {
               ? item.images
               : (typeof item.images === 'string' && item.images.startsWith('[')
                 ? JSON.parse(item.images)
-                : ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80']),
+                : ['https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg']),
             status: item.status || 'PUBLISHED',
             tags: Array.isArray(item.tags) ? item.tags : ['Curated', 'Supabase Verified'],
             amenities: Array.isArray(item.amenities) ? item.amenities : ['WiFi', 'Scenic View'],

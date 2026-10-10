@@ -237,9 +237,9 @@ export const MapView: React.FC<MapViewProps> = ({
 
     if (!mapInstanceRef.current) {
       const map = L.map(mapContainerRef.current, {
-        center: [30, 15],
-        zoom: 2.5,
-        minZoom: 2,
+        center: [41.1533, 20.1683],
+        zoom: 7.5,
+        minZoom: 5,
         maxZoom: 18,
         zoomControl: false,
         attributionControl: false,
@@ -755,7 +755,7 @@ export const MapView: React.FC<MapViewProps> = ({
               {/* Thumbnail */}
               <div className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-slate-200 dark:bg-slate-800">
                 <img
-                  src={selectedListing.images[0] || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e'}
+                  src={selectedListing.images[0] || 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg'}
                   alt={selectedListing.title}
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"

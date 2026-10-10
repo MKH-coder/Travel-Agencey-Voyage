@@ -166,7 +166,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
     }
   };
 
-  const primaryImage = listing.images[0] || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80';
+  const primaryImage = listing.images[0] || 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg';
 
   return (
     <div

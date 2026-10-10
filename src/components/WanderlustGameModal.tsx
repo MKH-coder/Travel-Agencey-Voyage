@@ -9,10 +9,12 @@ import {
   Volume2,
   VolumeX,
   HelpCircle,
-  Award
+  Award,
+  Gauge
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { SkyExpeditionGame } from './SkyExpeditionGame.tsx';
+import { BalkanCoastalRallyGame } from './BalkanCoastalRallyGame.tsx';
 import { GeoDetectiveGame } from './GeoDetectiveGame.tsx';
 import { PassportRewardsTab } from './PassportRewardsTab.tsx';
 import { gameAudio } from '../utils/gameAudio.ts';
@@ -28,7 +30,7 @@ const STORAGE_KEY_PROGRESS = 'voyage_interactive_game_progress_v2';
 export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen, onClose, onUsePromo }) => {
   const { styles } = useTheme();
 
-  const [activeTab, setActiveTab] = useState<'flight' | 'detective' | 'passport'>('flight');
+  const [activeTab, setActiveTab] = useState<'flight' | 'rally' | 'detective' | 'passport'>('flight');
   const [totalScore, setTotalScore] = useState<number>(0);
   const [highScore, setHighScore] = useState<number>(0);
   const [unlockedStamps, setUnlockedStamps] = useState<string[]>(['stamp_ksamil']);
@@ -108,16 +110,16 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
                 </span>
               </div>
               <div className="text-[11px] text-slate-400">
-                Interactive Flight Arcade & Cultural Geo Mystery
+                Interactive Flight Arcade, Balkan Coastal Rally & Cultural Geo Mystery
               </div>
             </div>
           </div>
 
-          {/* Center Tabs: Flight / Detective / Passport */}
-          <div className="flex items-center p-1 bg-slate-950/80 rounded-2xl border border-slate-800/80">
+          {/* Center Tabs: Flight / Rally / Detective / Passport */}
+          <div className="flex items-center p-1 bg-slate-950/80 rounded-2xl border border-slate-800/80 overflow-x-auto">
             <button
               onClick={() => setActiveTab('flight')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeTab === 'flight'
                   ? 'bg-sky-500 text-white shadow-xs'
                   : 'text-slate-400 hover:text-slate-200'
@@ -128,8 +130,23 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
             </button>
 
             <button
+              onClick={() => setActiveTab('rally')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                activeTab === 'rally'
+                  ? 'bg-amber-500 text-slate-950 shadow-xs'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Gauge className="w-3.5 h-3.5" />
+              <span>Coastal Rally</span>
+              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-rose-600 text-white font-black animate-pulse">
+                NEW
+              </span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('detective')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeTab === 'detective'
                   ? 'bg-sky-500 text-white shadow-xs'
                   : 'text-slate-400 hover:text-slate-200'
@@ -141,7 +158,7 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
 
             <button
               onClick={() => setActiveTab('passport')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeTab === 'passport'
                   ? 'bg-amber-500 text-slate-950 shadow-xs'
                   : 'text-slate-400 hover:text-slate-200'
@@ -181,6 +198,18 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
         <div className="flex-1 overflow-hidden relative flex flex-col">
           {activeTab === 'flight' && (
             <SkyExpeditionGame
+              onUnlockStamp={handleUnlockStamp}
+              onUpdateScore={handleUpdateScore}
+              highScore={highScore}
+              onUsePromo={(code) => {
+                onUsePromo?.(code);
+                onClose();
+              }}
+            />
+          )}
+
+          {activeTab === 'rally' && (
+            <BalkanCoastalRallyGame
               onUnlockStamp={handleUnlockStamp}
               onUpdateScore={handleUpdateScore}
               highScore={highScore}

@@ -221,7 +221,7 @@ export const MarketingSections: React.FC<MarketingSectionsProps> = ({
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className={`relative p-8 sm:p-16 rounded-[3rem] overflow-hidden bg-gradient-to-br from-slate-900 to-black text-white shadow-2xl`}>
           <div className="absolute inset-0 opacity-20">
-             <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1600&q=80" alt="CTA Background" className="w-full h-full object-cover" />
+             <img src="https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg" alt="Albanian Riviera Ksamil" className="w-full h-full object-cover" />
              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
           </div>
           

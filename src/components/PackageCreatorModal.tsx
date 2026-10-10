@@ -255,7 +255,7 @@ export const PackageCreatorModal: React.FC<PackageCreatorModalProps> = ({
                     type="text" 
                     value={country} 
                     onChange={e => setCountry(e.target.value)}
-                    placeholder="e.g., Italy"
+                    placeholder="e.g., Albania"
                     className={`w-full p-3 rounded-xl border ${styles.border} ${styles.inputBg} outline-none text-sm focus:ring-2 focus:ring-amber-500/50 transition-all`}
                   />
                 </div>

@@ -49,12 +49,12 @@ export const TravelJournalSection: React.FC<TravelJournalSectionProps> = ({ user
     return [
       {
         id: 'sample-1',
-        tripTitle: 'Sunset Dinner in Amalfi Coast',
-        location: 'Positano, Italy',
-        date: '2026-09-28',
-        notes: 'Discovered an incredible cliffside trattoria with lemon groves. Watched the yacht lights come alive across the Mediterranean.',
-        photos: ['https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80'],
-        geoCoords: { lat: 40.6281, lng: 14.4850 },
+        tripTitle: 'Sunset over Ksamil Turquoise Islands',
+        location: 'Ksamil, Sarandë, Albania',
+        date: '2026-10-14',
+        notes: 'Discovered an incredible cliffside tavern overlooking the four uninhabited islands. Watched the evening sun paint the Ionian waters gold over the Corfu channel.',
+        photos: ['https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg'],
+        geoCoords: { lat: 39.7712, lng: 20.0055 },
         rating: 5,
         createdAt: new Date().toISOString()
       }
@@ -152,7 +152,7 @@ export const TravelJournalSection: React.FC<TravelJournalSectionProps> = ({ user
       location: newLocation.trim(),
       date: newDate,
       notes: newNotes.trim(),
-      photos: newPhotos.length > 0 ? newPhotos : ['https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80'],
+      photos: newPhotos.length > 0 ? newPhotos : ['https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Berat_UNESCO_2016_Albania.jpg/1280px-Berat_UNESCO_2016_Albania.jpg'],
       geoCoords: newGeoCoords || undefined,
       rating: newRating,
       createdAt: new Date().toISOString()

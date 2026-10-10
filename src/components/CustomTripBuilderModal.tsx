@@ -56,9 +56,9 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
 
   // Step 1: Trip Essentials
-  const [tripTitle, setTripTitle] = useState('My Curated Signature Escape');
-  const [destination, setDestination] = useState(initialDestination || 'Santorini Island');
-  const [country, setCountry] = useState('Greece');
+  const [tripTitle, setTripTitle] = useState('My Curated Albania Signature Escape');
+  const [destination, setDestination] = useState(initialDestination || 'Ksamil & Albanian Riviera');
+  const [country, setCountry] = useState('Albania');
   const [travelStyle, setTravelStyle] = useState<CustomTripRequest['travelStyle']>('ROMANTIC_HONEYMOON');
   const [budgetTier, setBudgetTier] = useState<CustomTripRequest['budgetTier']>('ELITE');
   const [startDate, setStartDate] = useState(() => {
@@ -66,7 +66,7 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
     d.setDate(d.getDate() + 14);
     return d.toISOString().split('T')[0];
   });
-  const [durationDays, setDurationDays] = useState(4);
+  const [durationDays, setDurationDays] = useState(9);
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
 
@@ -130,15 +130,14 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
     }
   };
 
-  // Popular Destination Presets
+  // Popular Destination Presets (Albania Exclusive)
   const destinationPresets = [
-    { name: 'Mannanthala, Trivandrum', country: 'India', vibe: 'LUXURY_WELLNESS', title: 'Kerala Ayurvedic Healing & Heritage Trail' },
-    { name: 'Gion & Arashiyama', country: 'Japan', vibe: 'CULTURAL_HERITAGE', title: 'Kyoto Zen & Michelin Kaiseki Odyssey' },
-    { name: 'Oia, Santorini Island', country: 'Greece', vibe: 'ROMANTIC_HONEYMOON', title: 'Aegean Caldera Sunset & Wine Tour' },
-    { name: 'Ravello, Amalfi Coast', country: 'Italy', vibe: 'CULINARY_EXPLORER', title: 'Amalfi Coastline Clifftop & Gastronomy' },
-    { name: 'Ginza & Shibuya', country: 'Japan', vibe: 'CULINARY_EXPLORER', title: 'Tokyo Omakase & Neon Cityscape' },
-    { name: 'Saint-Germain-des-Prés', country: 'France', vibe: 'ROMANTIC_HONEYMOON', title: 'Parisian Haute Romance & Bistro Discovery' },
-    { name: 'Lucerne & Zermatt', country: 'Switzerland', vibe: 'ADVENTURE_NATURE', title: 'Swiss Alpine Glacial & Lakes Panorama' },
+    { name: 'Ksamil & Sarandë', country: 'Albania', vibe: 'ROMANTIC_HONEYMOON', title: 'Ionian Turquoise Lagoon & 4 Isles Yacht Tour' },
+    { name: 'Berat Old Town', country: 'Albania', vibe: 'CULTURAL_HERITAGE', title: 'City of 1,000 Windows UNESCO Citadel & Onufri' },
+    { name: 'Gjirokastër & Blue Eye', country: 'Albania', vibe: 'CULTURAL_HERITAGE', title: 'Ottoman Stone Citadel & Syri i Kaltër Spring' },
+    { name: 'Theth & Valbona Valley', country: 'Albania', vibe: 'ADVENTURE_NATURE', title: 'Accursed Mountains Alpine Ridge & Waterfall Trek' },
+    { name: 'Dhërmi & Llogara Pass', country: 'Albania', vibe: 'LUXURY_WELLNESS', title: 'Riviera Clifftop Villas & Pine Forest Panorama' },
+    { name: 'Tirana & Mount Dajti', country: 'Albania', vibe: 'CULINARY_EXPLORER', title: 'Skanderbeg Square, Blloku Gastro & Dajti Ekspres' },
   ];
 
   // Initialize with initialListing if provided
@@ -261,7 +260,7 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
           category: l.category,
           price: l.price,
           location: l.location,
-          image: l.images[0] || 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80'
+          image: l.images[0] || 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg'
         })),
         itinerary: itineraryDays,
         inclusions: selectedInclusions,
@@ -297,13 +296,13 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
   ];
 
   const dietaryOptions = [
-    'Authentic Local Cuisine',
-    'Kerala Sadhya & Plantain Leaf Banquet',
-    'Strictly Vegetarian',
-    'Vegan & Organic',
-    'Halal Certified',
+    'Authentic Albanian Cuisine',
+    'Traditional Tavë Kosi & Slow Roast Lamb',
+    'Fresh Ionian Seafood & Calamari',
+    'Strictly Vegetarian (Fergesë, Byrek & Salads)',
+    'Vegan & Organic Mediterranean',
+    'Halal Friendly',
     'Gluten-Free & Celiac Safe',
-    'Seafood Specialist',
   ];
 
   const filteredCatalog = availableListings.filter(l => {
@@ -506,7 +505,7 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
                     type="text"
                     value={tripTitle}
                     onChange={(e) => setTripTitle(e.target.value)}
-                    placeholder="e.g. Kerala Ayurvedic Retreat & Heritage Sadhya"
+                    placeholder="e.g. Albania Heritage & Ionian Riviera Grand Circuit"
                     className={`w-full px-4 py-2.5 rounded-xl border text-sm font-semibold outline-none transition-all ${styles.inputBg}`}
                   />
                 </div>
@@ -521,7 +520,7 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
                       type="text"
                       value={destination}
                       onChange={(e) => setDestination(e.target.value)}
-                      placeholder="e.g. Mannanthala, Trivandrum"
+                      placeholder="e.g. Ksamil, Sarandë"
                       className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-semibold outline-none transition-all ${styles.inputBg}`}
                     />
                   </div>
@@ -786,7 +785,7 @@ export const CustomTripBuilderModal: React.FC<CustomTripBuilderModalProps> = ({
                           }`}
                         >
                           <img
-                            src={item.images[0] || 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=200&q=80'}
+                            src={item.images[0] || 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg'}
                             alt={item.title}
                             className="w-12 h-12 rounded-lg object-cover shrink-0"
                           />

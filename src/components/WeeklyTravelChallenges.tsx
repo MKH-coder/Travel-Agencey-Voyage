@@ -64,10 +64,10 @@ const DEFAULT_CHALLENGES: WeeklyChallenge[] = [
   },
   {
     id: 'challenge_4',
-    title: 'Global Multi-Country Navigator',
-    description: 'Browse listings across 3 distinct countries (e.g. Japan, Italy, Greece).',
+    title: 'Albania Multi-Region Explorer',
+    description: 'Browse listings across 3 distinct Albanian regions (e.g. Riviera, Berat, Accursed Alps).',
     targetCount: 3,
-    currentCount: 2,
+    currentCount: 3,
     xpReward: 350,
     category: 'COUNTRY',
     completed: false

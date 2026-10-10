@@ -341,7 +341,7 @@ export const SavedTripsModal: React.FC<SavedTripsModalProps> = ({
                     >
                       <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-slate-200 dark:bg-slate-800">
                         <img
-                          src={listing.images[0] || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e'}
+                          src={listing.images[0] || 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg'}
                           alt={listing.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           referrerPolicy="no-referrer"

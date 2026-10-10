@@ -55,15 +55,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   const quickSearchTags = [
     'Albania 9-Day',
-    'Santorini',
-    'Amalfi Coast',
-    'Kyoto Kaiseki',
-    'Swiss Alps',
-    'Bali Ubud',
-    'Tokyo Sushi',
-    'Lake Como',
-    'Banff Canoe',
-    'Paris'
+    'Ksamil Islands',
+    'Berat UNESCO',
+    'Gjirokastër',
+    'Blue Eye Spring',
+    'Theth Alps',
+    'Dhërmi Riviera',
+    'Llogara Pass',
+    'Tirana Skanderbeg',
+    'Butrint Ancient Ruins'
   ];
 
   const categories: { id: 'ALL' | ListingCategory; label: string; icon: React.ReactNode }[] = [
@@ -74,7 +74,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     { id: 'PACKAGE', label: 'Luxury Bundles', icon: <Package className="w-3.5 h-3.5" /> },
   ];
 
-  const popularCountries = ['Albania', 'All Countries'];
+  const popularCountries = ['Albania'];
 
   const resetFilters = () => {
     setLocalSearch('');
@@ -99,9 +99,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       {/* Background Image Overlay */}
       <div className="absolute inset-0 -z-20">
         <img 
-          src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1920&q=80" 
-          alt="Hero Background" 
-          className="w-full h-full object-cover opacity-[0.05] dark:opacity-[0.03]"
+          src="https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Berat_UNESCO_2016_Albania.jpg/1280px-Berat_UNESCO_2016_Albania.jpg" 
+          alt="Albania Historic Landscape" 
+          className="w-full h-full object-cover opacity-[0.08] dark:opacity-[0.05]"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-white dark:via-slate-950/50 dark:to-slate-950"></div>
       </div>

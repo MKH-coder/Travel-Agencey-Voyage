@@ -362,6 +362,18 @@ export class ClientStorageManager {
       let parsed = JSON.parse(data);
       if (Array.isArray(parsed)) {
         parsed = parsed.filter((l: Listing) => l.country === 'Albania' || (l.id && l.id.includes('albania')));
+        // Update any default listing with latest authentic imagery
+        parsed = parsed.map((item: Listing) => {
+          const defaultMatch = DEFAULT_LISTINGS.find(d => d.id === item.id);
+          if (defaultMatch && defaultMatch.images && defaultMatch.images.length > 0) {
+            return {
+              ...item,
+              images: defaultMatch.images
+            };
+          }
+          return item;
+        });
+
         const existingIds = new Set(parsed.map((l: Listing) => l.id));
         const missing = DEFAULT_LISTINGS.filter(d => !existingIds.has(d.id));
         if (missing.length > 0) {

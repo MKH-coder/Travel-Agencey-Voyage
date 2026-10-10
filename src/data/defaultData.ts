@@ -81,8 +81,9 @@ export const DEFAULT_LISTINGS: Listing[] = [
     },
     "description": "High-value self-guided/shared 9-day complete Albania tour (9–19 Oct 2026). Flight included (TRV → MCT → MXP → TIA and TIA → FCO → DOH → TRV, ₹67,518/person). Comfortable private-room local hotels, practical driver planning allowance, Dajti Ekspres cable car over Tirana, Berat UNESCO castle & Onufri museum, Gjirokastër stone city (Skënduli & Zekate houses), the turquoise Blue Eye spring, Ksamil 4-islands boat cruise, Butrint UNESCO archaeological site, Porto Palermo & Ali Pasha Castle, Jalë Beach, Dhërmi Old Village, and Llogara Pass descent to Vlorë. Land package: ₹43,500–₹59,000/person (4 Pax: ₹4,44,072–₹5,06,072).",
     "images": [
-      "https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80"
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Berat_UNESCO_2016_Albania.jpg/1280px-Berat_UNESCO_2016_Albania.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg",
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Skanderbeg_square_tirana_2016.jpg/1280px-Skanderbeg_square_tirana_2016.jpg"
     ],
     "status": "PUBLISHED",
     "createdBy": "voyage@gmail.com",
@@ -122,8 +123,9 @@ export const DEFAULT_LISTINGS: Listing[] = [
     },
     "description": "The definitive 9-day grand loop through Albania (9–19 Oct 2026). Flight included (TRV → MCT → MXP → TIA and TIA → FCO → DOH → TRV, ₹74,890/person). Comfortable boutique hotels, dedicated private vehicle + driver planning allowance, Dajti Ekspres cable car over Tirana, Berat UNESCO castle & Onufri museum, Gjirokastër stone city (Skënduli & Zekate houses), turquoise Blue Eye spring, Ksamil 4-islands boat cruise, Butrint UNESCO site, Porto Palermo & Ali Pasha Castle, Jalë Beach, Dhërmi Old Village, and Llogara Pass descent to Vlorë. Land package: ₹68,500–₹92,500/person (4 Pax: ₹5,73,560–₹6,69,560).",
     "images": [
-      "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80"
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Gjirokaster_2016-2017.jpg/1280px-Gjirokaster_2016-2017.jpg",
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Albania_Blue_Eye.jpg/1280px-Albania_Blue_Eye.jpg",
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Berat_UNESCO_2016_Albania.jpg/1280px-Berat_UNESCO_2016_Albania.jpg"
     ],
     "status": "PUBLISHED",
     "createdBy": "voyage@gmail.com",
@@ -165,9 +167,9 @@ export const DEFAULT_LISTINGS: Listing[] = [
     },
     "description": "The ultimate VIP itinerary from India (TRV ⇄ TIA via Gulf Air & Turkish Airlines, ₹2,56,951/person). Features 5-star seaside suites in Sarandë, luxury boutique palace in Berat, private chartered speedboats around Ksamil islands, dedicated high-comfort vehicle + driver, VIP historian guides at Butrint UNESCO site, and daily upscale restaurant allowances. Land package: ₹1,29,000–₹1,78,000/person (4 Pax: ₹15,43,804–₹17,39,804).",
     "images": [
-      "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/5/51/Ksamil-ksamil_islands.jpg",
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/Kalaja_e_Porto_Palermos_nga_droni_3_-_Shqip%C3%ABri.jpg/1280px-Kalaja_e_Porto_Palermos_nga_droni_3_-_Shqip%C3%ABri.jpg",
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7e/CIty_of_Saranda_Albania_2016.jpg/1280px-CIty_of_Saranda_Albania_2016.jpg"
     ],
     "status": "PUBLISHED",
     "createdBy": "voyage@gmail.com",
@@ -209,7 +211,8 @@ export const DEFAULT_LISTINGS: Listing[] = [
     },
     "description": "The pearl of the Albanian Riviera. Crystal-clear turquoise waters of Ksamil 4 islands, white sand at Bora Bora Beach, paired with the ancient Greco-Roman ruins of Butrint UNESCO park.",
     "images": [
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg",
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/Amphitheatre_of_Butrint_2009.jpg/1280px-Amphitheatre_of_Butrint_2009.jpg"
     ],
     "status": "PUBLISHED",
     "createdBy": "voyage@gmail.com",
@@ -247,7 +250,8 @@ export const DEFAULT_LISTINGS: Listing[] = [
     },
     "description": "Explore Mangalem and Gorica quarters, walk up to the inhabited 13th-century Berat Castle, visit Onufri Iconographic Museum, and cross the historic Gorica Bridge over the Osum River.",
     "images": [
-      "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80"
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Berat_UNESCO_2016_Albania.jpg/1280px-Berat_UNESCO_2016_Albania.jpg",
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Berat_57.jpg/1280px-Berat_57.jpg"
     ],
     "status": "PUBLISHED",
     "createdBy": "voyage@gmail.com",
@@ -285,7 +289,8 @@ export const DEFAULT_LISTINGS: Listing[] = [
     },
     "description": "Discover the mesmerizing Syri i Kaltër (Blue Eye) karst spring bubbling up from deep underwater caves, then tour the Ottoman stone city of Gjirokastër, its formidable castle, Skënduli House, and Qafa e Pazarit bazaar.",
     "images": [
-      "https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=1200&q=80"
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Albania_Blue_Eye.jpg/1280px-Albania_Blue_Eye.jpg",
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Gjirokaster_2016-2017.jpg/1280px-Gjirokaster_2016-2017.jpg"
     ],
     "status": "PUBLISHED",
     "createdBy": "voyage@gmail.com",
@@ -322,7 +327,9 @@ export const DEFAULT_LISTINGS: Listing[] = [
     },
     "description": "Take the scenic coastal drive along the Albanian Riviera. Visit the triangular fortress of Ali Pasha in Porto Palermo Bay, relax on white pebbles at Jalë Beach, explore Dhërmi Old Village, and take in mountain views from Llogara Pass.",
     "images": [
-      "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80"
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/Kalaja_e_Porto_Palermos_nga_droni_3_-_Shqip%C3%ABri.jpg/1280px-Kalaja_e_Porto_Palermos_nga_droni_3_-_Shqip%C3%ABri.jpg",
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/Dh%C3%ABrmi_Beach_Panorama_%282008%29.jpg/1280px-Dh%C3%ABrmi_Beach_Panorama_%282008%29.jpg",
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/ALB_20070718_img_1372.jpg/1280px-ALB_20070718_img_1372.jpg"
     ],
     "status": "PUBLISHED",
     "createdBy": "voyage@gmail.com",
@@ -359,7 +366,9 @@ export const DEFAULT_LISTINGS: Listing[] = [
     },
     "description": "Explore the vibrant Albanian capital. Ride the Dajti Ekspres cable car up Mount Dajti for sweeping views over the city, explore Skanderbeg Square and the Clock Tower, tour Bunk'Art 2, walk Tirana Castle pedestrian zone, and relax in Blloku.",
     "images": [
-      "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80"
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Skanderbeg_square_tirana_2016.jpg/1280px-Skanderbeg_square_tirana_2016.jpg",
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Mali_i_Dajtit.jpg/1280px-Mali_i_Dajtit.jpg",
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Clock_Tower_Tirana_2017.jpg/1280px-Clock_Tower_Tirana_2017.jpg"
     ],
     "status": "PUBLISHED",
     "createdBy": "voyage@gmail.com",
@@ -397,7 +406,8 @@ export const DEFAULT_LISTINGS: Listing[] = [
     },
     "description": "Dramatic limestone peaks of the Accursed Mountains, featuring the historic Lock-in Tower (Kulla), Grunas Waterfall, traditional stone shepherd chalets, and the icy waters of Kaprre Blue Eye.",
     "images": [
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Theth_Church_Albania.jpg/1280px-Theth_Church_Albania.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/da/Theth_-_LockInTower.jpg"
     ],
     "status": "PUBLISHED",
     "createdBy": "voyage@gmail.com",
@@ -435,7 +445,7 @@ export const DEFAULT_LISTINGS: Listing[] = [
     },
     "description": "Perched above the confluence of Drin and Buna rivers, ancient Illyrian Rozafa Castle offers 360-degree views across Lake Shkodra with over two millennia of history.",
     "images": [
-      "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80"
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Rozafa_Castle_in_July_2013_%285%29.JPG/1280px-Rozafa_Castle_in_July_2013_%285%29.JPG"
     ],
     "status": "PUBLISHED",
     "createdBy": "voyage@gmail.com",
@@ -471,7 +481,7 @@ export const DEFAULT_LISTINGS: Listing[] = [
     },
     "description": "Accessible exclusively by speedboat from Vlorë, cruise into the colossal Haxhi Ali sea cave, swim in secluded white-pebble coves of Dafina and Grama Bay, and explore Sazan Island.",
     "images": [
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/June_22_2013_432_HSV_Albanische_Riviera.jpg/1280px-June_22_2013_432_HSV_Albanische_Riviera.jpg"
     ],
     "status": "PUBLISHED",
     "createdBy": "voyage@gmail.com",

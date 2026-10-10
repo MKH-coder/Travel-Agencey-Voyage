@@ -18,6 +18,8 @@ export interface DayItinerary {
   title: string;
   routeTitle: string;
   detail: string;
+  image: string;
+  photoCaption?: string;
   activities: DayActivity[];
   estimatedSpend: {
     basic: string;
@@ -173,6 +175,8 @@ export const ALBANIA_DAYS_ITINERARY: DayItinerary[] = [
     title: 'TIRANA CITY SIGHTSEEING',
     routeTitle: 'Historic Centre, Skanderbeg Square, Bunk’Art 2 & Blloku',
     detail: 'After the late-night arrival and hotel rest, begin sightseeing at 09:00 on 10 October. Explore the historic centre on foot, then move through Bunk’Art 2, the castle/pedestrian zone, New Bazaar and the main parks before finishing in Blloku.',
+    image: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Skanderbeg_square_tirana_2016.jpg/1280px-Skanderbeg_square_tirana_2016.jpg',
+    photoCaption: 'Skanderbeg Square, Et’hem Bey Mosque & Clock Tower, Tirana',
     activities: [
       { time: '09:00–10:00', activity: 'Skanderbeg Square', duration: '1 hr', costNotes: 'Free; Clock Tower may have small fee' },
       { time: '10:00–11:30', activity: 'Bunk’Art 2', duration: '1–1½ hrs', costNotes: '≈ 900 ALL / ≈ ₹1,070' },
@@ -195,6 +199,8 @@ export const ALBANIA_DAYS_ITINERARY: DayItinerary[] = [
     title: 'MOUNT DAJTI → BERAT',
     routeTitle: 'Dajti Ekspres Cable Car & Southern Drive to Mangalem',
     detail: 'After breakfast, leave Tirana for Mount Dajti first, then continue south to Berat. Mount Dajti is treated as the morning nature stop before the onward transfer. Reach Berat in the afternoon, check in, and keep the evening relaxed around Mangalem.',
+    image: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Mali_i_Dajtit.jpg/1280px-Mali_i_Dajtit.jpg',
+    photoCaption: 'Mount Dajti National Park & Dajti Ekspres Cable Car Panorama',
     activities: [
       { time: '07:30–08:15', activity: 'Breakfast + hotel check-out in Tirana', duration: '45 min', costNotes: 'Hotel breakfast / included or extra' },
       { time: '08:15–09:00', activity: 'Tirana → Dajti Ekspres lower station', duration: '~45 min', costNotes: 'Private vehicle / transport' },
@@ -219,6 +225,8 @@ export const ALBANIA_DAYS_ITINERARY: DayItinerary[] = [
     title: 'BERAT EXPLORATION',
     routeTitle: 'Berat Castle / Kala, Onufri Icon Museum, Gorica Bridge & Quarter',
     detail: 'Because the previous day already brought you to Berat after the Mount Dajti stop, Day 3 is a dedicated Berat exploration day. Take your time with Mangalem, Berat Castle, the Onufri Museum, Gorica Bridge and Gorica Quarter without repeating the Tirana transfer.',
+    image: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Berat_UNESCO_2016_Albania.jpg/1280px-Berat_UNESCO_2016_Albania.jpg',
+    photoCaption: 'Berat UNESCO "City of a Thousand Windows" & Mangalem Quarter',
     activities: [
       { time: '08:00–09:00', activity: 'Breakfast at Berat hotel', duration: '1 hr', costNotes: 'Hotel breakfast / included or extra' },
       { time: '09:00–10:00', activity: 'Mangalem Quarter walk', duration: '1 hr', costNotes: 'Free' },
@@ -244,6 +252,8 @@ export const ALBANIA_DAYS_ITINERARY: DayItinerary[] = [
     title: 'BERAT → GJIROKASTËR',
     routeTitle: 'Hillside Stone City, Gjirokastër Castle, Old Bazaar & Ottoman Mansions',
     detail: 'Continue south to Gjirokastër and concentrate the day on the massive stone castle, cobblestone Old Town, Qafa e Pazarit artisan bazaar, and traditional fortified houses (Skënduli & Zekate).',
+    image: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Gjirokaster_2016-2017.jpg/1280px-Gjirokaster_2016-2017.jpg',
+    photoCaption: 'Gjirokastër UNESCO Ottoman Stone Mansions & Cobblestone Old Bazaar',
     activities: [
       { time: '08:00–10:00', activity: 'Berat → Gjirokastër drive', duration: '~2 hrs', costNotes: 'Transport' },
       { time: '10:00–11:00', activity: 'Hotel check-in + lunch/rest', duration: '1 hr', costNotes: 'Food extra' },
@@ -266,6 +276,8 @@ export const ALBANIA_DAYS_ITINERARY: DayItinerary[] = [
     title: 'GJIROKASTËR → BLUE EYE → SARANDË',
     routeTitle: 'Syri i Kaltër Natural Spring Sanctuary & Sarandë Waterfront',
     detail: 'Blue Eye is the fixed stop between Gjirokastër and Sarandë. Experience the hypnotic turquoise natural spring bubbling up from deep bedrock. After Sarandë hotel check-in, keep the afternoon easy with the waterfront promenade and sunset.',
+    image: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Albania_Blue_Eye.jpg/1280px-Albania_Blue_Eye.jpg',
+    photoCaption: 'Syri i Kaltër (The Blue Eye) Karst Spring Sanctuary',
     activities: [
       { time: '08:00–09:00', activity: 'Breakfast + hotel check-out', duration: '1 hr', costNotes: 'Hotel breakfast' },
       { time: '09:00–10:00', activity: 'Gjirokastër → Blue Eye', duration: '45–60 min', costNotes: 'Transport' },
@@ -289,6 +301,8 @@ export const ALBANIA_DAYS_ITINERARY: DayItinerary[] = [
     title: 'KSAMIL BOAT & ISLANDS → BUTRINT',
     routeTitle: 'Ksamil 4 Islands Cruise, Bora Bora Beach & Butrint UNESCO National Park',
     detail: 'The main Ksamil experience is the boat/island excursion and beach time, followed by Butrint UNESCO ancient Roman and Venetian ruins and a relaxed return to Sarandë.',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg',
+    photoCaption: 'Ksamil 4 Islands Turquoise Bay & Butrint Greco-Roman Amphitheatre',
     activities: [
       { time: '07:30–08:30', activity: 'Breakfast', duration: '1 hr', costNotes: 'Hotel' },
       { time: '08:30–09:00', activity: 'Sarandë → Ksamil', duration: '20–30 min', costNotes: 'Transport' },
@@ -315,6 +329,8 @@ export const ALBANIA_DAYS_ITINERARY: DayItinerary[] = [
     title: 'PORTO PALERMO → HIMARË → JALË BEACH → SARANDË',
     routeTitle: 'Ali Pasha Castle, Spile Promenade & Jalë Turquoise Beach',
     detail: 'Porto Palermo and Himarë are the morning stops; Jalë Beach is the main afternoon beach session before returning to Sarandë for a scenic coastal evening.',
+    image: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/Kalaja_e_Porto_Palermos_nga_droni_3_-_Shqip%C3%ABri.jpg/1280px-Kalaja_e_Porto_Palermos_nga_droni_3_-_Shqip%C3%ABri.jpg',
+    photoCaption: 'Ali Pasha Triangular Castle at Porto Palermo Bay & Jalë Beach',
     activities: [
       { time: '07:30–08:30', activity: 'Breakfast at Sarandë hotel', duration: '1 hr', costNotes: 'Hotel' },
       { time: '08:30–09:45', activity: 'Sarandë → Porto Palermo drive', duration: '1–1¼ hrs', costNotes: 'Private vehicle' },
@@ -342,6 +358,8 @@ export const ALBANIA_DAYS_ITINERARY: DayItinerary[] = [
     title: 'SARANDË → HIMARË → DHËRMI → LLOGARA → VLORË → TIRANA',
     routeTitle: 'Northbound Riviera Epic Drive, Llogara Mountain Pass & Vlorë Coast',
     detail: 'This is the northbound Riviera transfer day: Himarë, Dhërmi old village, Drymades coast, Llogara Pass panoramic hairpin vistas, and Vlorë waterfront before the final drive to Tirana.',
+    image: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/Dh%C3%ABrmi_Beach_Panorama_%282008%29.jpg/1280px-Dh%C3%ABrmi_Beach_Panorama_%282008%29.jpg',
+    photoCaption: 'Dhërmi Riviera Coastline & Llogara Mountain Pass Panoramic Descent',
     activities: [
       { time: '07:00–07:45', activity: 'Breakfast at Sarandë hotel', duration: '45 min', costNotes: 'Hotel' },
       { time: '07:45–08:00', activity: 'Check-out + load luggage', duration: '15 min', costNotes: '—' },
@@ -370,6 +388,8 @@ export const ALBANIA_DAYS_ITINERARY: DayItinerary[] = [
     title: 'TIRANA → INDIA / RETURN FLIGHT',
     routeTitle: 'Airport Transfer, Departure via Rome & Doha to Thiruvananthapuram',
     detail: 'The final morning is dedicated to the return flight. Wake before dawn, check out, transfer to TIA and complete airport formalities for the 06:00 departure (or evening departure for Luxury). Arrival in Thiruvananthapuram on 19 October.',
+    image: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Clock_Tower_Tirana_2017.jpg/1280px-Clock_Tower_Tirana_2017.jpg',
+    photoCaption: 'Tirana International Airport (TIA) Transfer & Return Departure',
     activities: [
       { time: '03:00', activity: 'Wake up + final room check', duration: '—', costNotes: 'Prepare luggage and travel documents' },
       { time: '03:15', activity: 'Hotel check-out', duration: '—', costNotes: 'Settle hotel extras' },

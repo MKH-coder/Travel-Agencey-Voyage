@@ -81,7 +81,7 @@ export const CustomTripsTrackerModal: React.FC<CustomTripsTrackerModalProps> = (
         listingId: trip.id,
         listingTitle: trip.tripTitle,
         listingCategory: 'PACKAGE',
-        listingImage: trip.selectedListings?.[0]?.image || 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80',
+        listingImage: trip.selectedListings?.[0]?.image || 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg',
         userId: user.uid,
         userEmail: user.email,
         checkInDate: trip.startDate,

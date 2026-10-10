@@ -658,7 +658,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     ];
     const imagesToUse = allImages.length > 0 
       ? allImages 
-      : ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80'];
+      : ['https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg'];
 
     const tagsArray = formData.tags.split(',').map(t => t.trim()).filter(Boolean);
     const amenitiesArray = formData.amenities.split(',').map(a => a.trim()).filter(Boolean);
@@ -1959,7 +1959,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   type="text"
                   value={formData.country}
                   onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
-                  placeholder="e.g. Turkey"
+                  placeholder="e.g. Albania"
                   className={`w-full p-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
                 />
               </div>

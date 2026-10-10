@@ -15,12 +15,12 @@ interface EditContentModalProps {
 }
 
 const PHOTO_SUGGESTIONS = [
-  { label: 'Sunset Vista', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80' },
-  { label: 'Gourmet Table', url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80' },
-  { label: 'Cliffside Panorama', url: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80' },
-  { label: 'Fine Wine & Terrace', url: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80' },
-  { label: 'Zen Garden Path', url: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80' },
-  { label: 'Luxury Suite', url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80' },
+  { label: 'Ksamil 4 Islands Beach', url: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Ksamill-1.jpg' },
+  { label: 'Berat UNESCO Citadel', url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Berat_UNESCO_2016_Albania.jpg/1280px-Berat_UNESCO_2016_Albania.jpg' },
+  { label: 'Gjirokastër Stone City', url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Gjirokaster_2016-2017.jpg/1280px-Gjirokaster_2016-2017.jpg' },
+  { label: 'Syri i Kaltër (Blue Eye)', url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Albania_Blue_Eye.jpg/1280px-Albania_Blue_Eye.jpg' },
+  { label: 'Porto Palermo Ali Pasha Castle', url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/Kalaja_e_Porto_Palermos_nga_droni_3_-_Shqip%C3%ABri.jpg/1280px-Kalaja_e_Porto_Palermos_nga_droni_3_-_Shqip%C3%ABri.jpg' },
+  { label: 'Tirana Skanderbeg Square', url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Skanderbeg_square_tirana_2016.jpg/1280px-Skanderbeg_square_tirana_2016.jpg' },
 ];
 
 export const EditContentModal: React.FC<EditContentModalProps> = ({
@@ -298,7 +298,7 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
               type="text"
               value={country}
               onChange={(e) => setCountry(e.target.value)}
-              placeholder="e.g., Greece"
+              placeholder="e.g., Albania"
               className={`w-full p-2.5 text-xs rounded-xl outline-none border ${styles.border} ${styles.inputBg}`}
             />
           </div>

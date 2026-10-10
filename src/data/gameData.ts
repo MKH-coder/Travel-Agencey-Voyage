@@ -120,7 +120,7 @@ export const INITIAL_GAME_DATA = {
   },
   player: {
     name: "Traveler",
-    currentLocation: "loc_tokyo",
+    currentLocation: "loc_tirana",
     money: 1000,
     energy: 100,
     staminaMax: 100,
@@ -130,31 +130,31 @@ export const INITIAL_GAME_DATA = {
       { itemId: "item_passport", quantity: 1 },
       { itemId: "item_water_bottle", quantity: 2 }
     ],
-    visitedLocations: ["loc_tokyo"],
+    visitedLocations: ["loc_tirana"],
     activeBuffs: []
   },
   locations: [
     {
-      id: "loc_tokyo",
-      name: "Tokyo",
-      country: "Japan",
-      description: "A bustling metropolis blending ultra-modern skyscrapers with historic temples and vibrant street culture.",
-      costOfLivingMultiplier: 1.2,
+      id: "loc_tirana",
+      name: "Tirana",
+      country: "Albania",
+      description: "A vibrant Balkan capital blending colorful pastel boulevards, Skanderbeg Square, Mount Dajti cable car, and lively cafe culture.",
+      costOfLivingMultiplier: 1.0,
       locationSpecificEvents: ["evt_typhoon_warning"],
       activities: ["act_visit_shrine", "act_eat_ramen"],
       availableTransport: [
         {
-          destinationId: "loc_paris",
+          destinationId: "loc_ksamil",
           type: "Flight",
-          cost: 650,
-          travelTimeHours: 12,
-          energyCost: 30,
+          cost: 150,
+          travelTimeHours: 4,
+          energyCost: 20,
           eventTriggerOnTravel: true
         },
         {
-          destinationId: "loc_kyoto",
-          type: "Bullet Train",
-          cost: 130,
+          destinationId: "loc_berat",
+          type: "Coach",
+          cost: 25,
           travelTimeHours: 2,
           energyCost: 10,
           eventTriggerOnTravel: true
@@ -162,37 +162,37 @@ export const INITIAL_GAME_DATA = {
       ]
     },
     {
-      id: "loc_paris",
-      name: "Paris",
-      country: "France",
-      description: "The city of light, famous for iconic monuments, haute cuisine, fashion boulevards, and rich arts.",
-      costOfLivingMultiplier: 1.3,
+      id: "loc_ksamil",
+      name: "Ksamil",
+      country: "Albania",
+      description: "The crown jewel of the Albanian Riviera, famous for crystal-clear turquoise lagoons and four uninhabited islands.",
+      costOfLivingMultiplier: 1.1,
       locationSpecificEvents: [],
       activities: ["act_visit_eiffel"],
       availableTransport: [
         {
-          destinationId: "loc_tokyo",
+          destinationId: "loc_tirana",
           type: "Flight",
-          cost: 700,
-          travelTimeHours: 12,
-          energyCost: 30,
+          cost: 150,
+          travelTimeHours: 4,
+          energyCost: 20,
           eventTriggerOnTravel: true
         }
       ]
     },
     {
-      id: "loc_kyoto",
-      name: "Kyoto",
-      country: "Japan",
-      description: "Famed for its tranquil Buddhist Zen temples, sacred bamboo forests, and historic tea houses.",
-      costOfLivingMultiplier: 1.0,
+      id: "loc_berat",
+      name: "Berat",
+      country: "Albania",
+      description: "The City of a Thousand Windows, a UNESCO World Heritage citadel with tiered Ottoman houses along the Osum River gorge.",
+      costOfLivingMultiplier: 0.9,
       locationSpecificEvents: [],
       activities: ["act_eat_ramen"],
       availableTransport: [
         {
-          destinationId: "loc_tokyo",
-          type: "Bullet Train",
-          cost: 130,
+          destinationId: "loc_tirana",
+          type: "Coach",
+          cost: 25,
           travelTimeHours: 2,
           energyCost: 10,
           eventTriggerOnTravel: true
@@ -281,8 +281,8 @@ export const INITIAL_GAME_DATA = {
   activities: [
     {
       id: "act_visit_shrine",
-      name: "Visit Meiji Shrine",
-      description: "Walk through the quiet forest trail to reach the historic shrine and pay respects.",
+      name: "Explore Skanderbeg Square & Bunk'Art",
+      description: "Walk across the grand central square to explore the historic national museum and Cold War underground bunker art galleries.",
       energyCost: 15,
       moneyCost: 0,
       rewards: {
@@ -297,8 +297,8 @@ export const INITIAL_GAME_DATA = {
     },
     {
       id: "act_eat_ramen",
-      name: "Eat Street Ramen",
-      description: "Enjoy a steaming bowl of authentic tonkotsu ramen with soft-boiled egg.",
+      name: "Savor Traditional Tavë Kosi & Byrek",
+      description: "Enjoy a clay pot of tender slow-baked lamb with garlic yogurt sauce and hot flaky spinach byrek.",
       energyCost: -20, // Restores 20 energy!
       moneyCost: 12,
       rewards: {
@@ -308,8 +308,8 @@ export const INITIAL_GAME_DATA = {
     },
     {
       id: "act_visit_eiffel",
-      name: "Climb the Eiffel Tower",
-      description: "Ascend the iron lady for an iconic panoramic view of Paris.",
+      name: "Ksamil 4 Isles Wooden Boat Cruise",
+      description: "Board a traditional wooden boat across turquoise Ionian lagoons and swim at secluded white-pebble coves.",
       energyCost: 25,
       moneyCost: 30,
       rewards: {
@@ -340,9 +340,9 @@ export const INITIAL_GAME_DATA = {
     },
     {
       id: "item_omamori_charm",
-      name: "Lucky Omamori Charm",
+      name: "Albanian Eagle Heritage Talisman",
       type: "Souvenir",
-      description: "A traditional Japanese shrine amulet for safe travels.",
+      description: "A traditional handcrafted double-headed eagle artisan medallion from the Krujë & Berat Old Bazaars.",
       value: 20,
       usable: false
     }
@@ -350,8 +350,8 @@ export const INITIAL_GAME_DATA = {
   quests: [
     {
       id: "quest_first_trip",
-      title: "First Stamp",
-      description: "Travel to at least 2 distinct international destinations.",
+      title: "Albanian Circuit Scout",
+      description: "Travel to at least 2 distinct destinations across Albania.",
       isCompleted: false,
       requirements: {
         type: "visit_count",
@@ -364,8 +364,8 @@ export const INITIAL_GAME_DATA = {
     },
     {
       id: "quest_world_gourmet",
-      title: "World Gourmet",
-      description: "Taste authentic street food in multiple cities.",
+      title: "Balkan Feast Explorer",
+      description: "Taste authentic traditional cuisine (Tavë Kosi, Fergesë) across Albanian cities.",
       isCompleted: false,
       requirements: {
         type: "food_count",
