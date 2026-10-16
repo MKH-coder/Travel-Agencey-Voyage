@@ -34,6 +34,7 @@ import { AlbaniaTierReviewsSection } from './AlbaniaTierReviewsSection.tsx';
 import { AlbaniaPdfService } from '../services/albaniaPdfService.ts';
 import { Listing } from '../types.ts';
 import { AuthAudit } from '../services/authAudit.ts';
+import { GeminiAskSection } from './GeminiAskSection.tsx';
 
 interface AlbaniaItineraryModalProps {
   isOpen: boolean;
@@ -51,7 +52,7 @@ export const AlbaniaItineraryModal: React.FC<AlbaniaItineraryModalProps> = ({
   const { styles } = useTheme();
   const { formatPrice, currency } = useCurrency();
   const [selectedTier, setSelectedTier] = useState<'basic' | 'midrange' | 'luxury'>(defaultTier);
-  const [activeTab, setActiveTab] = useState<'itinerary' | 'comparison' | 'reviews' | 'flights' | 'pdf'>('itinerary');
+  const [activeTab, setActiveTab] = useState<'itinerary' | 'comparison' | 'reviews' | 'flights' | 'pdf' | 'ask-ai'>('itinerary');
   const [expandedDay, setExpandedDay] = useState<number | null>(1);
   const [downloadingTier, setDownloadingTier] = useState<string | null>(null);
 
@@ -219,6 +220,7 @@ export const AlbaniaItineraryModal: React.FC<AlbaniaItineraryModalProps> = ({
             { id: 'comparison', label: '3-Tier Comparison', icon: <Layers className="w-3.5 h-3.5" /> },
             { id: 'reviews', label: 'Customer Reviews (4.96 ★)', icon: <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> },
             { id: 'flights', label: 'Flight Plan (TRV ⇄ TIA)', icon: <Plane className="w-3.5 h-3.5" /> },
+            { id: 'ask-ai', label: '🤖 Ask Gemini AI', icon: <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" /> },
             { id: 'pdf', label: 'Official PDF Dossier', icon: <FileText className="w-3.5 h-3.5" /> },
           ].map(tab => (
             <button
@@ -783,6 +785,52 @@ export const AlbaniaItineraryModal: React.FC<AlbaniaItineraryModalProps> = ({
                 </div>
 
               </div>
+            </div>
+          )}
+
+          {/* TAB: ASK GEMINI AI */}
+          {activeTab === 'ask-ai' && (
+            <div className="space-y-6 animate-in fade-in duration-300">
+              <div className="p-5 rounded-3xl bg-gradient-to-r from-sky-500/10 via-indigo-500/10 to-transparent border border-sky-500/20 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white flex items-center justify-center shadow-md shrink-0">
+                  <Sparkles className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className={`text-base font-extrabold ${styles.textPrimary}`}>
+                    Gemini 3.8 Flash AI Itinerary Consultation
+                  </h3>
+                  <p className={`text-xs ${styles.textMuted}`}>
+                    Tailored specifically for the Albania 9-Day Grand Tour ({currentTierInfo.title} tier • 9–19 Oct 2026).
+                  </p>
+                </div>
+              </div>
+
+              <GeminiAskSection
+                title="Ask Anything About the Albania 9-Day Grand Tour"
+                subtitle="Ask questions regarding the route, flights from India, driving through Llogara Pass, Ksamil boat tours, vegetarian cuisine, or tier upgrades."
+                context={{
+                  title: `Albania 9-Day Grand Tour (${currentTierInfo.title} Tier)`,
+                  category: 'PACKAGE',
+                  location: 'Tirana, Berat, Gjirokastër, Blue Eye, Ksamil, Albanian Riviera',
+                  description: '9-day luxury circuit through Albania starting from Tirana to the Ionian coast with UNESCO sites and private boat tours.',
+                  price: selectedTier === 'luxury' ? 5100 : selectedTier === 'midrange' ? 1723 : 1334,
+                  highlights: [
+                    'Tirana Skanderbeg Square & Dajti Ekspres Cable Car',
+                    'Berat UNESCO Castle & Onufri Iconographic Museum',
+                    'Syri i Kaltër (Blue Eye) Natural Karst Spring',
+                    'Ksamil 4 Turquoise Islands Private Boat Cruise',
+                    'Butrint UNESCO Greco-Roman National Park',
+                    'Llogara Scenic Mountain Pass & Riviera Coast'
+                  ]
+                }}
+                suggestedQuestions={[
+                  "What are the luggage restrictions on flights to Tirana?",
+                  "Is the drive through Llogara Pass safe for self-drive or is chauffeur recommended?",
+                  "Can I find vegetarian or Indian meals during the 9-day trip?",
+                  "Which tier is best value for a honeymoon couple?",
+                  "What is the best footwear for Berat castle cobblestones?"
+                ]}
+              />
             </div>
           )}
 

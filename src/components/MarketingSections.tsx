@@ -2,6 +2,7 @@ import React from 'react';
 import { ShieldCheck, Zap, Heart, Award, Star, Quote, ArrowRight, MapPin, Users, Globe, Layers, Download } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { AlbaniaPdfService } from '../services/albaniaPdfService.ts';
+import { GeminiAskSection } from './GeminiAskSection.tsx';
 
 interface MarketingSectionsProps {
   onPlanTrip?: () => void;
@@ -215,6 +216,27 @@ export const MarketingSections: React.FC<MarketingSectionsProps> = ({
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Ask Gemini AI Concierge Section */}
+      <section id="marketing-ask-ai" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <GeminiAskSection
+          title="Voyage AI Concierge: Ask Anything About Albania"
+          subtitle="Get instantaneous, personalized travel guidance powered by Google Gemini 3.8 Flash LLM. Inquire about itineraries, secret beaches, visa rules, flight connections, or budget tiers."
+          context={{
+            title: "Voyage Albania Travel Platform",
+            category: "TRAVEL_PLATFORM",
+            location: "Albania (Tirana, Berat, Gjirokastër, Blue Eye, Ksamil, Albanian Riviera)",
+            description: "Curated Albania luxury travel experiences, 9-day grand tour, boutique hotel bookings, culinary dining, and interactive itinerary builder."
+          }}
+          suggestedQuestions={[
+            "What is the best month to visit Albania for warm beach weather?",
+            "How do I travel from Tirana to Ksamil and the Albanian Riviera?",
+            "What are the visa requirements for visiting Albania?",
+            "What is the local currency and are ATMs easily accessible?",
+            "What traditional Albanian dishes should I try in Berat and Gjirokastër?"
+          ]}
+        />
       </section>
 
       {/* CTA Section */}

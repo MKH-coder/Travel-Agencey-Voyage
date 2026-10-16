@@ -1,0 +1,514 @@
+{
+  "users": [
+    {
+      "uid": "user_voyage_official",
+      "email": "voyage@gmail.com",
+      "phoneNumber": "+91 9567465134",
+      "name": "Voyage Official (Super Admin)",
+      "role": "TECH_ADMIN",
+      "customTitle": "Voyage Executive Operations",
+      "department": "Platform Administration",
+      "mfaEnabled": true,
+      "recoveryEmail": "voyage@gmail.com",
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "listings": [
+    {
+      "amenities": [
+        "Berat Castle Entry Ticket",
+        "Onufri Museum Pass",
+        "Gorica Bridge Walkway",
+        "Old Town Heritage Map"
+      ],
+      "category": "PLACE",
+      "coordinates": {
+        "lat": 40.7058,
+        "lng": 19.9522
+      },
+      "country": "Albania",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Editorial",
+      "description": "Explore Mangalem and Gorica quarters, walk up to the inhabited 13th-century Berat Castle, visit Onufri Iconographic Museum, and cross the historic Gorica Bridge over the Osum River.",
+      "id": "list-albania-berat-castle-05",
+      "images": [
+        "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "location": "Berat, Central Albania",
+      "price": 95,
+      "rating": 4.97,
+      "reviewCount": 88,
+      "status": "PUBLISHED",
+      "tags": [
+        "Berat Castle",
+        "UNESCO World Heritage",
+        "Onufri Museum",
+        "Mangalem Quarter",
+        "Gorica Bridge"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:49:04.420Z",
+        "updatedAt": "2026-09-30T02:49:04.420Z"
+      },
+      "title": "Berat UNESCO Fortress & The City of a Thousand Windows"
+    },
+    {
+      "amenities": [
+        "Syri i Kalt\u00ebr Nature Reserve Ticket",
+        "Gjirokast\u00ebr Castle Pass",
+        "Sk\u00ebnduli House Guided Visit"
+      ],
+      "category": "PLACE",
+      "coordinates": {
+        "lat": 40.0758,
+        "lng": 20.1389
+      },
+      "country": "Albania",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Editorial",
+      "description": "Discover the mesmerizing Syri i Kalt\u00ebr (Blue Eye) karst spring bubbling up from deep underwater caves, then tour the Ottoman stone city of Gjirokast\u00ebr, its formidable castle, Sk\u00ebnduli House, and Qafa e Pazarit bazaar.",
+      "id": "list-albania-blue-eye-gjirokaster-06",
+      "images": [
+        "https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "location": "Gjirokast\u00ebr & Blue Eye",
+      "price": 110,
+      "rating": 4.96,
+      "reviewCount": 76,
+      "status": "PUBLISHED",
+      "tags": [
+        "Blue Eye Spring",
+        "Gjirokast\u00ebr Castle",
+        "Sk\u00ebnduli House",
+        "Stone City",
+        "Old Bazaar"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:49:04.420Z",
+        "updatedAt": "2026-09-30T02:49:04.420Z"
+      },
+      "title": "Syri i Kalt\u00ebr Natural Spring & Gjirokast\u00ebr Stone City"
+    },
+    {
+      "amenities": [
+        "Charter Speedboat Cruise",
+        "Snorkeling Equipment",
+        "Cave Entry Permits",
+        "Captain Guide"
+      ],
+      "category": "PLACE",
+      "coordinates": {
+        "lat": 40.41,
+        "lng": 19.35
+      },
+      "country": "Albania",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Marine Safaris",
+      "description": "Accessible exclusively by speedboat from Vlor\u00eb, cruise into the colossal Haxhi Ali sea cave, swim in secluded white-pebble coves of Dafina and Grama Bay, and explore Sazan Island.",
+      "id": "list-albania-karaburun-11",
+      "images": [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "location": "Vlor\u00eb & Karaburun Marine Park",
+      "price": 175,
+      "rating": 4.98,
+      "reviewCount": 88,
+      "status": "PUBLISHED",
+      "tags": [
+        "Pirate Cave",
+        "Marine Reserve",
+        "Speedboat Safari",
+        "Grama Bay",
+        "Sazan Island"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:49:04.420Z",
+        "updatedAt": "2026-09-30T02:49:04.420Z"
+      },
+      "title": "Karaburun Peninsula & Haxhi Ali Pirate Cave Boat Expedition"
+    },
+    {
+      "amenities": [
+        "Ksamil Boat Tour Access",
+        "Butrint Archaeological Park Ticket",
+        "Bora Bora Beach Sunbed Voucher",
+        "Seafood Promenade Map"
+      ],
+      "category": "PLACE",
+      "coordinates": {
+        "lat": 39.7719,
+        "lng": 20.0036
+      },
+      "country": "Albania",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Editorial",
+      "description": "The pearl of the Albanian Riviera. Crystal-clear turquoise waters of Ksamil 4 islands, white sand at Bora Bora Beach, paired with the ancient Greco-Roman ruins of Butrint UNESCO park.",
+      "id": "list-albania-ksamil-butrint-04",
+      "images": [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "location": "Ksamil & Butrint, Ionian Coast",
+      "price": 120,
+      "rating": 4.98,
+      "reviewCount": 95,
+      "status": "PUBLISHED",
+      "tags": [
+        "Ksamil Islands",
+        "Bora Bora Beach",
+        "Butrint UNESCO",
+        "Archipelagos",
+        "Seafood Dining"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:49:04.420Z",
+        "updatedAt": "2026-09-30T02:49:04.420Z"
+      },
+      "title": "Ksamil Archipelago, Bora Bora Beach & Butrint Ancient Ruins"
+    },
+    {
+      "amenities": [
+        "Porto Palermo Castle Ticket",
+        "Llogara Pass Viewpoint Stop",
+        "Jal\u00eb Beach Lounge Access"
+      ],
+      "category": "PLACE",
+      "coordinates": {
+        "lat": 40.1539,
+        "lng": 19.6428
+      },
+      "country": "Albania",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Editorial",
+      "description": "Take the scenic coastal drive along the Albanian Riviera. Visit the triangular fortress of Ali Pasha in Porto Palermo Bay, relax on white pebbles at Jal\u00eb Beach, explore Dh\u00ebrmi Old Village, and take in mountain views from Llogara Pass.",
+      "id": "list-albania-riviera-dhermi-07",
+      "images": [
+        "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "location": "Dh\u00ebrmi, Jal\u00eb & Llogara Pass",
+      "price": 130,
+      "rating": 4.98,
+      "reviewCount": 90,
+      "status": "PUBLISHED",
+      "tags": [
+        "Ali Pasha Castle",
+        "Jal\u00eb Beach",
+        "Llogara Pass",
+        "Dh\u00ebrmi Old Village",
+        "Riviera Scenic Drive"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:49:04.420Z",
+        "updatedAt": "2026-09-30T02:49:04.420Z"
+      },
+      "title": "Porto Palermo Ali Pasha Castle, Jal\u00eb Beach & Llogara Pass Panorama"
+    },
+    {
+      "amenities": [
+        "Castle Archaeological Museum",
+        "River Viewpoints",
+        "Bicycle Promenade Pass"
+      ],
+      "category": "PLACE",
+      "coordinates": {
+        "lat": 42.0467,
+        "lng": 19.4939
+      },
+      "country": "Albania",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Editorial",
+      "description": "Perched above the confluence of Drin and Buna rivers, ancient Illyrian Rozafa Castle offers 360-degree views across Lake Shkodra with over two millennia of history.",
+      "id": "list-albania-shkodra-10",
+      "images": [
+        "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "location": "Shkod\u00ebr, Northern Albania",
+      "price": 110,
+      "rating": 4.96,
+      "reviewCount": 65,
+      "status": "PUBLISHED",
+      "tags": [
+        "Rozafa Castle",
+        "Lake Shkodra",
+        "Illyrian Fortress",
+        "Historic Panorama"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:49:04.420Z",
+        "updatedAt": "2026-09-30T02:49:04.420Z"
+      },
+      "title": "Rozafa Castle & Lake Shkodra Illyrian Citadel"
+    },
+    {
+      "amenities": [
+        "Mountain Guide",
+        "National Park Entry",
+        "Chalet Guesthouse Access",
+        "Trek Map & Poles"
+      ],
+      "category": "PLACE",
+      "coordinates": {
+        "lat": 42.3931,
+        "lng": 19.7744
+      },
+      "country": "Albania",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Alpine Expeditions",
+      "description": "Dramatic limestone peaks of the Accursed Mountains, featuring the historic Lock-in Tower (Kulla), Grunas Waterfall, traditional stone shepherd chalets, and the icy waters of Kaprre Blue Eye.",
+      "id": "list-albania-theth-09",
+      "images": [
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "location": "Theth, Accursed Mountains",
+      "price": 180,
+      "rating": 4.99,
+      "reviewCount": 92,
+      "status": "PUBLISHED",
+      "tags": [
+        "Albanian Alps",
+        "Accursed Mountains",
+        "Grunas Waterfall",
+        "Hiking",
+        "Kaprre Blue Eye"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:49:04.420Z",
+        "updatedAt": "2026-09-30T02:49:04.420Z"
+      },
+      "title": "Theth National Park & Blue Eye of Kaprre (Albanian Alps)"
+    },
+    {
+      "amenities": [
+        "Dajti Ekspres Return Ticket",
+        "Bunk'Art 2 Entry",
+        "Tirana Castle Walkway Access",
+        "Guided City Center Map"
+      ],
+      "category": "PLACE",
+      "coordinates": {
+        "lat": 41.3275,
+        "lng": 19.8187
+      },
+      "country": "Albania",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Editorial",
+      "description": "Explore the vibrant Albanian capital. Ride the Dajti Ekspres cable car up Mount Dajti for sweeping views over the city, explore Skanderbeg Square and the Clock Tower, tour Bunk'Art 2, walk Tirana Castle pedestrian zone, and relax in Blloku.",
+      "id": "list-albania-tirana-dajti-08",
+      "images": [
+        "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "location": "Tirana",
+      "price": 140,
+      "rating": 4.95,
+      "reviewCount": 82,
+      "status": "PUBLISHED",
+      "tags": [
+        "Mount Dajti",
+        "Cable Car Pass",
+        "BunkArt 2",
+        "Skanderbeg Square",
+        "Capital Highlights"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:49:04.420Z",
+        "updatedAt": "2026-09-30T02:49:04.420Z"
+      },
+      "title": "Mount Dajti Cable Car & Tirana Historic Landmark Circuit"
+    },
+    {
+      "amenities": [
+        "Selected Flights (TRV \u21c4 TIA)",
+        "Private Room Local Hotels",
+        "Driver & Transport Allowance",
+        "Entry Passes to Castles & Blue Eye",
+        "Ksamil Boat Excursion"
+      ],
+      "category": "PACKAGE",
+      "coordinates": {
+        "lat": 41.3275,
+        "lng": 19.8187
+      },
+      "country": "Albania",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Operations",
+      "description": "High-value self-guided/shared 9-day complete Albania tour (9\u201319 Oct 2026). Flight included (TRV \u2192 MCT \u2192 MXP \u2192 TIA and TIA \u2192 FCO \u2192 DOH \u2192 TRV, \u20b967,518/person). Comfortable private-room local hotels, practical driver planning allowance, Dajti Ekspres cable car over Tirana, Berat UNESCO castle & Onufri museum, Gjirokast\u00ebr stone city (Sk\u00ebnduli & Zekate houses), the turquoise Blue Eye spring, Ksamil 4-islands boat cruise, Butrint UNESCO archaeological site, Porto Palermo & Ali Pasha Castle, Jal\u00eb Beach, Dh\u00ebrmi Old Village, and Llogara Pass descent to Vlor\u00eb. Land package: \u20b943,500\u2013\u20b959,000/person (4 Pax: \u20b94,44,072\u2013\u20b95,06,072).",
+      "duration": "9 Days / 8 Nights (9-19 Oct 2026)",
+      "id": "pkg-albania-9day-basic-03",
+      "images": [
+        "https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "location": "Tirana, Berat, Gjirokast\u00ebr, Ksamil & Riviera",
+      "price": 1330,
+      "rating": 4.95,
+      "reviewCount": 48,
+      "status": "PUBLISHED",
+      "tags": [
+        "Basic Tier",
+        "Value Package",
+        "9-Day Circuit",
+        "Included Flights",
+        "Heritage & Coast"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:49:04.419Z",
+        "updatedAt": "2026-09-30T02:49:04.419Z"
+      },
+      "title": "Albania 9-Day Value Discovery: Complete Heritage & Coastal Circuit (Basic Tier)"
+    },
+    {
+      "amenities": [
+        "Premium Flights (TRV \u21c4 TIA)",
+        "5-Star Luxury Suites & Boutique Stays",
+        "Private High-Comfort Chauffeur Vehicle",
+        "Private Chartered Ksamil Islands Cruise",
+        "VIP Historian Guides",
+        "Upscale Dining & Wine Allowance",
+        "24/7 Concierge Support"
+      ],
+      "category": "PACKAGE",
+      "coordinates": {
+        "lat": 39.7719,
+        "lng": 20.0036
+      },
+      "country": "Albania",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Luxury Concierge",
+      "description": "The ultimate VIP itinerary from India (TRV \u21c4 TIA via Gulf Air & Turkish Airlines, \u20b92,56,951/person). Features 5-star seaside suites in Sarand\u00eb, luxury boutique palace in Berat, private chartered speedboats around Ksamil islands, dedicated high-comfort vehicle + driver, VIP historian guides at Butrint UNESCO site, and daily upscale restaurant allowances. Land package: \u20b91,29,000\u2013\u20b91,78,000/person (4 Pax: \u20b915,43,804\u2013\u20b917,39,804).",
+      "duration": "9 Days / 8 Nights (9-19 Oct 2026)",
+      "id": "pkg-albania-9day-luxury-02",
+      "images": [
+        "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "location": "Tirana, Berat, Sarand\u00eb, Ksamil & Riviera",
+      "price": 4630,
+      "rating": 5,
+      "reviewCount": 36,
+      "status": "PUBLISHED",
+      "tags": [
+        "Luxury Tier",
+        "Private Speedboat",
+        "VIP Concierge",
+        "5-Star Seaside Suites",
+        "Full 9-Day Circuit"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:49:04.419Z",
+        "updatedAt": "2026-09-30T02:49:04.419Z"
+      },
+      "title": "Albania 9-Day Luxury VIP Odyssey: 5-Star Stays & Private Yacht (Luxury Tier)"
+    },
+    {
+      "amenities": [
+        "Selected Flights (TRV \u21c4 TIA)",
+        "4-Star Boutique Stays in Tirana & Sarand\u00eb",
+        "Dedicated Private AC Driver & Vehicle",
+        "Dajti Cable Car Pass & BunkArt 2 Ticket",
+        "Ksamil 4 Islands Boat Tour",
+        "Butrint UNESCO Historian Pass",
+        "Daily Restaurant Breakfast & Allowance"
+      ],
+      "category": "PACKAGE",
+      "coordinates": {
+        "lat": 41.3275,
+        "lng": 19.8187
+      },
+      "country": "Albania",
+      "createdBy": "voyage@gmail.com",
+      "createdByName": "Voyage Editorial",
+      "description": "The definitive 9-day grand loop through Albania (9\u201319 Oct 2026). Flight included (TRV \u2192 MCT \u2192 MXP \u2192 TIA and TIA \u2192 FCO \u2192 DOH \u2192 TRV, \u20b974,890/person). Comfortable boutique hotels, dedicated private vehicle + driver planning allowance, Dajti Ekspres cable car over Tirana, Berat UNESCO castle & Onufri museum, Gjirokast\u00ebr stone city (Sk\u00ebnduli & Zekate houses), turquoise Blue Eye spring, Ksamil 4-islands boat cruise, Butrint UNESCO site, Porto Palermo & Ali Pasha Castle, Jal\u00eb Beach, Dh\u00ebrmi Old Village, and Llogara Pass descent to Vlor\u00eb. Land package: \u20b968,500\u2013\u20b992,500/person (4 Pax: \u20b95,73,560\u2013\u20b96,69,560).",
+      "duration": "9 Days / 8 Nights (9-19 Oct 2026)",
+      "id": "pkg-albania-9day-midrange-01",
+      "images": [
+        "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "location": "Tirana, Berat, Gjirokast\u00ebr, Ksamil & Riviera",
+      "price": 1720,
+      "rating": 4.99,
+      "reviewCount": 74,
+      "status": "PUBLISHED",
+      "tags": [
+        "Medium Tier",
+        "Mid-Range Classic",
+        "Dedicated Private Driver",
+        "Boutique Hotels",
+        "Full 9-Day Circuit"
+      ],
+      "timestamps": {
+        "createdAt": "2026-09-30T02:49:04.419Z",
+        "updatedAt": "2026-09-30T02:49:04.419Z"
+      },
+      "title": "Albania 9-Day Grand Tour: Tirana to the Ionian Riviera (Medium / Mid-Range Tier)"
+    }
+  ],
+  "audit_logs": [
+    {
+      "id": "log-seed-01",
+      "action": "TECH_ADMIN_LOGIN_SUCCESS",
+      "performedBy": "mukundkrishna2008@gmail.com",
+      "performedByEmail": "mukundkrishna2008@gmail.com",
+      "targetId": "SECURITY_AUTH",
+      "targetType": "SYSTEM_AUTH",
+      "ipAddress": "127.0.0.1 (Authorized)",
+      "timestamp": "2026-10-16T16:00:20.882Z",
+      "details": {
+        "authMethod": "DIRECT_SECURE_AUTH",
+        "role": "TECH_ADMIN"
+      }
+    }
+  ],
+  "bookings": [],
+  "saved_trips": [],
+  "custom_posts": [
+    {
+      "id": "post_tech_architect",
+      "title": "Chief Technology Architect & Super Admin",
+      "department": "Executive Engineering",
+      "baseRole": "TECH_ADMIN",
+      "description": "Full root authority, system security architecture, user administration, and Firebase cloud management.",
+      "privileges": [
+        "PUBLISH_DIRECTLY",
+        "APPROVE_QUEUE",
+        "REJECT_QUEUE",
+        "MANAGE_USERS",
+        "ASSIGN_POSTS",
+        "VIEW_AUDIT_LOGS",
+        "DELETE_LISTINGS",
+        "EDIT_ALL_CONTENT",
+        "FIREBASE_CONSOLE_SYNC",
+        "BYPASS_SECURITY_2FA"
+      ],
+      "badgeColor": "amber",
+      "createdBy": "mukundkrishna2008@gmail.com",
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "feed_posts": [],
+  "custom_trips": [],
+  "reviews": [
+    {
+      "id": "rev-albania-luxury-1",
+      "listingId": "pkg-albania-9day-luxury-02",
+      "userId": "user-traveler-03",
+      "userName": "Alex Rivera",
+      "userEmail": "alex.globetrotter@example.com",
+      "userAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=128&q=80",
+      "rating": 5,
+      "comment": "The 9-day Albania trip exceeded every expectation! The private boat cruise around Ksamil 4 islands and the private historian tour of Butrint UNESCO park were highlights of a lifetime. Seamless transfers and breathtaking views on the Llogara Pass.",
+      "createdAt": "2026-03-15T10:30:00.000Z"
+    },
+    {
+      "id": "rev-albania-ksamil-1",
+      "listingId": "list-albania-ksamil-butrint-04",
+      "userId": "user-elena-01",
+      "userName": "Elena Rostova",
+      "userEmail": "elena.rostova@voyagereview.org",
+      "userAvatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=128&q=80",
+      "rating": 5,
+      "comment": "The azure sea right in front of the balcony is magical. Bora Bora beach is pristine, and the freshly caught grilled sea bass dinner was unforgettable!",
+      "createdAt": "2026-04-02T16:15:00.000Z"
+    }
+  ]
+}

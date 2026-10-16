@@ -291,7 +291,7 @@ export interface SupportMessage {
   userId: string;
   userEmail: string;
   userName: string;
-  senderRole: 'CLIENT' | 'ADMIN';
+  senderRole: 'CLIENT' | 'ADMIN' | 'AI';
   senderId: string;
   senderName: string;
   text: string;

@@ -39,6 +39,7 @@ import { ZipArchiveService } from '../services/zipExportService.ts';
 import { AlbaniaPdfService } from '../services/albaniaPdfService.ts';
 import { PromoService, PromoVoucher } from '../services/promoService.ts';
 import { VirtualTourModal } from './VirtualTourModal.tsx';
+import { GeminiAskSection } from './GeminiAskSection.tsx';
 
 interface DetailModalProps {
   listing: Listing | null;
@@ -725,6 +726,27 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* Ask Gemini AI Section */}
+              <GeminiAskSection
+                title={`Ask Gemini AI About ${listing.title}`}
+                subtitle={`Have questions about ${listing.title} in ${listing.location}? Ask our Gemini 3.8 Flash LLM for instant local insights, pricing, best times to visit, and custom tips.`}
+                context={{
+                  title: listing.title,
+                  category: listing.category,
+                  location: listing.location,
+                  description: listing.description,
+                  price: listing.price,
+                  highlights: listing.tags,
+                  amenities: listing.amenities
+                }}
+                suggestedQuestions={[
+                  `What are the insider secrets for visiting ${listing.title}?`,
+                  `What is the best time of day or season to enjoy ${listing.title}?`,
+                  `Are there recommended restaurants or cafes near ${listing.location}?`,
+                  `What should I bring or wear for ${listing.title}?`
+                ]}
+              />
 
               {/* User Reviews & Ratings Section */}
               <UserReviewsSection

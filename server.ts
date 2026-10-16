@@ -2118,9 +2118,126 @@ Proceeding with sandbox delivery...`);
     });
   });
 
-  // --- Gemini Sentiment Analysis API ---
-  const ai = new GoogleGenAI();
+  // --- Gemini AI SDK Initialization ---
+  const ai = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY,
+    httpOptions: {
+      headers: {
+        'User-Agent': 'aistudio-build',
+      }
+    }
+  });
 
+  // --- Gemini Chatbot API ---
+  app.post('/api/gemini/chat', async (req, res) => {
+    try {
+      const { messages, context } = req.body;
+      if (!Array.isArray(messages) || messages.length === 0) {
+        return res.status(400).json({ error: 'Messages array is required.' });
+      }
+
+      const lastUserMessage = [...messages].reverse().find(m => m.role === 'user')?.text || '';
+      const conversationHistory = messages.slice(-8).map(m => `${m.role === 'user' ? 'Traveler' : 'Voyage AI'}: ${m.text}`).join('\n');
+
+      const systemPrompt = `You are "Voyage AI Concierge", an elite luxury travel specialist and destination assistant for Voyage Travel Platform.
+You specialize in Albania travel experiences, including:
+- The flagship Albania 9-Day Grand Tour (Tirana, Mount Dajti, Berat UNESCO Fortress, Gjirokastër Stone City, Blue Eye karst spring, Ksamil 4 turquoise islands, Butrint UNESCO park, Llogara Pass, and the Riviera).
+- 3 verified tiers: Basic (Budget-friendly), Mid-Range (Curated boutique), and Luxury VIP (5-star private chauffeur, yacht cruises).
+- Booking flights, luxury villas, boutique hotels, culinary dining, and custom trip requests.
+- Game vouchers & flight coupons (e.g. SKYEXPLORE20 for 20% off).
+
+Guidelines:
+- Provide friendly, highly helpful, concise, and structured answers (use short paragraphs or bullet points).
+- Context for current query: ${context ? JSON.stringify(context) : 'General Voyage Travel Consultation'}.
+- Always be welcoming, precise with Albanian culture, food (tave kosi, byrek, fresh seafood), currency (Albanian Lek / ALL, Euros widely accepted), and tips.
+- Provide 2-3 short suggested follow-up questions at the end, separated by newlines under "SUGGESTIONS:"`;
+
+      const prompt = `${systemPrompt}\n\nRecent Conversation:\n${conversationHistory}\n\nVoyage AI:`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.8-flash',
+        contents: prompt,
+      });
+
+      const fullText = response.text || '';
+      let reply = fullText;
+      let suggestions: string[] = [
+        'Tell me more about the Ksamil 4 islands tour',
+        'What is included in the Albania 9-Day Luxury VIP package?',
+        'What currency should I carry to Albania?'
+      ];
+
+      if (fullText.includes('SUGGESTIONS:')) {
+        const parts = fullText.split('SUGGESTIONS:');
+        reply = parts[0].trim();
+        const rawSuggestions = parts[1].split('\n').map(s => s.replace(/^[-*•\d.]+\s*/, '').trim()).filter(Boolean);
+        if (rawSuggestions.length > 0) {
+          suggestions = rawSuggestions.slice(0, 3);
+        }
+      }
+
+      res.json({
+        reply,
+        suggestions
+      });
+    } catch (err) {
+      console.error('Gemini Chat error:', err);
+      // High quality fallback
+      res.json({
+        reply: "Greetings from the Voyage Concierge Desk! I'm here to help you explore Albania's breathtaking Adriatic & Ionian coastline, the UNESCO fortress towns of Berat and Gjirokastër, or customize your 9-day itinerary with verified hotel and transport reservations.",
+        suggestions: [
+          'What are the best beaches in Ksamil & Dhërmi?',
+          'How do I book the Albania 9-Day Grand Tour?',
+          'What is the best month to visit Albania?'
+        ]
+      });
+    }
+  });
+
+  // --- Gemini Ask Question / LLM Q&A API ---
+  app.post('/api/gemini/ask', async (req, res) => {
+    try {
+      const { question, context } = req.body;
+      if (!question || typeof question !== 'string') {
+        return res.status(400).json({ error: 'Question is required.' });
+      }
+
+      const prompt = `You are an elite travel specialist for Voyage. Answer the traveler's question with accurate, practical, and inspiring local advice.
+
+Question: "${question}"
+
+Listing / Experience Context:
+${context ? JSON.stringify(context, null, 2) : 'General Albania & Mediterranean Travel'}
+
+Requirements:
+- Provide an insightful, accurate answer (2-4 paragraphs or formatted bullet points).
+- Include practical insider advice (e.g. best timing, photography spot, etiquette, or transportation).
+- At the end, list 2-3 concise "Insider Highlights".
+
+Return format:
+Answer text directly.`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.8-flash',
+        contents: prompt,
+      });
+
+      const answer = response.text || 'Our travel specialists recommend visiting early in the morning for pristine conditions and booking transfers in advance.';
+
+      res.json({
+        answer,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error('Gemini Ask error:', err);
+      res.json({
+        answer: `For this experience in Albania, the best time to visit is May to October when the weather is warm and sunny with crystal-clear turquoise waters. Local transportation includes private transfers, scenic coastal drives via Llogara Pass, and local ferries. English is widely spoken in tourist hotspots, and Albanian hospitality (Besa) ensures a warm welcome everywhere you go!`,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // --- Gemini Sentiment Analysis API ---
   app.post('/api/sentiment', async (req, res) => {
     try {
       const { comments } = req.body;
@@ -2166,7 +2283,7 @@ Proceeding with sandbox delivery...`);
     try {
       const { destination, country, travelStyle, durationDays, interests } = req.body;
 
-      const prompt = `You are an elite luxury travel curator and expert destination planner. Create a personalized ${durationDays || 4}-day luxury travel itinerary for ${destination || 'Santorini'}, ${country || 'International'}.
+      const prompt = `You are an elite luxury travel curator and expert destination planner. Create a personalized ${durationDays || 4}-day luxury travel itinerary for ${destination || 'Albania'}, ${country || 'Albania'}.
       Traveler Style: ${travelStyle || 'ROMANTIC_HONEYMOON'}
       Interests / Special requests: ${interests || 'Local heritage, fine dining, scenic viewpoints'}
 

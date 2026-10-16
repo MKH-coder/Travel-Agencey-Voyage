@@ -49,7 +49,7 @@ export class ChatSupportService {
     userId: string;
     userEmail: string;
     userName: string;
-    senderRole: 'CLIENT' | 'ADMIN';
+    senderRole: 'CLIENT' | 'ADMIN' | 'AI';
     senderId: string;
     senderName: string;
     text: string;
@@ -68,7 +68,7 @@ export class ChatSupportService {
       senderName: params.senderName,
       text: params.text.trim(),
       timestamp: nowIso,
-      readByAdmin: params.senderRole === 'ADMIN',
+      readByAdmin: params.senderRole === 'ADMIN' || params.senderRole === 'AI',
       readByClient: params.senderRole === 'CLIENT',
       listingContext: params.listingContext,
     };

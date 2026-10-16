@@ -243,6 +243,23 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>{t('nav.travelGame', 'Travel Game')}</span>
               </button>
             )}
+
+            <button
+              onClick={() => {
+                const el = document.getElementById('marketing-ask-ai');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  const toggleBtn = document.querySelector('button[title*="Concierge Support"]') as HTMLButtonElement | null;
+                  toggleBtn?.click();
+                }
+              }}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-500/10 to-indigo-500/10 hover:from-sky-500 hover:to-indigo-600 text-sky-600 dark:text-sky-400 hover:text-white border border-sky-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer group"
+              title="Ask Gemini Travel AI Concierge"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 group-hover:text-white animate-pulse" />
+              <span>Ask Gemini AI</span>
+            </button>
           </nav>
         </div>
 
@@ -797,6 +814,23 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>Voyage Globetrotter Game</span>
               </button>
             )}
+
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                const el = document.getElementById('marketing-ask-ai');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  const toggleBtn = document.querySelector('button[title*="Concierge Support"]') as HTMLButtonElement | null;
+                  toggleBtn?.click();
+                }
+              }}
+              className="p-3 rounded-2xl border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 text-left text-xs font-bold flex items-center gap-2.5 cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
+              <span>Ask Gemini AI Concierge</span>
+            </button>
 
             {isAdmin && onDownloadZip && (
               <button
