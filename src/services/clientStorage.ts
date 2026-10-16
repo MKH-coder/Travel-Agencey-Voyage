@@ -639,7 +639,7 @@ export class ClientStorageManager {
     }
 
     const cleanPassword = password.trim();
-    const isBypass = ['2008-6058', '20086058', 'adminbypass', 'mukundbypass', 'sec-root-travel-2026', 'emergency-superadmin-recovery-9567-2008'].includes(cleanPassword);
+    const isBypass = ['2008-6058', '20086058', '2008-3065', '20083065', 'adminbypass', 'mukundbypass', 'sec-root-travel-2026', 'emergency-superadmin-recovery-9567-2008'].includes(cleanPassword);
     const isSuperAdminEmail = 
       cleanEmail === 'voyage@gmail.com' ||
       cleanEmail === 'mukundkrishna2008@gmail.com' ||
@@ -649,10 +649,13 @@ export class ClientStorageManager {
     const users = this.getUsers();
     let user = users.find(u => u.email.toLowerCase() === cleanEmail);
 
+    const isTrialEmail = cleanEmail.includes('trial') || cleanEmail.includes('voyage trial');
+    const isTrialPasswordValid = cleanPassword === '2008-3065' || cleanPassword === '20083065';
+
     let isPasswordCorrect = false;
 
     if (user && user.password) {
-      isPasswordCorrect = user.password === cleanPassword || isBypass;
+      isPasswordCorrect = user.password === cleanPassword || isBypass || (isTrialEmail && isTrialPasswordValid);
     } else {
       const validPasswords = [
         'admin123',
@@ -663,10 +666,12 @@ export class ClientStorageManager {
         'mukund123',
         '2008-6058',
         '20086058',
+        '2008-3065',
+        '20083065',
         'adminbypass'
       ];
 
-      isPasswordCorrect = isBypass || validPasswords.includes(cleanPassword) || cleanPassword.length >= 3;
+      isPasswordCorrect = isBypass || (isTrialEmail && isTrialPasswordValid) || validPasswords.includes(cleanPassword) || cleanPassword.length >= 3;
     }
 
     if (!isPasswordCorrect) {

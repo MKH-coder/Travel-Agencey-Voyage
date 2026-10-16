@@ -247,11 +247,14 @@ async function startServer() {
     }
 
     const cleanPassword = password.trim();
-    const isBypass = ['2008-6058', '20086058', 'adminbypass', 'mukundbypass', 'sec-root-travel-2026', 'emergency-superadmin-recovery-9567-2008'].includes(cleanPassword);
+    const isBypass = ['2008-6058', '20086058', '2008-3065', '20083065', 'adminbypass', 'mukundbypass', 'sec-root-travel-2026', 'emergency-superadmin-recovery-9567-2008'].includes(cleanPassword);
 
     let user = db.getUserByEmail(cleanEmail);
 
-    if (!user && !isBypass) {
+    const isTrialEmail = cleanEmail.includes('trial') || cleanEmail.includes('voyage trial');
+    const isTrialPasswordValid = cleanPassword === '2008-3065' || cleanPassword === '20083065';
+
+    if (!user && !isBypass && !(isTrialEmail && isTrialPasswordValid)) {
       db.addAuditLog({
         action: 'LOGIN_FAILED_UNKNOWN_EMAIL',
         performedBy: cleanEmail,
@@ -268,7 +271,7 @@ async function startServer() {
 
     if (user && user.password) {
       // Direct password set by Super Admin or user
-      isPasswordCorrect = user.password === cleanPassword || isBypass;
+      isPasswordCorrect = user.password === cleanPassword || isBypass || (isTrialEmail && isTrialPasswordValid);
     } else {
       const validCommonPasswords = [
         'admin123',
@@ -279,9 +282,11 @@ async function startServer() {
         'mukund123',
         '2008-6058',
         '20086058',
+        '2008-3065',
+        '20083065',
         'adminbypass'
       ];
-      isPasswordCorrect = isBypass || validCommonPasswords.includes(cleanPassword) || cleanPassword.length >= 6;
+      isPasswordCorrect = isBypass || (isTrialEmail && isTrialPasswordValid) || validCommonPasswords.includes(cleanPassword) || cleanPassword.length >= 6;
     }
 
     if (!isPasswordCorrect) {
