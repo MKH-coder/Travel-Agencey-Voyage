@@ -9,6 +9,7 @@
     <script>
       // Ensure GitHub Pages sub-path always ends with a slash so relative ./assets/ work properly
       if (
+        window.location.hostname.includes('github.io') &&
         window.location.pathname.length > 1 &&
         !window.location.pathname.endsWith('/') &&
         !window.location.pathname.split('/').pop().includes('.')
