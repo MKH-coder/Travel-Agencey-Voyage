@@ -70,7 +70,7 @@ interface TrafficCar {
 interface RallyItem {
   x: number;
   y: number;
-  type: 'coin' | 'espresso' | 'fuel' | 'luggage' | 'eagle' | 'shield';
+  type: 'coin' | 'espresso' | 'fuel' | 'luggage' | 'eagle' | 'shield' | 'rock' | 'oil';
   lane: number;
   collected: boolean;
   angle: number;
@@ -412,16 +412,20 @@ export const BalkanCoastalRallyGame: React.FC<BalkanCoastalRallyGameProps> = ({
           const itemRand = Math.random();
           let type: RallyItem['type'] = 'coin';
 
-          if (itemRand < 0.45) {
+          if (itemRand < 0.35) {
             type = 'coin'; // Gold coin
-          } else if (itemRand < 0.65) {
+          } else if (itemRand < 0.50) {
             type = 'espresso'; // Albanian Espresso Nitro Turbo
-          } else if (itemRand < 0.82) {
+          } else if (itemRand < 0.65) {
             type = 'fuel'; // Fuel can
-          } else if (itemRand < 0.93) {
+          } else if (itemRand < 0.75) {
             type = 'luggage'; // Souvenir suitcase
-          } else {
+          } else if (itemRand < 0.85) {
             type = 'eagle'; // Double-headed golden eagle
+          } else if (itemRand < 0.92) {
+            type = 'rock'; // Rock boulder hazard
+          } else {
+            type = 'oil'; // Oil slick hazard
           }
 
           st.items.push({
@@ -575,6 +579,31 @@ export const BalkanCoastalRallyGame: React.FC<BalkanCoastalRallyGameProps> = ({
                 alpha: 1,
                 vy: -1.6,
               });
+            } else if (item.type === 'rock' || item.type === 'oil') {
+              if (st.shieldTimer > 0) {
+                st.score += 50;
+                gameAudio.playPowerup();
+                st.floatingTexts.push({
+                  x: item.x,
+                  y: item.y,
+                  text: '🛡️ SHIELD DEFLECTED HAZARD!',
+                  color: '#38bdf8',
+                  alpha: 1,
+                  vy: -1.5,
+                });
+              } else {
+                st.fuel = Math.max(0, st.fuel - 15);
+                st.speed = Math.max(4, st.speed * 0.6);
+                gameAudio.playHit();
+                st.floatingTexts.push({
+                  x: item.x,
+                  y: item.y,
+                  text: item.type === 'rock' ? '🪨 BOULDER CRASH! -15% FUEL' : '🛢️ OIL SLICK SLIP! -15% FUEL',
+                  color: '#ef4444',
+                  alpha: 1,
+                  vy: -1.5,
+                });
+              }
             }
 
             setScore(st.score);
@@ -767,6 +796,34 @@ export const BalkanCoastalRallyGame: React.FC<BalkanCoastalRallyGameProps> = ({
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText('🧳', 0, 0);
+        } else if (item.type === 'rock') {
+          // Boulder Rock
+          ctx.fillStyle = '#475569';
+          ctx.beginPath();
+          ctx.arc(0, 0, 15, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#94a3b8';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('🪨', 0, 0);
+        } else if (item.type === 'oil') {
+          // Oil Slick
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 18, 12, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('🛢️', 0, 0);
         } else {
           // Golden Eagle Crest
           ctx.fillStyle = '#dc2626';

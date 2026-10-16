@@ -38,6 +38,13 @@ export const SONG_TRACKS: SongTrackInfo[] = [
     bpm: 130,
     description: 'Heroic flight anthem with soaring Balkan flute melodies, driving folk synths, and epic eagle percussion.',
   },
+  {
+    id: 4,
+    name: 'Adriatic Sunset Chase',
+    genre: 'Synthwave Coastal Anthem',
+    bpm: 142,
+    description: 'High-speed synthwave cruiser tune with driving bass arpeggios, neon synth leads, and pulsating electronic beats.',
+  },
 ];
 
 class SoundManager {
@@ -341,14 +348,12 @@ class SoundManager {
         659.3, 783.9, 987.8, 1318.5, 987.8, 783.9, 659.3, 440.0,
       ];
       leadFreq = leadPattern[step] || 0;
-    } else {
+    } else if (trackId === 3) {
       // Track 3: Balkan Eagle Anthem (E minor / Harmonic Minor 130 bpm)
-      // Syncopated Balkan dance kick & snare groove
       kick = step % 4 === 0 || step % 8 === 6;
       snare = step % 8 === 4;
       hihat = step % 2 === 1 || step % 4 === 2;
 
-      // Balkan bassline: E2 (82.4), G2 (98.0), B2 (123.5), C3 (130.8), B2 (123.5), A2 (110.0)
       const bassPattern = [
         82.4, 0, 82.4, 164.8, 98.0, 0, 98.0, 196.0,
         123.5, 0, 123.5, 246.9, 130.8, 123.5, 110.0, 98.0,
@@ -357,7 +362,6 @@ class SoundManager {
       ];
       bassFreq = bassPattern[step] || 0;
 
-      // Soaring Balkan Eagle hook: E4 (329.6), G4 (392.0), B4 (493.9), C5 (523.3), D#5 (622.3), E5 (659.3)
       const leadPattern = [
         329.6, 0, 392.0, 0, 493.9, 523.3, 493.9, 392.0,
         493.9, 0, 622.3, 0, 659.3, 0, 622.3, 493.9,
@@ -370,6 +374,31 @@ class SoundManager {
         chordFreqs = [164.8, 246.9, 329.6]; // E minor
       } else if (step === 8 || step === 24) {
         chordFreqs = [196.0, 246.9, 293.7]; // G major
+      }
+    } else {
+      // Track 4: Adriatic Sunset Chase (Synthwave 142 bpm)
+      kick = step % 4 === 0;
+      snare = step % 8 === 4;
+      hihat = true; // continuous driving synthwave 16ths
+
+      const bassPattern = [
+        110.0, 110.0, 220.0, 110.0, 130.8, 130.8, 261.6, 130.8,
+        146.8, 146.8, 293.7, 146.8, 164.8, 164.8, 329.6, 164.8,
+        110.0, 110.0, 220.0, 110.0, 130.8, 130.8, 261.6, 130.8,
+        123.5, 123.5, 246.9, 123.5, 110.0, 98.0, 110.0, 220.0,
+      ];
+      bassFreq = bassPattern[step] || 0;
+
+      const leadPattern = [
+        440.0, 523.3, 659.3, 880.0, 783.9, 659.3, 523.3, 659.3,
+        880.0, 1046.5, 880.0, 783.9, 659.3, 523.3, 440.0, 523.3,
+        659.3, 783.9, 880.0, 1046.5, 1174.6, 1046.5, 880.0, 783.9,
+        659.3, 523.3, 440.0, 349.2, 440.0, 523.3, 659.3, 880.0,
+      ];
+      leadFreq = leadPattern[step] || 0;
+
+      if (step % 8 === 0) {
+        chordFreqs = [220.0, 261.6, 329.6]; // A minor pad
       }
     }
 
