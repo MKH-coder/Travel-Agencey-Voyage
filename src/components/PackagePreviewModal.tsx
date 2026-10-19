@@ -7,6 +7,7 @@ import { Listing } from '../types.ts';
 import { AuthAudit } from '../services/authAudit.ts';
 import { ZipArchiveService } from '../services/zipExportService.ts';
 import { AlbaniaPdfService } from '../services/albaniaPdfService.ts';
+import { CurrencyConverterWidget } from './CurrencyConverterWidget.tsx';
 
 interface PackagePreviewModalProps {
   listing: Listing | null;
@@ -83,6 +84,7 @@ export const PackagePreviewModal: React.FC<PackagePreviewModalProps> = ({
            <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
              <X className="w-6 h-6 text-slate-400" />
            </button>
+           <CurrencyConverterWidget />
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-8 no-scrollbar">

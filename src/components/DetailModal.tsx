@@ -40,6 +40,7 @@ import { AlbaniaPdfService } from '../services/albaniaPdfService.ts';
 import { PromoService, PromoVoucher } from '../services/promoService.ts';
 import { VirtualTourModal } from './VirtualTourModal.tsx';
 import { GeminiAskSection } from './GeminiAskSection.tsx';
+import { CurrencyConverterWidget } from './CurrencyConverterWidget.tsx';
 
 interface DetailModalProps {
   listing: Listing | null;

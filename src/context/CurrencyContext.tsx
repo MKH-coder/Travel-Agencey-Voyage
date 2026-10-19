@@ -27,6 +27,21 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return 'USD';
   });
 
+  const [rates, setRates] = useState<Partial<Record<CurrencyCode, number>>>({});
+
+  useEffect(() => {
+    const fetchRates = async () => {
+      try {
+        const res = await fetch('/api/exchange-rates');
+        const data = await res.json();
+        setRates(data);
+      } catch (err) {
+        console.error('Failed to fetch rates:', err);
+      }
+    };
+    fetchRates();
+  }, []);
+
   const setCurrency = (code: CurrencyCode) => {
     setCurrencyState(code);
     try {
@@ -36,11 +51,28 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  const formatPrice = (usdAmount: number) => formatPriceUtil(usdAmount, currency);
-  const convertPrice = (usdAmount: number) => convertPriceUtil(usdAmount, currency);
+  const getRate = (code: CurrencyCode) => rates[code] || CURRENCIES[code].rateVsUsd;
+
+  const convertPrice = (usdAmount: number) => Math.round(usdAmount * getRate(currency));
+
+  const formatPrice = (usdAmount: number) => {
+    const details = CURRENCIES[currency] || CURRENCIES.USD;
+    const converted = convertPrice(usdAmount);
+    const formattedNumber = new Intl.NumberFormat('en-US', {
+      maximumFractionDigits: 0,
+    }).format(converted);
+
+    if (details.position === 'after') {
+      return `${formattedNumber} ${details.symbol}`;
+    }
+    return `${details.symbol}${formattedNumber}`;
+  };
 
   const currentCurrency = CURRENCIES[currency] || CURRENCIES.USD;
-  const availableCurrencies = Object.values(CURRENCIES);
+  const availableCurrencies = Object.values(CURRENCIES).map(c => ({
+    ...c,
+    rateVsUsd: getRate(c.code)
+  }));
 
   return (
     <CurrencyContext.Provider

@@ -2123,6 +2123,19 @@ Proceeding with sandbox delivery...`);
     });
   });
 
+  // --- Exchange Rates API ---
+  app.get('/api/exchange-rates', (req, res) => {
+    // Simulated real-time rates (In a production app, fetch these from a reliable provider)
+    const rates = {
+      USD: 1.0,
+      EUR: 0.92 + (Math.random() * 0.02 - 0.01),
+      INR: 83.2 + (Math.random() * 0.5 - 0.25),
+      ALL: 93.5 + (Math.random() * 0.5 - 0.25),
+      GBP: 0.79 + (Math.random() * 0.02 - 0.01),
+    };
+    res.json(rates);
+  });
+
   // --- Gemini AI SDK Initialization ---
   const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY,

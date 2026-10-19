@@ -52,11 +52,27 @@ export const AlbaniaItineraryModal: React.FC<AlbaniaItineraryModalProps> = ({
   const { styles } = useTheme();
   const { formatPrice, currency } = useCurrency();
   const [selectedTier, setSelectedTier] = useState<'basic' | 'midrange' | 'luxury'>(defaultTier);
-  const [activeTab, setActiveTab] = useState<'itinerary' | 'comparison' | 'reviews' | 'flights' | 'pdf' | 'ask-ai'>('itinerary');
+  const [activeTab, setActiveTab] = useState<'itinerary' | 'comparison' | 'reviews' | 'flights' | 'pdf' | 'ask-ai' | 'faq'>('itinerary');
   const [expandedDay, setExpandedDay] = useState<number | null>(1);
   const [downloadingTier, setDownloadingTier] = useState<string | null>(null);
 
+  // FAQ Data
+  const travelFaqs = [
+    { q: "1. What currency is used in Albania?", a: "The official currency is the Albanian Lek (ALL). While Euros are accepted in some tourist-heavy areas, hotels, and for large purchases, you will get better prices and change in Lek. Albania is still largely a cash economy, so carry cash for small businesses, markets, and taxis." },
+    { q: "2. Is Albania expensive to visit?", a: "No, Albania is one of the most affordable travel destinations in Europe. Accommodation, dining out, and local transport offer great value compared to Western Europe or neighboring Greece and Croatia." },
+    { q: "3. Is public transportation reliable?", a: "Public transport consists mainly of furgons (minibuses) and regional buses. While they cover most towns and major attractions, schedules can be informal, routes are not always clearly posted, and journeys can take longer than expected. It is functional for adventurous travelers on a budget, but requires flexibility." },
+    { q: "4. Should I rent a car in Albania?", a: "Yes, renting a car is the best way to explore Albania—especially if you want to visit coastal beaches, mountain villages, and national parks on your own schedule. Be prepared for windy mountain roads and aggressive driving styles from local drivers." },
+    { q: "5. What cultural customs should tourists know?", a: "Nodding/Shaking head: Traditionally, a slight nod can mean 'no' and a shake of the head can mean 'yes,' though younger locals in tourist areas usually follow standard Western gestures. Hospitality (Besa): Albanians are exceptionally welcoming. If a local offers help, coffee, or directions, it is extended out of genuine warmth. Greeting: Warm handshakes are standard." },
+    { q: "6. What should I wear when visiting churches and mosques?", a: "Dress modestly. Cover your shoulders and knees (this applies to both men and women). When entering mosques, take off your shoes at the entrance, and women are usually required to cover their head with a scarf." },
+    { q: "7. Do I need a SIM card or eSIM?", a: "Yes. Albania is not in the EU, so EU data roaming plans do not cover it without heavy charges. Buying an eSIM (like Airalo or Holafly) before you arrive or picking up a local tourist SIM (Vodafone or ONE) at Tirana International Airport or in town is cheap and easy." },
+    { q: "8. Is Wi-Fi widely available?", a: "Yes, free Wi-Fi is widely available in hotels, cafes, restaurants, and bars across major cities and tourist towns." },
+    { q: "9. What type of electrical plug does Albania use?", a: "Albania uses Type C and Type F power plugs (standard European two-prong plugs) operating on a 230V supply voltage and 50Hz frequency." },
+    { q: "10. What emergency number should tourists know?", a: "112 is the general European emergency number. Direct local emergency lines: 129 – Police, 127 – Ambulance / Medical Emergency, 128 – Fire Department." }
+  ];
+
   if (!isOpen) return null;
+
+  // ... (existing code: TIER_USD_PRICES, getTierConvertedPrice, etc.) ...
 
   const currentTierInfo = ALBANIA_PACKAGE_TIERS[selectedTier];
 
@@ -221,6 +237,7 @@ export const AlbaniaItineraryModal: React.FC<AlbaniaItineraryModalProps> = ({
             { id: 'reviews', label: 'Customer Reviews (4.96 ★)', icon: <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> },
             { id: 'flights', label: 'Flight Plan (TRV ⇄ TIA)', icon: <Plane className="w-3.5 h-3.5" /> },
             { id: 'ask-ai', label: '🤖 Ask Gemini AI', icon: <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" /> },
+            { id: 'faq', label: 'Travel FAQs', icon: <Info className="w-3.5 h-3.5" /> },
             { id: 'pdf', label: 'Official PDF Dossier', icon: <FileText className="w-3.5 h-3.5" /> },
           ].map(tab => (
             <button
@@ -662,6 +679,29 @@ export const AlbaniaItineraryModal: React.FC<AlbaniaItineraryModalProps> = ({
                     </tbody>
                   </table>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: TRAVEL FAQS */}
+          {activeTab === 'faq' && (
+            <div className="space-y-6 animate-in fade-in duration-300">
+              <div className="text-center max-w-xl mx-auto space-y-1.5">
+                <h3 className={`text-lg font-black ${styles.textPrimary}`}>
+                  Albania Travel Essentials
+                </h3>
+                <p className={`text-xs ${styles.textMuted}`}>
+                  Frequently asked questions to help you prepare for your Albania 9-Day Grand Tour.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {travelFaqs.map((faq, index) => (
+                  <div key={index} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                    <h4 className={`text-sm font-bold ${styles.textPrimary} mb-2`}>{faq.q}</h4>
+                    <p className={`text-xs ${styles.textSecondary} leading-relaxed`}>{faq.a}</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}
