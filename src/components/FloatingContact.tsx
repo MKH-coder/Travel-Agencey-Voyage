@@ -406,10 +406,10 @@ export const FloatingContact: React.FC = () => {
                     </div>
                     
                     <div
-                      className={`p-3.5 rounded-2xl text-xs leading-relaxed shadow-xs whitespace-pre-line ${
+                      className={`p-3.5 rounded-2xl text-xs leading-relaxed shadow-md whitespace-pre-line ${
                         isMe
-                          ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white rounded-tr-xs shadow-sky-500/20'
-                          : `bg-slate-100 dark:bg-slate-900 border ${styles.border} ${styles.textPrimary} rounded-tl-xs`
+                          ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-medium rounded-tr-xs shadow-sky-500/20'
+                          : `bg-white dark:bg-slate-900 border border-sky-500/30 text-slate-900 dark:text-slate-100 font-medium rounded-tl-xs shadow-sm`
                       }`}
                     >
                       {m.text}
