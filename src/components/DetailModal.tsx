@@ -26,7 +26,13 @@ import {
   PlaneLanding,
   PlaneTakeoff,
   Navigation,
-  Flag
+  Flag,
+  Cloud,
+  CloudRain,
+  Sun,
+  CloudSun,
+  CloudLightning,
+  Snowflake
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -43,6 +49,7 @@ import { GeminiAskSection } from './GeminiAskSection.tsx';
 import { CurrencyConverterWidget } from './CurrencyConverterWidget.tsx';
 import { PackingChecklist } from './PackingChecklist.tsx';
 import { Helmet } from 'react-helmet-async';
+import { fetch3DayWeather, LocationWeather } from '../services/weatherService.ts';
 
 interface DetailModalProps {
   listing: Listing | null;
@@ -124,6 +131,17 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   const [liveReviewCount, setLiveReviewCount] = useState<number | null>(null);
   const [includedListings, setIncludedListings] = useState<Listing[]>([]);
   const [loadingIncluded, setLoadingIncluded] = useState(false);
+  const [weather, setWeather] = useState<LocationWeather | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (listing?.location) {
+      setWeatherLoading(true);
+      fetch3DayWeather(listing.location)
+        .then(setWeather)
+        .finally(() => setWeatherLoading(false));
+    }
+  }, [listing?.location]);
 
   React.useEffect(() => {
     if (listing?.category === 'PACKAGE' && listing.listingIds?.length) {
@@ -481,6 +499,33 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   {listing.description}
                 </p>
               </div>
+
+              {/* Weather Forecast */}
+              {weather && (
+                <div className={`p-5 rounded-2xl border ${styles.border} ${styles.cardBg} shadow-sm space-y-4`}>
+                  <h4 className={`text-sm font-bold ${styles.textPrimary} flex items-center gap-2`}>
+                    <CloudSun className="w-4 h-4 text-amber-500" />
+                    Local Weather Forecast ({weather.cityName})
+                  </h4>
+                  <div className="grid grid-cols-3 gap-3">
+                    {weather.forecast.map((day, i) => (
+                      <div key={i} className="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                        <div className="text-[10px] font-bold text-slate-500 uppercase">{day.dayName}</div>
+                        <div className="text-lg my-1">
+                          {day.icon === 'sun' ? <Sun className="w-5 h-5 mx-auto text-amber-500" /> :
+                           day.icon === 'cloud-sun' ? <CloudSun className="w-5 h-5 mx-auto text-sky-400" /> :
+                           day.icon === 'rain' ? <CloudRain className="w-5 h-5 mx-auto text-sky-600" /> :
+                           day.icon === 'thunder' ? <CloudLightning className="w-5 h-5 mx-auto text-purple-500" /> :
+                           day.icon === 'snow' ? <Snowflake className="w-5 h-5 mx-auto text-sky-200" /> :
+                           <Cloud className="w-5 h-5 mx-auto text-slate-400" />}
+                        </div>
+                        <div className="text-xs font-black">{day.tempMaxC}°</div>
+                        <div className="text-[9px] text-slate-500">{day.condition}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Trip Milestones & Itinerary Timeline */}
               <div className={`p-5 rounded-2xl border ${styles.border} ${styles.cardBg} shadow-sm space-y-4`}>
