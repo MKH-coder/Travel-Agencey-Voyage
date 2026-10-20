@@ -42,6 +42,7 @@ import { WanderlustGameModal } from './components/WanderlustGameModal.tsx';
 import { ZipArchiveService } from './services/zipExportService.ts';
 import { AlbaniaItineraryModal } from './components/AlbaniaItineraryModal.tsx';
 import { FaqPage } from './components/FaqPage.tsx';
+import { Testimonials } from './components/Testimonials.tsx';
 
 function MainLayout() {
   const { styles, theme, setTheme } = useTheme();
@@ -439,6 +440,11 @@ function MainLayout() {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-6">
               <ExploreFeed onOpenAlbaniaModal={handleOpenAlbaniaModal} />
+
+              <Testimonials 
+                onOpenAlbaniaModal={handleOpenAlbaniaModal}
+                onBrowsePackages={handleBrowsePackages}
+              />
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/60 dark:border-slate-800 pb-4">
                 <div>

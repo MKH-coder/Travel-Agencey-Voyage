@@ -17,7 +17,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [language, setLanguageState] = useState<LanguageCode>(() => {
     try {
       const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-      if (saved && (saved === 'en' || saved === 'fr' || saved === 'es')) {
+      const validCodes: LanguageCode[] = ['en', 'fr', 'es', 'de', 'it', 'sq'];
+      if (saved && validCodes.includes(saved as LanguageCode)) {
         return saved as LanguageCode;
       }
     } catch {

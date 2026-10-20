@@ -89,6 +89,27 @@ export const Header: React.FC<HeaderProps> = ({
     setIsMobileMenuOpen(false);
   }, [currentView]);
 
+  // Click outside to close dropdown menus
+  useEffect(() => {
+    const handleDocumentClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('#language-selector-container')) {
+        setShowLangMenu(false);
+      }
+      if (!target.closest('#currency-selector-container')) {
+        setShowCurrencyMenu(false);
+      }
+      if (!target.closest('#theme-selector-container')) {
+        setShowThemeMenu(false);
+      }
+      if (!target.closest('#user-menu-container')) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('click', handleDocumentClick);
+    return () => document.removeEventListener('click', handleDocumentClick);
+  }, []);
+
   const themeOptions: { id: ThemeMode; label: string; icon: React.ReactNode; color: string }[] = [
     {
       id: 'cyan-light',
@@ -306,12 +327,14 @@ export const Header: React.FC<HeaderProps> = ({
           )}
 
           {/* Language Selector Dropdown */}
-          <div className="relative shrink-0">
+          <div id="language-selector-container" className="relative shrink-0">
             <button
               id="language-selector-btn"
               onClick={() => {
-                setShowLangMenu(!showLangMenu);
+                setShowLangMenu(prev => !prev);
                 setShowThemeMenu(false);
+                setShowCurrencyMenu(false);
+                setShowUserMenu(false);
               }}
               className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all shrink-0 cursor-pointer text-xs font-bold shadow-xs`}
               title={t('header.selectLanguage', 'Select Language')}
@@ -325,13 +348,13 @@ export const Header: React.FC<HeaderProps> = ({
 
             {showLangMenu && (
               <div
-                className={`absolute right-0 mt-2 w-52 rounded-2xl shadow-2xl border ${styles.border} ${styles.cardBg} p-1.5 z-50 animate-in fade-in zoom-in-95`}
+                className={`absolute right-0 mt-2 w-56 rounded-2xl shadow-2xl border ${styles.border} ${styles.cardBg} p-1.5 z-50 animate-in fade-in zoom-in-95`}
               >
                 <div className="px-3 py-2 border-b border-slate-200/50 dark:border-slate-800 text-[10px] font-bold tracking-wider uppercase text-slate-400 flex items-center justify-between">
                   <span>{t('header.language', 'Language')}</span>
                   <Globe className="w-3 h-3 text-sky-500" />
                 </div>
-                <div className="space-y-0.5 py-1">
+                <div className="space-y-0.5 py-1 max-h-72 overflow-y-auto">
                   {languageOptions.map((opt) => (
                     <button
                       key={opt.code}
@@ -361,13 +384,14 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Currency Selector Dropdown */}
-          <div className="relative shrink-0">
+          <div id="currency-selector-container" className="relative shrink-0">
             <button
               id="currency-selector-btn"
               onClick={() => {
-                setShowCurrencyMenu(!showCurrencyMenu);
+                setShowCurrencyMenu(prev => !prev);
                 setShowLangMenu(false);
                 setShowThemeMenu(false);
+                setShowUserMenu(false);
               }}
               className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all shrink-0 cursor-pointer text-xs font-bold shadow-xs`}
               title="Change Display Currency"
@@ -419,10 +443,15 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Theme Selector (Compact Icon Only) */}
-          <div className="relative shrink-0">
+          <div id="theme-selector-container" className="relative shrink-0">
             <button
               id="theme-toggle-btn"
-              onClick={() => setShowThemeMenu(!showThemeMenu)}
+              onClick={() => {
+                setShowThemeMenu(prev => !prev);
+                setShowLangMenu(false);
+                setShowCurrencyMenu(false);
+                setShowUserMenu(false);
+              }}
               className={`p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center justify-center shrink-0 cursor-pointer`}
               title="Switch Visual Theme"
               aria-label="Switch Theme"
@@ -476,7 +505,7 @@ export const Header: React.FC<HeaderProps> = ({
             id="saved-trips-btn"
             onClick={onOpenSavedTrips}
             className={`relative p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center justify-center shrink-0 cursor-pointer`}
-            title="Saved Trips & Reservations"
+            title={t('nav.savedTrips', 'Saved Trips & Reservations')}
             aria-label="Saved Trips"
           >
             <Heart className={`w-4 h-4 ${savedTripsCount > 0 ? 'text-rose-500 fill-rose-500' : ''}`} />
@@ -489,10 +518,15 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* User Profile OR Sign In Button (ALWAYS PROMINENT & VISIBLE) */}
           {user ? (
-            <div className="relative shrink-0">
+            <div id="user-menu-container" className="relative shrink-0">
               <button
                 id="user-profile-btn"
-                onClick={() => setShowUserMenu(!showUserMenu)}
+                onClick={() => {
+                  setShowUserMenu(prev => !prev);
+                  setShowLangMenu(false);
+                  setShowCurrencyMenu(false);
+                  setShowThemeMenu(false);
+                }}
                 className={`flex items-center gap-1.5 sm:gap-2 p-1 sm:px-2 rounded-xl border ${styles.border} ${styles.cardBg} hover:opacity-90 transition-all shrink-0 cursor-pointer`}
               >
                 {user.avatar ? (
@@ -631,7 +665,7 @@ export const Header: React.FC<HeaderProps> = ({
                       className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium cursor-pointer ${styles.textSecondary} hover:${styles.bg}`}
                     >
                       <UserIcon className="w-4 h-4 opacity-70" />
-                      <span>Switch Account</span>
+                      <span>{t('nav.switchAccount', 'Switch Account')}</span>
                     </button>
 
                     <button
@@ -642,7 +676,7 @@ export const Header: React.FC<HeaderProps> = ({
                       className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Sign Out</span>
+                      <span>{t('nav.signOut', 'Sign Out')}</span>
                     </button>
                   </div>
                 </div>
@@ -657,7 +691,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold ${styles.buttonPrimary} shadow-md transition-all shrink-0 cursor-pointer hover:scale-105 active:scale-95`}
               >
                 <LogIn className="w-4 h-4" />
-                <span>Sign In</span>
+                <span>{t('nav.signIn', 'Sign In')}</span>
               </button>
             </div>
           )}

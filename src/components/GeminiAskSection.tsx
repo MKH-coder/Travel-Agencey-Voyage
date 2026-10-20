@@ -11,7 +11,8 @@ import {
   MessageSquare,
   ThumbsUp,
   ThumbsDown,
-  Info
+  Info,
+  ExternalLink
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { AuthAudit } from '../services/authAudit.ts';
@@ -141,13 +142,23 @@ export const GeminiAskSection: React.FC<GeminiAskSectionProps> = ({
             <Sparkles className="w-5 h-5 animate-pulse" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center flex-wrap gap-2">
               <h4 className={`text-base font-extrabold ${styles.textPrimary}`}>
                 {title}
               </h4>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
                 Gemini 3.8 Flash LLM
               </span>
+              <a
+                href="https://voyagefaq.netlify.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:underline"
+                title="Grounded in Official Voyage FAQ"
+              >
+                <span>voyagefaq.netlify.app</span>
+                <ExternalLink className="w-2.5 h-2.5" />
+              </a>
             </div>
             <p className={`text-xs ${styles.textMuted} mt-0.5 max-w-xl`}>
               {subtitle}
