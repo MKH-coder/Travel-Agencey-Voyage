@@ -2186,7 +2186,7 @@ Guidelines:
       const prompt = `${systemPrompt}\n\nRecent Conversation:\n${conversationHistory}\n\nVoyage AI:`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
       });
 
