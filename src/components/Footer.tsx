@@ -1,5 +1,5 @@
 import React from 'react';
-import { Compass, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ShieldCheck, Globe, CreditCard, Heart, Gamepad2, Download, FileText } from 'lucide-react';
+import { Compass, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ShieldCheck, Globe, CreditCard, Heart, Gamepad2, Download, FileText, HelpCircle, ExternalLink } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { AlbaniaPdfService } from '../services/albaniaPdfService.ts';
@@ -9,9 +9,10 @@ interface FooterProps {
   onOpenGame?: () => void;
   onDownloadZip?: () => void;
   onOpenAlbaniaModal?: (tier?: 'basic' | 'midrange' | 'luxury') => void;
+  onOpenFaq?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip, onOpenAlbaniaModal }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip, onOpenAlbaniaModal, onOpenFaq }) => {
   const { styles, theme } = useTheme();
   const { user } = useAuth();
   const isAdmin = Boolean(user && ['ADMIN', 'TECH_ADMIN', 'TECH_SUBADMIN'].includes(user.role));
@@ -104,8 +105,30 @@ export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip, onOpe
 
           {/* Support */}
           <div>
-            <h4 className={`text-sm font-bold uppercase tracking-wider mb-6 ${styles.textPrimary}`}>Support</h4>
+            <h4 className={`text-sm font-bold uppercase tracking-wider mb-6 ${styles.textPrimary}`}>Support & FAQs</h4>
             <ul className="space-y-4">
+              {onOpenFaq && (
+                <li>
+                  <button
+                    onClick={onOpenFaq}
+                    className="text-sm font-semibold text-sky-500 hover:text-sky-400 flex items-center gap-1.5 transition-colors cursor-pointer text-left"
+                  >
+                    <HelpCircle className="w-4 h-4" />
+                    <span>Frequently Asked Questions</span>
+                  </button>
+                </li>
+              )}
+              <li>
+                <a
+                  href="https://voyagefaq.netlify.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`text-sm ${styles.textMuted} hover:text-sky-500 transition-colors flex items-center gap-1`}
+                >
+                  <span>Official FAQ Portal</span>
+                  <ExternalLink className="w-3 h-3 opacity-60" />
+                </a>
+              </li>
               <li><a href="#" className={`text-sm ${styles.textMuted} hover:text-sky-500 transition-colors`}>Help Center</a></li>
               <li><a href="#" className={`text-sm ${styles.textMuted} hover:text-sky-500 transition-colors`}>Privacy Policy</a></li>
               <li><a href="#" className={`text-sm ${styles.textMuted} hover:text-sky-500 transition-colors`}>Terms of Service</a></li>

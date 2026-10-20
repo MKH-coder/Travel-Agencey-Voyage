@@ -41,13 +41,14 @@ import { FloatingContact } from './components/FloatingContact.tsx';
 import { WanderlustGameModal } from './components/WanderlustGameModal.tsx';
 import { ZipArchiveService } from './services/zipExportService.ts';
 import { AlbaniaItineraryModal } from './components/AlbaniaItineraryModal.tsx';
+import { FaqPage } from './components/FaqPage.tsx';
 
 function MainLayout() {
   const { styles, theme, setTheme } = useTheme();
   const { user, token, showLoginModal, setShowLoginModal, showBypassModal, setShowBypassModal } = useAuth();
   const isAdmin = Boolean(user && ['ADMIN', 'TECH_ADMIN', 'TECH_SUBADMIN'].includes(user.role));
 
-  const [currentView, setCurrentView] = useState<'dashboard' | 'admin'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'admin' | 'faq'>('dashboard');
   const [feedLayout, setFeedLayout] = useState<'split' | 'grid' | 'map'>('split');
   const [listings, setListings] = useState<Listing[]>(() => ClientStorageManager.getListings());
   const [loading, setLoading] = useState(false);
@@ -168,10 +169,6 @@ function MainLayout() {
 
   useEffect(() => {
     loadListings();
-    const intervalId = setInterval(() => {
-      loadListings();
-    }, 10000);
-    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
@@ -626,11 +623,16 @@ function MainLayout() {
               )}
             </div>
           </div>
-        ) : (
+        ) : currentView === 'admin' ? (
           <AdminPortal
             onListingUpdated={loadListings}
             onNavigateExplore={() => setCurrentView('dashboard')}
-            onTabChange={(tab) => setAdminTab(tab as 'analytics' | 'create' | 'inventory' | 'queue' | 'users' | 'logs' | 'cloud' | 'logins')}
+            onTabChange={(tab) => setAdminTab(tab as any)}
+          />
+        ) : (
+          <FaqPage
+            onNavigateBack={() => setCurrentView('dashboard')}
+            onOpenCustomTrip={handlePlanTrip}
           />
         )}
 
@@ -656,6 +658,7 @@ function MainLayout() {
         onOpenGame={() => setShowGameModal(true)}
         onDownloadZip={isAdmin ? () => ZipArchiveService.exportPlatformArchiveZip() : undefined}
         onOpenAlbaniaModal={handleOpenAlbaniaModal}
+        onOpenFaq={() => setCurrentView('faq')}
       />
 
       {selectedListing?.category === 'PACKAGE' && packagePreviewActive ? (

@@ -28,7 +28,8 @@ import {
   Download,
   Check,
   Coins,
-  Instagram
+  Instagram,
+  HelpCircle
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -41,8 +42,8 @@ import { SupabaseSyncIndicator } from './SupabaseSyncIndicator.tsx';
 import { VoyageLogo } from './VoyageLogo.tsx';
 
 interface HeaderProps {
-  currentView: 'dashboard' | 'admin';
-  setCurrentView: (view: 'dashboard' | 'admin') => void;
+  currentView: 'dashboard' | 'admin' | 'faq';
+  setCurrentView: (view: 'dashboard' | 'admin' | 'faq') => void;
   savedTripsCount: number;
   onOpenSavedTrips: () => void;
   onOpenShortcutsHelp?: () => void;
@@ -205,6 +206,20 @@ export const Header: React.FC<HeaderProps> = ({
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${styles.textSecondary} hover:${styles.cardBg}`}
             >
               {t('nav.contact', 'Contact')}
+            </button>
+
+            <button
+              id="nav-faq-btn"
+              onClick={() => setCurrentView('faq')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
+                currentView === 'faq'
+                  ? `${styles.accent} text-white shadow-sm`
+                  : `${styles.textSecondary} hover:${styles.cardBg}`
+              }`}
+              title="Official Voyage FAQ (voyagefaq.netlify.app)"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+              <span>FAQ</span>
             </button>
 
             <a
@@ -781,6 +796,19 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Compass className="w-4 h-4 text-emerald-500" />
               <span>Contact Concierge</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setCurrentView('faq');
+                setIsMobileMenuOpen(false);
+              }}
+              className={`p-3 rounded-2xl border text-left text-xs font-bold flex items-center gap-2.5 transition-all cursor-pointer ${
+                currentView === 'faq' ? 'border-sky-500 bg-sky-500/10 text-sky-600 dark:text-sky-300' : 'border-slate-200 dark:border-slate-800'
+              }`}
+            >
+              <HelpCircle className="w-4 h-4 text-sky-500" />
+              <span>Voyage FAQ</span>
             </button>
 
             {onOpenAlbaniaModal && (

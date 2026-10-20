@@ -40,8 +40,6 @@ export const ExploreFeed: React.FC<ExploreFeedProps> = ({ onOpenAlbaniaModal }) 
 
   useEffect(() => {
     fetchPosts();
-    const interval = setInterval(fetchPosts, 15000); // Polling every 15s
-    return () => clearInterval(interval);
   }, []);
 
   const handleCreatePost = async (contentToPost?: string) => {

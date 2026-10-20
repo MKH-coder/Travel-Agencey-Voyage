@@ -7,6 +7,42 @@
     <link rel="icon" type="image/jpeg" href="/voyage-logo.jpg" />
     <link rel="apple-touch-icon" href="/voyage-logo.jpg" />
     <script>
+      // Suppress benign Vite HMR / WebSocket connection errors in sandbox
+      window.addEventListener('error', function (event) {
+        var msg = (event && (event.message || (event.error && (event.error.message || event.error.stack)))) || '';
+        var src = (event && event.filename) || '';
+        if (
+          typeof msg === 'string' && (
+            msg.toLowerCase().includes('websocket') ||
+            msg.toLowerCase().includes('vite') ||
+            msg.toLowerCase().includes('hmr') ||
+            msg.includes('createWebSocketModuleRunnerTransport') ||
+            src.includes('@vite/client')
+          )
+        ) {
+          event.preventDefault();
+          if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+          return true;
+        }
+      }, true);
+
+      window.addEventListener('unhandledrejection', function (event) {
+        var reason = event && event.reason;
+        var msg = (reason && (reason.stack || reason.message || reason)) || '';
+        if (
+          typeof msg === 'string' && (
+            msg.toLowerCase().includes('websocket') ||
+            msg.toLowerCase().includes('vite') ||
+            msg.toLowerCase().includes('hmr') ||
+            msg.includes('createWebSocketModuleRunnerTransport')
+          )
+        ) {
+          event.preventDefault();
+          if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+          return true;
+        }
+      });
+
       // Ensure GitHub Pages sub-path always ends with a slash so relative ./assets/ work properly
       if (
         window.location.hostname.includes('github.io') &&

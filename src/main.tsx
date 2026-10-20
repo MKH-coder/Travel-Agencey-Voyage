@@ -7,14 +7,15 @@ import './index.css';
 if (typeof window !== 'undefined') {
   // Gracefully catch and suppress expected, benign WebSocket/HMR disconnect errors and Firestore idle stream disconnects in the sandbox
   window.addEventListener('unhandledrejection', (event) => {
-    const msg = String(event.reason?.message || event.reason || '');
+    const msg = String(event.reason?.stack || event.reason?.message || event.reason || '');
     if (
       msg.toLowerCase().includes('websocket') || 
       msg.toLowerCase().includes('vite') || 
       msg.toLowerCase().includes('hmr') ||
       msg.toLowerCase().includes('closed without opened') ||
       msg.includes('Disconnecting idle stream') ||
-      msg.includes('CANCELLED: Disconnecting idle stream')
+      msg.includes('CANCELLED: Disconnecting idle stream') ||
+      msg.includes('createWebSocketModuleRunnerTransport')
     ) {
       event.preventDefault();
       event.stopPropagation();
@@ -22,19 +23,22 @@ if (typeof window !== 'undefined') {
   });
 
   window.addEventListener('error', (event) => {
-    const msg = String(event.message || '');
+    const msg = String(event.error?.stack || event.error?.message || event.message || '');
+    const filename = String(event.filename || '');
     if (
       msg.toLowerCase().includes('websocket') || 
       msg.toLowerCase().includes('vite') || 
       msg.toLowerCase().includes('hmr') ||
       msg.toLowerCase().includes('closed without opened') ||
       msg.includes('Disconnecting idle stream') ||
-      msg.includes('CANCELLED: Disconnecting idle stream')
+      msg.includes('CANCELLED: Disconnecting idle stream') ||
+      msg.includes('createWebSocketModuleRunnerTransport') ||
+      filename.includes('@vite/client')
     ) {
       event.preventDefault();
       event.stopPropagation();
     }
-  });
+  }, true);
 }
 
 createRoot(document.getElementById('root')!).render(
