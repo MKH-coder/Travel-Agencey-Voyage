@@ -110,6 +110,24 @@ export const Header: React.FC<HeaderProps> = ({
     return () => document.removeEventListener('click', handleDocumentClick);
   }, []);
 
+  const themeModes: ThemeMode[] = [
+    'cyan-light',
+    'dark-slate',
+    'crimson-black',
+    'emerald-warm',
+    'royal-gold',
+    'violet-glass',
+    'emerald-black',
+    'rose-gold',
+    'nordic-frost',
+  ];
+
+  const handleCycleTheme = () => {
+    const currentIndex = themeModes.indexOf(theme);
+    const nextTheme = themeModes[(currentIndex + 1) % themeModes.length];
+    setTheme(nextTheme);
+  };
+
   const themeOptions: { id: ThemeMode; label: string; icon: React.ReactNode; color: string }[] = [
     {
       id: 'cyan-light',
@@ -231,9 +249,16 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               id="nav-faq-btn"
-              onClick={() => window.open('https://voyagefaq.netlify.app', '_blank')}
+              onClick={() => {
+                const el = document.getElementById('faq-section');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  window.open('https://voyagefaq.netlify.app', '_blank');
+                }
+              }}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${styles.textSecondary} hover:${styles.cardBg}`}
-              title="Official Voyage FAQ (voyagefaq.netlify.app)"
+              title="View FAQ on site"
             >
               <HelpCircle className="w-3.5 h-3.5" />
               <span>FAQ</span>
@@ -438,19 +463,14 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* Theme Selector (Compact Icon Only) */}
-          <div id="theme-selector-container" className="relative shrink-0">
+          {/* Dedicated Theme-Switching Toggle & Menu */}
+          <div id="theme-selector-container" className="relative shrink-0 flex items-center gap-0.5">
             <button
-              id="theme-toggle-btn"
-              onClick={() => {
-                setShowThemeMenu(prev => !prev);
-                setShowLangMenu(false);
-                setShowCurrencyMenu(false);
-                setShowUserMenu(false);
-              }}
-              className={`p-2 rounded-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center justify-center shrink-0 cursor-pointer`}
-              title="Switch Visual Theme"
-              aria-label="Switch Theme"
+              id="theme-cycle-btn"
+              onClick={handleCycleTheme}
+              className={`p-2 rounded-l-xl border-y border-l ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center gap-1.5 justify-center shrink-0 cursor-pointer`}
+              title="Cycle Visual Theme (Click to switch next)"
+              aria-label="Cycle Visual Theme"
             >
               {theme === 'cyan-light' && <Sun className="w-4 h-4 text-cyan-500" />}
               {theme === 'dark-slate' && <Moon className="w-4 h-4 text-sky-400" />}
@@ -461,6 +481,21 @@ export const Header: React.FC<HeaderProps> = ({
               {theme === 'emerald-black' && <Leaf className="w-4 h-4 text-emerald-400" />}
               {theme === 'rose-gold' && <Heart className="w-4 h-4 text-rose-300" />}
               {theme === 'nordic-frost' && <Snowflake className="w-4 h-4 text-sky-400" />}
+              <span className="hidden md:inline text-[11px] font-semibold">Cycle Theme</span>
+            </button>
+            <button
+              id="theme-toggle-btn"
+              onClick={() => {
+                setShowThemeMenu(prev => !prev);
+                setShowLangMenu(false);
+                setShowCurrencyMenu(false);
+                setShowUserMenu(false);
+              }}
+              className={`p-2 rounded-r-xl border ${styles.border} ${styles.cardBg} ${styles.textPrimary} hover:opacity-90 transition-all flex items-center justify-center shrink-0 cursor-pointer`}
+              title="Select Specific Theme"
+              aria-label="Select Theme Menu"
+            >
+              <ChevronDown className="w-3.5 h-3.5 opacity-70" />
             </button>
 
             {showThemeMenu && (
@@ -830,8 +865,13 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => {
-                window.open('https://voyagefaq.netlify.app', '_blank');
                 setIsMobileMenuOpen(false);
+                const el = document.getElementById('faq-section');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  window.open('https://voyagefaq.netlify.app', '_blank');
+                }
               }}
               className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-left text-xs font-bold flex items-center gap-2.5 transition-all cursor-pointer hover:border-sky-500 hover:bg-sky-500/10"
             >
@@ -982,7 +1022,15 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Quick Theme Switcher in Drawer */}
           <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 space-y-2">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Visual Theme</div>
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Visual Theme</div>
+              <button
+                onClick={handleCycleTheme}
+                className="px-2.5 py-1 rounded-lg bg-sky-500/10 text-sky-500 text-[10px] font-bold hover:bg-sky-500/20 transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <span>Cycle Next</span>
+              </button>
+            </div>
             <div className="grid grid-cols-3 gap-1.5">
               {themeOptions.map((opt) => (
                 <button

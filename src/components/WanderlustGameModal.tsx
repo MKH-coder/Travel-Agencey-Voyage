@@ -10,12 +10,14 @@ import {
   VolumeX,
   HelpCircle,
   Award,
-  Gauge
+  Gauge,
+  Mountain
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { SkyExpeditionGame } from './SkyExpeditionGame.tsx';
 import { BalkanCoastalRallyGame } from './BalkanCoastalRallyGame.tsx';
 import { GeoDetectiveGame } from './GeoDetectiveGame.tsx';
+import { AlpineClimberGame } from './AlpineClimberGame.tsx';
 import { PassportRewardsTab } from './PassportRewardsTab.tsx';
 import { gameAudio } from '../utils/gameAudio.ts';
 
@@ -25,12 +27,12 @@ interface WanderlustGameModalProps {
   onUsePromo?: (code: string) => void;
 }
 
-const STORAGE_KEY_PROGRESS = 'voyage_interactive_game_progress_v2';
+const STORAGE_KEY_PROGRESS = 'voyage_interactive_game_progress_v3';
 
 export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen, onClose, onUsePromo }) => {
   const { styles } = useTheme();
 
-  const [activeTab, setActiveTab] = useState<'flight' | 'rally' | 'detective' | 'passport'>('flight');
+  const [activeTab, setActiveTab] = useState<'flight' | 'rally' | 'detective' | 'alpine' | 'passport'>('flight');
   const [totalScore, setTotalScore] = useState<number>(0);
   const [highScore, setHighScore] = useState<number>(0);
   const [unlockedStamps, setUnlockedStamps] = useState<string[]>(['stamp_ksamil']);
@@ -110,12 +112,12 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
                 </span>
               </div>
               <div className="text-[11px] text-slate-400">
-                Interactive Flight Arcade, Balkan Coastal Rally & Cultural Geo Mystery
+                4 Arcade Games, Progressive Levels & Exclusive Promo Codes
               </div>
             </div>
           </div>
 
-          {/* Center Tabs: Flight / Rally / Detective / Passport */}
+          {/* Center Tabs */}
           <div className="flex items-center p-1 bg-slate-950/80 rounded-2xl border border-slate-800/80 overflow-x-auto">
             <button
               onClick={() => setActiveTab('flight')}
@@ -126,7 +128,7 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
               }`}
             >
               <Plane className="w-3.5 h-3.5" />
-              <span>Sky Expedition</span>
+              <span>Sky Exp.</span>
             </button>
 
             <button
@@ -139,9 +141,6 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
             >
               <Gauge className="w-3.5 h-3.5" />
               <span>Coastal Rally</span>
-              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-rose-600 text-white font-black animate-pulse">
-                NEW
-              </span>
             </button>
 
             <button
@@ -157,6 +156,21 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
             </button>
 
             <button
+              onClick={() => setActiveTab('alpine')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                activeTab === 'alpine'
+                  ? 'bg-emerald-500 text-slate-950 shadow-xs'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Mountain className="w-3.5 h-3.5" />
+              <span>Alpine Climber</span>
+              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-rose-600 text-white font-black animate-pulse">
+                NEW
+              </span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('passport')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeTab === 'passport'
@@ -165,7 +179,7 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
               }`}
             >
               <Luggage className="w-3.5 h-3.5" />
-              <span>Passport & Perks</span>
+              <span>Passport</span>
               {unlockedStamps.length > 0 && (
                 <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-slate-900 text-amber-300 font-extrabold">
                   {unlockedStamps.length}
@@ -224,6 +238,18 @@ export const WanderlustGameModal: React.FC<WanderlustGameModalProps> = ({ isOpen
             <GeoDetectiveGame
               onUnlockStamp={handleUnlockStamp}
               onUpdateScore={handleUpdateScore}
+              onUsePromo={(code) => {
+                onUsePromo?.(code);
+                onClose();
+              }}
+            />
+          )}
+
+          {activeTab === 'alpine' && (
+            <AlpineClimberGame
+              onUnlockStamp={handleUnlockStamp}
+              onUpdateScore={handleUpdateScore}
+              highScore={highScore}
               onUsePromo={(code) => {
                 onUsePromo?.(code);
                 onClose();

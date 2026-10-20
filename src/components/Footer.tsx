@@ -111,7 +111,12 @@ export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip, onOpe
                 <li>
                   <button
                     onClick={() => {
-                      onOpenFaq();
+                      const el = document.getElementById('faq-section');
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth' });
+                      } else {
+                        onOpenFaq();
+                      }
                     }}
                     className="text-sm font-semibold text-sky-500 hover:text-sky-400 flex items-center gap-1.5 transition-colors cursor-pointer text-left"
                   >

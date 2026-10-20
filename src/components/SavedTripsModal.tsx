@@ -19,6 +19,7 @@ import { Listing } from '../types.ts';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { useCurrency } from '../context/CurrencyContext.tsx';
+import { SavedTripTimelineModal } from './SavedTripTimelineModal.tsx';
 
 interface SavedTripsModalProps {
   isOpen: boolean;
@@ -43,6 +44,12 @@ export const SavedTripsModal: React.FC<SavedTripsModalProps> = ({
   const { user, setShowLoginModal } = useAuth();
   const { formatPrice } = useCurrency();
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showTimelineModal, setShowTimelineModal] = useState(false);
+  const [timelineItems, setTimelineItems] = useState<Listing[]>(savedListings);
+
+  React.useEffect(() => {
+    setTimelineItems(savedListings);
+  }, [savedListings]);
 
   const handleDownloadItinerary = async () => {
     if (savedListings.length === 0) return;
@@ -447,6 +454,15 @@ export const SavedTripsModal: React.FC<SavedTripsModalProps> = ({
             <div className="flex items-center gap-2.5">
               <button
                 type="button"
+                onClick={() => setShowTimelineModal(true)}
+                className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-sky-500 to-indigo-600 text-white hover:opacity-90 flex items-center gap-1.5 shadow-md shadow-sky-500/20 cursor-pointer"
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Interactive Timeline</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={handleDownloadItinerary}
                 disabled={isDownloading}
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider ${styles.buttonSecondary} flex items-center gap-1.5 shadow-sm`}
@@ -465,6 +481,16 @@ export const SavedTripsModal: React.FC<SavedTripsModalProps> = ({
             </div>
           </div>
         )}
+
+        <SavedTripTimelineModal
+          isOpen={showTimelineModal}
+          onClose={() => setShowTimelineModal(false)}
+          tripTitle={user ? `${user.name}'s Curated Expedition` : 'Saved Expedition Itinerary'}
+          initialItems={timelineItems}
+          onSaveTimeline={(updated) => {
+            setTimelineItems(updated);
+          }}
+        />
       </div>
     </div>
   );

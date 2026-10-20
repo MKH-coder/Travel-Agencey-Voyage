@@ -42,6 +42,7 @@ import { WanderlustGameModal } from './components/WanderlustGameModal.tsx';
 import { ZipArchiveService } from './services/zipExportService.ts';
 import { AlbaniaItineraryModal } from './components/AlbaniaItineraryModal.tsx';
 import { Testimonials } from './components/Testimonials.tsx';
+import { FAQSection } from './components/FAQSection.tsx';
 
 function MainLayout() {
   const { styles, theme, setTheme } = useTheme();
@@ -654,11 +655,16 @@ function MainLayout() {
         )}
       </main>
 
+      <FAQSection />
+
       <Footer
         onOpenGame={() => setShowGameModal(true)}
         onDownloadZip={isAdmin ? () => ZipArchiveService.exportPlatformArchiveZip() : undefined}
         onOpenAlbaniaModal={handleOpenAlbaniaModal}
-        onOpenFaq={() => window.open('https://voyagefaq.netlify.app', '_blank')}
+        onOpenFaq={() => {
+          const el = document.getElementById('faq-section');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }}
       />
 
       {selectedListing?.category === 'PACKAGE' && packagePreviewActive ? (
