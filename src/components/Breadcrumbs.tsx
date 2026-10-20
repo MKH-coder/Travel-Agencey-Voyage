@@ -4,8 +4,8 @@ import { useTheme } from '../context/ThemeContext.tsx';
 import { Listing, FilterState } from '../types.ts';
 
 interface BreadcrumbsProps {
-  currentView: 'dashboard' | 'admin' | 'faq';
-  setCurrentView: (view: 'dashboard' | 'admin' | 'faq') => void;
+  currentView: 'dashboard' | 'admin';
+  setCurrentView: (view: 'dashboard' | 'admin') => void;
   selectedListing: Listing | null;
   setSelectedListing: (listing: Listing | null) => void;
   filters: FilterState;
@@ -106,7 +106,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
               >
                 <span>Explorer</span>
               </button>
-            ) : currentView === 'admin' ? (
+            ) : (
               <button
                 onClick={() => {
                   setSelectedListing(null);
@@ -121,17 +121,6 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
               >
                 <Shield className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                 <span>Admin Console</span>
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  setSelectedListing(null);
-                  setCurrentView('faq');
-                }}
-                className={`flex items-center gap-1 px-2 py-1 rounded-lg transition-all ${styles.accentText} font-bold cursor-default`}
-              >
-                <HelpCircle className="w-3.5 h-3.5 text-sky-500 shrink-0" />
-                <span>Knowledge Base & FAQs</span>
               </button>
             )}
           </li>
@@ -187,10 +176,6 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
           ) : currentView === 'admin' ? (
             <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20`}>
               Secure Terminal
-            </span>
-          ) : currentView === 'faq' ? (
-            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20`}>
-              Official FAQ
             </span>
           ) : (
             <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-500/10 text-sky-500 border border-sky-500/20`}>

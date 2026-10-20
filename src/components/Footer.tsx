@@ -110,7 +110,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip, onOpe
               {onOpenFaq && (
                 <li>
                   <button
-                    onClick={onOpenFaq}
+                    onClick={() => {
+                      onOpenFaq();
+                    }}
                     className="text-sm font-semibold text-sky-500 hover:text-sky-400 flex items-center gap-1.5 transition-colors cursor-pointer text-left"
                   >
                     <HelpCircle className="w-4 h-4" />

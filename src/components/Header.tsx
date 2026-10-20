@@ -42,8 +42,8 @@ import { SupabaseSyncIndicator } from './SupabaseSyncIndicator.tsx';
 import { VoyageLogo } from './VoyageLogo.tsx';
 
 interface HeaderProps {
-  currentView: 'dashboard' | 'admin' | 'faq';
-  setCurrentView: (view: 'dashboard' | 'admin' | 'faq') => void;
+  currentView: 'dashboard' | 'admin';
+  setCurrentView: (view: 'dashboard' | 'admin') => void;
   savedTripsCount: number;
   onOpenSavedTrips: () => void;
   onOpenShortcutsHelp?: () => void;
@@ -231,12 +231,8 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               id="nav-faq-btn"
-              onClick={() => setCurrentView('faq')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
-                currentView === 'faq'
-                  ? `${styles.accent} text-white shadow-sm`
-                  : `${styles.textSecondary} hover:${styles.cardBg}`
-              }`}
+              onClick={() => window.open('https://voyagefaq.netlify.app', '_blank')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${styles.textSecondary} hover:${styles.cardBg}`}
               title="Official Voyage FAQ (voyagefaq.netlify.app)"
             >
               <HelpCircle className="w-3.5 h-3.5" />
@@ -834,12 +830,10 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => {
-                setCurrentView('faq');
+                window.open('https://voyagefaq.netlify.app', '_blank');
                 setIsMobileMenuOpen(false);
               }}
-              className={`p-3 rounded-2xl border text-left text-xs font-bold flex items-center gap-2.5 transition-all cursor-pointer ${
-                currentView === 'faq' ? 'border-sky-500 bg-sky-500/10 text-sky-600 dark:text-sky-300' : 'border-slate-200 dark:border-slate-800'
-              }`}
+              className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-left text-xs font-bold flex items-center gap-2.5 transition-all cursor-pointer hover:border-sky-500 hover:bg-sky-500/10"
             >
               <HelpCircle className="w-4 h-4 text-sky-500" />
               <span>Voyage FAQ</span>
