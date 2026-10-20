@@ -32,12 +32,13 @@ import { AuthAudit } from '../services/authAudit.ts';
 import { fetch3DayWeather, LocationWeather } from '../services/weatherService.ts';
 
 const CalmExperienceBadge: React.FC<{ category: string }> = ({ category }) => {
+  const { styles } = useTheme();
   return (
     <div
-      className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md shadow-xs bg-slate-900/80 text-emerald-300 border border-emerald-500/30"
+      className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md shadow-xs ${styles.cardBg} ${styles.accentText} border ${styles.border}`}
       title="Verified Voyage Collection"
     >
-      <ShieldCheck className="w-3 h-3 text-emerald-400" />
+      <ShieldCheck className={`w-3 h-3 ${styles.accentText}`} />
       <span>{category === 'PACKAGE' ? 'Curated Tour' : 'Verified Stay'}</span>
     </div>
   );

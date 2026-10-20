@@ -97,6 +97,12 @@ export interface Listing {
     submittedAt?: string;
     approvedAt?: string;
   };
+  seoMetadata?: {
+    metaDescription?: string;
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: string;
+  };
 }
 
 export type CustomTripStatus = 'SUBMITTED' | 'UNDER_REVIEW' | 'QUOTED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';

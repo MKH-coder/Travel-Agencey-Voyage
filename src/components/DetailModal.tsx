@@ -41,6 +41,8 @@ import { PromoService, PromoVoucher } from '../services/promoService.ts';
 import { VirtualTourModal } from './VirtualTourModal.tsx';
 import { GeminiAskSection } from './GeminiAskSection.tsx';
 import { CurrencyConverterWidget } from './CurrencyConverterWidget.tsx';
+import { PackingChecklist } from './PackingChecklist.tsx';
+import { Helmet } from 'react-helmet-async';
 
 interface DetailModalProps {
   listing: Listing | null;
@@ -287,6 +289,13 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-in fade-in duration-200">
+      <Helmet>
+        <title>{listing.seoMetadata?.ogTitle || listing.title} | Voyage Tours & Travels</title>
+        <meta name="description" content={listing.seoMetadata?.metaDescription || listing.description.slice(0, 155)} />
+        <meta property="og:title" content={listing.seoMetadata?.ogTitle || listing.title} />
+        <meta property="og:description" content={listing.seoMetadata?.ogDescription || listing.description.slice(0, 155)} />
+        {listing.seoMetadata?.ogImage && <meta property="og:image" content={listing.seoMetadata.ogImage} />}
+      </Helmet>
       <div
         className={`relative w-full max-w-5xl rounded-3xl border ${styles.border} ${styles.cardBg} shadow-2xl overflow-hidden flex flex-col max-h-[92vh]`}
       >
@@ -572,6 +581,9 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* Packing Checklist */}
+              <PackingChecklist listingId={listing.id} listingTitle={listing.title} />
 
               {/* Package Components */}
               {listing.category === 'PACKAGE' && (

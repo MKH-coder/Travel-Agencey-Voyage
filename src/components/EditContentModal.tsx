@@ -40,6 +40,10 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
   const [description, setDescription] = useState(listing?.description || '');
   const [images, setImages] = useState<string[]>(listing?.images || []);
   const [newPhotoUrl, setNewPhotoUrl] = useState('');
+  const [seoMetaDescription, setSeoMetaDescription] = useState(listing?.seoMetadata?.metaDescription || '');
+  const [seoOgTitle, setSeoOgTitle] = useState(listing?.seoMetadata?.ogTitle || '');
+  const [seoOgDescription, setSeoOgDescription] = useState(listing?.seoMetadata?.ogDescription || '');
+  const [seoOgImage, setSeoOgImage] = useState(listing?.seoMetadata?.ogImage || '');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -54,6 +58,10 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
       setCategory(listing.category || 'PLACE');
       setDescription(listing.description);
       setImages(listing.images && listing.images.length > 0 ? listing.images : ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80']);
+      setSeoMetaDescription(listing.seoMetadata?.metaDescription || '');
+      setSeoOgTitle(listing.seoMetadata?.ogTitle || '');
+      setSeoOgDescription(listing.seoMetadata?.ogDescription || '');
+      setSeoOgImage(listing.seoMetadata?.ogImage || '');
       setError('');
       setSuccess('');
     }
@@ -144,6 +152,12 @@ export const EditContentModal: React.FC<EditContentModalProps> = ({
           category,
           description: description.trim(),
           images,
+          seoMetadata: {
+            metaDescription: seoMetaDescription.trim() || undefined,
+            ogTitle: seoOgTitle.trim() || undefined,
+            ogDescription: seoOgDescription.trim() || undefined,
+            ogImage: seoOgImage.trim() || undefined,
+          }
         }),
       });
 

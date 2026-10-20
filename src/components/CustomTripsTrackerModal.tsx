@@ -20,6 +20,7 @@ import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { CustomTripRequest, Booking } from '../types.ts';
 import { customTripService } from '../services/customTripService.ts';
+import { TripProgressBar } from './TripProgressBar.tsx';
 
 interface CustomTripsTrackerModalProps {
   isOpen: boolean;
@@ -277,6 +278,9 @@ export const CustomTripsTrackerModal: React.FC<CustomTripsTrackerModalProps> = (
                       </div>
                     )}
                   </div>
+                  
+                  {/* Trip Progress Bar */}
+                  <TripProgressBar status={selectedTrip.status} />
 
                   {/* Day-by-Day Schedule */}
                   <div>

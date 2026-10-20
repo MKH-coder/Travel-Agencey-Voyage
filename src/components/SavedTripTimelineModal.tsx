@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Listing } from '../types.ts';
 import { useTheme } from '../context/ThemeContext.tsx';
+import { ItineraryNotificationService } from '../services/itineraryNotificationService.ts';
 
 interface SavedTripTimelineModalProps {
   isOpen: boolean;
@@ -92,6 +93,7 @@ export const SavedTripTimelineModal: React.FC<SavedTripTimelineModalProps> = ({
     if (onSaveTimeline) {
       onSaveTimeline(items);
     }
+    ItineraryNotificationService.notifyItineraryUpdate(tripTitle, 'reorder');
     setSuccessMessage('Itinerary timeline order successfully saved!');
     setTimeout(() => {
       setSuccessMessage(null);

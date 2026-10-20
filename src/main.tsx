@@ -41,10 +41,15 @@ if (typeof window !== 'undefined') {
   }, true);
 }
 
+import { HelmetProvider } from 'react-helmet-async';
+import './index.css';
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
-      <App />
+      <HelmetProvider>
+        <App />
+      </HelmetProvider>
     </ErrorBoundary>
   </StrictMode>,
 );

@@ -34,6 +34,10 @@ export const PackageCreatorModal: React.FC<PackageCreatorModalProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [status, setStatus] = useState<'PUBLISHED' | 'DRAFT'>('PUBLISHED');
+  const [seoMetaDescription, setSeoMetaDescription] = useState('');
+  const [seoOgTitle, setSeoOgTitle] = useState('');
+  const [seoOgDescription, setSeoOgDescription] = useState('');
+  const [seoOgImage, setSeoOgImage] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -52,6 +56,10 @@ export const PackageCreatorModal: React.FC<PackageCreatorModalProps> = ({
           setImages(initialData.images || []);
           setSelectedListingIds(initialData.listingIds || []);
           setStatus(initialData.status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT');
+          setSeoMetaDescription(initialData.seoMetadata?.metaDescription || '');
+          setSeoOgTitle(initialData.seoMetadata?.ogTitle || '');
+          setSeoOgDescription(initialData.seoMetadata?.ogDescription || '');
+          setSeoOgImage(initialData.seoMetadata?.ogImage || '');
         } else {
           // Creating a package from an existing post / listing
           setTitle(`${initialData.title} Signature Tour Package`);
@@ -75,6 +83,10 @@ export const PackageCreatorModal: React.FC<PackageCreatorModalProps> = ({
         setImages([]);
         setSelectedListingIds([]);
         setStatus('PUBLISHED');
+        setSeoMetaDescription('');
+        setSeoOgTitle('');
+        setSeoOgDescription('');
+        setSeoOgImage('');
       }
     }
   }, [isOpen, initialData]);
@@ -143,6 +155,12 @@ export const PackageCreatorModal: React.FC<PackageCreatorModalProps> = ({
           listingIds: selectedListingIds,
           status: status, 
           tags: ['Luxury Bundle', 'Tour Package', 'Curated Journey', 'Verified Agency'],
+          seoMetadata: {
+            metaDescription: seoMetaDescription.trim() || undefined,
+            ogTitle: seoOgTitle.trim() || undefined,
+            ogDescription: seoOgDescription.trim() || undefined,
+            ogImage: seoOgImage.trim() || undefined,
+          }
         }),
       });
 
@@ -285,6 +303,57 @@ export const PackageCreatorModal: React.FC<PackageCreatorModalProps> = ({
                       onChange={e => setLocation(e.target.value)}
                       placeholder="e.g., Positano"
                       className={`w-full pl-9 p-3 rounded-xl border ${styles.border} ${styles.inputBg} outline-none text-sm focus:ring-2 focus:ring-amber-500/50 transition-all`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* SEO & Social Metadata Section */}
+              <div className="pt-6 border-t border-slate-200 dark:border-slate-800 mt-6">
+                <h4 className="text-sm font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-sky-500" />
+                  SEO & Social Preview
+                </h4>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Meta Description</label>
+                    <textarea 
+                      value={seoMetaDescription} 
+                      onChange={e => setSeoMetaDescription(e.target.value)}
+                      placeholder="120-160 characters for search results"
+                      rows={2}
+                      className={`w-full p-3 rounded-xl border ${styles.border} ${styles.inputBg} outline-none text-sm focus:ring-2 focus:ring-sky-500/50 transition-all`}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">OG Title</label>
+                      <input 
+                        type="text" 
+                        value={seoOgTitle} 
+                        onChange={e => setSeoOgTitle(e.target.value)}
+                        className={`w-full p-3 rounded-xl border ${styles.border} ${styles.inputBg} outline-none text-sm focus:ring-2 focus:ring-sky-500/50 transition-all`}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">OG Image URL</label>
+                      <input 
+                        type="text" 
+                        value={seoOgImage} 
+                        onChange={e => setSeoOgImage(e.target.value)}
+                        placeholder="https://..."
+                        className={`w-full p-3 rounded-xl border ${styles.border} ${styles.inputBg} outline-none text-sm focus:ring-2 focus:ring-sky-500/50 transition-all`}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">OG Description</label>
+                    <textarea 
+                      value={seoOgDescription} 
+                      onChange={e => setSeoOgDescription(e.target.value)}
+                      placeholder="Description for social sharing cards"
+                      rows={2}
+                      className={`w-full p-3 rounded-xl border ${styles.border} ${styles.inputBg} outline-none text-sm focus:ring-2 focus:ring-sky-500/50 transition-all`}
                     />
                   </div>
                 </div>

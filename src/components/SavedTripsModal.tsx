@@ -20,6 +20,7 @@ import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { useCurrency } from '../context/CurrencyContext.tsx';
 import { SavedTripTimelineModal } from './SavedTripTimelineModal.tsx';
+import { ItineraryNotificationService } from '../services/itineraryNotificationService.ts';
 
 interface SavedTripsModalProps {
   isOpen: boolean;
@@ -451,7 +452,17 @@ export const SavedTripsModal: React.FC<SavedTripsModalProps> = ({
               </span>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <button
+                type="button"
+                onClick={() => ItineraryNotificationService.checkForUpdates(savedListings)}
+                className="px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1.5 shadow-sm cursor-pointer"
+                title="Check for live itinerary updates & status changes"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Check Updates</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => setShowTimelineModal(true)}
