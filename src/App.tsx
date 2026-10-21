@@ -414,6 +414,13 @@ function MainLayout() {
         onOpenAlbaniaModal={handleOpenAlbaniaModal}
         searchQuery={filters.search}
         setSearchQuery={(q) => setFilters(prev => ({ ...prev, search: q }))}
+        listings={listings}
+        onSelectListing={(listing) => {
+          setSelectedListing(listing);
+        }}
+        onSelectCategory={(catId) => {
+          setFilters(prev => ({ ...prev, category: catId }));
+        }}
       />
 
       <Breadcrumbs

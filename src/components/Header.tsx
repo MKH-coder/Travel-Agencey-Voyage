@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Compass,
   Sun,
@@ -30,13 +30,21 @@ import {
   Coins,
   Instagram,
   HelpCircle,
-  ExternalLink
+  ExternalLink,
+  Hotel,
+  Landmark,
+  Utensils,
+  Package,
+  MapPin,
+  Tag,
+  Star
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { useLanguage } from '../context/LanguageContext.tsx';
 import { useCurrency } from '../context/CurrencyContext.tsx';
-import { ThemeMode } from '../types.ts';
+import { ThemeMode, Listing, ListingCategory } from '../types.ts';
+import { ClientStorageManager } from '../services/clientStorage.ts';
 import { UserProfileModal } from './UserProfileModal.tsx';
 import { Clock as ClockComponent } from './Clock.tsx';
 import { SupabaseSyncIndicator } from './SupabaseSyncIndicator.tsx';
@@ -56,6 +64,9 @@ interface HeaderProps {
   onOpenAlbaniaModal?: (tier?: 'basic' | 'midrange' | 'luxury') => void;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
+  listings?: Listing[];
+  onSelectListing?: (listing: Listing) => void;
+  onSelectCategory?: (category: 'ALL' | 'PLACE' | 'HOTEL' | 'FOOD' | 'PACKAGE') => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -72,18 +83,166 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAlbaniaModal,
   searchQuery,
   setSearchQuery,
+  listings,
+  onSelectListing,
+  onSelectCategory,
 }) => {
   const { theme, setTheme, styles } = useTheme();
   const { user, logout, setShowLoginModal, setShowBypassModal } = useAuth();
   const { language, setLanguage, t, languageOptions, currentLanguageOption } = useLanguage();
-  const { currency, setCurrency, currentCurrency, availableCurrencies } = useCurrency();
+  const { currency, setCurrency, currentCurrency, availableCurrencies, formatPrice } = useCurrency();
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showCurrencyMenu, setShowCurrencyMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const mobileSearchContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setSelectedSuggestionIndex(-1);
+  }, [searchQuery]);
   const isAdmin = Boolean(user && ['ADMIN', 'TECH_ADMIN', 'TECH_SUBADMIN'].includes(user.role));
+
+  const allListings = useMemo(() => {
+    if (listings && listings.length > 0) return listings;
+    try {
+      return ClientStorageManager.getListings();
+    } catch {
+      return [];
+    }
+  }, [listings]);
+
+  const categoryDefinitions = useMemo(() => [
+    {
+      id: 'PACKAGE' as const,
+      label: 'Tour Packages',
+      subLabel: 'Curated Multi-Day Expeditions',
+      icon: Package,
+      badgeText: 'Package',
+      badgeColor: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20',
+      keywords: ['package', 'packages', 'tour', 'tours', 'expedition', 'bundle', 'circuit', 'itinerary', 'trip', 'trips', 'albania 9-day', 'dossier', 'all-inclusive'],
+    },
+    {
+      id: 'HOTEL' as const,
+      label: 'Luxury Stays',
+      subLabel: 'Boutique Resorts, Lodges & Villas',
+      icon: Hotel,
+      badgeText: 'Stay',
+      badgeColor: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20',
+      keywords: ['hotel', 'hotels', 'stay', 'stays', 'resort', 'resorts', 'villa', 'villas', 'chalet', 'lodge', 'suite', 'boutique', 'bed', 'room', 'luxury'],
+    },
+    {
+      id: 'PLACE' as const,
+      label: 'Iconic Places & Sights',
+      subLabel: 'Natural Wonders & UNESCO Landmarks',
+      icon: Landmark,
+      badgeText: 'Place',
+      badgeColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
+      keywords: ['place', 'places', 'sight', 'sights', 'landmark', 'unesco', 'castle', 'island', 'islands', 'beach', 'spring', 'ruins', 'city', 'mountain', 'alps', 'park'],
+    },
+    {
+      id: 'FOOD' as const,
+      label: 'Culinary & Dining',
+      subLabel: 'Authentic Eateries & Wine Secrets',
+      icon: Utensils,
+      badgeText: 'Dining',
+      badgeColor: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20',
+      keywords: ['food', 'dining', 'culinary', 'restaurant', 'restaurants', 'wine', 'eat', 'tavern', 'cafe', 'dishes', 'cuisine', 'seafood', 'traditional'],
+    },
+  ], []);
+
+  const queryTrimmed = searchQuery.trim().toLowerCase();
+
+  const matchingCategories = useMemo(() => {
+    if (!queryTrimmed) {
+      return categoryDefinitions.map(cat => ({
+        ...cat,
+        count: allListings.filter(l => l.category === cat.id && (!l.status || l.status === 'PUBLISHED')).length
+      }));
+    }
+    return categoryDefinitions.filter(cat => {
+      if (cat.label.toLowerCase().includes(queryTrimmed)) return true;
+      if (cat.subLabel.toLowerCase().includes(queryTrimmed)) return true;
+      if (cat.id.toLowerCase().includes(queryTrimmed)) return true;
+      return cat.keywords.some(kw => kw.includes(queryTrimmed) || queryTrimmed.includes(kw));
+    }).map(cat => ({
+      ...cat,
+      count: allListings.filter(l => l.category === cat.id && (!l.status || l.status === 'PUBLISHED')).length
+    }));
+  }, [queryTrimmed, categoryDefinitions, allListings]);
+
+  const matchingDestinations = useMemo(() => {
+    if (!queryTrimmed) {
+      return allListings
+        .filter(l => (!l.status || l.status === 'PUBLISHED'))
+        .slice(0, 4);
+    }
+    return allListings
+      .filter(item => {
+        if (item.status && item.status !== 'PUBLISHED') return false;
+        const title = item.title.toLowerCase();
+        const loc = item.location.toLowerCase();
+        const country = item.country.toLowerCase();
+        const tags = (item.tags || []).map(t => t.toLowerCase()).join(' ');
+        const desc = (item.description || '').toLowerCase();
+        return (
+          title.includes(queryTrimmed) ||
+          loc.includes(queryTrimmed) ||
+          country.includes(queryTrimmed) ||
+          tags.includes(queryTrimmed) ||
+          desc.includes(queryTrimmed)
+        );
+      })
+      .slice(0, 6);
+  }, [queryTrimmed, allListings]);
+
+  const handleSelectDestination = (item: Listing) => {
+    setSearchQuery(item.title);
+    setShowSearchDropdown(false);
+    setIsMobileMenuOpen(false);
+    if (onSelectListing) {
+      onSelectListing(item);
+    }
+    setCurrentView('dashboard');
+    setTimeout(() => {
+      const card = document.getElementById(`listing-card-${item.id}`);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        const el = document.getElementById('listings-container') || document.querySelector('main');
+        el?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 80);
+  };
+
+  const handleSelectCategory = (catId: 'ALL' | 'PLACE' | 'HOTEL' | 'FOOD' | 'PACKAGE') => {
+    setSearchQuery('');
+    setShowSearchDropdown(false);
+    setIsMobileMenuOpen(false);
+    if (onSelectCategory) {
+      onSelectCategory(catId);
+    }
+    setCurrentView('dashboard');
+    setTimeout(() => {
+      const el = document.getElementById('listings-container') || document.querySelector('main');
+      el?.scrollIntoView({ behavior: 'smooth' });
+    }, 80);
+  };
+
+  const handleSearchSubmit = () => {
+    setShowSearchDropdown(false);
+    setIsMobileMenuOpen(false);
+    setCurrentView('dashboard');
+    setTimeout(() => {
+      const el = document.getElementById('listings-container') || document.querySelector('main');
+      el?.scrollIntoView({ behavior: 'smooth' });
+    }, 80);
+  };
 
   // Close mobile menu on view change
   useEffect(() => {
@@ -105,6 +264,14 @@ export const Header: React.FC<HeaderProps> = ({
       }
       if (!target.closest('#user-menu-container')) {
         setShowUserMenu(false);
+      }
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(target) &&
+        mobileSearchContainerRef.current &&
+        !mobileSearchContainerRef.current.contains(target)
+      ) {
+        setShowSearchDropdown(false);
       }
     };
     document.addEventListener('click', handleDocumentClick);
@@ -185,6 +352,266 @@ export const Header: React.FC<HeaderProps> = ({
       color: 'bg-sky-400',
     },
   ];
+
+  const HighlightMatch: React.FC<{ text: string; query: string }> = ({ text, query }) => {
+    const q = query.trim().toLowerCase();
+    if (!q) return <span>{text}</span>;
+    const idx = text.toLowerCase().indexOf(q);
+    if (idx === -1) return <span>{text}</span>;
+    const before = text.substring(0, idx);
+    const match = text.substring(idx, idx + q.length);
+    const after = text.substring(idx + q.length);
+    return (
+      <span>
+        {before}
+        <span className="font-extrabold text-sky-500 bg-sky-500/15 rounded-xs px-0.5">{match}</span>
+        {after}
+      </span>
+    );
+  };
+
+  const renderSearchInput = (isMobile: boolean) => {
+    const containerRef = isMobile ? mobileSearchContainerRef : searchContainerRef;
+    const inputId = isMobile ? 'header-search-input-mobile' : 'header-search-input';
+
+    return (
+      <div ref={containerRef} className="relative w-full">
+        {/* Search Input Box */}
+        <div
+          className={`flex items-center w-full rounded-2xl border transition-all duration-200 ${
+            isSearchFocused
+              ? 'border-sky-500 ring-2 ring-sky-500/20 bg-white dark:bg-slate-900 shadow-md'
+              : `border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 hover:border-slate-300 dark:hover:border-slate-700`
+          }`}
+        >
+          <Search className="w-4 h-4 text-slate-400 ml-3.5 shrink-0 pointer-events-none" />
+          <input
+            id={inputId}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setShowSearchDropdown(true);
+            }}
+            onFocus={() => {
+              setIsSearchFocused(true);
+              setShowSearchDropdown(true);
+            }}
+            onBlur={() => {
+              setIsSearchFocused(false);
+            }}
+            onKeyDown={(e) => {
+              const totalItems = matchingCategories.length + matchingDestinations.length;
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setShowSearchDropdown(true);
+                if (totalItems > 0) {
+                  setSelectedSuggestionIndex(prev => (prev + 1) % totalItems);
+                }
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setShowSearchDropdown(true);
+                if (totalItems > 0) {
+                  setSelectedSuggestionIndex(prev => (prev <= 0 ? totalItems - 1 : prev - 1));
+                }
+              } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (showSearchDropdown && selectedSuggestionIndex >= 0 && selectedSuggestionIndex < totalItems) {
+                  if (selectedSuggestionIndex < matchingCategories.length) {
+                    handleSelectCategory(matchingCategories[selectedSuggestionIndex].id);
+                  } else {
+                    const destIndex = selectedSuggestionIndex - matchingCategories.length;
+                    handleSelectDestination(matchingDestinations[destIndex]);
+                  }
+                } else {
+                  handleSearchSubmit();
+                }
+              } else if (e.key === 'Escape') {
+                setShowSearchDropdown(false);
+                setSelectedSuggestionIndex(-1);
+              }
+            }}
+            placeholder={t('header.searchPlaceholder', 'Search destinations, packages, cities...')}
+            className={`w-full py-2 pl-2.5 pr-8 text-xs font-medium bg-transparent text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none`}
+            autoComplete="off"
+          />
+          {searchQuery ? (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedSuggestionIndex(-1);
+                setShowSearchDropdown(true);
+              }}
+              className="mr-2.5 p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer transition-colors"
+              title="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          ) : !isMobile ? (
+            <kbd className="hidden xl:inline-flex mr-2.5 px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-400 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 pointer-events-none">
+              /
+            </kbd>
+          ) : null}
+        </div>
+
+        {/* Dynamic Search Suggestions Dropdown */}
+        {showSearchDropdown && (
+          <div
+            className={`absolute left-0 right-0 top-full mt-2 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-h-[460px] overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60`}
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            {/* Header Status */}
+            <div className="px-3.5 py-2 bg-slate-50/80 dark:bg-slate-950/60 flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              <span>{queryTrimmed ? `Suggestions for "${queryTrimmed}"` : 'Quick Explore & Categories'}</span>
+              <span className="text-[10px] font-normal lowercase tracking-normal text-slate-400">
+                {matchingDestinations.length + matchingCategories.length} matches
+              </span>
+            </div>
+
+            {/* Matching Categories Section */}
+            {matchingCategories.length > 0 && (
+              <div className="p-2 space-y-1">
+                <div className="px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                  <Tag className="w-3 h-3 text-sky-500" />
+                  <span>Categories</span>
+                </div>
+                {matchingCategories.map((cat, idx) => {
+                  const CatIcon = cat.icon;
+                  const isHighlighted = selectedSuggestionIndex === idx;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => handleSelectCategory(cat.id)}
+                      onMouseEnter={() => setSelectedSuggestionIndex(idx)}
+                      className={`w-full px-2.5 py-2 rounded-xl flex items-center justify-between text-left transition-colors cursor-pointer group ${
+                        isHighlighted
+                          ? 'bg-sky-500/15 dark:bg-sky-500/20 text-sky-600 dark:text-sky-300 ring-1 ring-sky-500/30'
+                          : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${cat.badgeColor}`}>
+                          <CatIcon className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-sky-500 transition-colors">
+                            <HighlightMatch text={cat.label} query={searchQuery} />
+                          </div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                            {cat.subLabel}
+                          </div>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0 ml-2">
+                        {cat.count} {cat.count === 1 ? 'experience' : 'experiences'}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Matching Destinations Section */}
+            {matchingDestinations.length > 0 && (
+              <div className="p-2 space-y-1">
+                <div className="px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                  <MapPin className="w-3 h-3 text-emerald-500" />
+                  <span>Destinations & Places</span>
+                </div>
+                {matchingDestinations.map((dest, dIdx) => {
+                  const globalIdx = matchingCategories.length + dIdx;
+                  const isHighlighted = selectedSuggestionIndex === globalIdx;
+                  return (
+                    <button
+                      key={dest.id}
+                      type="button"
+                      onClick={() => handleSelectDestination(dest)}
+                      onMouseEnter={() => setSelectedSuggestionIndex(globalIdx)}
+                      className={`w-full px-2.5 py-2 rounded-xl flex items-center justify-between text-left transition-colors cursor-pointer group gap-2 ${
+                        isHighlighted
+                          ? 'bg-sky-500/15 dark:bg-sky-500/20 text-sky-600 dark:text-sky-300 ring-1 ring-sky-500/30'
+                          : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {dest.images && dest.images[0] ? (
+                          <img
+                            src={dest.images[0]}
+                            alt={dest.title}
+                            className="w-9 h-9 rounded-xl object-cover shrink-0 border border-slate-200 dark:border-slate-700"
+                          />
+                        ) : (
+                          <div className="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center shrink-0">
+                            <Compass className="w-4 h-4" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate group-hover:text-sky-500 transition-colors">
+                            <HighlightMatch text={dest.title} query={searchQuery} />
+                          </div>
+                          <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                            <span className="flex items-center gap-0.5 truncate">
+                              <MapPin className="w-2.5 h-2.5 text-slate-400 shrink-0" />
+                              {dest.location}
+                            </span>
+                            <span>•</span>
+                            <span className="capitalize font-medium text-slate-600 dark:text-slate-300">
+                              {dest.category.toLowerCase()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-xs font-black text-slate-900 dark:text-slate-100">
+                          {formatPrice(dest.price)}
+                        </div>
+                        <div className="text-[9px] text-amber-500 font-bold flex items-center justify-end gap-0.5">
+                          <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                          <span>{dest.rating.toFixed(1)}</span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Zero results feedback */}
+            {queryTrimmed && matchingCategories.length === 0 && matchingDestinations.length === 0 && (
+              <div className="p-6 text-center space-y-2">
+                <Search className="w-6 h-6 text-slate-400 mx-auto opacity-50" />
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  No destinations or categories match "{queryTrimmed}"
+                </div>
+                <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
+                  Try searching for "Albania", "Ksamil", "Packages", "Hotel", or "Tours".
+                </p>
+              </div>
+            )}
+
+            {/* Bottom Search All CTA */}
+            {queryTrimmed && (
+              <div className="p-2 bg-slate-50/50 dark:bg-slate-950/40">
+                <button
+                  type="button"
+                  onClick={handleSearchSubmit}
+                  className="w-full py-2 px-3 rounded-xl bg-sky-500/10 hover:bg-sky-500 text-sky-600 dark:text-sky-400 hover:text-white text-xs font-bold transition-all flex items-center justify-between cursor-pointer group"
+                >
+                  <div className="flex items-center gap-2">
+                    <Search className="w-3.5 h-3.5" />
+                    <span>View all matching results for "{queryTrimmed}"</span>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <header className={`sticky top-0 z-40 w-full ${styles.headerBg} border-b ${styles.border} transition-colors duration-300 select-none`}>
@@ -317,6 +744,11 @@ export const Header: React.FC<HeaderProps> = ({
           </nav>
         </div>
 
+        {/* Dynamic Search Bar with Real-Time Suggestions (Desktop & Tablet) */}
+        <div className="hidden lg:flex items-center flex-1 max-w-xs xl:max-w-sm 2xl:max-w-md mx-2 sm:mx-4 relative" id="header-search-container">
+          {renderSearchInput(false)}
+        </div>
+
         {/* Right Action Cluster: Always compact, perfectly fitted & guaranteed Sign In visibility */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 ml-auto">
 
@@ -343,6 +775,21 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Custom Trip</span>
             </button>
           )}
+
+          {/* Quick Search Button on Mobile */}
+          <button
+            onClick={() => {
+              setIsMobileMenuOpen(true);
+              setTimeout(() => {
+                document.getElementById('header-search-input-mobile')?.focus();
+              }, 120);
+            }}
+            className={`lg:hidden p-2 rounded-xl border ${styles.border} ${styles.cardBg} text-sky-500 hover:opacity-90 transition-all flex items-center justify-center shrink-0 cursor-pointer shadow-xs`}
+            title="Search destinations & categories"
+            aria-label="Open Search"
+          >
+            <Search className="w-4 h-4" />
+          </button>
 
           {/* Language Selector Dropdown */}
           <div id="language-selector-container" className="relative shrink-0">
@@ -775,6 +1222,11 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
               </div>
             )}
+          </div>
+
+          {/* Dynamic Search Bar with Real-Time Suggestions for Mobile */}
+          <div className="w-full">
+            {renderSearchInput(true)}
           </div>
 
           {/* Navigation Links Grid */}
