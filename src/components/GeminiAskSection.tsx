@@ -286,7 +286,7 @@ export const GeminiAskSection: React.FC<GeminiAskSectionProps> = ({
                   </div>
 
                   {/* Gemini Answer */}
-                  <div className={`p-4 rounded-xl border border-sky-500/25 bg-sky-500/[0.04] dark:bg-sky-500/[0.08] transition-colors`}>
+                  <div className={`p-4 rounded-xl border border-sky-500/30 bg-sky-500/10 dark:bg-sky-950/70 shadow-sm transition-colors`}>
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-600 text-white font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                         AI
@@ -300,7 +300,7 @@ export const GeminiAskSection: React.FC<GeminiAskSectionProps> = ({
                             Gemini 3.8 Flash
                           </span>
                         </div>
-                        <p className={`text-xs sm:text-sm leading-relaxed ${styles.textPrimary} whitespace-pre-line font-normal`}>
+                        <p className={`text-xs sm:text-sm leading-relaxed text-slate-900 dark:text-slate-100 whitespace-pre-line font-medium`}>
                           {item.answer}
                         </p>
                       </div>

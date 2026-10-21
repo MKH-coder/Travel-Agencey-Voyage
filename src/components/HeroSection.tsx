@@ -325,13 +325,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
         {/* Trusted By / Partners Bar */}
         <div className="mt-12 pt-8 border-t border-slate-200/40 dark:border-slate-800/40 flex flex-wrap items-center gap-x-8 gap-y-4 max-w-full overflow-hidden">
-          <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${styles.textMuted} shrink-0`}>Official Partners</span>
-          <div className="flex flex-wrap items-center gap-6 sm:gap-8 opacity-30 grayscale hover:grayscale-0 hover:opacity-60 transition-all duration-500 max-w-full">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Airbnb_Logo_B%C3%A9lo.svg/2560px-Airbnb_Logo_B%C3%A9lo.svg.png" alt="Airbnb" className="h-4 w-auto max-w-[80px] object-contain shrink-0" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Booking.com_logo.svg/2560px-Booking.com_logo.svg.png" alt="Booking.com" className="h-3 w-auto max-w-[90px] object-contain shrink-0" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Expedia_Logo_2023.svg/2560px-Expedia_Logo_2023.svg.png" alt="Expedia" className="h-4 w-auto max-w-[80px] object-contain shrink-0" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Tripadvisor_logo.svg/1280px-Tripadvisor_logo.svg.png" alt="TripAdvisor" className="h-5 w-auto max-w-[90px] object-contain shrink-0" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Emirates_logo.svg/1024px-Emirates_logo.svg.png" alt="Emirates" className="h-5 w-auto max-w-[80px] object-contain shrink-0" />
+          <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${styles.textPrimary} shrink-0`}>Official Partners</span>
+          <div className="flex flex-wrap items-center gap-6 sm:gap-8 opacity-80 dark:opacity-90 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300 max-w-full">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Airbnb_Logo_B%C3%A9lo.svg/2560px-Airbnb_Logo_B%C3%A9lo.svg.png" alt="Airbnb" className="h-5 w-auto max-w-[85px] object-contain shrink-0 filter drop-shadow-xs" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Booking.com_logo.svg/2560px-Booking.com_logo.svg.png" alt="Booking.com" className="h-4 w-auto max-w-[95px] object-contain shrink-0 filter drop-shadow-xs" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Expedia_Logo_2023.svg/2560px-Expedia_Logo_2023.svg.png" alt="Expedia" className="h-5 w-auto max-w-[85px] object-contain shrink-0 filter drop-shadow-xs" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Tripadvisor_logo.svg/1280px-Tripadvisor_logo.svg.png" alt="TripAdvisor" className="h-6 w-auto max-w-[95px] object-contain shrink-0 filter drop-shadow-xs" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Emirates_logo.svg/1024px-Emirates_logo.svg.png" alt="Emirates" className="h-6 w-auto max-w-[85px] object-contain shrink-0 filter drop-shadow-xs" />
           </div>
         </div>
 

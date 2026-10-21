@@ -55,12 +55,27 @@ function MainLayout() {
   const [loading, setLoading] = useState(false);
   const [savedListings, setSavedListings] = useState<Listing[]>(() => {
     try {
-      const stored = localStorage.getItem('voyage_saved_trips');
+      const key = `voyage_saved_trips_${user?.email || user?.uid || 'guest'}`;
+      const stored = localStorage.getItem(key) || localStorage.getItem('voyage_saved_trips');
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
     }
   });
+
+  useEffect(() => {
+    const key = `voyage_saved_trips_${user?.email || user?.uid || 'guest'}`;
+    try {
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        setSavedListings(JSON.parse(stored));
+      } else {
+        setSavedListings([]);
+      }
+    } catch {
+      setSavedListings([]);
+    }
+  }, [user?.email, user?.uid]);
 
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [packagePreviewActive, setPackagePreviewActive] = useState(false);
@@ -174,6 +189,7 @@ function MainLayout() {
 
   useEffect(() => {
     let isMounted = true;
+    const key = `voyage_saved_trips_${user?.email || user?.uid || 'guest'}`;
     if (token) {
       fetch('/api/saved-trips', {
         headers: { Authorization: `Bearer ${token}` },
@@ -182,10 +198,10 @@ function MainLayout() {
         .then((data) => {
           if (!isMounted) return;
           const list = data?.savedListings || (Array.isArray(data) ? data : []);
-          if (Array.isArray(list) && list.length > 0) {
+          if (Array.isArray(list) && list.length >= 0) {
             setSavedListings(list);
             try {
-              localStorage.setItem('voyage_saved_trips', JSON.stringify(list));
+              localStorage.setItem(key, JSON.stringify(list));
             } catch {
               // ignore
             }
@@ -194,7 +210,7 @@ function MainLayout() {
         .catch(() => {
           if (!isMounted) return;
           try {
-            const stored = localStorage.getItem('voyage_saved_trips');
+            const stored = localStorage.getItem(key);
             if (stored) {
               setSavedListings(JSON.parse(stored));
             }
@@ -206,18 +222,18 @@ function MainLayout() {
     return () => {
       isMounted = false;
     };
-  }, [token]);
+  }, [token, user?.email]);
 
   const toggleSaveListing = async (item: Listing) => {
+    const key = `voyage_saved_trips_${user?.email || user?.uid || 'guest'}`;
     const isCurrentlySaved = savedListings.some(l => l.id === item.id);
     const updated = isCurrentlySaved ? savedListings.filter(l => l.id !== item.id) : [...savedListings, item];
     setSavedListings(updated);
     try {
-      localStorage.setItem('voyage_saved_trips', JSON.stringify(updated));
+      localStorage.setItem(key, JSON.stringify(updated));
     } catch {
       // ignore
     }
-
     if (token) {
       try {
         if (isCurrentlySaved) {
@@ -242,10 +258,11 @@ function MainLayout() {
   };
 
   const removeSavedListing = async (id: string) => {
+    const key = `voyage_saved_trips_${user?.email || user?.uid || 'guest'}`;
     const updated = savedListings.filter(l => l.id !== id);
     setSavedListings(updated);
     try {
-      localStorage.setItem('voyage_saved_trips', JSON.stringify(updated));
+      localStorage.setItem(key, JSON.stringify(updated));
     } catch {
       // ignore
     }

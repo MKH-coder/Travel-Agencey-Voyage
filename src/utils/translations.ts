@@ -1,4 +1,4 @@
-export type LanguageCode = 'en' | 'fr' | 'es' | 'de' | 'it' | 'sq';
+export type LanguageCode = 'en' | 'fr' | 'es' | 'de' | 'it' | 'sq' | 'ar' | 'zh' | 'ja' | 'pt' | 'ru';
 
 export interface LanguageOption {
   code: LanguageCode;
@@ -43,6 +43,36 @@ export const LANGUAGE_OPTIONS: LanguageOption[] = [
     name: 'Albanian',
     nativeName: 'Shqip',
     flag: '🇦🇱',
+  },
+  {
+    code: 'ar',
+    name: 'Arabic',
+    nativeName: 'العربية',
+    flag: '🇸🇦',
+  },
+  {
+    code: 'zh',
+    name: 'Mandarin Chinese',
+    nativeName: '中文 (简体)',
+    flag: '🇨🇳',
+  },
+  {
+    code: 'ja',
+    name: 'Japanese',
+    nativeName: '日本語',
+    flag: '🇯🇵',
+  },
+  {
+    code: 'pt',
+    name: 'Portuguese',
+    nativeName: 'Português',
+    flag: '🇵🇹',
+  },
+  {
+    code: 'ru',
+    name: 'Russian',
+    nativeName: 'Русский',
+    flag: '🇷🇺',
   },
 ];
 
@@ -352,6 +382,26 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     'footer.getInTouch': 'Na Kontaktoni',
     'albaniaModal.title': 'Dosja e Madhe Shqipëria 9 Ditë & Paketat',
     'albaniaModal.downloadPdf': 'Shkarko PDF-në Zyrtare të Itinerarit',
+  },
+  ar: {
+    'nav.explore': 'استكشاف',
+    'footer.rights': 'جميع الحقوق محفوظة',
+  },
+  zh: {
+    'nav.explore': '探索',
+    'footer.rights': '版权所有',
+  },
+  ja: {
+    'nav.explore': '探索',
+    'footer.rights': '全著作権所有',
+  },
+  pt: {
+    'nav.explore': 'Explorar',
+    'footer.rights': 'Todos os direitos reservados',
+  },
+  ru: {
+    'nav.explore': 'Исследовать',
+    'footer.rights': 'Все права защищены',
   },
 };
 

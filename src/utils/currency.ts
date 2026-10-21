@@ -1,4 +1,4 @@
-export type CurrencyCode = 'USD' | 'EUR' | 'INR' | 'ALL' | 'GBP';
+export type CurrencyCode = 'USD' | 'EUR' | 'INR' | 'ALL' | 'GBP' | 'AED' | 'JPY' | 'CAD' | 'AUD' | 'CHF' | 'SGD' | 'CNY' | 'TRY';
 
 export interface CurrencyDetails {
   code: CurrencyCode;
@@ -26,6 +26,14 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyDetails> = {
     rateVsUsd: 0.92,
     position: 'before',
   },
+  GBP: {
+    code: 'GBP',
+    symbol: '£',
+    name: 'British Pound',
+    flag: '🇬🇧',
+    rateVsUsd: 0.79,
+    position: 'before',
+  },
   INR: {
     code: 'INR',
     symbol: '₹',
@@ -42,12 +50,68 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyDetails> = {
     rateVsUsd: 93.5,
     position: 'after',
   },
-  GBP: {
-    code: 'GBP',
-    symbol: '£',
-    name: 'British Pound',
-    flag: '🇬🇧',
-    rateVsUsd: 0.79,
+  AED: {
+    code: 'AED',
+    symbol: 'AED',
+    name: 'UAE Dirham',
+    flag: '🇦🇪',
+    rateVsUsd: 3.67,
+    position: 'after',
+  },
+  JPY: {
+    code: 'JPY',
+    symbol: '¥',
+    name: 'Japanese Yen',
+    flag: '🇯🇵',
+    rateVsUsd: 154.5,
+    position: 'before',
+  },
+  CAD: {
+    code: 'CAD',
+    symbol: 'CA$',
+    name: 'Canadian Dollar',
+    flag: '🇨🇦',
+    rateVsUsd: 1.36,
+    position: 'before',
+  },
+  AUD: {
+    code: 'AUD',
+    symbol: 'A$',
+    name: 'Australian Dollar',
+    flag: '🇦🇺',
+    rateVsUsd: 1.52,
+    position: 'before',
+  },
+  CHF: {
+    code: 'CHF',
+    symbol: 'CHF',
+    name: 'Swiss Franc',
+    flag: '🇨🇭',
+    rateVsUsd: 0.90,
+    position: 'before',
+  },
+  SGD: {
+    code: 'SGD',
+    symbol: 'S$',
+    name: 'Singapore Dollar',
+    flag: '🇸🇬',
+    rateVsUsd: 1.35,
+    position: 'before',
+  },
+  CNY: {
+    code: 'CNY',
+    symbol: '¥',
+    name: 'Chinese Yuan',
+    flag: '🇨🇳',
+    rateVsUsd: 7.23,
+    position: 'before',
+  },
+  TRY: {
+    code: 'TRY',
+    symbol: '₺',
+    name: 'Turkish Lira',
+    flag: '🇹🇷',
+    rateVsUsd: 32.2,
     position: 'before',
   },
 };
