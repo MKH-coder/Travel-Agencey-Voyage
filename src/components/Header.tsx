@@ -265,12 +265,9 @@ export const Header: React.FC<HeaderProps> = ({
       if (!target.closest('#user-menu-container')) {
         setShowUserMenu(false);
       }
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(target) &&
-        mobileSearchContainerRef.current &&
-        !mobileSearchContainerRef.current.contains(target)
-      ) {
+      const isInsideDesktop = searchContainerRef.current?.contains(target);
+      const isInsideMobile = mobileSearchContainerRef.current?.contains(target);
+      if (!isInsideDesktop && !isInsideMobile) {
         setShowSearchDropdown(false);
       }
     };
@@ -458,7 +455,11 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Dynamic Search Suggestions Dropdown */}
         {showSearchDropdown && (
           <div
-            className={`absolute left-0 right-0 top-full mt-2 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-h-[460px] overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60`}
+            className={`absolute left-0 ${
+              isMobile
+                ? 'right-0 w-full'
+                : 'w-[360px] sm:w-[420px] max-w-[calc(100vw-2rem)]'
+            } top-full mt-2 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-h-[460px] overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60`}
             onMouseDown={(e) => e.preventDefault()}
           >
             {/* Header Status */}
@@ -615,10 +616,10 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className={`sticky top-0 z-40 w-full ${styles.headerBg} border-b ${styles.border} transition-colors duration-300 select-none`}>
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4 w-full">
+      <div className="max-w-[1700px] w-full mx-auto px-2.5 sm:px-4 lg:px-6 h-16 flex items-center justify-between gap-1.5 sm:gap-2">
         
         {/* Left: Brand Logo & Navigation */}
-        <div className="flex items-center gap-2 sm:gap-4 shrink-0 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
           <button
             id="brand-logo-btn"
             onClick={() => setCurrentView('dashboard')}
@@ -628,12 +629,12 @@ export const Header: React.FC<HeaderProps> = ({
             <VoyageLogo size="sm" variant="compact" />
           </button>
 
-          {/* Desktop Navigation links (Only shown on extra-large screens to guarantee no clipping) */}
-          <nav className="hidden 2xl:flex items-center gap-1 pl-4 border-l border-slate-200/40 dark:border-slate-800">
+          {/* Desktop Navigation links (Optimized spacing for high density) */}
+          <nav className="hidden 2xl:flex items-center gap-1 pl-3 border-l border-slate-200/40 dark:border-slate-800">
             <button
               id="nav-explore-btn"
               onClick={() => setCurrentView('dashboard')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
                 currentView === 'dashboard'
                   ? `${styles.accent} text-white shadow-sm`
                   : `${styles.textSecondary} hover:${styles.cardBg}`
@@ -647,44 +648,24 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="nav-custom-trip-btn"
                 onClick={onOpenCustomTripBuilder}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500 hover:to-orange-600 text-amber-700 dark:text-amber-300 hover:text-white border border-amber-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+                className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500 hover:to-orange-600 text-amber-700 dark:text-amber-300 hover:text-white border border-amber-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
                 title="Design Custom Trip & Package"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-500 group-hover:text-white" />
-                <span>{t('nav.customTrip', 'Custom Trip Studio')}</span>
+                <span>{t('nav.customTrip', 'Custom Trip')}</span>
               </button>
             )}
-
-            <button
-              onClick={() => {
-                setCurrentView('dashboard');
-                setTimeout(() => document.getElementById('marketing-advantage')?.scrollIntoView({ behavior: 'smooth' }), 100);
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${styles.textSecondary} hover:${styles.cardBg}`}
-            >
-              {t('nav.about', 'About')}
-            </button>
-
-            <button
-              onClick={() => {
-                setCurrentView('dashboard');
-                setTimeout(() => document.getElementById('footer-contact')?.scrollIntoView({ behavior: 'smooth' }), 100);
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${styles.textSecondary} hover:${styles.cardBg}`}
-            >
-              {t('nav.contact', 'Contact')}
-            </button>
 
             <a
               id="nav-faq-btn"
               href="https://voyagefaq.netlify.app"
               target="_blank"
               rel="noopener noreferrer"
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${styles.textSecondary} hover:${styles.cardBg}`}
+              className={`px-2 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer ${styles.textSecondary} hover:${styles.cardBg}`}
               title="Voyage FAQ Portal (voyagefaq.netlify.app)"
             >
               <HelpCircle className="w-3.5 h-3.5 text-sky-500" />
-              <span>FAQ</span>
+              <span className="hidden 3xl:inline">FAQ</span>
               <ExternalLink className="w-3 h-3 opacity-60 ml-0.5" />
             </a>
 
@@ -692,32 +673,32 @@ export const Header: React.FC<HeaderProps> = ({
               href="https://www.instagram.com/voyage_tours._.travels"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-2.5 py-1.5 rounded-xl text-xs font-bold text-pink-600 dark:text-pink-400 hover:text-white hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 transition-all flex items-center gap-1.5 border border-pink-500/30 hover:border-transparent shadow-xs cursor-pointer group"
+              className="px-2 py-1.5 rounded-xl text-xs font-bold text-pink-600 dark:text-pink-400 hover:text-white hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 transition-all flex items-center gap-1 border border-pink-500/30 hover:border-transparent shadow-xs cursor-pointer group"
               title="Official Instagram: @voyage_tours._.travels"
             >
               <Instagram className="w-3.5 h-3.5 text-pink-500 group-hover:text-white transition-colors" />
-              <span>Instagram</span>
+              <span className="hidden 3xl:inline">Instagram</span>
             </a>
 
             {(user?.role === 'ADMIN' || user?.role === 'TECH_SUBADMIN' || user?.role === 'TECH_ADMIN') && (
               <button
                 id="nav-admin-btn"
                 onClick={() => setCurrentView('admin')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer ${
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer ${
                   currentView === 'admin'
                     ? `${styles.accent} text-white shadow-sm`
                     : `${styles.textSecondary} hover:${styles.cardBg}`
                 }`}
               >
                 <Shield className="w-3.5 h-3.5" />
-                <span>{user.role === 'TECH_ADMIN' ? t('nav.superAdminPortal', 'Super Admin Portal') : user.role === 'TECH_SUBADMIN' ? t('nav.subAdminPortal', 'Sub-Admin') : t('nav.adminPortal', 'Admin Portal')}</span>
+                <span>{user.role === 'TECH_ADMIN' ? t('nav.superAdminPortal', 'Admin') : t('nav.adminPortal', 'Admin')}</span>
               </button>
             )}
 
             {onOpenGame && (
               <button
                 onClick={onOpenGame}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+                className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
                 title="Play Voyage Globetrotter Flight & Geo Game"
               >
                 <Gamepad2 className="w-3.5 h-3.5" />
@@ -735,7 +716,7 @@ export const Header: React.FC<HeaderProps> = ({
                   toggleBtn?.click();
                 }
               }}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-500/10 to-indigo-500/10 hover:from-sky-500 hover:to-indigo-600 text-sky-600 dark:text-sky-400 hover:text-white border border-sky-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer group"
+              className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-500/10 to-indigo-500/10 hover:from-sky-500 hover:to-indigo-600 text-sky-600 dark:text-sky-400 hover:text-white border border-sky-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer group"
               title="Ask Gemini Travel AI Concierge"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-500 group-hover:text-white animate-pulse" />
@@ -745,12 +726,12 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Dynamic Search Bar with Real-Time Suggestions (Desktop & Tablet) */}
-        <div className="hidden lg:flex items-center flex-1 max-w-xs xl:max-w-sm 2xl:max-w-md mx-2 sm:mx-4 relative" id="header-search-container">
+        <div className="hidden lg:flex items-center w-48 xl:w-60 2xl:w-68 shrink-0 mx-1.5 sm:mx-2 relative" id="header-search-container">
           {renderSearchInput(false)}
         </div>
 
         {/* Right Action Cluster: Always compact, perfectly fitted & guaranteed Sign In visibility */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 ml-auto">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0 ml-auto">
 
           {/* Quick ZIP Backup Download for Desktop - ADMIN ONLY */}
           {isAdmin && onDownloadZip && (
@@ -764,11 +745,11 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {/* Quick Custom Trip Button (Visible on tablets/laptops) */}
+          {/* Quick Custom Trip Button (Only on tablet where desktop search is hidden) */}
           {onOpenCustomTripBuilder && (
             <button
               onClick={onOpenCustomTripBuilder}
-              className="hidden sm:flex 2xl:hidden px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500 text-amber-700 dark:text-amber-300 hover:text-white transition-all items-center gap-1.5 text-xs font-bold shrink-0 cursor-pointer shadow-xs"
+              className="hidden md:flex lg:hidden px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500 text-amber-700 dark:text-amber-300 hover:text-white transition-all items-center gap-1.5 text-xs font-bold shrink-0 cursor-pointer shadow-xs"
               title="Plan Custom Trip & Package"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-500 group-hover:text-white" />
@@ -925,7 +906,7 @@ export const Header: React.FC<HeaderProps> = ({
               {theme === 'emerald-black' && <Leaf className="w-4 h-4 text-emerald-400" />}
               {theme === 'rose-gold' && <Heart className="w-4 h-4 text-rose-300" />}
               {theme === 'nordic-frost' && <Snowflake className="w-4 h-4 text-sky-400" />}
-              <span className="hidden md:inline text-[11px] font-semibold">Cycle Theme</span>
+              <span className="hidden xl:inline text-[11px] font-semibold">Theme</span>
             </button>
             <button
               id="theme-toggle-btn"
