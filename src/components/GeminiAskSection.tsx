@@ -131,8 +131,9 @@ export const GeminiAskSection: React.FC<GeminiAskSectionProps> = ({
   };
 
   return (
-    <div className={`p-5 sm:p-6 rounded-3xl border border-sky-500/30 bg-gradient-to-br from-sky-500/5 via-indigo-500/5 to-transparent shadow-sm relative overflow-hidden ${className}`}>
+    <div className={`p-5 sm:p-6 rounded-3xl border ${styles.border} ${styles.cardBg} shadow-sm relative overflow-hidden ${className}`}>
       {/* Decorative Glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-sky-500/5 via-transparent to-indigo-500/5 pointer-events-none" />
       <div className="absolute -top-16 -right-16 w-36 h-36 bg-sky-500/10 rounded-full blur-2xl pointer-events-none" />
 
       {/* Header */}
@@ -168,7 +169,7 @@ export const GeminiAskSection: React.FC<GeminiAskSectionProps> = ({
 
         <button
           onClick={() => setIsExpanded(prev => !prev)}
-          className="p-1.5 rounded-xl hover:bg-slate-200/50 dark:hover:bg-slate-800/50 text-slate-500 transition-colors"
+          className={`p-1.5 rounded-xl border ${styles.border} ${styles.cardBg} hover:opacity-90 ${styles.textMuted} hover:${styles.textPrimary} transition-all cursor-pointer shadow-xs`}
           title={isExpanded ? "Collapse" : "Expand"}
         >
           {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -179,7 +180,7 @@ export const GeminiAskSection: React.FC<GeminiAskSectionProps> = ({
         <div className="space-y-4 relative z-10">
           {/* Quick Prompt Suggestions */}
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+            <div className={`text-[11px] font-bold uppercase tracking-wider ${styles.textMuted} mb-2 flex items-center gap-1.5`}>
               <HelpCircle className="w-3.5 h-3.5 text-sky-500" />
               <span>Suggested Inquiries</span>
             </div>
@@ -190,9 +191,10 @@ export const GeminiAskSection: React.FC<GeminiAskSectionProps> = ({
                   type="button"
                   onClick={() => handleAsk(q)}
                   disabled={loading}
-                  className="px-3 py-1.5 rounded-xl text-xs font-medium bg-white/70 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 hover:border-sky-500/50 hover:bg-sky-500/10 text-slate-700 dark:text-slate-300 transition-all text-left cursor-pointer disabled:opacity-50"
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold ${styles.cardBg} border ${styles.border} ${styles.textPrimary} hover:border-sky-500/60 hover:bg-sky-500/10 hover:text-sky-600 dark:hover:text-sky-300 transition-all text-left cursor-pointer disabled:opacity-50 shadow-xs`}
                 >
-                  💬 {q}
+                  <span className="opacity-80 mr-1">💬</span>
+                  <span>{q}</span>
                 </button>
               ))}
             </div>
@@ -213,13 +215,13 @@ export const GeminiAskSection: React.FC<GeminiAskSectionProps> = ({
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder={placeholder}
                 disabled={loading}
-                className={`w-full pl-4 pr-10 py-3 rounded-2xl text-xs sm:text-sm border ${styles.border} ${styles.cardBg} ${styles.textPrimary} focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all shadow-xs disabled:opacity-50`}
+                className={`w-full pl-4 pr-10 py-3 rounded-2xl text-xs sm:text-sm border ${styles.border} ${styles.cardBg} ${styles.textPrimary} placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all shadow-xs disabled:opacity-50`}
               />
               {question && (
                 <button
                   type="button"
                   onClick={() => setQuestion('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs"
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 ${styles.textMuted} hover:${styles.textPrimary} text-xs p-1 cursor-pointer`}
                 >
                   ✕
                 </button>
@@ -258,57 +260,71 @@ export const GeminiAskSection: React.FC<GeminiAskSectionProps> = ({
           {/* Q&A Stream History */}
           {qaHistory.length > 0 && (
             <div className="space-y-3 pt-2">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <MessageSquare className="w-3.5 h-3.5 text-indigo-500" />
+              <div className={`text-[11px] font-bold uppercase tracking-wider ${styles.textMuted} flex items-center gap-1.5`}>
+                <MessageSquare className="w-3.5 h-3.5 text-sky-500" />
                 <span>Recent Answers</span>
               </div>
 
               {qaHistory.map((item) => (
                 <div
                   key={item.id}
-                  className="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2.5 animate-in slide-in-from-top-2 duration-200"
+                  className={`p-4 sm:p-5 rounded-2xl ${styles.cardBg} border ${styles.border} shadow-sm space-y-3.5 animate-in slide-in-from-top-2 duration-200 transition-colors`}
                 >
                   {/* User Question */}
                   <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="flex items-start gap-2.5">
+                      <span className="w-5 h-5 rounded-lg bg-sky-500/15 text-sky-600 dark:text-sky-400 font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">
                         Q
                       </span>
-                      <span className={`text-xs font-bold ${styles.textPrimary}`}>
+                      <span className={`text-xs sm:text-sm font-bold ${styles.textPrimary}`}>
                         {item.question}
                       </span>
                     </div>
-                    <span className="text-[10px] text-slate-400 shrink-0">
+                    <span className={`text-[10px] ${styles.textMuted} shrink-0`}>
                       {item.timestamp}
                     </span>
                   </div>
 
                   {/* Gemini Answer */}
-                  <div className="flex items-start gap-2 pl-1">
-                    <span className="w-5 h-5 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-600 text-white font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-                      AI
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-xs leading-relaxed ${styles.textSecondary} whitespace-pre-line`}>
-                        {item.answer}
-                      </p>
+                  <div className={`p-4 rounded-xl border border-sky-500/25 bg-sky-500/[0.04] dark:bg-sky-500/[0.08] transition-colors`}>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-600 text-white font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                        AI
+                      </div>
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-extrabold text-sky-600 dark:text-sky-400">
+                            Voyage AI Concierge
+                          </span>
+                          <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 font-semibold border border-sky-500/20">
+                            Gemini 3.8 Flash
+                          </span>
+                        </div>
+                        <p className={`text-xs sm:text-sm leading-relaxed ${styles.textPrimary} whitespace-pre-line font-normal`}>
+                          {item.answer}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   {/* Action Bar */}
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-400">
+                  <div className={`flex items-center justify-between pt-2.5 border-t ${styles.border} text-[11px] ${styles.textMuted}`}>
                     <div className="flex items-center gap-1.5">
                       <span className="text-[10px]">Was this helpful?</span>
                       <button
                         onClick={() => handleLike(item.id, true)}
-                        className={`p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${item.liked === true ? 'text-emerald-500' : ''}`}
+                        className={`p-1.5 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer ${
+                          item.liked === true ? 'text-emerald-500 font-bold' : ''
+                        }`}
                         title="Helpful"
                       >
                         <ThumbsUp className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleLike(item.id, false)}
-                        className={`p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${item.liked === false ? 'text-rose-500' : ''}`}
+                        className={`p-1.5 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer ${
+                          item.liked === false ? 'text-rose-500 font-bold' : ''
+                        }`}
                         title="Not helpful"
                       >
                         <ThumbsDown className="w-3.5 h-3.5" />
@@ -317,13 +333,13 @@ export const GeminiAskSection: React.FC<GeminiAskSectionProps> = ({
 
                     <button
                       onClick={() => handleCopy(item.id, item.answer)}
-                      className="flex items-center gap-1 px-2 py-0.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border ${styles.border} ${styles.cardBg} hover:opacity-90 ${styles.textPrimary} text-xs font-medium transition-colors cursor-pointer shadow-xs`}
                       title="Copy Answer"
                     >
                       {copiedId === item.id ? (
                         <>
                           <Check className="w-3 h-3 text-emerald-500" />
-                          <span className="text-emerald-500">Copied</span>
+                          <span className="text-emerald-500 font-semibold">Copied</span>
                         </>
                       ) : (
                         <>
