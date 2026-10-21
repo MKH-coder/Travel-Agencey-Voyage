@@ -662,8 +662,7 @@ function MainLayout() {
         onDownloadZip={isAdmin ? () => ZipArchiveService.exportPlatformArchiveZip() : undefined}
         onOpenAlbaniaModal={handleOpenAlbaniaModal}
         onOpenFaq={() => {
-          const el = document.getElementById('faq-section');
-          if (el) el.scrollIntoView({ behavior: 'smooth' });
+          window.open('https://voyagefaq.netlify.app', '_blank', 'noopener,noreferrer');
         }}
       />
 

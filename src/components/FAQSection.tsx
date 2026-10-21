@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HelpCircle, ChevronDown, ChevronUp, Sparkles, ShieldCheck, Globe, CreditCard, Gamepad2, Gift } from 'lucide-react';
+import { HelpCircle, ChevronDown, ChevronUp, Sparkles, ShieldCheck, Globe, CreditCard, Gamepad2, Gift, ExternalLink } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 
 interface FaqItem {
@@ -76,6 +76,20 @@ export const FAQSection: React.FC = () => {
           <p className={`text-sm sm:text-base ${styles.textMuted} leading-relaxed`}>
             Find clear answers about our bespoke travel bookings, multi-currency pricing, game promo codes, and expedition safety.
           </p>
+
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a
+              href="https://voyagefaq.netlify.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs sm:text-sm font-bold transition-all shadow-lg shadow-sky-500/25 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              title="Open Official Voyage FAQ Portal (voyagefaq.netlify.app)"
+            >
+              <HelpCircle className="w-4 h-4" />
+              <span>Go to Voyage FAQ Website</span>
+              <ExternalLink className="w-3.5 h-3.5 ml-0.5 opacity-90" />
+            </a>
+          </div>
         </div>
 
         {/* Category Tabs */}
@@ -145,6 +159,32 @@ export const FAQSection: React.FC = () => {
               </div>
             );
           })}
+        </div>
+
+        {/* Dedicated FAQ Portal Card */}
+        <div className="mt-10 p-6 rounded-3xl border border-sky-500/30 bg-gradient-to-br from-sky-500/10 via-indigo-500/5 to-transparent flex flex-col sm:flex-row items-center justify-between gap-4 max-w-3xl mx-auto shadow-sm">
+          <div className="flex items-center gap-3.5 text-center sm:text-left">
+            <div className="w-12 h-12 rounded-2xl bg-sky-500/20 border border-sky-500/30 text-sky-500 flex items-center justify-center shrink-0">
+              <HelpCircle className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className={`text-sm sm:text-base font-bold ${styles.textPrimary}`}>
+                Have more questions or need detailed assistance?
+              </h4>
+              <p className={`text-xs ${styles.textMuted} mt-0.5`}>
+                Explore the official Voyage FAQ website with complete guides, search, and booking assistance.
+              </p>
+            </div>
+          </div>
+          <a
+            href="https://voyagefaq.netlify.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition-all flex items-center gap-2 shrink-0 shadow-md shadow-sky-500/20 hover:scale-[1.02] cursor-pointer"
+          >
+            <span>voyagefaq.netlify.app</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
         </div>
       </div>
     </section>

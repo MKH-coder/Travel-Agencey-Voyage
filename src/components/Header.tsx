@@ -29,7 +29,8 @@ import {
   Check,
   Coins,
   Instagram,
-  HelpCircle
+  HelpCircle,
+  ExternalLink
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -247,22 +248,18 @@ export const Header: React.FC<HeaderProps> = ({
               {t('nav.contact', 'Contact')}
             </button>
 
-            <button
+            <a
               id="nav-faq-btn"
-              onClick={() => {
-                const el = document.getElementById('faq-section');
-                if (el) {
-                  el.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  window.open('https://voyagefaq.netlify.app', '_blank');
-                }
-              }}
+              href="https://voyagefaq.netlify.app"
+              target="_blank"
+              rel="noopener noreferrer"
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${styles.textSecondary} hover:${styles.cardBg}`}
-              title="View FAQ on site"
+              title="Voyage FAQ Portal (voyagefaq.netlify.app)"
             >
-              <HelpCircle className="w-3.5 h-3.5" />
+              <HelpCircle className="w-3.5 h-3.5 text-sky-500" />
               <span>FAQ</span>
-            </button>
+              <ExternalLink className="w-3 h-3 opacity-60 ml-0.5" />
+            </a>
 
             <a
               href="https://www.instagram.com/voyage_tours._.travels"
@@ -863,21 +860,20 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Contact Concierge</span>
             </button>
 
-            <button
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                const el = document.getElementById('faq-section');
-                if (el) {
-                  el.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  window.open('https://voyagefaq.netlify.app', '_blank');
-                }
-              }}
-              className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-left text-xs font-bold flex items-center gap-2.5 transition-all cursor-pointer hover:border-sky-500 hover:bg-sky-500/10"
+            <a
+              href="https://voyagefaq.netlify.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-left text-xs font-bold flex items-center justify-between transition-all cursor-pointer hover:border-sky-500 hover:bg-sky-500/10 text-sky-600 dark:text-sky-400"
+              title="Go to Voyage FAQ Website"
             >
-              <HelpCircle className="w-4 h-4 text-sky-500" />
-              <span>Voyage FAQ</span>
-            </button>
+              <div className="flex items-center gap-2.5">
+                <HelpCircle className="w-4 h-4 text-sky-500" />
+                <span>Voyage FAQ</span>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+            </a>
 
             {onOpenAlbaniaModal && (
               <button

@@ -107,32 +107,28 @@ export const Footer: React.FC<FooterProps> = ({ onOpenGame, onDownloadZip, onOpe
           <div>
             <h4 className={`text-sm font-bold uppercase tracking-wider mb-6 ${styles.textPrimary}`}>Support & FAQs</h4>
             <ul className="space-y-4">
-              {onOpenFaq && (
-                <li>
-                  <button
-                    onClick={() => {
-                      const el = document.getElementById('faq-section');
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth' });
-                      } else {
-                        onOpenFaq();
-                      }
-                    }}
-                    className="text-sm font-semibold text-sky-500 hover:text-sky-400 flex items-center gap-1.5 transition-colors cursor-pointer text-left"
-                  >
-                    <HelpCircle className="w-4 h-4" />
-                    <span>Frequently Asked Questions</span>
-                  </button>
-                </li>
-              )}
+              <li>
+                <a
+                  href="https://voyagefaq.netlify.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-semibold text-sky-500 hover:text-sky-400 flex items-center gap-1.5 transition-colors cursor-pointer text-left"
+                  title="Open Voyage FAQ Portal (voyagefaq.netlify.app)"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  <span>Frequently Asked Questions (FAQ)</span>
+                  <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+                </a>
+              </li>
               <li>
                 <a
                   href="https://voyagefaq.netlify.app"
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`text-sm ${styles.textMuted} hover:text-sky-500 transition-colors flex items-center gap-1`}
+                  title="Visit Official FAQ Portal"
                 >
-                  <span>Official FAQ Portal</span>
+                  <span>Official FAQ Portal (voyagefaq.netlify.app)</span>
                   <ExternalLink className="w-3 h-3 opacity-60" />
                 </a>
               </li>
