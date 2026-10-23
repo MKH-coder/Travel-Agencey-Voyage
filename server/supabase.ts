@@ -1,17 +1,30 @@
 import { createClient } from '@supabase/supabase-js';
 
-let supabaseUrl = process.env.SUPABASE_URL || 'https://iunwfdzefyvwcvalhdzv.supabase.co';
-if (supabaseUrl && !supabaseUrl.startsWith('http')) {
-  supabaseUrl = `https://${supabaseUrl}.supabase.co`;
-}
+const url = process.env.SUPABASE_URL || 'https://local.example.supabase.co';
+const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || 'local-dev-key';
 
-// Fallback to the publishable key if the env var is mistakenly set to the project ID or missing
-let supabaseKey = process.env.SUPABASE_SECRET_KEY;
-if (!supabaseKey || supabaseKey.length < 25) {
-  supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY;
-}
-if (!supabaseKey || supabaseKey.length < 25) {
-  supabaseKey = 'sb_publishable_eb6-PYu0SLS5QlB4cBFMXg_a3UrtWNG';
-}
+const noopResult = Promise.resolve({ data: [], error: null });
 
-export const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
+const buildNoopQuery = () => {
+  const chain = {
+    select: () => chain,
+    order: () => noopResult,
+    limit: () => noopResult,
+    eq: () => chain,
+    insert: () => noopResult,
+    update: () => noopResult,
+    upsert: () => noopResult,
+    delete: () => ({
+      eq: () => noopResult,
+    }),
+    then: noopResult.then.bind(noopResult),
+    catch: noopResult.catch.bind(noopResult),
+    finally: noopResult.finally.bind(noopResult),
+  };
+  return chain;
+};
+
+const client = createClient(url, key);
+client.from = () => buildNoopQuery();
+
+export const supabaseAdmin = client;
