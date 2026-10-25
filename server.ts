@@ -601,14 +601,36 @@ Proceeding with sandbox delivery...`);
   // 5. Emergency Bypass Code Recovery
   app.post('/api/auth/verify-bypass', rateLimit(5, 10 * 60 * 1000), (req, res) => {
     const { bypassCode, recoveryEmail, email } = req.body;
-    if (!bypassCode) {
+    if (!bypassCode || typeof bypassCode !== 'string' || !bypassCode.trim()) {
       return res.status(400).json({ error: 'Emergency bypass code is required.' });
+    }
+
+    const targetEmail = (email || recoveryEmail || '').trim().toLowerCase();
+    if (!targetEmail) {
+      return res.status(400).json({ error: 'Authorized administrator recovery email is required. Please type your authorized email.' });
+    }
+
+    const isAuthorized = isTechSuperAdminEmail(targetEmail) ||
+      isTechSubAdminEmail(targetEmail) ||
+      targetEmail === TECH_ADMIN_RECOVERY_EMAIL.toLowerCase() ||
+      targetEmail === 'voyage@gmail.com' ||
+      targetEmail === TECH_ADMIN_EMAIL.toLowerCase();
+
+    if (!isAuthorized) {
+      db.addAuditLog({
+        action: 'EMERGENCY_BYPASS_UNAUTHORIZED_EMAIL',
+        performedBy: targetEmail,
+        targetId: 'TECH_ADMIN_CORE',
+        targetType: 'SECURITY_ALERT',
+        ipAddress: getClientIp(req),
+      });
+      return res.status(403).json({ error: 'Access denied: The provided email is not an authorized administrator account.' });
     }
 
     if (!isValidBypassCode(bypassCode)) {
       db.addAuditLog({
         action: 'EMERGENCY_BYPASS_FAILED',
-        performedBy: email || recoveryEmail || 'UNKNOWN',
+        performedBy: targetEmail,
         targetId: 'TECH_ADMIN_CORE',
         targetType: 'SECURITY_ALERT',
         ipAddress: getClientIp(req),
@@ -616,8 +638,6 @@ Proceeding with sandbox delivery...`);
       });
       return res.status(401).json({ error: 'Invalid technical bypass authorization code.' });
     }
-
-    const targetEmail = (email || recoveryEmail || TECH_ADMIN_EMAIL).trim().toLowerCase();
 
     // Retrieve or establish Technical Super Admin
     let user = db.getUserByEmail(targetEmail);

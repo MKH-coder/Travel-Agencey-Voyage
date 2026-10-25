@@ -616,7 +616,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className={`sticky top-0 z-40 w-full ${styles.headerBg} border-b ${styles.border} transition-colors duration-300 select-none`}>
-      <div className="max-w-[1700px] w-full mx-auto px-2.5 sm:px-4 lg:px-6 h-16 flex items-center justify-between gap-1.5 sm:gap-2">
+      <div className="max-w-[1700px] w-full mx-auto px-3.5 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-3">
         
         {/* Left: Brand Logo & Navigation */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
@@ -1005,7 +1005,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               {showUserMenu && (
                 <div
-                  className={`absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl border ${styles.border} ${styles.cardBg} p-2 z-50 animate-in fade-in zoom-in-95`}
+                  className={`absolute right-0 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-2xl shadow-2xl border ${styles.border} ${styles.cardBg} p-2.5 z-50 animate-in fade-in zoom-in-95`}
                 >
                   <div className="px-3 py-2.5 border-b border-slate-200/50 dark:border-slate-800 space-y-1">
                     <div className={`text-xs font-bold ${styles.textPrimary}`}>{user.name}</div>

@@ -112,7 +112,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   onTabChange,
 }) => {
   const { styles } = useTheme();
-  const { user, token, sessionRemainingSec, verifyPasskey, refreshSessionHealth, logout, auditLog } = useAuth();
+  const { user, token, sessionRemainingSec, verifyPasskey, refreshSessionHealth, logout, auditLog, setShowLoginModal } = useAuth();
 
   const isTechAdmin = user?.role === 'TECH_ADMIN';
   const isTechSubAdmin = user?.role === 'TECH_SUBADMIN';
@@ -1156,13 +1156,31 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   if (!isAdmin) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
-        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/30 flex items-center justify-center mx-auto">
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/30 flex items-center justify-center mx-auto shadow-sm">
           <ShieldAlert className="w-8 h-8" />
         </div>
-        <h2 className={`text-2xl font-bold ${styles.textPrimary}`}>Access Restricted</h2>
-        <p className={`text-sm ${styles.textSecondary} max-w-md mx-auto`}>
-          The Admin Portal requires Standard Admin or Technical Super Admin privileges. Sign in with an authorized administrative account.
+        <h2 className={`text-2xl font-bold ${styles.textPrimary}`}>Administrator Access Restricted</h2>
+        <p className={`text-xs ${styles.textSecondary} max-w-md mx-auto leading-relaxed`}>
+          The Admin Portal requires Standard Admin or Technical Super Admin privileges. Please type and authenticate with an authorized administrative account or master emergency bypass code.
         </p>
+        <div className="flex items-center justify-center gap-3 pt-3">
+          <button
+            type="button"
+            onClick={() => setShowLoginModal(true)}
+            className={`px-5 py-2.5 rounded-xl text-xs font-bold ${styles.buttonPrimary} shadow-md cursor-pointer`}
+          >
+            Sign In with Administrator Credentials
+          </button>
+          {onNavigateExplore && (
+            <button
+              type="button"
+              onClick={onNavigateExplore}
+              className={`px-5 py-2.5 rounded-xl text-xs font-semibold ${styles.buttonSecondary} cursor-pointer`}
+            >
+              Return to Explorer
+            </button>
+          )}
+        </div>
       </div>
     );
   }

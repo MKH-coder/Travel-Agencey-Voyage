@@ -1,4 +1,4 @@
-export type LanguageCode = 'en' | 'fr' | 'es' | 'de' | 'it' | 'sq' | 'ar' | 'zh' | 'ja' | 'pt' | 'ru';
+export type LanguageCode = 'en' | 'fr' | 'es' | 'de' | 'it' | 'sq' | 'ar' | 'zh' | 'ja' | 'pt' | 'ru' | 'hi' | 'nl' | 'tr' | 'ko' | 'pl';
 
 export interface LanguageOption {
   code: LanguageCode;
@@ -74,9 +74,39 @@ export const LANGUAGE_OPTIONS: LanguageOption[] = [
     nativeName: 'Русский',
     flag: '🇷🇺',
   },
+  {
+    code: 'hi',
+    name: 'Hindi',
+    nativeName: 'हिन्दी',
+    flag: '🇮🇳',
+  },
+  {
+    code: 'nl',
+    name: 'Dutch',
+    nativeName: 'Nederlands',
+    flag: '🇳🇱',
+  },
+  {
+    code: 'tr',
+    name: 'Turkish',
+    nativeName: 'Türkçe',
+    flag: '🇹🇷',
+  },
+  {
+    code: 'ko',
+    name: 'Korean',
+    nativeName: '한국어',
+    flag: '🇰🇷',
+  },
+  {
+    code: 'pl',
+    name: 'Polish',
+    nativeName: 'Polski',
+    flag: '🇵🇱',
+  },
 ];
 
-export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
+export const TRANSLATIONS: Record<string, Record<string, string>> = {
   en: {
     'nav.explore': 'Explore',
     'nav.customTrip': 'Custom Trip Studio',
@@ -403,6 +433,26 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     'nav.explore': 'Исследовать',
     'footer.rights': 'Все права защищены',
   },
+   hi: {
+     'nav.explore': 'अन्वेषण करें',
+     'footer.rights': 'सर्वाधिकार सुरक्षित',
+   },
+   nl: {
+     'nav.explore': 'Verkennen',
+     'footer.rights': 'Alle rechten voorbehouden',
+   },
+   tr: {
+     'nav.explore': 'Keşfet',
+     'footer.rights': 'Tüm Hakları Saklıdır',
+   },
+   ko: {
+     'nav.explore': '탐색',
+     'footer.rights': '모든 권리 보유',
+   },
+   pl: {
+     'nav.explore': 'Eksploruj',
+     'footer.rights': 'Wszystkie prawa zastrzeżone',
+   },
 };
 
 export function getTranslation(lang: LanguageCode, key: string, fallback?: string): string {

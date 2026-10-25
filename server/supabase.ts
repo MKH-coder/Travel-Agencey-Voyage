@@ -25,6 +25,6 @@ const buildNoopQuery = () => {
 };
 
 const client = createClient(url, key);
-client.from = () => buildNoopQuery();
+(client as any).from = () => buildNoopQuery();
 
 export const supabaseAdmin = client;

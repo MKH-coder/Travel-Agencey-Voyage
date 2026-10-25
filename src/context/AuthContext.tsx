@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, AuditLog } from '../types.ts';
 import { ClientStorageManager } from '../services/clientStorage.ts';
+import { FirebaseSyncService } from '../services/firebase.ts';
 import { AuditService } from '../services/auditService.ts';
 import { AuthAudit } from '../services/authAudit.ts';
 import { getClientSessionInfo } from '../utils/clientInfo.ts';
@@ -87,6 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('travel_user', JSON.stringify(enrichedUser));
       localStorage.setItem('travel_token', newToken);
       ClientStorageManager.saveUser(enrichedUser);
+      FirebaseSyncService.saveUser(enrichedUser).catch(() => {});
       lastUserActivityRef.current = Date.now();
       if (enrichedUser.role === 'ADMIN' || enrichedUser.role === 'TECH_SUBADMIN' || enrichedUser.role === 'TECH_ADMIN') {
         setSessionRemainingSec(60 * 60);
@@ -247,11 +249,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { requires2FA: false, error: 'Please enter your email address to continue.' };
       }
 
+      const isTechAdminTarget = emailToUse === 'voyage@gmail.com' ||
+        emailToUse === 'mukundkrishna2008@gmail.com' ||
+        emailToUse === 'mukundkrishna.h2008@gmail.com' ||
+        emailToUse === '8c15mukundkrishna.h@gmail.com';
+
       try {
         const res = await fetch('/api/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: emailToUse, name: nameToUse, isOAuthVerified: true, idToken: undefined }),
+          body: JSON.stringify({ email: emailToUse, name: nameToUse, isOAuthVerified: false, idToken: undefined }),
         });
 
         if (res.ok) {
@@ -261,7 +268,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               uid: data.uid,
               email: data.email,
               phoneNumber: data.phoneNumber,
-              message: data.message || 'Security Verification Required for this account.',
+              message: data.message || 'Security Verification Required: Direct email login to this administrator account is restricted.',
             });
             setIsLoading(false);
             return { requires2FA: true };
@@ -275,7 +282,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // backend offline: fall through to local fallback
       }
 
-      const fallbackResult = ClientStorageManager.authenticateGoogle(emailToUse, nameToUse, true);
+      // If logging into an admin account without real OAuth verification, enforce 2FA challenge
+      if (isTechAdminTarget) {
+        setTwoFactorChallenge({
+          uid: `user_${emailToUse}`,
+          email: emailToUse,
+          phoneNumber: '+91 9567465134',
+          message: 'Security Verification Required: Administrative privileges require 2FA Authenticator verification or Master Bypass Code.',
+        });
+        setIsLoading(false);
+        return { requires2FA: true };
+      }
+
+      const fallbackResult = ClientStorageManager.authenticateGoogle(emailToUse, nameToUse, false);
       if (fallbackResult.requires2FA && fallbackResult.challenge) {
         setTwoFactorChallenge({
           uid: fallbackResult.challenge.uid,
@@ -509,45 +528,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const verifyEmergencyBypass = async (bypassCode: string, recoveryEmail?: string) => {
     setIsLoading(true);
-    const targetEmail = (recoveryEmail || 'mukundkrishna.h2008@gmail.com').trim().toLowerCase();
-    const cleanCode = bypassCode.trim().toLowerCase();
-    const validCodes = ['2008-6058', '20086058', 'adminbypass', 'mukundbypass', 'sec-root-travel-2026', 'emergency-superadmin-recovery-9567-2008', '9567465134', '9567465137'];
+    const targetEmail = (recoveryEmail || '').trim().toLowerCase();
+    const cleanCode = (bypassCode || '').trim();
 
-    if (
-      validCodes.includes(cleanCode) ||
-      cleanCode.includes('bypass') ||
-      cleanCode === '2008' ||
-      cleanCode.length > 8 ||
-      targetEmail.includes('voyage') ||
-      targetEmail.includes('mukund')
-    ) {
-      const isVoyageOfficial = targetEmail.includes('voyage');
-      const superAdmin: User = {
-        uid: isVoyageOfficial ? 'user_voyage_official' : 'user_tech_admin_02',
-        email: isVoyageOfficial ? 'voyage@gmail.com' : 'mukundkrishna.h2008@gmail.com',
-        phoneNumber: '+91 9567465134',
-        name: isVoyageOfficial ? 'Voyage Official (Super Admin)' : 'Mukund Krishna (Technical Super Admin)',
-        role: 'TECH_ADMIN',
-        customTitle: isVoyageOfficial ? 'Voyage Platform Director & Super Admin' : 'Chief Technology Architect & Super Admin',
-        department: isVoyageOfficial ? 'Executive Operations' : 'Executive Engineering',
-        mfaEnabled: true,
-        recoveryEmail: isVoyageOfficial ? 'voyage@gmail.com' : '8c15mukundkrishna.h@gmail.com',
-        createdAt: new Date().toISOString(),
-      };
-      ClientStorageManager.saveUser(superAdmin);
-      setAuthSession(superAdmin, `token_bypass_${Date.now()}`);
-      setShowBypassModal(false);
-      setTwoFactorChallenge(null);
-      setShowLoginModal(false);
+    if (!cleanCode || !targetEmail) {
       setIsLoading(false);
-      return { success: true };
+      return { success: false, error: 'Both master bypass code and authorized administrator email must be typed to proceed.' };
+    }
+
+    const authorizedSuperAdminEmails = [
+      'voyage@gmail.com',
+      'mukundkrishna.h2008@gmail.com',
+      'mukundkrishna2008@gmail.com',
+      '8c15mukundkrishna.h@gmail.com',
+    ];
+
+    const authorizedSubAdminEmails = [
+      'mukundkrishna.h@gmail.com',
+    ];
+
+    const isSuperAdmin = authorizedSuperAdminEmails.includes(targetEmail);
+    const isSubAdmin = authorizedSubAdminEmails.includes(targetEmail);
+
+    if (!isSuperAdmin && !isSubAdmin) {
+      setIsLoading(false);
+      return { success: false, error: 'Access denied: The entered email address is not an authorized administrator account.' };
+    }
+
+    const validCodes = [
+      '2008-6058',
+      '20086058',
+      'sec-root-travel-2026',
+      'emergency-superadmin-recovery-9567-2008',
+      '9567465134',
+    ];
+
+    const isCodeValid = validCodes.some(c => c.toLowerCase() === cleanCode.toLowerCase());
+
+    if (!isCodeValid) {
+      setIsLoading(false);
+      return { success: false, error: 'Authentication failed: Invalid master bypass authorization code. Please verify and re-type the code.' };
     }
 
     try {
       const res = await fetch('/api/auth/verify-bypass', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bypassCode, recoveryEmail: targetEmail, email: targetEmail }),
+        body: JSON.stringify({ bypassCode: cleanCode, recoveryEmail: targetEmail, email: targetEmail }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -562,8 +589,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // local fallback
     }
 
+    const isVoyageOfficial = targetEmail === 'voyage@gmail.com';
+    const superAdmin: User = {
+      uid: isVoyageOfficial ? 'user_voyage_official' : 'user_tech_admin_02',
+      email: targetEmail,
+      phoneNumber: '+91 9567465134',
+      name: isVoyageOfficial ? 'Voyage Official (Super Admin)' : 'Mukund Krishna (Technical Super Admin)',
+      role: isSuperAdmin ? 'TECH_ADMIN' : 'TECH_SUBADMIN',
+      customTitle: isSuperAdmin ? 'Chief Technology Architect & Super Admin' : 'Technical Sub-Admin',
+      department: isSuperAdmin ? 'Executive Engineering' : 'Platform Operations',
+      mfaEnabled: true,
+      recoveryEmail: '8c15mukundkrishna.h@gmail.com',
+      createdAt: new Date().toISOString(),
+    };
+    ClientStorageManager.saveUser(superAdmin);
+    setAuthSession(superAdmin, `token_bypass_${Date.now()}`);
+    setShowBypassModal(false);
+    setTwoFactorChallenge(null);
+    setShowLoginModal(false);
     setIsLoading(false);
-    return { success: false, error: 'Invalid technical bypass authorization code.' };
+    return { success: true };
   };
 
   const verifyPasskey = async (passkey: string): Promise<boolean> => {

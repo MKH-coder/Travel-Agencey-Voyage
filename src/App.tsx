@@ -24,6 +24,7 @@ import {
   Sparkles,
   SearchX,
   ShieldCheck,
+  ShieldAlert,
   Plane,
   ArrowRight,
   Map as MapIcon,
@@ -43,6 +44,7 @@ import { ZipArchiveService } from './services/zipExportService.ts';
 import { AlbaniaItineraryModal } from './components/AlbaniaItineraryModal.tsx';
 import { Testimonials } from './components/Testimonials.tsx';
 import { FAQSection } from './components/FAQSection.tsx';
+import { TravelBackground3D } from './components/TravelBackground3D.tsx';
 
 function MainLayout() {
   const { styles, theme, setTheme } = useTheme();
@@ -56,12 +58,65 @@ function MainLayout() {
   const [savedListings, setSavedListings] = useState<Listing[]>(() => {
     try {
       const key = `voyage_saved_trips_${user?.email || user?.uid || 'guest'}`;
-      const stored = localStorage.getItem(key) || localStorage.getItem('voyage_saved_trips');
+      const stored = localStorage.getItem(key);
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
     }
   });
+
+  const [searchHistory, setSearchHistory] = useState<string[]>(() => {
+    try {
+      const key = `voyage_search_history_${user?.email || user?.uid || 'guest'}`;
+      const stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    const key = `voyage_search_history_${user?.email || user?.uid || 'guest'}`;
+    try {
+      const stored = localStorage.getItem(key);
+      setSearchHistory(stored ? JSON.parse(stored) : []);
+    } catch {
+      setSearchHistory([]);
+    }
+  }, [user?.email, user?.uid]);
+
+  const addSearchQuery = useCallback((query: string) => {
+    const q = query.trim();
+    if (!q) return;
+    setSearchHistory(prev => {
+      const filtered = prev.filter(item => item.toLowerCase() !== q.toLowerCase());
+      const updated = [q, ...filtered].slice(0, 10);
+      try {
+        const key = `voyage_search_history_${user?.email || user?.uid || 'guest'}`;
+        localStorage.setItem(key, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  }, [user?.email, user?.uid]);
+
+  const clearSearchHistory = useCallback(() => {
+    setSearchHistory([]);
+    try {
+      const key = `voyage_search_history_${user?.email || user?.uid || 'guest'}`;
+      localStorage.removeItem(key);
+    } catch {}
+  }, [user?.email, user?.uid]);
+
+  const removeSearchHistoryItem = useCallback((query: string) => {
+    setSearchHistory(prev => {
+      const updated = prev.filter(item => item !== query);
+      try {
+        const key = `voyage_search_history_${user?.email || user?.uid || 'guest'}`;
+        localStorage.setItem(key, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  }, [user?.email, user?.uid]);
 
   useEffect(() => {
     const key = `voyage_saved_trips_${user?.email || user?.uid || 'guest'}`;
@@ -151,7 +206,13 @@ function MainLayout() {
     onToggleSavedTrips: () => setShowSavedModal(prev => !prev),
     onToggleHelp: () => setShowShortcutsModal(prev => !prev),
     onToggleTheme: handleCycleTheme,
-    onSwitchView: () => setCurrentView(prev => (prev === 'dashboard' ? 'admin' : 'dashboard')),
+    onSwitchView: () => {
+      if (isAdmin) {
+        setCurrentView(prev => (prev === 'dashboard' ? 'admin' : 'dashboard'));
+      } else {
+        setShowLoginModal(true);
+      }
+    },
     extraShortcuts: [
       { key: '1', description: 'Switch to Split Layout', action: () => setFeedLayout('split'), ignoreInputs: true },
       { key: '2', description: 'Switch to Grid Layout', action: () => setFeedLayout('grid'), ignoreInputs: true },
@@ -414,7 +475,8 @@ function MainLayout() {
   }, []);
 
   return (
-    <div className={`min-h-screen w-full max-w-full overflow-x-hidden ${styles.bg} ${styles.textPrimary} transition-colors duration-300 flex flex-col font-sans selection:bg-cyan-500/20`}>
+    <div className={`min-h-screen w-full max-w-full overflow-x-hidden ${styles.bg} ${styles.textPrimary} transition-colors duration-300 flex flex-col font-sans selection:bg-cyan-500/20 relative`}>
+      <TravelBackground3D />
       <Header
         currentView={currentView}
         setCurrentView={setCurrentView}
@@ -460,6 +522,10 @@ function MainLayout() {
               onBrowsePackages={handleBrowsePackages}
               onPlanTrip={handlePlanTrip}
               onOpenAlbaniaModal={handleOpenAlbaniaModal}
+              searchHistory={searchHistory}
+              onAddSearchQuery={addSearchQuery}
+              onClearSearchHistory={clearSearchHistory}
+              onRemoveSearchHistoryItem={removeSearchHistoryItem}
             />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-6">
@@ -653,12 +719,38 @@ function MainLayout() {
               )}
             </div>
           </div>
-        ) : (
+        ) : isAdmin ? (
           <AdminPortal
             onListingUpdated={loadListings}
             onNavigateExplore={() => setCurrentView('dashboard')}
             onTabChange={(tab) => setAdminTab(tab as any)}
           />
+        ) : (
+          <div className="max-w-2xl mx-auto my-16 p-8 rounded-3xl border border-rose-500/30 bg-rose-500/5 text-center space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20 flex items-center justify-center mx-auto shadow-sm">
+              <ShieldAlert className="w-8 h-8" />
+            </div>
+            <h2 className={`text-2xl font-bold ${styles.textPrimary}`}>Administrator Authentication Required</h2>
+            <p className={`text-xs ${styles.textSecondary} max-w-md mx-auto leading-relaxed`}>
+              The Admin Portal is strictly restricted to verified Administrators and Technical Super Admins. Direct access without valid credentials or authorization code is blocked.
+            </p>
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowLoginModal(true)}
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold ${styles.buttonPrimary} shadow-md`}
+              >
+                Sign In as Administrator
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentView('dashboard')}
+                className={`px-5 py-2.5 rounded-xl text-xs font-medium ${styles.buttonSecondary}`}
+              >
+                Return to Explorer
+              </button>
+            </div>
+          </div>
         )}
 
         {currentView === 'dashboard' && (

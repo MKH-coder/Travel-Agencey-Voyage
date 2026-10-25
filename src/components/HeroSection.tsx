@@ -25,6 +25,10 @@ interface HeroSectionProps {
   onBrowsePackages?: () => void;
   onPlanTrip?: () => void;
   onOpenAlbaniaModal?: (tier?: 'basic' | 'midrange' | 'luxury') => void;
+  searchHistory?: string[];
+  onAddSearchQuery?: (query: string) => void;
+  onClearSearchHistory?: () => void;
+  onRemoveSearchHistoryItem?: (query: string) => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
@@ -34,6 +38,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onBrowsePackages,
   onPlanTrip,
   onOpenAlbaniaModal,
+  searchHistory = [],
+  onAddSearchQuery,
+  onClearSearchHistory,
+  onRemoveSearchHistoryItem,
 }) => {
   const { theme, styles } = useTheme();
   const { formatPrice } = useCurrency();
@@ -46,7 +54,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       if (prev.search === debouncedSearch) return prev;
       return { ...prev, search: debouncedSearch };
     });
-  }, [debouncedSearch, setFilters]);
+    if (debouncedSearch && debouncedSearch.trim().length >= 2 && onAddSearchQuery) {
+      onAddSearchQuery(debouncedSearch.trim());
+    }
+  }, [debouncedSearch, setFilters, onAddSearchQuery]);
 
   // Keep local search in sync if external reset occurs
   useEffect(() => {
@@ -229,7 +240,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
 
           {/* Quick Search Suggestions Pills */}
-          <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 text-xs no-scrollbar w-full max-w-full">
+          <div className="flex items-center gap-2 mb-2 overflow-x-auto pb-1 text-xs no-scrollbar w-full max-w-full">
             <span className={`text-[11px] font-bold uppercase tracking-wider ${styles.textMuted} shrink-0`}>
               Popular:
             </span>
@@ -250,6 +261,54 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               ))}
             </div>
           </div>
+
+          {/* Recent Search History Pills */}
+          {searchHistory && searchHistory.length > 0 && (
+            <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 text-xs no-scrollbar w-full max-w-full">
+              <span className={`text-[11px] font-bold uppercase tracking-wider ${styles.textMuted} shrink-0 flex items-center gap-1`}>
+                <span>🕒</span>
+                <span>Recent Searches:</span>
+              </span>
+              <div className="flex items-center gap-1.5 shrink-0">
+                {searchHistory.map((item) => (
+                  <div
+                    key={item}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-sky-500/10 text-sky-700 dark:text-sky-300 border border-sky-500/20 shadow-xs group"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setLocalSearch(item)}
+                      className="hover:underline text-left cursor-pointer"
+                    >
+                      {item}
+                    </button>
+                    {onRemoveSearchHistoryItem && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRemoveSearchHistoryItem(item);
+                        }}
+                        className="opacity-60 hover:opacity-100 p-0.5 ml-0.5 text-xs text-slate-500 hover:text-rose-500 transition-colors cursor-pointer"
+                        title="Remove from history"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {onClearSearchHistory && (
+                  <button
+                    type="button"
+                    onClick={onClearSearchHistory}
+                    className="text-[10px] font-bold text-slate-500 hover:text-rose-500 underline ml-2 shrink-0 cursor-pointer"
+                  >
+                    Clear History
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Filter Chips Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200/60 dark:border-slate-800">

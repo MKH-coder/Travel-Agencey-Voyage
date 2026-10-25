@@ -54,9 +54,9 @@
     },
     {
       "amenities": [
-        "Syri i Kalt\u00ebr Nature Reserve Ticket",
-        "Gjirokast\u00ebr Castle Pass",
-        "Sk\u00ebnduli House Guided Visit"
+        "Syri i Kaltër Nature Reserve Ticket",
+        "Gjirokastër Castle Pass",
+        "Skënduli House Guided Visit"
       ],
       "category": "PLACE",
       "coordinates": {
@@ -66,20 +66,20 @@
       "country": "Albania",
       "createdBy": "voyage@gmail.com",
       "createdByName": "Voyage Editorial",
-      "description": "Discover the mesmerizing Syri i Kalt\u00ebr (Blue Eye) karst spring bubbling up from deep underwater caves, then tour the Ottoman stone city of Gjirokast\u00ebr, its formidable castle, Sk\u00ebnduli House, and Qafa e Pazarit bazaar.",
+      "description": "Discover the mesmerizing Syri i Kaltër (Blue Eye) karst spring bubbling up from deep underwater caves, then tour the Ottoman stone city of Gjirokastër, its formidable castle, Skënduli House, and Qafa e Pazarit bazaar.",
       "id": "list-albania-blue-eye-gjirokaster-06",
       "images": [
         "https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=1200&q=80"
       ],
-      "location": "Gjirokast\u00ebr & Blue Eye",
+      "location": "Gjirokastër & Blue Eye",
       "price": 110,
       "rating": 4.96,
       "reviewCount": 76,
       "status": "PUBLISHED",
       "tags": [
         "Blue Eye Spring",
-        "Gjirokast\u00ebr Castle",
-        "Sk\u00ebnduli House",
+        "Gjirokastër Castle",
+        "Skënduli House",
         "Stone City",
         "Old Bazaar"
       ],
@@ -87,7 +87,7 @@
         "createdAt": "2026-09-30T02:49:04.420Z",
         "updatedAt": "2026-09-30T02:49:04.420Z"
       },
-      "title": "Syri i Kalt\u00ebr Natural Spring & Gjirokast\u00ebr Stone City"
+      "title": "Syri i Kaltër Natural Spring & Gjirokastër Stone City"
     },
     {
       "amenities": [
@@ -104,12 +104,12 @@
       "country": "Albania",
       "createdBy": "voyage@gmail.com",
       "createdByName": "Voyage Marine Safaris",
-      "description": "Accessible exclusively by speedboat from Vlor\u00eb, cruise into the colossal Haxhi Ali sea cave, swim in secluded white-pebble coves of Dafina and Grama Bay, and explore Sazan Island.",
+      "description": "Accessible exclusively by speedboat from Vlorë, cruise into the colossal Haxhi Ali sea cave, swim in secluded white-pebble coves of Dafina and Grama Bay, and explore Sazan Island.",
       "id": "list-albania-karaburun-11",
       "images": [
         "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
       ],
-      "location": "Vlor\u00eb & Karaburun Marine Park",
+      "location": "Vlorë & Karaburun Marine Park",
       "price": 175,
       "rating": 4.98,
       "reviewCount": 88,
@@ -169,7 +169,7 @@
       "amenities": [
         "Porto Palermo Castle Ticket",
         "Llogara Pass Viewpoint Stop",
-        "Jal\u00eb Beach Lounge Access"
+        "Jalë Beach Lounge Access"
       ],
       "category": "PLACE",
       "coordinates": {
@@ -179,28 +179,28 @@
       "country": "Albania",
       "createdBy": "voyage@gmail.com",
       "createdByName": "Voyage Editorial",
-      "description": "Take the scenic coastal drive along the Albanian Riviera. Visit the triangular fortress of Ali Pasha in Porto Palermo Bay, relax on white pebbles at Jal\u00eb Beach, explore Dh\u00ebrmi Old Village, and take in mountain views from Llogara Pass.",
+      "description": "Take the scenic coastal drive along the Albanian Riviera. Visit the triangular fortress of Ali Pasha in Porto Palermo Bay, relax on white pebbles at Jalë Beach, explore Dhërmi Old Village, and take in mountain views from Llogara Pass.",
       "id": "list-albania-riviera-dhermi-07",
       "images": [
         "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80"
       ],
-      "location": "Dh\u00ebrmi, Jal\u00eb & Llogara Pass",
+      "location": "Dhërmi, Jalë & Llogara Pass",
       "price": 130,
       "rating": 4.98,
       "reviewCount": 90,
       "status": "PUBLISHED",
       "tags": [
         "Ali Pasha Castle",
-        "Jal\u00eb Beach",
+        "Jalë Beach",
         "Llogara Pass",
-        "Dh\u00ebrmi Old Village",
+        "Dhërmi Old Village",
         "Riviera Scenic Drive"
       ],
       "timestamps": {
         "createdAt": "2026-09-30T02:49:04.420Z",
         "updatedAt": "2026-09-30T02:49:04.420Z"
       },
-      "title": "Porto Palermo Ali Pasha Castle, Jal\u00eb Beach & Llogara Pass Panorama"
+      "title": "Porto Palermo Ali Pasha Castle, Jalë Beach & Llogara Pass Panorama"
     },
     {
       "amenities": [
@@ -221,7 +221,7 @@
       "images": [
         "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80"
       ],
-      "location": "Shkod\u00ebr, Northern Albania",
+      "location": "Shkodër, Northern Albania",
       "price": 110,
       "rating": 4.96,
       "reviewCount": 65,
@@ -316,7 +316,7 @@
     },
     {
       "amenities": [
-        "Selected Flights (TRV \u21c4 TIA)",
+        "Selected Flights (TRV ⇄ TIA)",
         "Private Room Local Hotels",
         "Driver & Transport Allowance",
         "Entry Passes to Castles & Blue Eye",
@@ -330,14 +330,14 @@
       "country": "Albania",
       "createdBy": "voyage@gmail.com",
       "createdByName": "Voyage Operations",
-      "description": "High-value self-guided/shared 9-day complete Albania tour (9\u201319 Oct 2026). Flight included (TRV \u2192 MCT \u2192 MXP \u2192 TIA and TIA \u2192 FCO \u2192 DOH \u2192 TRV, \u20b967,518/person). Comfortable private-room local hotels, practical driver planning allowance, Dajti Ekspres cable car over Tirana, Berat UNESCO castle & Onufri museum, Gjirokast\u00ebr stone city (Sk\u00ebnduli & Zekate houses), the turquoise Blue Eye spring, Ksamil 4-islands boat cruise, Butrint UNESCO archaeological site, Porto Palermo & Ali Pasha Castle, Jal\u00eb Beach, Dh\u00ebrmi Old Village, and Llogara Pass descent to Vlor\u00eb. Land package: \u20b943,500\u2013\u20b959,000/person (4 Pax: \u20b94,44,072\u2013\u20b95,06,072).",
+      "description": "High-value self-guided/shared 9-day complete Albania tour (9–19 Oct 2026). Flight included (TRV → MCT → MXP → TIA and TIA → FCO → DOH → TRV, ₹67,518/person). Comfortable private-room local hotels, practical driver planning allowance, Dajti Ekspres cable car over Tirana, Berat UNESCO castle & Onufri museum, Gjirokastër stone city (Skënduli & Zekate houses), the turquoise Blue Eye spring, Ksamil 4-islands boat cruise, Butrint UNESCO archaeological site, Porto Palermo & Ali Pasha Castle, Jalë Beach, Dhërmi Old Village, and Llogara Pass descent to Vlorë. Land package: ₹43,500–₹59,000/person (4 Pax: ₹4,44,072–₹5,06,072).",
       "duration": "9 Days / 8 Nights (9-19 Oct 2026)",
       "id": "pkg-albania-9day-basic-03",
       "images": [
         "https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80"
       ],
-      "location": "Tirana, Berat, Gjirokast\u00ebr, Ksamil & Riviera",
+      "location": "Tirana, Berat, Gjirokastër, Ksamil & Riviera",
       "price": 1330,
       "rating": 4.95,
       "reviewCount": 48,
@@ -357,7 +357,7 @@
     },
     {
       "amenities": [
-        "Premium Flights (TRV \u21c4 TIA)",
+        "Premium Flights (TRV ⇄ TIA)",
         "5-Star Luxury Suites & Boutique Stays",
         "Private High-Comfort Chauffeur Vehicle",
         "Private Chartered Ksamil Islands Cruise",
@@ -373,7 +373,7 @@
       "country": "Albania",
       "createdBy": "voyage@gmail.com",
       "createdByName": "Voyage Luxury Concierge",
-      "description": "The ultimate VIP itinerary from India (TRV \u21c4 TIA via Gulf Air & Turkish Airlines, \u20b92,56,951/person). Features 5-star seaside suites in Sarand\u00eb, luxury boutique palace in Berat, private chartered speedboats around Ksamil islands, dedicated high-comfort vehicle + driver, VIP historian guides at Butrint UNESCO site, and daily upscale restaurant allowances. Land package: \u20b91,29,000\u2013\u20b91,78,000/person (4 Pax: \u20b915,43,804\u2013\u20b917,39,804).",
+      "description": "The ultimate VIP itinerary from India (TRV ⇄ TIA via Gulf Air & Turkish Airlines, ₹2,56,951/person). Features 5-star seaside suites in Sarandë, luxury boutique palace in Berat, private chartered speedboats around Ksamil islands, dedicated high-comfort vehicle + driver, VIP historian guides at Butrint UNESCO site, and daily upscale restaurant allowances. Land package: ₹1,29,000–₹1,78,000/person (4 Pax: ₹15,43,804–₹17,39,804).",
       "duration": "9 Days / 8 Nights (9-19 Oct 2026)",
       "id": "pkg-albania-9day-luxury-02",
       "images": [
@@ -381,7 +381,7 @@
         "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80"
       ],
-      "location": "Tirana, Berat, Sarand\u00eb, Ksamil & Riviera",
+      "location": "Tirana, Berat, Sarandë, Ksamil & Riviera",
       "price": 4630,
       "rating": 5,
       "reviewCount": 36,
@@ -401,8 +401,8 @@
     },
     {
       "amenities": [
-        "Selected Flights (TRV \u21c4 TIA)",
-        "4-Star Boutique Stays in Tirana & Sarand\u00eb",
+        "Selected Flights (TRV ⇄ TIA)",
+        "4-Star Boutique Stays in Tirana & Sarandë",
         "Dedicated Private AC Driver & Vehicle",
         "Dajti Cable Car Pass & BunkArt 2 Ticket",
         "Ksamil 4 Islands Boat Tour",
@@ -417,14 +417,14 @@
       "country": "Albania",
       "createdBy": "voyage@gmail.com",
       "createdByName": "Voyage Editorial",
-      "description": "The definitive 9-day grand loop through Albania (9\u201319 Oct 2026). Flight included (TRV \u2192 MCT \u2192 MXP \u2192 TIA and TIA \u2192 FCO \u2192 DOH \u2192 TRV, \u20b974,890/person). Comfortable boutique hotels, dedicated private vehicle + driver planning allowance, Dajti Ekspres cable car over Tirana, Berat UNESCO castle & Onufri museum, Gjirokast\u00ebr stone city (Sk\u00ebnduli & Zekate houses), turquoise Blue Eye spring, Ksamil 4-islands boat cruise, Butrint UNESCO site, Porto Palermo & Ali Pasha Castle, Jal\u00eb Beach, Dh\u00ebrmi Old Village, and Llogara Pass descent to Vlor\u00eb. Land package: \u20b968,500\u2013\u20b992,500/person (4 Pax: \u20b95,73,560\u2013\u20b96,69,560).",
+      "description": "The definitive 9-day grand loop through Albania (9–19 Oct 2026). Flight included (TRV → MCT → MXP → TIA and TIA → FCO → DOH → TRV, ₹74,890/person). Comfortable boutique hotels, dedicated private vehicle + driver planning allowance, Dajti Ekspres cable car over Tirana, Berat UNESCO castle & Onufri museum, Gjirokastër stone city (Skënduli & Zekate houses), turquoise Blue Eye spring, Ksamil 4-islands boat cruise, Butrint UNESCO site, Porto Palermo & Ali Pasha Castle, Jalë Beach, Dhërmi Old Village, and Llogara Pass descent to Vlorë. Land package: ₹68,500–₹92,500/person (4 Pax: ₹5,73,560–₹6,69,560).",
       "duration": "9 Days / 8 Nights (9-19 Oct 2026)",
       "id": "pkg-albania-9day-midrange-01",
       "images": [
         "https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80"
       ],
-      "location": "Tirana, Berat, Gjirokast\u00ebr, Ksamil & Riviera",
+      "location": "Tirana, Berat, Gjirokastër, Ksamil & Riviera",
       "price": 1720,
       "rating": 4.99,
       "reviewCount": 74,
@@ -441,9 +441,265 @@
         "updatedAt": "2026-09-30T02:49:04.419Z"
       },
       "title": "Albania 9-Day Grand Tour: Tirana to the Ionian Riviera (Medium / Mid-Range Tier)"
+    },
+    {
+      "id": "pkg-egypt-cairo-01",
+      "title": "Cairo Pyramids, Sphinx & Luxor Nile Luxury Cruise",
+      "rating": 4.92,
+      "category": "PACKAGE",
+      "reviewCount": 78,
+      "createdByName": "Voyage Horizons",
+      "createdBy": "voyage@gmail.com",
+      "tags": [
+        "Egypt",
+        "Pyramids",
+        "Nile Cruise",
+        "Luxor"
+      ],
+      "country": "Egypt",
+      "location": "Cairo, Giza & Luxor",
+      "timestamps": {
+        "updatedAt": "2026-09-30T02:49:04.420Z",
+        "createdAt": "2026-09-30T02:49:04.420Z"
+      },
+      "price": 1650,
+      "images": [
+        "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "PUBLISHED",
+      "duration": "7 Days / 6 Nights",
+      "amenities": [
+        "Private Egyptologist Guide",
+        "Nile Dahabiya Cruise",
+        "Pyramid Entry"
+      ],
+      "coordinates": {
+        "lat": 30.0444,
+        "lng": 31.2357
+      },
+      "description": "Marvel at the Giza Pyramids and Sphinx, explore the Grand Egyptian Museum, and sail down the Nile on a 5-star luxury Dahabiya cruise."
+    },
+    {
+      "country": "France",
+      "location": "Paris & Versailles",
+      "amenities": [
+        "VIP Louvre Access",
+        "Seine Champagne Cruise",
+        "Boutique Hotel"
+      ],
+      "category": "PACKAGE",
+      "status": "PUBLISHED",
+      "coordinates": {
+        "lat": 48.8566,
+        "lng": 2.3522
+      },
+      "description": "Experience the City of Light with VIP access to the Louvre, private Champagne sunset cruise on the Seine, and palace tour of Versailles.",
+      "createdByName": "Voyage Europe",
+      "images": [
+        "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "title": "Parisian Haute Romance & Seine Sunset Cruise",
+      "timestamps": {
+        "updatedAt": "2026-09-30T02:49:04.420Z",
+        "createdAt": "2026-09-30T02:49:04.420Z"
+      },
+      "reviewCount": 130,
+      "duration": "6 Days / 5 Nights",
+      "tags": [
+        "France",
+        "Paris",
+        "Louvre",
+        "Romance"
+      ],
+      "id": "pkg-france-paris-01",
+      "price": 1950,
+      "rating": 4.95,
+      "createdBy": "voyage@gmail.com"
+    },
+    {
+      "images": [
+        "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "category": "PACKAGE",
+      "timestamps": {
+        "updatedAt": "2026-09-30T02:49:04.420Z",
+        "createdAt": "2026-09-30T02:49:04.420Z"
+      },
+      "price": 1850,
+      "status": "PUBLISHED",
+      "location": "Oia, Fira & Akrotiri",
+      "coordinates": {
+        "lat": 36.4618,
+        "lng": 25.3753
+      },
+      "description": "Whitewashed cliffside villas in Oia, catamaran sailing across the Caldera, volcanic hot springs, and ancient Akrotiri ruins.",
+      "id": "pkg-greece-santorini-01",
+      "amenities": [
+        "Catamaran Cruise",
+        "Caldera Suite",
+        "Wine Tour"
+      ],
+      "rating": 4.97,
+      "createdBy": "voyage@gmail.com",
+      "title": "Santorini Caldera Sunset & Aegean Sailing Voyage",
+      "reviewCount": 105,
+      "country": "Greece",
+      "tags": [
+        "Greece",
+        "Santorini",
+        "Caldera",
+        "Aegean"
+      ],
+      "createdByName": "Voyage Islands",
+      "duration": "5 Days / 4 Nights"
+    },
+    {
+      "rating": 4.96,
+      "coordinates": {
+        "lng": 14.485,
+        "lat": 40.6281
+      },
+      "description": "Breathtaking cliffside views, limoncello tastings in Sorrento, private yacht tour to Capri, and historic villa gardens in Ravello.",
+      "id": "pkg-italy-amalfi-01",
+      "title": "Amalfi Coastline Clifftop & Gastronomy Escape",
+      "duration": "7 Days / 6 Nights",
+      "createdBy": "voyage@gmail.com",
+      "timestamps": {
+        "updatedAt": "2026-09-30T02:49:04.420Z",
+        "createdAt": "2026-09-30T02:49:04.420Z"
+      },
+      "createdByName": "Voyage Mediterranean",
+      "images": [
+        "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "amenities": [
+        "Capri Yacht Cruise",
+        "Clifftop Hotel",
+        "Wine Tasting"
+      ],
+      "price": 2100,
+      "status": "PUBLISHED",
+      "category": "PACKAGE",
+      "reviewCount": 98,
+      "tags": [
+        "Italy",
+        "Amalfi Coast",
+        "Capri",
+        "Luxury Villa"
+      ],
+      "location": "Positano, Ravello & Amalfi",
+      "country": "Italy"
+    },
+    {
+      "reviewCount": 112,
+      "price": 2450,
+      "createdByName": "Voyage Asia Pacific",
+      "timestamps": {
+        "updatedAt": "2026-09-30T02:49:04.420Z",
+        "createdAt": "2026-09-30T02:49:04.420Z"
+      },
+      "id": "pkg-japan-kyoto-01",
+      "images": [
+        "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "createdBy": "voyage@gmail.com",
+      "duration": "8 Days / 7 Nights",
+      "status": "PUBLISHED",
+      "amenities": [
+        "Private Guide",
+        "Tea Ceremony",
+        "Ryokan Stay"
+      ],
+      "category": "PACKAGE",
+      "country": "Japan",
+      "title": "Kyoto Zen, Bamboo Groves & Michelin Kaiseki Odyssey",
+      "coordinates": {
+        "lng": 135.7681,
+        "lat": 35.0116
+      },
+      "description": "Immerse in Japanese heritage. Private tea ceremonies in Gion, Arashiyama bamboo forest strolls, Kinkaku-ji Golden Pavilion, and multi-course traditional kaiseki dining.",
+      "rating": 4.98,
+      "location": "Kyoto & Arashiyama",
+      "tags": [
+        "Japan",
+        "Kyoto",
+        "Kaiseki",
+        "Zen Temples"
+      ]
+    },
+    {
+      "duration": "6 Days / 5 Nights",
+      "tags": [
+        "Switzerland",
+        "Matterhorn",
+        "Glacier Express",
+        "Alps"
+      ],
+      "price": 2800,
+      "reviewCount": 84,
+      "rating": 4.99,
+      "id": "pkg-switzerland-alps-01",
+      "amenities": [
+        "First Class Train Pass",
+        "Matterhorn Cable Car",
+        "Alpine Chalet"
+      ],
+      "createdByName": "Voyage Alpine",
+      "createdBy": "voyage@gmail.com",
+      "title": "Swiss Alpine Glacial Panorama & Glacier Express",
+      "images": [
+        "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "PUBLISHED",
+      "location": "Zermatt, Lucerne & Interlaken",
+      "timestamps": {
+        "updatedAt": "2026-09-30T02:49:04.420Z",
+        "createdAt": "2026-09-30T02:49:04.420Z"
+      },
+      "category": "PACKAGE",
+      "country": "Switzerland",
+      "coordinates": {
+        "lat": 46.0207,
+        "lng": 7.7491
+      },
+      "description": "Ride the legendary Glacier Express through the Swiss Alps, view the majestic Matterhorn, and cruise Lake Lucerne."
     }
   ],
   "audit_logs": [
+    {
+      "action": "EMERGENCY_BYPASS_ACTIVATED",
+      "performedBy": "voyage@gmail.com",
+      "targetId": "user_voyage_official",
+      "targetType": "SECURITY_RECOVERY",
+      "ipAddress": "127.0.0.1",
+      "details": {
+        "targetEmail": "voyage@gmail.com",
+        "bypassCodeUsed": "2008-6058"
+      },
+      "id": "log-1792951507547-mwfm",
+      "timestamp": "2026-10-25T18:05:07.547Z"
+    },
+    {
+      "action": "EMERGENCY_BYPASS_FAILED",
+      "performedBy": "voyage@gmail.com",
+      "targetId": "TECH_ADMIN_CORE",
+      "targetType": "SECURITY_ALERT",
+      "ipAddress": "127.0.0.1",
+      "details": {
+        "attemptedCode": "wron***"
+      },
+      "id": "log-1792951504837-267t",
+      "timestamp": "2026-10-25T18:05:04.837Z"
+    },
+    {
+      "action": "EMERGENCY_BYPASS_UNAUTHORIZED_EMAIL",
+      "performedBy": "hacker@test.com",
+      "targetId": "TECH_ADMIN_CORE",
+      "targetType": "SECURITY_ALERT",
+      "ipAddress": "127.0.0.1",
+      "id": "log-1792951501894-sze5",
+      "timestamp": "2026-10-25T18:05:01.894Z"
+    },
     {
       "id": "log-seed-01",
       "action": "TECH_ADMIN_LOGIN_SUCCESS",

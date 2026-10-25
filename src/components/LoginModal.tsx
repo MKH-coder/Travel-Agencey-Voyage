@@ -107,15 +107,20 @@ export const LoginModal: React.FC = () => {
     setInfoMsg('');
     setOauthNotice(null);
     const inputEmail = email.trim();
-    const res = await loginWithGoogle(inputEmail || undefined, undefined, forceRedirect);
+    if (!inputEmail) {
+      setErrorField('email');
+      setErrorMsg('Please enter your email address to continue with Google.');
+      return;
+    }
+    const res = await loginWithGoogle(inputEmail, undefined, forceRedirect);
     if (res.error) {
       setErrorMsg(res.error);
-      if (res.isDomainUnauthorized || res.isPopupBlocked || !inputEmail) {
+      if (res.isDomainUnauthorized || res.isPopupBlocked) {
         setOauthNotice({
           isDomainUnauthorized: Boolean(res.isDomainUnauthorized),
           isPopupBlocked: Boolean(res.isPopupBlocked),
           hostname: typeof window !== 'undefined' ? window.location.hostname : '',
-          suggestedEmail: inputEmail || 'mukundkrishna.h2008@gmail.com'
+          suggestedEmail: inputEmail
         });
       }
     } else {
@@ -267,22 +272,30 @@ export const LoginModal: React.FC = () => {
   // 6. Handle Emergency Bypass Code
   const handleBypassSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!bypassCodeInput) {
-      setErrorMsg('Please enter the emergency bypass authorization code.');
+    const cleanEmail = recoveryEmailInput.trim();
+    const cleanCode = bypassCodeInput.trim();
+
+    if (!cleanEmail) {
+      setErrorMsg('Please type your authorized administrator email address.');
+      return;
+    }
+    if (!cleanCode) {
+      setErrorMsg('Please type your master emergency bypass authorization code.');
       return;
     }
     setErrorMsg('');
-    const res = await verifyEmergencyBypass(bypassCodeInput, recoveryEmailInput);
+    const res = await verifyEmergencyBypass(cleanCode, cleanEmail);
     if (!res.success) {
-      setErrorMsg(res.error || 'Emergency bypass failed.');
+      setErrorMsg(res.error || 'Emergency bypass verification failed.');
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div
-        className={`relative w-full max-w-md rounded-3xl border ${styles.border} ${styles.cardBg} shadow-2xl p-6 sm:p-7 overflow-hidden`}
-      >
+    <div className="fixed inset-0 z-[100] overflow-y-auto bg-black/80 backdrop-blur-md transition-all duration-200">
+      <div className="flex min-h-full items-center justify-center p-4 sm:p-6 text-center">
+        <div
+          className={`relative w-full max-w-md mx-auto my-auto rounded-3xl border ${styles.border} ${styles.cardBg} shadow-2xl p-6 sm:p-8 text-left overflow-hidden transform transition-all animate-in zoom-in-95 duration-150`}
+        >
         
         {/* Modal Close Button */}
         <button
@@ -379,9 +392,10 @@ export const LoginModal: React.FC = () => {
                 <input
                   id="bypass-code-input"
                   type="password"
+                  required
                   value={bypassCodeInput}
                   onChange={(e) => setBypassCodeInput(e.target.value)}
-                  placeholder="Enter technical bypass code"
+                  placeholder="Type master bypass authorization code"
                   className={`w-full px-3.5 py-2.5 text-xs font-mono rounded-xl outline-none ${styles.inputBg}`}
                 />
               </div>
@@ -393,9 +407,10 @@ export const LoginModal: React.FC = () => {
                 <input
                   id="recovery-email-input"
                   type="email"
+                  required
                   value={recoveryEmailInput}
                   onChange={(e) => setRecoveryEmailInput(e.target.value)}
-                  placeholder="mukundkrishna.h2008@gmail.com"
+                  placeholder="Type authorized admin email"
                   className={`w-full px-3.5 py-2.5 text-xs rounded-xl outline-none ${styles.inputBg}`}
                 />
               </div>
@@ -864,40 +879,6 @@ export const LoginModal: React.FC = () => {
                     <ExternalLink className="w-3.5 h-3.5" />
                     <span>Try with Full-Screen Redirect</span>
                   </button>
-
-                  <button
-                    type="button"
-                    id="quick-google-continue-btn"
-                    disabled={isLoading}
-                    onClick={async () => {
-                      const targetEmail = oauthNotice.suggestedEmail;
-                      setEmail(targetEmail);
-                      setErrorMsg('');
-                      setOauthNotice(null);
-                      await loginWithGoogle(targetEmail);
-                    }}
-                    className="w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.99]"
-                  >
-                    <Mail className="w-3.5 h-3.5" />
-                    <span>Continue with {oauthNotice.suggestedEmail}</span>
-                  </button>
-
-                  {oauthNotice.suggestedEmail.includes('mukund') && (
-                    <button
-                      type="button"
-                      id="quick-bypass-redirect-btn"
-                      onClick={() => {
-                        setRecoveryEmailInput(oauthNotice.suggestedEmail);
-                        setBypassCodeInput('');
-                        setShowLoginModal(false);
-                        setShowBypassModal(true);
-                      }}
-                      className="w-full py-1.5 px-3 rounded-xl border border-amber-500/40 text-amber-700 dark:text-amber-300 font-semibold text-[11px] flex items-center justify-center gap-1.5 hover:bg-amber-500/15 transition-all"
-                    >
-                      <Shield className="w-3.5 h-3.5 text-amber-500" />
-                      <span>Use Technical Super Admin Bypass Key</span>
-                    </button>
-                  )}
                 </div>
               </div>
             )}
@@ -918,21 +899,22 @@ export const LoginModal: React.FC = () => {
                 id="trigger-emergency-bypass-btn"
                 type="button"
                 onClick={() => {
-                  setRecoveryEmailInput(email || 'mukundkrishna.h2008@gmail.com');
+                  setRecoveryEmailInput('');
                   setBypassCodeInput('');
+                  setErrorMsg('');
                   setShowLoginModal(false);
                   setShowBypassModal(true);
                 }}
-                className="w-full flex items-center justify-between p-2 rounded-xl text-left border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 transition-all text-xs"
+                className="w-full flex items-center justify-between p-2.5 rounded-xl text-left border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs"
               >
                 <div>
-                  <div className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                    <Shield className="w-3.5 h-3.5" />
-                    <span>Technical Super Admin (Emergency Bypass Key)</span>
+                  <div className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <Shield className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Administrator Emergency Bypass</span>
                   </div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400">mukundkrishna.h2008@gmail.com</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">Requires typing authorized administrator email & master bypass code</div>
                 </div>
-                <KeyRound className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <KeyRound className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               </button>
 
               <button
@@ -954,6 +936,7 @@ export const LoginModal: React.FC = () => {
           </div>
         )}
 
+      </div>
       </div>
 
       {/* Client-Side Auth Audit Diagnostics Modal */}
