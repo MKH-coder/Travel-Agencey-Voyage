@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import * as THREE from 'three';
 import { useTheme } from '../context/ThemeContext.tsx';
-import { Sparkles, Compass, Plane } from 'lucide-react';
+import { Sparkles, Compass } from 'lucide-react';
 
 interface CityHub {
   name: string;
@@ -54,6 +54,17 @@ function generateContinentPoints(radius: number): THREE.Vector3[] {
   return points;
 }
 
+// Generate scattered weather cloud cluster points
+function generateCloudClusterPoints(radius: number): THREE.Vector3[] {
+  const points: THREE.Vector3[] = [];
+  for (let i = 0; i < 450; i++) {
+    const lat = -65 + Math.random() * 130;
+    const lng = -180 + Math.random() * 360;
+    points.push(latLngToVector3(lat, lng, radius + Math.random() * 0.4));
+  }
+  return points;
+}
+
 function latLngToVector3(lat: number, lng: number, radius: number): THREE.Vector3 {
   const phi = (90 - lat) * (Math.PI / 180);
   const theta = (lng + 180) * (Math.PI / 180);
@@ -71,7 +82,6 @@ function createFlightCurve(p1: THREE.Vector3, p2: THREE.Vector3, altitudeFactor 
   return new THREE.QuadraticBezierCurve3(p1, mid, p2);
 }
 
-// 3D Airplane Mesh Generator
 function create3DPlane(colorHex: number): THREE.Group {
   const plane = new THREE.Group();
 
@@ -218,6 +228,19 @@ export const TravelBackground3D: React.FC = () => {
     });
     const continentPointCloud = new THREE.Points(continentGeo, continentMat);
     globeGroup.add(continentPointCloud);
+
+    // Independent Rotating Cloud Layer (Adds depth and dynamic movement)
+    const cloudPoints = generateCloudClusterPoints(GLOBE_RADIUS * 1.025);
+    const cloudGeo = new THREE.BufferGeometry().setFromPoints(cloudPoints);
+    const cloudMat = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.4,
+      transparent: true,
+      opacity: 0.45,
+      blending: THREE.AdditiveBlending,
+    });
+    const cloudLayer = new THREE.Points(cloudGeo, cloudMat);
+    globeGroup.add(cloudLayer);
 
     // Hub Pins
     const hubMarkersGroup = new THREE.Group();
@@ -379,6 +402,9 @@ export const TravelBackground3D: React.FC = () => {
       globeGroup.rotation.y = THREE.MathUtils.damp(globeGroup.rotation.y, targetRotationY + mouseX, 4, delta);
       globeGroup.rotation.x = THREE.MathUtils.damp(globeGroup.rotation.x, targetRotationX + mouseY + (scrollY * 0.0003), 4, delta);
 
+      // Rotate cloud layer independently over the globe for dynamic depth and movement
+      cloudLayer.rotation.y += 0.0008 * activeSpeed;
+
       orbitalRing1.rotation.z += 0.0008 * activeSpeed;
       starField.rotation.y += 0.0002 * activeSpeed;
 
@@ -411,6 +437,8 @@ export const TravelBackground3D: React.FC = () => {
       gridMaterial.dispose();
       continentGeo.dispose();
       continentMat.dispose();
+      cloudGeo.dispose();
+      cloudMat.dispose();
       starGeo.dispose();
       starMat.dispose();
 
